@@ -57,7 +57,7 @@ function Browse() {
           className="mt-6 flex gap-2"
           onSubmit={(e) => {
             e.preventDefault();
-            navigate({ search: (prev) => ({ ...prev, q: q || undefined }) });
+            navigate({ search: { ...sp, q: q || undefined } });
           }}
         >
           <div className="relative flex-1">
