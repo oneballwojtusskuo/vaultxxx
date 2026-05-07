@@ -103,7 +103,11 @@ function AuthPage() {
                 </div>
                 <div className="space-y-2">
                   <Label>Hasło</Label>
-                  <Input type="password" required minLength={6} value={password} onChange={(e) => setPassword(e.target.value)} />
+                  <Input type="password" required minLength={8} value={password} onChange={(e) => setPassword(e.target.value)} />
+                  <p className="text-xs text-muted-foreground">Min. 8 znaków. Sprawdzamy bazę wyciekłych haseł.</p>
+                </div>
+                <div className="rounded-lg border border-primary/20 bg-primary/5 p-3 text-xs text-muted-foreground">
+                  📧 Po rejestracji otrzymasz email z linkiem aktywacyjnym. Musisz potwierdzić adres przed pierwszym logowaniem.
                 </div>
                 <Button disabled={loading} type="submit" className="w-full bg-gradient-primary text-primary-foreground shadow-glow">
                   Utwórz konto
