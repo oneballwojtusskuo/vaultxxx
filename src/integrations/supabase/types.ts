@@ -158,6 +158,7 @@ export type Database = {
           created_at: string
           display_name: string | null
           id: string
+          is_verified_seller: boolean
           updated_at: string
           username: string | null
         }
@@ -167,6 +168,7 @@ export type Database = {
           created_at?: string
           display_name?: string | null
           id: string
+          is_verified_seller?: boolean
           updated_at?: string
           username?: string | null
         }
@@ -176,8 +178,45 @@ export type Database = {
           created_at?: string
           display_name?: string | null
           id?: string
+          is_verified_seller?: boolean
           updated_at?: string
           username?: string | null
+        }
+        Relationships: []
+      }
+      reports: {
+        Row: {
+          created_at: string
+          description: string | null
+          id: string
+          reason: string
+          reporter_id: string
+          status: Database["public"]["Enums"]["report_status"]
+          target_id: string
+          target_type: Database["public"]["Enums"]["report_target"]
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          reason: string
+          reporter_id: string
+          status?: Database["public"]["Enums"]["report_status"]
+          target_id: string
+          target_type: Database["public"]["Enums"]["report_target"]
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          reason?: string
+          reporter_id?: string
+          status?: Database["public"]["Enums"]["report_status"]
+          target_id?: string
+          target_type?: Database["public"]["Enums"]["report_target"]
+          updated_at?: string
         }
         Relationships: []
       }
@@ -260,6 +299,8 @@ export type Database = {
       app_role: "admin" | "user"
       exchange_status: "pending" | "accepted" | "rejected" | "cancelled"
       product_status: "draft" | "published" | "sold" | "archived"
+      report_status: "pending" | "reviewing" | "resolved" | "dismissed"
+      report_target: "product" | "user"
       transaction_status: "pending" | "completed" | "failed" | "refunded"
     }
     CompositeTypes: {
@@ -391,6 +432,8 @@ export const Constants = {
       app_role: ["admin", "user"],
       exchange_status: ["pending", "accepted", "rejected", "cancelled"],
       product_status: ["draft", "published", "sold", "archived"],
+      report_status: ["pending", "reviewing", "resolved", "dismissed"],
+      report_target: ["product", "user"],
       transaction_status: ["pending", "completed", "failed", "refunded"],
     },
   },

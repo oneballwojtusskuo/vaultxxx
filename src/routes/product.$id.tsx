@@ -13,6 +13,9 @@ import {
 } from "@/components/ui/dialog";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { TooltipProvider } from "@/components/ui/tooltip";
+import { ReportDialog } from "@/components/report-dialog";
+import { VerifiedBadge } from "@/components/verified-badge";
 
 export const Route = createFileRoute("/product/$id")({
   component: ProductPage,
@@ -28,7 +31,7 @@ function ProductPage() {
     queryFn: async () => {
       const { data } = await supabase
         .from("products")
-        .select("*, category:categories(name), seller:profiles!products_seller_id_fkey(id,display_name,username,avatar_url)")
+        .select("*, category:categories(name), seller:profiles!products_seller_id_fkey(id,display_name,username,avatar_url,is_verified_seller)")
         .eq("id", id)
         .maybeSingle();
       return data;
@@ -93,7 +96,10 @@ function ProductPage() {
     setOfferedId(""); setMessage("");
   };
 
+  const seller = p.seller as any;
+
   return (
+    <TooltipProvider>
     <div className="min-h-screen flex flex-col">
       <SiteHeader />
       <main className="container mx-auto px-4 py-8 flex-1">
@@ -113,9 +119,13 @@ function ProductPage() {
           <div>
             {p.category && <span className="text-xs uppercase tracking-wider text-accent">{(p.category as any).name}</span>}
             <h1 className="font-display text-4xl font-bold mt-2">{p.title}</h1>
-            <p className="text-muted-foreground mt-1">
-              od {(p.seller as any)?.display_name ?? "Twórca"}
-            </p>
+            <div className="text-muted-foreground mt-1 flex items-center gap-2 flex-wrap">
+              <span>od {seller?.display_name ?? "Twórca"}</span>
+              {seller?.is_verified_seller && <VerifiedBadge />}
+              {!isOwner && user && (
+                <ReportDialog targetType="product" targetId={p.id} />
+              )}
+            </div>
 
             <div className="mt-6 flex items-baseline gap-3">
               <span className="text-5xl font-bold text-gradient">
@@ -177,5 +187,6 @@ function ProductPage() {
       </main>
       <SiteFooter />
     </div>
+    </TooltipProvider>
   );
 }
