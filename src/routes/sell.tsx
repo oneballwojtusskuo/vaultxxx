@@ -48,12 +48,19 @@ function Sell() {
     try {
       let preview_url: string | null = null;
       let file_path: string | null = null;
+      let sample_url: string | null = null;
 
       if (previewFile) {
         const path = `${user.id}/${Date.now()}-${previewFile.name}`;
         const { error } = await supabase.storage.from("product-previews").upload(path, previewFile);
         if (error) throw error;
         preview_url = supabase.storage.from("product-previews").getPublicUrl(path).data.publicUrl;
+      }
+      if (sampleFile) {
+        const path = `${user.id}/sample-${Date.now()}-${sampleFile.name}`;
+        const { error } = await supabase.storage.from("product-previews").upload(path, sampleFile);
+        if (error) throw error;
+        sample_url = supabase.storage.from("product-previews").getPublicUrl(path).data.publicUrl;
       }
       if (productFile) {
         const path = `${user.id}/${Date.now()}-${productFile.name}`;
@@ -71,9 +78,10 @@ function Sell() {
         tags: tags.split(",").map((t) => t.trim()).filter(Boolean),
         is_tradable: tradable,
         preview_url,
+        sample_url,
         file_path,
         status: "published",
-      }).select().single();
+      } as any).select().single();
 
       if (error) throw error;
       toast.success("Produkt opublikowany!");
