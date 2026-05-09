@@ -30,6 +30,7 @@ function Sell() {
   const [tradable, setTradable] = useState(true);
   const [previewFile, setPreviewFile] = useState<File | null>(null);
   const [productFile, setProductFile] = useState<File | null>(null);
+  const [sampleFile, setSampleFile] = useState<File | null>(null);
 
   useEffect(() => {
     if (!loading && !user) navigate({ to: "/auth" });
