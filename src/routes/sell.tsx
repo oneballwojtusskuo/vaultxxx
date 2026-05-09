@@ -140,6 +140,18 @@ function Sell() {
               <Input type="file" onChange={(e) => setProductFile(e.target.files?.[0] ?? null)} />
             </div>
           </div>
+          <div className="space-y-3 rounded-lg border border-accent/30 bg-accent/5 p-4">
+            <div className="flex items-start gap-3">
+              <ShieldCheck className="h-5 w-5 text-accent mt-0.5 shrink-0" />
+              <div>
+                <Label className="text-base">Próbka z zabezpieczeniem (opcjonalnie)</Label>
+                <p className="text-xs text-muted-foreground mt-1">
+                  Wgraj wersję demo z znakiem wodnym lub krótki fragment (np. beat z voice tagiem, PDF z watermarkiem, niska jakość). Kupujący zobaczy/odsłucha tę próbkę przed zakupem — pełny plik dostanie dopiero po opłaceniu.
+                </p>
+              </div>
+            </div>
+            <Input type="file" accept="audio/*,video/*,image/*,application/pdf" onChange={(e) => setSampleFile(e.target.files?.[0] ?? null)} />
+          </div>
           <div className="flex items-center gap-3 rounded-lg border border-border/40 p-3">
             <Switch checked={tradable} onCheckedChange={setTradable} id="tradable" />
             <Label htmlFor="tradable" className="cursor-pointer">Pozwól na wymianę 1:1</Label>
