@@ -108,11 +108,22 @@ function ProductPage() {
         </Link>
 
         <div className="grid lg:grid-cols-2 gap-10">
-          <div className="rounded-2xl overflow-hidden bg-gradient-surface border border-border/40 aspect-[4/3]">
-            {p.preview_url ? (
-              <img src={p.preview_url} alt={p.title} className="w-full h-full object-cover" />
-            ) : (
-              <div className="w-full h-full bg-gradient-primary opacity-30" />
+          <div className="space-y-4">
+            <div className="rounded-2xl overflow-hidden bg-gradient-surface border border-border/40 aspect-[4/3]">
+              {p.preview_url ? (
+                <img src={p.preview_url} alt={p.title} className="w-full h-full object-cover" />
+              ) : (
+                <div className="w-full h-full bg-gradient-primary opacity-30" />
+              )}
+            </div>
+            {(p as any).sample_url && (
+              <div className="rounded-2xl border border-accent/30 bg-accent/5 p-4">
+                <div className="flex items-center justify-between mb-3">
+                  <span className="text-xs uppercase tracking-wider text-accent font-medium">Próbka z zabezpieczeniem</span>
+                  <span className="text-xs text-muted-foreground">Pełna wersja po zakupie</span>
+                </div>
+                <SamplePreview url={(p as any).sample_url} title={p.title} />
+              </div>
             )}
           </div>
 
