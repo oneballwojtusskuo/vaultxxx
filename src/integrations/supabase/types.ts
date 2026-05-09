@@ -101,6 +101,7 @@ export type Database = {
           is_tradable: boolean
           preview_url: string | null
           price: number
+          sample_url: string | null
           seller_id: string
           status: Database["public"]["Enums"]["product_status"]
           tags: string[] | null
@@ -118,6 +119,7 @@ export type Database = {
           is_tradable?: boolean
           preview_url?: string | null
           price?: number
+          sample_url?: string | null
           seller_id: string
           status?: Database["public"]["Enums"]["product_status"]
           tags?: string[] | null
@@ -135,6 +137,7 @@ export type Database = {
           is_tradable?: boolean
           preview_url?: string | null
           price?: number
+          sample_url?: string | null
           seller_id?: string
           status?: Database["public"]["Enums"]["product_status"]
           tags?: string[] | null

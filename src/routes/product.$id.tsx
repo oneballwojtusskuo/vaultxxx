@@ -108,11 +108,22 @@ function ProductPage() {
         </Link>
 
         <div className="grid lg:grid-cols-2 gap-10">
-          <div className="rounded-2xl overflow-hidden bg-gradient-surface border border-border/40 aspect-[4/3]">
-            {p.preview_url ? (
-              <img src={p.preview_url} alt={p.title} className="w-full h-full object-cover" />
-            ) : (
-              <div className="w-full h-full bg-gradient-primary opacity-30" />
+          <div className="space-y-4">
+            <div className="rounded-2xl overflow-hidden bg-gradient-surface border border-border/40 aspect-[4/3]">
+              {p.preview_url ? (
+                <img src={p.preview_url} alt={p.title} className="w-full h-full object-cover" />
+              ) : (
+                <div className="w-full h-full bg-gradient-primary opacity-30" />
+              )}
+            </div>
+            {(p as any).sample_url && (
+              <div className="rounded-2xl border border-accent/30 bg-accent/5 p-4">
+                <div className="flex items-center justify-between mb-3">
+                  <span className="text-xs uppercase tracking-wider text-accent font-medium">Próbka z zabezpieczeniem</span>
+                  <span className="text-xs text-muted-foreground">Pełna wersja po zakupie</span>
+                </div>
+                <SamplePreview url={(p as any).sample_url} title={p.title} />
+              </div>
             )}
           </div>
 
@@ -188,5 +199,23 @@ function ProductPage() {
       <SiteFooter />
     </div>
     </TooltipProvider>
+  );
+}
+
+function SamplePreview({ url, title }: { url: string; title: string }) {
+  const lower = url.toLowerCase().split("?")[0];
+  const isAudio = /\.(mp3|wav|ogg|m4a|aac|flac)$/.test(lower);
+  const isVideo = /\.(mp4|webm|mov|m4v)$/.test(lower);
+  const isImage = /\.(png|jpe?g|webp|gif|avif)$/.test(lower);
+  const isPdf = /\.pdf$/.test(lower);
+
+  if (isAudio) return <audio controls controlsList="nodownload" src={url} className="w-full" />;
+  if (isVideo) return <video controls controlsList="nodownload" src={url} className="w-full rounded-lg max-h-80" />;
+  if (isImage) return <img src={url} alt={`Próbka — ${title}`} className="w-full rounded-lg max-h-80 object-contain" />;
+  if (isPdf) return <iframe src={url} title={`Próbka — ${title}`} className="w-full h-80 rounded-lg bg-background" />;
+  return (
+    <a href={url} target="_blank" rel="noreferrer" className="text-sm text-accent underline">
+      Otwórz próbkę w nowej karcie
+    </a>
   );
 }

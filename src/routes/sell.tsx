@@ -12,7 +12,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { useAuth } from "@/hooks/use-auth";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { Upload } from "lucide-react";
+import { Upload, ShieldCheck } from "lucide-react";
 
 export const Route = createFileRoute("/sell")({
   component: Sell,
@@ -30,6 +30,7 @@ function Sell() {
   const [tradable, setTradable] = useState(true);
   const [previewFile, setPreviewFile] = useState<File | null>(null);
   const [productFile, setProductFile] = useState<File | null>(null);
+  const [sampleFile, setSampleFile] = useState<File | null>(null);
 
   useEffect(() => {
     if (!loading && !user) navigate({ to: "/auth" });
@@ -47,12 +48,19 @@ function Sell() {
     try {
       let preview_url: string | null = null;
       let file_path: string | null = null;
+      let sample_url: string | null = null;
 
       if (previewFile) {
         const path = `${user.id}/${Date.now()}-${previewFile.name}`;
         const { error } = await supabase.storage.from("product-previews").upload(path, previewFile);
         if (error) throw error;
         preview_url = supabase.storage.from("product-previews").getPublicUrl(path).data.publicUrl;
+      }
+      if (sampleFile) {
+        const path = `${user.id}/sample-${Date.now()}-${sampleFile.name}`;
+        const { error } = await supabase.storage.from("product-previews").upload(path, sampleFile);
+        if (error) throw error;
+        sample_url = supabase.storage.from("product-previews").getPublicUrl(path).data.publicUrl;
       }
       if (productFile) {
         const path = `${user.id}/${Date.now()}-${productFile.name}`;
@@ -70,9 +78,10 @@ function Sell() {
         tags: tags.split(",").map((t) => t.trim()).filter(Boolean),
         is_tradable: tradable,
         preview_url,
+        sample_url,
         file_path,
         status: "published",
-      }).select().single();
+      } as any).select().single();
 
       if (error) throw error;
       toast.success("Produkt opublikowany!");
@@ -130,6 +139,18 @@ function Sell() {
               <Label className="flex items-center gap-2"><Upload className="h-4 w-4" /> Plik produktu</Label>
               <Input type="file" onChange={(e) => setProductFile(e.target.files?.[0] ?? null)} />
             </div>
+          </div>
+          <div className="space-y-3 rounded-lg border border-accent/30 bg-accent/5 p-4">
+            <div className="flex items-start gap-3">
+              <ShieldCheck className="h-5 w-5 text-accent mt-0.5 shrink-0" />
+              <div>
+                <Label className="text-base">Próbka z zabezpieczeniem (opcjonalnie)</Label>
+                <p className="text-xs text-muted-foreground mt-1">
+                  Wgraj wersję demo z znakiem wodnym lub krótki fragment (np. beat z voice tagiem, PDF z watermarkiem, niska jakość). Kupujący zobaczy/odsłucha tę próbkę przed zakupem — pełny plik dostanie dopiero po opłaceniu.
+                </p>
+              </div>
+            </div>
+            <Input type="file" accept="audio/*,video/*,image/*,application/pdf" onChange={(e) => setSampleFile(e.target.files?.[0] ?? null)} />
           </div>
           <div className="flex items-center gap-3 rounded-lg border border-border/40 p-3">
             <Switch checked={tradable} onCheckedChange={setTradable} id="tradable" />
