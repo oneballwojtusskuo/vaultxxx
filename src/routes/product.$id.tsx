@@ -203,6 +203,37 @@ function ProductPage() {
   );
 }
 
+function ShareButton({ title }: { title: string }) {
+  const [copied, setCopied] = useState(false);
+  const url = typeof window !== "undefined" ? window.location.href : "";
+
+  const handleShare = async () => {
+    try {
+      if (typeof navigator !== "undefined" && (navigator as any).share) {
+        await (navigator as any).share({ title, url });
+        return;
+      }
+    } catch {
+      // fall through to copy
+    }
+    try {
+      await navigator.clipboard.writeText(url);
+      setCopied(true);
+      toast.success("Link skopiowany! Wklej go na swoich social mediach.");
+      setTimeout(() => setCopied(false), 2000);
+    } catch {
+      toast.error("Nie udało się skopiować linku");
+    }
+  };
+
+  return (
+    <Button onClick={handleShare} size="lg" variant="outline" className="h-12">
+      {copied ? <Check className="h-4 w-4 mr-2" /> : <Share2 className="h-4 w-4 mr-2" />}
+      {copied ? "Skopiowano" : "Udostępnij / Skopiuj link"}
+    </Button>
+  );
+}
+
 function SamplePreview({ url, title }: { url: string; title: string }) {
   const lower = url.toLowerCase().split("?")[0];
   const isAudio = /\.(mp3|wav|ogg|m4a|aac|flac)$/.test(lower);
