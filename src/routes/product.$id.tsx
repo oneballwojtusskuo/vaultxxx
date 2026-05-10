@@ -1,6 +1,7 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
-import { Download, Repeat2, ShoppingCart, ArrowLeft, Share2, Check } from "lucide-react";
+import { useServerFn } from "@tanstack/react-start";
+import { Download, Repeat2, ShoppingCart, ArrowLeft, Share2, Check, FileText, Lock, PlayCircle } from "lucide-react";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 import { Button } from "@/components/ui/button";
@@ -16,6 +17,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { ReportDialog } from "@/components/report-dialog";
 import { VerifiedBadge } from "@/components/verified-badge";
+import { getSecureStreamUrl } from "@/lib/secure-stream.functions";
+import { generateLicensePdf } from "@/lib/license-pdf";
 
 export const Route = createFileRoute("/product/$id")({
   component: ProductPage,
