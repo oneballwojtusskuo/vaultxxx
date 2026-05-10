@@ -41,6 +41,22 @@ function ProductPage() {
     },
   });
 
+  const { data: myTransaction, refetch: refetchTx } = useQuery({
+    queryKey: ["myTx", id, user?.id],
+    enabled: !!user,
+    queryFn: async () => {
+      const { data } = await supabase
+        .from("transactions")
+        .select("*")
+        .eq("product_id", id)
+        .eq("buyer_id", user!.id)
+        .eq("status", "completed")
+        .limit(1)
+        .maybeSingle();
+      return data;
+    },
+  });
+
   const { data: myProducts } = useQuery({
     queryKey: ["myProducts", user?.id],
     enabled: !!user,
