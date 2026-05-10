@@ -1,6 +1,6 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
-import { Download, Repeat2, ShoppingCart, ArrowLeft } from "lucide-react";
+import { Download, Repeat2, ShoppingCart, ArrowLeft, Share2, Link2, Check } from "lucide-react";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 import { Button } from "@/components/ui/button";
