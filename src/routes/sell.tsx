@@ -167,6 +167,43 @@ function Sell() {
             </div>
             <Input type="file" accept="audio/*,video/*,image/*,application/pdf" onChange={(e) => setSampleFile(e.target.files?.[0] ?? null)} />
           </div>
+          <div className="space-y-3 rounded-lg border border-primary/30 bg-primary/5 p-4">
+            <div className="flex items-start gap-3">
+              <FileText className="h-5 w-5 text-primary mt-0.5 shrink-0" />
+              <div>
+                <Label className="text-base">Warunki licencji</Label>
+                <p className="text-xs text-muted-foreground mt-1">
+                  Po zakupie kupujący otrzyma automatycznie wygenerowany PDF z licencją zawierający te warunki, jego dane i hash transakcji.
+                </p>
+              </div>
+            </div>
+            <div className="grid sm:grid-cols-2 gap-3 pt-2">
+              <label className="flex items-center gap-2 cursor-pointer">
+                <Checkbox checked={licCommercial} onCheckedChange={(v) => setLicCommercial(!!v)} />
+                <span className="text-sm">Użytek komercyjny dozwolony</span>
+              </label>
+              <label className="flex items-center gap-2 cursor-pointer">
+                <Checkbox checked={licExclusive} onCheckedChange={(v) => setLicExclusive(!!v)} />
+                <span className="text-sm">Licencja wyłączna</span>
+              </label>
+              <label className="flex items-center gap-2 cursor-pointer">
+                <Checkbox checked={licAttribution} onCheckedChange={(v) => setLicAttribution(!!v)} />
+                <span className="text-sm">Wymagane oznaczenie autora</span>
+              </label>
+              <div className="space-y-1">
+                <Label className="text-xs">Limit odtworzeń (puste = bez limitu)</Label>
+                <Input type="number" min="0" placeholder="np. 100000" value={licMaxStreams} onChange={(e) => setLicMaxStreams(e.target.value)} />
+              </div>
+              <div className="space-y-1 sm:col-span-2">
+                <Label className="text-xs">Terytorium</Label>
+                <Input value={licTerritory} onChange={(e) => setLicTerritory(e.target.value)} placeholder="worldwide" />
+              </div>
+              <div className="space-y-1 sm:col-span-2">
+                <Label className="text-xs">Postanowienia dodatkowe (opcjonalne)</Label>
+                <Textarea rows={3} value={licCustom} onChange={(e) => setLicCustom(e.target.value)} />
+              </div>
+            </div>
+          </div>
           <div className="flex items-center gap-3 rounded-lg border border-border/40 p-3">
             <Switch checked={tradable} onCheckedChange={setTradable} id="tradable" />
             <Label htmlFor="tradable" className="cursor-pointer">Pozwól na wymianę 1:1</Label>
