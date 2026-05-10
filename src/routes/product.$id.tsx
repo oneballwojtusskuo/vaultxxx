@@ -97,8 +97,9 @@ function ProductPage() {
     if (error) return toast.error(error.message);
     await supabase.rpc as any;
     await supabase.from("products").update({ downloads_count: (p.downloads_count ?? 0) + 1 }).eq("id", p.id);
-    toast.success("Zakupiono! Sprawdź panel zakupów.");
+    toast.success("Zakupiono! Dostęp do treści odblokowany.");
     refetch();
+    refetchTx();
   };
 
   const proposeExchange = async () => {
