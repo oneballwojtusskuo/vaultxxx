@@ -7,8 +7,9 @@ import { useAuth } from "@/hooks/use-auth";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
-import { Plus, Download, Trash2 } from "lucide-react";
+import { Plus, PlayCircle, Trash2, FileText } from "lucide-react";
 import { toast } from "sonner";
+import { generateLicensePdf } from "@/lib/license-pdf";
 
 export const Route = createFileRoute("/dashboard")({
   component: Dashboard,
@@ -31,7 +32,7 @@ function Dashboard() {
   const { data: purchases } = useQuery({
     queryKey: ["purchases", user?.id],
     enabled: !!user,
-    queryFn: async () => (await supabase.from("transactions").select("*, product:products(id,title,preview_url,file_path)").eq("buyer_id", user!.id).order("created_at", { ascending: false })).data ?? [],
+    queryFn: async () => (await supabase.from("transactions").select("*, product:products(id,title,preview_url,file_path,license_terms,seller:profiles!products_seller_id_fkey(display_name))").eq("buyer_id", user!.id).order("created_at", { ascending: false })).data ?? [],
   });
 
   const { data: sales } = useQuery({
@@ -48,14 +49,21 @@ function Dashboard() {
     refetchProducts();
   };
 
-  const downloadFile = async (path: string | null, title: string) => {
-    if (!path) return toast.error("Brak pliku");
-    const { data, error } = await supabase.storage.from("product-files").createSignedUrl(path, 60);
-    if (error) return toast.error(error.message);
-    const a = document.createElement("a");
-    a.href = data.signedUrl;
-    a.download = title;
-    a.click();
+  const downloadLicense = (t: any) => {
+    if (!user || !t.product) return;
+    generateLicensePdf({
+      transactionId: t.id,
+      createdAt: t.created_at,
+      productTitle: t.product.title,
+      productId: t.product.id,
+      amount: Number(t.amount),
+      currency: t.currency,
+      buyerName: user.user_metadata?.display_name ?? user.email ?? "Licencjobiorca",
+      buyerEmail: user.email ?? "",
+      sellerName: t.product.seller?.display_name ?? "Sprzedawca",
+      terms: t.product.license_terms ?? {},
+    });
+    toast.success("Licencja wygenerowana");
   };
 
   if (loading || !user) return null;
@@ -114,9 +122,16 @@ function Dashboard() {
                   <p className="font-semibold line-clamp-1">{t.product?.title}</p>
                   <p className="text-sm text-muted-foreground">{Number(t.amount).toFixed(2)} {t.currency}</p>
                 </div>
-                <Button size="sm" variant="outline" onClick={() => downloadFile(t.product?.file_path, t.product?.title ?? "file")}>
-                  <Download className="h-4 w-4 mr-1"/> Pobierz
-                </Button>
+                <div className="flex flex-wrap gap-2 justify-end">
+                  <Link to="/product/$id" params={{ id: t.product?.id ?? "" }}>
+                    <Button size="sm" variant="outline">
+                      <PlayCircle className="h-4 w-4 mr-1"/> Odtwórz
+                    </Button>
+                  </Link>
+                  <Button size="sm" variant="outline" onClick={() => downloadLicense(t)}>
+                    <FileText className="h-4 w-4 mr-1"/> Licencja PDF
+                  </Button>
+                </div>
               </div>
             ))}
           </TabsContent>

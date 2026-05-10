@@ -1,6 +1,7 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
-import { Download, Repeat2, ShoppingCart, ArrowLeft, Share2, Check } from "lucide-react";
+import { useServerFn } from "@tanstack/react-start";
+import { Download, Repeat2, ShoppingCart, ArrowLeft, Share2, Check, FileText, Lock, PlayCircle } from "lucide-react";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 import { Button } from "@/components/ui/button";
@@ -16,6 +17,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { ReportDialog } from "@/components/report-dialog";
 import { VerifiedBadge } from "@/components/verified-badge";
+import { getSecureStreamUrl } from "@/lib/secure-stream.functions";
+import { generateLicensePdf } from "@/lib/license-pdf";
 
 export const Route = createFileRoute("/product/$id")({
   component: ProductPage,
@@ -33,6 +36,22 @@ function ProductPage() {
         .from("products")
         .select("*, category:categories(name), seller:profiles!products_seller_id_fkey(id,display_name,username,avatar_url,is_verified_seller)")
         .eq("id", id)
+        .maybeSingle();
+      return data;
+    },
+  });
+
+  const { data: myTransaction, refetch: refetchTx } = useQuery({
+    queryKey: ["myTx", id, user?.id],
+    enabled: !!user,
+    queryFn: async () => {
+      const { data } = await supabase
+        .from("transactions")
+        .select("*")
+        .eq("product_id", id)
+        .eq("buyer_id", user!.id)
+        .eq("status", "completed")
+        .limit(1)
         .maybeSingle();
       return data;
     },
@@ -78,8 +97,9 @@ function ProductPage() {
     if (error) return toast.error(error.message);
     await supabase.rpc as any;
     await supabase.from("products").update({ downloads_count: (p.downloads_count ?? 0) + 1 }).eq("id", p.id);
-    toast.success("Zakupiono! Sprawdź panel zakupów.");
+    toast.success("Zakupiono! Dostęp do treści odblokowany.");
     refetch();
+    refetchTx();
   };
 
   const proposeExchange = async () => {
@@ -153,6 +173,41 @@ function ProductPage() {
                   <span key={t} className="text-xs px-2.5 py-1 rounded-full glass">#{t}</span>
                 ))}
               </div>
+            )}
+
+            {(p as any).license_terms && (
+              <LicenseSummary terms={(p as any).license_terms} />
+            )}
+
+            {(myTransaction || isOwner) && p.file_path && (
+              <SecureStreamPlayer
+                productId={p.id}
+                buyerEmail={user?.email ?? ""}
+                isOwner={isOwner}
+              />
+            )}
+
+            {myTransaction && (
+              <Button
+                variant="outline"
+                className="mt-3 w-full sm:w-auto"
+                onClick={() =>
+                  generateLicensePdf({
+                    transactionId: myTransaction.id,
+                    createdAt: myTransaction.created_at,
+                    productTitle: p.title,
+                    productId: p.id,
+                    amount: Number(myTransaction.amount),
+                    currency: myTransaction.currency,
+                    buyerName: user?.user_metadata?.display_name ?? user?.email ?? "Licencjobiorca",
+                    buyerEmail: user?.email ?? "",
+                    sellerName: seller?.display_name ?? "Sprzedawca",
+                    terms: (p as any).license_terms ?? {},
+                  })
+                }
+              >
+                <FileText className="h-4 w-4 mr-2" /> Pobierz licencję PDF
+              </Button>
             )}
 
             <div className="mt-8 flex flex-wrap gap-3">
@@ -251,3 +306,108 @@ function SamplePreview({ url, title }: { url: string; title: string }) {
     </a>
   );
 }
+
+function LicenseSummary({ terms }: { terms: any }) {
+  const t = terms ?? {};
+  return (
+    <div className="mt-6 rounded-xl border border-border/40 bg-gradient-surface p-4">
+      <div className="flex items-center gap-2 mb-3">
+        <FileText className="h-4 w-4 text-primary" />
+        <span className="text-sm font-semibold uppercase tracking-wider text-primary">Warunki licencji</span>
+      </div>
+      <ul className="text-sm space-y-1.5 text-foreground/80">
+        <li>• Użytek komercyjny: <strong>{t.commercial_use ? "TAK" : "tylko prywatny"}</strong></li>
+        <li>• Wyłączność: <strong>{t.exclusive ? "wyłączna" : "niewyłączna"}</strong></li>
+        <li>• Limit odtworzeń: <strong>{t.max_streams ? Number(t.max_streams).toLocaleString() : "bez limitu"}</strong></li>
+        <li>• Oznaczenie autora: <strong>{t.attribution_required ? "wymagane" : "niewymagane"}</strong></li>
+        <li>• Terytorium: <strong>{t.territory || "worldwide"}</strong></li>
+        {t.custom_terms && <li className="pt-1 italic text-muted-foreground">"{t.custom_terms}"</li>}
+      </ul>
+    </div>
+  );
+}
+
+function SecureStreamPlayer({ productId, buyerEmail, isOwner }: { productId: string; buyerEmail: string; isOwner: boolean }) {
+  const fetchUrl = useServerFn(getSecureStreamUrl);
+  const { data, isLoading, error } = useQuery({
+    queryKey: ["stream-url", productId],
+    queryFn: () => fetchUrl({ data: { productId } }),
+    staleTime: 50 * 60 * 1000, // 50 min
+  });
+
+  if (isLoading) {
+    return (
+      <div className="mt-6 rounded-xl border border-success/30 bg-success/5 p-4 text-sm text-muted-foreground">
+        <Lock className="h-4 w-4 inline mr-2" /> Przygotowuję bezpieczny dostęp...
+      </div>
+    );
+  }
+  if (error || !data?.url) {
+    return (
+      <div className="mt-6 rounded-xl border border-destructive/30 bg-destructive/5 p-4 text-sm text-destructive">
+        Nie udało się załadować zawartości.
+      </div>
+    );
+  }
+
+  const lower = data.url.toLowerCase().split("?")[0];
+  const isAudio = /\.(mp3|wav|ogg|m4a|aac|flac)$/.test(lower);
+  const isVideo = /\.(mp4|webm|mov|m4v)$/.test(lower);
+  const watermark = isOwner ? "PODGLĄD WŁAŚCICIELA" : buyerEmail;
+
+  return (
+    <div className="mt-6 rounded-xl border border-success/30 bg-success/5 p-4">
+      <div className="flex items-center justify-between gap-2 mb-3">
+        <span className="inline-flex items-center gap-2 text-sm font-semibold text-success">
+          <PlayCircle className="h-4 w-4" /> Twój dostęp (streaming in-app)
+        </span>
+        <span className="text-[10px] uppercase tracking-wider text-muted-foreground">Link wygasa za ~1h</span>
+      </div>
+
+      {isVideo ? (
+        <div className="relative rounded-lg overflow-hidden bg-black">
+          <video
+            controls
+            controlsList="nodownload noremoteplayback"
+            disablePictureInPicture
+            onContextMenu={(e) => e.preventDefault()}
+            src={data.url}
+            className="w-full max-h-[420px]"
+          />
+          <div className="pointer-events-none absolute inset-0 flex flex-col justify-between p-4 select-none">
+            <div className="flex justify-end">
+              <span className="text-[11px] font-mono text-white/70 bg-black/40 px-2 py-1 rounded">
+                {watermark}
+              </span>
+            </div>
+            <div className="flex justify-start">
+              <span className="text-[11px] font-mono text-white/70 bg-black/40 px-2 py-1 rounded">
+                {watermark}
+              </span>
+            </div>
+          </div>
+        </div>
+      ) : isAudio ? (
+        <div>
+          <audio
+            controls
+            controlsList="nodownload"
+            onContextMenu={(e) => e.preventDefault()}
+            src={data.url}
+            className="w-full"
+          />
+          <p className="mt-2 text-[11px] font-mono text-muted-foreground">Licencja przypisana do: {watermark}</p>
+        </div>
+      ) : (
+        <p className="text-sm text-muted-foreground">
+          Ten typ pliku nie jest streamowalny. Skontaktuj się ze sprzedawcą po dostarczenie zawartości.
+        </p>
+      )}
+
+      <p className="mt-3 text-[11px] text-muted-foreground">
+        Treść chroniona prawem autorskim. Nagrywanie, kopiowanie i redystrybucja są zabronione i mogą być podstawą roszczeń.
+      </p>
+    </div>
+  );
+}
+

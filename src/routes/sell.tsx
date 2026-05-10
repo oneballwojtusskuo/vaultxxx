@@ -12,7 +12,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { useAuth } from "@/hooks/use-auth";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { Upload, ShieldCheck } from "lucide-react";
+import { Upload, ShieldCheck, FileText } from "lucide-react";
+import { Checkbox } from "@/components/ui/checkbox";
 
 export const Route = createFileRoute("/sell")({
   component: Sell,
@@ -31,6 +32,12 @@ function Sell() {
   const [previewFile, setPreviewFile] = useState<File | null>(null);
   const [productFile, setProductFile] = useState<File | null>(null);
   const [sampleFile, setSampleFile] = useState<File | null>(null);
+  const [licCommercial, setLicCommercial] = useState(false);
+  const [licExclusive, setLicExclusive] = useState(false);
+  const [licAttribution, setLicAttribution] = useState(true);
+  const [licMaxStreams, setLicMaxStreams] = useState("");
+  const [licTerritory, setLicTerritory] = useState("worldwide");
+  const [licCustom, setLicCustom] = useState("");
 
   useEffect(() => {
     if (!loading && !user) navigate({ to: "/auth" });
@@ -81,6 +88,14 @@ function Sell() {
         sample_url,
         file_path,
         status: "published",
+        license_terms: {
+          commercial_use: licCommercial,
+          exclusive: licExclusive,
+          attribution_required: licAttribution,
+          max_streams: licMaxStreams ? parseInt(licMaxStreams, 10) : null,
+          territory: licTerritory,
+          custom_terms: licCustom,
+        },
       } as any).select().single();
 
       if (error) throw error;
@@ -151,6 +166,43 @@ function Sell() {
               </div>
             </div>
             <Input type="file" accept="audio/*,video/*,image/*,application/pdf" onChange={(e) => setSampleFile(e.target.files?.[0] ?? null)} />
+          </div>
+          <div className="space-y-3 rounded-lg border border-primary/30 bg-primary/5 p-4">
+            <div className="flex items-start gap-3">
+              <FileText className="h-5 w-5 text-primary mt-0.5 shrink-0" />
+              <div>
+                <Label className="text-base">Warunki licencji</Label>
+                <p className="text-xs text-muted-foreground mt-1">
+                  Po zakupie kupujący otrzyma automatycznie wygenerowany PDF z licencją zawierający te warunki, jego dane i hash transakcji.
+                </p>
+              </div>
+            </div>
+            <div className="grid sm:grid-cols-2 gap-3 pt-2">
+              <label className="flex items-center gap-2 cursor-pointer">
+                <Checkbox checked={licCommercial} onCheckedChange={(v) => setLicCommercial(!!v)} />
+                <span className="text-sm">Użytek komercyjny dozwolony</span>
+              </label>
+              <label className="flex items-center gap-2 cursor-pointer">
+                <Checkbox checked={licExclusive} onCheckedChange={(v) => setLicExclusive(!!v)} />
+                <span className="text-sm">Licencja wyłączna</span>
+              </label>
+              <label className="flex items-center gap-2 cursor-pointer">
+                <Checkbox checked={licAttribution} onCheckedChange={(v) => setLicAttribution(!!v)} />
+                <span className="text-sm">Wymagane oznaczenie autora</span>
+              </label>
+              <div className="space-y-1">
+                <Label className="text-xs">Limit odtworzeń (puste = bez limitu)</Label>
+                <Input type="number" min="0" placeholder="np. 100000" value={licMaxStreams} onChange={(e) => setLicMaxStreams(e.target.value)} />
+              </div>
+              <div className="space-y-1 sm:col-span-2">
+                <Label className="text-xs">Terytorium</Label>
+                <Input value={licTerritory} onChange={(e) => setLicTerritory(e.target.value)} placeholder="worldwide" />
+              </div>
+              <div className="space-y-1 sm:col-span-2">
+                <Label className="text-xs">Postanowienia dodatkowe (opcjonalne)</Label>
+                <Textarea rows={3} value={licCustom} onChange={(e) => setLicCustom(e.target.value)} />
+              </div>
+            </div>
           </div>
           <div className="flex items-center gap-3 rounded-lg border border-border/40 p-3">
             <Switch checked={tradable} onCheckedChange={setTradable} id="tradable" />
