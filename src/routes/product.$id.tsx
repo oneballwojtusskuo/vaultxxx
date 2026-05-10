@@ -175,6 +175,41 @@ function ProductPage() {
               </div>
             )}
 
+            {(p as any).license_terms && (
+              <LicenseSummary terms={(p as any).license_terms} />
+            )}
+
+            {(myTransaction || isOwner) && p.file_path && (
+              <SecureStreamPlayer
+                productId={p.id}
+                buyerEmail={user?.email ?? ""}
+                isOwner={isOwner}
+              />
+            )}
+
+            {myTransaction && (
+              <Button
+                variant="outline"
+                className="mt-3 w-full sm:w-auto"
+                onClick={() =>
+                  generateLicensePdf({
+                    transactionId: myTransaction.id,
+                    createdAt: myTransaction.created_at,
+                    productTitle: p.title,
+                    productId: p.id,
+                    amount: Number(myTransaction.amount),
+                    currency: myTransaction.currency,
+                    buyerName: user?.user_metadata?.display_name ?? user?.email ?? "Licencjobiorca",
+                    buyerEmail: user?.email ?? "",
+                    sellerName: seller?.display_name ?? "Sprzedawca",
+                    terms: (p as any).license_terms ?? {},
+                  })
+                }
+              >
+                <FileText className="h-4 w-4 mr-2" /> Pobierz licencję PDF
+              </Button>
+            )}
+
             <div className="mt-8 flex flex-wrap gap-3">
               <ShareButton title={p.title} />
               {!isOwner && (
