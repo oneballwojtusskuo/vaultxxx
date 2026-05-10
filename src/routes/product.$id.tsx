@@ -1,6 +1,6 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
-import { Download, Repeat2, ShoppingCart, ArrowLeft } from "lucide-react";
+import { Download, Repeat2, ShoppingCart, ArrowLeft, Share2, Check } from "lucide-react";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 import { Button } from "@/components/ui/button";
@@ -156,6 +156,7 @@ function ProductPage() {
             )}
 
             <div className="mt-8 flex flex-wrap gap-3">
+              <ShareButton title={p.title} />
               {!isOwner && (
                 <Button onClick={buy} size="lg" className="bg-gradient-primary text-primary-foreground shadow-glow h-12">
                   <ShoppingCart className="h-4 w-4 mr-2" /> Kup teraz
@@ -199,6 +200,37 @@ function ProductPage() {
       <SiteFooter />
     </div>
     </TooltipProvider>
+  );
+}
+
+function ShareButton({ title }: { title: string }) {
+  const [copied, setCopied] = useState(false);
+  const url = typeof window !== "undefined" ? window.location.href : "";
+
+  const handleShare = async () => {
+    try {
+      if (typeof navigator !== "undefined" && (navigator as any).share) {
+        await (navigator as any).share({ title, url });
+        return;
+      }
+    } catch {
+      // fall through to copy
+    }
+    try {
+      await navigator.clipboard.writeText(url);
+      setCopied(true);
+      toast.success("Link skopiowany! Wklej go na swoich social mediach.");
+      setTimeout(() => setCopied(false), 2000);
+    } catch {
+      toast.error("Nie udało się skopiować linku");
+    }
+  };
+
+  return (
+    <Button onClick={handleShare} size="lg" variant="outline" className="h-12">
+      {copied ? <Check className="h-4 w-4 mr-2" /> : <Share2 className="h-4 w-4 mr-2" />}
+      {copied ? "Skopiowano" : "Udostępnij / Skopiuj link"}
+    </Button>
   );
 }
 
