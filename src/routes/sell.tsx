@@ -12,7 +12,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { useAuth } from "@/hooks/use-auth";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { Upload, ShieldCheck } from "lucide-react";
+import { Upload, ShieldCheck, FileText } from "lucide-react";
+import { Checkbox } from "@/components/ui/checkbox";
 
 export const Route = createFileRoute("/sell")({
   component: Sell,
@@ -31,6 +32,12 @@ function Sell() {
   const [previewFile, setPreviewFile] = useState<File | null>(null);
   const [productFile, setProductFile] = useState<File | null>(null);
   const [sampleFile, setSampleFile] = useState<File | null>(null);
+  const [licCommercial, setLicCommercial] = useState(false);
+  const [licExclusive, setLicExclusive] = useState(false);
+  const [licAttribution, setLicAttribution] = useState(true);
+  const [licMaxStreams, setLicMaxStreams] = useState("");
+  const [licTerritory, setLicTerritory] = useState("worldwide");
+  const [licCustom, setLicCustom] = useState("");
 
   useEffect(() => {
     if (!loading && !user) navigate({ to: "/auth" });
@@ -81,6 +88,14 @@ function Sell() {
         sample_url,
         file_path,
         status: "published",
+        license_terms: {
+          commercial_use: licCommercial,
+          exclusive: licExclusive,
+          attribution_required: licAttribution,
+          max_streams: licMaxStreams ? parseInt(licMaxStreams, 10) : null,
+          territory: licTerritory,
+          custom_terms: licCustom,
+        },
       } as any).select().single();
 
       if (error) throw error;
