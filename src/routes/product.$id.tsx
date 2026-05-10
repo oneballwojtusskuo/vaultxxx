@@ -156,6 +156,7 @@ function ProductPage() {
             )}
 
             <div className="mt-8 flex flex-wrap gap-3">
+              <ShareButton title={p.title} />
               {!isOwner && (
                 <Button onClick={buy} size="lg" className="bg-gradient-primary text-primary-foreground shadow-glow h-12">
                   <ShoppingCart className="h-4 w-4 mr-2" /> Kup teraz
