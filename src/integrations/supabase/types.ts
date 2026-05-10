@@ -99,6 +99,7 @@ export type Database = {
           file_path: string | null
           id: string
           is_tradable: boolean
+          license_terms: Json
           preview_url: string | null
           price: number
           sample_url: string | null
@@ -117,6 +118,7 @@ export type Database = {
           file_path?: string | null
           id?: string
           is_tradable?: boolean
+          license_terms?: Json
           preview_url?: string | null
           price?: number
           sample_url?: string | null
@@ -135,6 +137,7 @@ export type Database = {
           file_path?: string | null
           id?: string
           is_tradable?: boolean
+          license_terms?: Json
           preview_url?: string | null
           price?: number
           sample_url?: string | null
