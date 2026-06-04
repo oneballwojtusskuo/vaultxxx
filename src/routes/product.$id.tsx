@@ -18,6 +18,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { ReportDialog } from "@/components/report-dialog";
 import { VerifiedBadge } from "@/components/verified-badge";
 import { getSecureStreamUrl } from "@/lib/secure-stream.functions";
+import { purchaseProduct } from "@/lib/purchase.functions";
 import { generateLicensePdf } from "@/lib/license-pdf";
 
 export const Route = createFileRoute("/product/$id")({
@@ -83,23 +84,25 @@ function ProductPage() {
 
   const isOwner = user?.id === p.seller_id;
 
+  const purchaseFn = useServerFn(purchaseProduct);
+
   const buy = async () => {
     if (!user) { navigate({ to: "/auth" }); return; }
     if (isOwner) return toast.error("To Twój produkt");
-    const { error } = await supabase.from("transactions").insert({
-      product_id: p.id,
-      buyer_id: user.id,
-      seller_id: p.seller_id,
-      amount: p.price,
-      currency: p.currency,
-      status: "completed",
-    });
-    if (error) return toast.error(error.message);
-    await supabase.rpc as any;
-    await supabase.from("products").update({ downloads_count: (p.downloads_count ?? 0) + 1 }).eq("id", p.id);
-    toast.success("Zakupiono! Dostęp do treści odblokowany.");
-    refetch();
-    refetchTx();
+    try {
+      const res = await purchaseFn({ data: { productId: p.id } });
+      if (res.alreadyOwned) {
+        toast.info("Już posiadasz ten produkt.");
+      } else if (res.status === "completed") {
+        toast.success("Zakupiono! Dostęp do treści odblokowany.");
+      } else {
+        toast.success("Zamówienie utworzone. Oczekuje na potwierdzenie płatności.");
+      }
+      refetch();
+      refetchTx();
+    } catch (e: any) {
+      toast.error(e?.message ?? "Nie udało się sfinalizować zakupu");
+    }
   };
 
   const proposeExchange = async () => {
