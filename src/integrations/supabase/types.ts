@@ -102,6 +102,9 @@ export type Database = {
           license_terms: Json
           preview_url: string | null
           price: number
+          review_notes: string | null
+          reviewed_at: string | null
+          reviewed_by: string | null
           sample_url: string | null
           seller_id: string
           status: Database["public"]["Enums"]["product_status"]
@@ -121,6 +124,9 @@ export type Database = {
           license_terms?: Json
           preview_url?: string | null
           price?: number
+          review_notes?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
           sample_url?: string | null
           seller_id: string
           status?: Database["public"]["Enums"]["product_status"]
@@ -140,6 +146,9 @@ export type Database = {
           license_terms?: Json
           preview_url?: string | null
           price?: number
+          review_notes?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
           sample_url?: string | null
           seller_id?: string
           status?: Database["public"]["Enums"]["product_status"]
@@ -304,7 +313,13 @@ export type Database = {
     Enums: {
       app_role: "admin" | "user"
       exchange_status: "pending" | "accepted" | "rejected" | "cancelled"
-      product_status: "draft" | "published" | "sold" | "archived"
+      product_status:
+        | "draft"
+        | "published"
+        | "sold"
+        | "archived"
+        | "pending_review"
+        | "rejected"
       report_status: "pending" | "reviewing" | "resolved" | "dismissed"
       report_target: "product" | "user"
       transaction_status: "pending" | "completed" | "failed" | "refunded"
@@ -437,7 +452,14 @@ export const Constants = {
     Enums: {
       app_role: ["admin", "user"],
       exchange_status: ["pending", "accepted", "rejected", "cancelled"],
-      product_status: ["draft", "published", "sold", "archived"],
+      product_status: [
+        "draft",
+        "published",
+        "sold",
+        "archived",
+        "pending_review",
+        "rejected",
+      ],
       report_status: ["pending", "reviewing", "resolved", "dismissed"],
       report_target: ["product", "user"],
       transaction_status: ["pending", "completed", "failed", "refunded"],
