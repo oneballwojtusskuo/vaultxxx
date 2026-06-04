@@ -87,7 +87,7 @@ function Sell() {
         preview_url,
         sample_url,
         file_path,
-        status: "published",
+        status: "pending_review",
         license_terms: {
           commercial_use: licCommercial,
           exclusive: licExclusive,
@@ -99,8 +99,8 @@ function Sell() {
       } as any).select().single();
 
       if (error) throw error;
-      toast.success("Produkt opublikowany!");
-      navigate({ to: "/product/$id", params: { id: data.id } });
+      toast.success("Produkt wysłany do weryfikacji przez administratora!");
+      navigate({ to: "/dashboard" });
     } catch (err: any) {
       toast.error(err.message ?? "Błąd publikacji");
     } finally {
