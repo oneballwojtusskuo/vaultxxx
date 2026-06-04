@@ -18,6 +18,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { ReportDialog } from "@/components/report-dialog";
 import { VerifiedBadge } from "@/components/verified-badge";
 import { getSecureStreamUrl } from "@/lib/secure-stream.functions";
+import { purchaseProduct } from "@/lib/purchase.functions";
 import { generateLicensePdf } from "@/lib/license-pdf";
 
 export const Route = createFileRoute("/product/$id")({
