@@ -108,7 +108,8 @@
     letter-spacing: -0.02em;
   }
   ::selection {
-    background: oklch(0.72 0.20 295 / 0.4);
+    background: oklch(0.82 0.12 85 / 0.35);
+    color: oklch(0.08 0.005 270);
   }
 }
 
@@ -126,8 +127,8 @@
   .shadow-elevated { box-shadow: var(--shadow-elevated); }
   .shadow-soft { box-shadow: var(--shadow-soft); }
   .glass {
-    background: oklch(0.22 0.03 270 / 0.55);
-    backdrop-filter: blur(14px);
+    background: oklch(0.10 0.005 270 / 0.65);
+    backdrop-filter: blur(18px);
     -webkit-backdrop-filter: blur(14px);
     border: 1px solid oklch(1 0 0 / 0.06);
   }
