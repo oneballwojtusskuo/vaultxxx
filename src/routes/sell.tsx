@@ -70,9 +70,26 @@ function Sell() {
     queryFn: async () => (await supabase.from("categories").select("*").order("name")).data ?? [],
   });
 
+  const validateFile = useServerFn(validateUploadedFile);
+
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!user) return;
+
+    // Client-side guard (defense-in-depth; server re-validates)
+    if (previewFile) {
+      const err = checkImageFile(previewFile);
+      if (err) return toast.error(`Preview: ${err}`);
+    }
+    if (sampleFile) {
+      const err = checkProductFile(sampleFile);
+      if (err) return toast.error(`Sample: ${err}`);
+    }
+    if (productFile) {
+      const err = checkProductFile(productFile);
+      if (err) return toast.error(`File: ${err}`);
+    }
+
     setSubmitting(true);
     try {
       let preview_url: string | null = null;
@@ -83,18 +100,22 @@ function Sell() {
         const path = `${user.id}/${Date.now()}-${previewFile.name}`;
         const { error } = await supabase.storage.from("product-previews").upload(path, previewFile);
         if (error) throw error;
+        // Server-side magic-byte validation; deletes the file if it's not a real image.
+        await validateFile({ data: { bucket: "product-previews", path, kind: "image" } });
         preview_url = supabase.storage.from("product-previews").getPublicUrl(path).data.publicUrl;
       }
       if (sampleFile) {
         const path = `${user.id}/sample-${Date.now()}-${sampleFile.name}`;
         const { error } = await supabase.storage.from("product-previews").upload(path, sampleFile);
         if (error) throw error;
+        await validateFile({ data: { bucket: "product-previews", path, kind: "any" } });
         sample_url = supabase.storage.from("product-previews").getPublicUrl(path).data.publicUrl;
       }
       if (productFile) {
         const path = `${user.id}/${Date.now()}-${productFile.name}`;
         const { error } = await supabase.storage.from("product-files").upload(path, productFile);
         if (error) throw error;
+        await validateFile({ data: { bucket: "product-files", path, kind: "any" } });
         file_path = path;
       }
 
