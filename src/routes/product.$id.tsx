@@ -94,6 +94,7 @@ function ProductPage() {
   );
 
   const isOwner = user?.id === p.seller_id;
+  const isPublished = p.status === "published";
 
   const buy = async () => {
     if (!user) { navigate({ to: "/auth" }); return; }
@@ -191,6 +192,12 @@ function ProductPage() {
               <LicenseSummary terms={(p as any).license_terms} />
             )}
 
+            {!isPublished && (
+              <div className="mt-6 rounded-xl border border-accent/30 bg-accent/5 p-4 text-sm text-muted-foreground">
+                Ten produkt czeka na weryfikację i nie można go jeszcze kupić.
+              </div>
+            )}
+
             {(myTransaction || isOwner) && (
               <SecureStreamPlayer
                 productId={p.id}
@@ -224,12 +231,12 @@ function ProductPage() {
 
             <div className="mt-8 flex flex-wrap gap-3">
               <ShareButton title={p.title} />
-              {!isOwner && (
+              {!isOwner && isPublished && (
                 <Button onClick={buy} size="lg" className="bg-gradient-primary text-primary-foreground shadow-glow h-12">
                   <ShoppingCart className="h-4 w-4 mr-2" /> Kup teraz
                 </Button>
               )}
-              {!isOwner && p.is_tradable && user && (
+              {!isOwner && isPublished && p.is_tradable && user && (
                 <Dialog>
                   <DialogTrigger asChild>
                     <Button size="lg" variant="outline" className="h-12">
