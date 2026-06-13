@@ -76,10 +76,24 @@ function ProductPage() {
   const [offeredId, setOfferedId] = useState<string>("");
   const [message, setMessage] = useState("");
 
-  if (!p) return (
+  if (isLoading) return (
     <div className="min-h-screen flex flex-col">
       <SiteHeader />
       <div className="flex-1 flex items-center justify-center text-muted-foreground">Ładowanie produktu...</div>
+      <SiteFooter />
+    </div>
+  );
+
+  if (error || !p) return (
+    <div className="min-h-screen flex flex-col">
+      <SiteHeader />
+      <main className="flex-1 container mx-auto px-4 py-20 text-center">
+        <h1 className="font-display text-4xl font-bold mb-3">Produkt niedostępny</h1>
+        <p className="text-muted-foreground mb-6">Ten produkt nie istnieje lub został usunięty.</p>
+        <Link to="/browse" className="inline-flex items-center gap-2 text-accent hover:underline">
+          <ArrowLeft className="h-4 w-4" /> Wróć do przeglądania
+        </Link>
+      </main>
       <SiteFooter />
     </div>
   );
