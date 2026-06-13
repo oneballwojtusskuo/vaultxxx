@@ -30,16 +30,18 @@ function ProductPage() {
   const { user } = useAuth();
   const navigate = useNavigate();
 
-  const { data: p, refetch } = useQuery({
+  const { data: p, refetch, isLoading, error } = useQuery({
     queryKey: ["product", id],
     queryFn: async () => {
-      const { data } = await supabase
+      const { data, error } = await supabase
         .from("products")
-        .select("*, category:categories(name), seller:profiles!products_seller_id_fkey(id,display_name,username,avatar_url,is_verified_seller)")
+        .select("id, seller_id, category_id, title, description, price, currency, preview_url, sample_url, tags, status, is_tradable, license_terms, downloads_count, created_at, updated_at, category:categories(name), seller:profiles!products_seller_id_fkey(id,display_name,username,avatar_url,is_verified_seller)")
         .eq("id", id)
         .maybeSingle();
+      if (error) throw error;
       return data;
     },
+    retry: 1,
   });
 
   const { data: myTransaction, refetch: refetchTx } = useQuery({
@@ -74,10 +76,24 @@ function ProductPage() {
   const [offeredId, setOfferedId] = useState<string>("");
   const [message, setMessage] = useState("");
 
-  if (!p) return (
+  if (isLoading) return (
     <div className="min-h-screen flex flex-col">
       <SiteHeader />
       <div className="flex-1 flex items-center justify-center text-muted-foreground">Ładowanie produktu...</div>
+      <SiteFooter />
+    </div>
+  );
+
+  if (error || !p) return (
+    <div className="min-h-screen flex flex-col">
+      <SiteHeader />
+      <main className="flex-1 container mx-auto px-4 py-20 text-center">
+        <h1 className="font-display text-4xl font-bold mb-3">Produkt niedostępny</h1>
+        <p className="text-muted-foreground mb-6">Ten produkt nie istnieje lub został usunięty.</p>
+        <Link to="/browse" className="inline-flex items-center gap-2 text-accent hover:underline">
+          <ArrowLeft className="h-4 w-4" /> Wróć do przeglądania
+        </Link>
+      </main>
       <SiteFooter />
     </div>
   );
@@ -182,7 +198,7 @@ function ProductPage() {
               <LicenseSummary terms={(p as any).license_terms} />
             )}
 
-            {(myTransaction || isOwner) && p.file_path && (
+            {(myTransaction || isOwner) && (
               <SecureStreamPlayer
                 productId={p.id}
                 buyerEmail={user?.email ?? ""}
