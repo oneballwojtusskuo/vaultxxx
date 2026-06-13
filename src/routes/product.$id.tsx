@@ -35,7 +35,7 @@ function ProductPage() {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("products")
-        .select("id, seller_id, category_id, title, description, price, currency, preview_url, sample_url, tags, status, is_tradable, license_terms, downloads_count, created_at, updated_at, file_path, category:categories(name), seller:profiles!products_seller_id_fkey(id,display_name,username,avatar_url,is_verified_seller)")
+        .select("id, seller_id, category_id, title, description, price, currency, preview_url, sample_url, tags, status, is_tradable, license_terms, downloads_count, created_at, updated_at, category:categories(name), seller:profiles!products_seller_id_fkey(id,display_name,username,avatar_url,is_verified_seller)")
         .eq("id", id)
         .maybeSingle();
       if (error) throw error;
