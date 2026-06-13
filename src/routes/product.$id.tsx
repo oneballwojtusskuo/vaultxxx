@@ -19,6 +19,7 @@ import { ReportDialog } from "@/components/report-dialog";
 import { VerifiedBadge } from "@/components/verified-badge";
 import { getSecureStreamUrl } from "@/lib/secure-stream.functions";
 import { purchaseProduct } from "@/lib/purchase.functions";
+import { getProductDetails } from "@/lib/product.functions";
 import { generateLicensePdf } from "@/lib/license-pdf";
 
 export const Route = createFileRoute("/product/$id")({
@@ -27,20 +28,14 @@ export const Route = createFileRoute("/product/$id")({
 
 function ProductPage() {
   const { id } = Route.useParams();
-  const { user } = useAuth();
+  const { user, loading: authLoading } = useAuth();
   const navigate = useNavigate();
+  const fetchProduct = useServerFn(getProductDetails);
+  const purchaseFn = useServerFn(purchaseProduct);
 
   const { data: p, refetch, isLoading, error } = useQuery({
-    queryKey: ["product", id],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from("products")
-        .select("id, seller_id, category_id, title, description, price, currency, preview_url, sample_url, tags, status, is_tradable, license_terms, downloads_count, created_at, updated_at, category:categories(name), seller:profiles!products_seller_id_fkey(id,display_name,username,avatar_url,is_verified_seller)")
-        .eq("id", id)
-        .maybeSingle();
-      if (error) throw error;
-      return data;
-    },
+    queryKey: ["product", id, user?.id ?? "anon"],
+    queryFn: () => fetchProduct({ data: { productId: id } }),
     retry: 1,
   });
 
@@ -76,7 +71,7 @@ function ProductPage() {
   const [offeredId, setOfferedId] = useState<string>("");
   const [message, setMessage] = useState("");
 
-  if (isLoading) return (
+  if (isLoading || (authLoading && !p)) return (
     <div className="min-h-screen flex flex-col">
       <SiteHeader />
       <div className="flex-1 flex items-center justify-center text-muted-foreground">Ładowanie produktu...</div>
@@ -89,7 +84,7 @@ function ProductPage() {
       <SiteHeader />
       <main className="flex-1 container mx-auto px-4 py-20 text-center">
         <h1 className="font-display text-4xl font-bold mb-3">Produkt niedostępny</h1>
-        <p className="text-muted-foreground mb-6">Ten produkt nie istnieje lub został usunięty.</p>
+        <p className="text-muted-foreground mb-6">Ten produkt nie istnieje, został usunięty albo czeka jeszcze na weryfikację.</p>
         <Link to="/browse" className="inline-flex items-center gap-2 text-accent hover:underline">
           <ArrowLeft className="h-4 w-4" /> Wróć do przeglądania
         </Link>
@@ -99,8 +94,7 @@ function ProductPage() {
   );
 
   const isOwner = user?.id === p.seller_id;
-
-  const purchaseFn = useServerFn(purchaseProduct);
+  const isPublished = p.status === "published";
 
   const buy = async () => {
     if (!user) { navigate({ to: "/auth" }); return; }
@@ -198,6 +192,12 @@ function ProductPage() {
               <LicenseSummary terms={(p as any).license_terms} />
             )}
 
+            {!isPublished && (
+              <div className="mt-6 rounded-xl border border-accent/30 bg-accent/5 p-4 text-sm text-muted-foreground">
+                Ten produkt czeka na weryfikację i nie można go jeszcze kupić.
+              </div>
+            )}
+
             {(myTransaction || isOwner) && (
               <SecureStreamPlayer
                 productId={p.id}
@@ -231,12 +231,12 @@ function ProductPage() {
 
             <div className="mt-8 flex flex-wrap gap-3">
               <ShareButton title={p.title} />
-              {!isOwner && (
+              {!isOwner && isPublished && (
                 <Button onClick={buy} size="lg" className="bg-gradient-primary text-primary-foreground shadow-glow h-12">
                   <ShoppingCart className="h-4 w-4 mr-2" /> Kup teraz
                 </Button>
               )}
-              {!isOwner && p.is_tradable && user && (
+              {!isOwner && isPublished && p.is_tradable && user && (
                 <Dialog>
                   <DialogTrigger asChild>
                     <Button size="lg" variant="outline" className="h-12">

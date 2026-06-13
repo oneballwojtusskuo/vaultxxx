@@ -8,10 +8,9 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { useAuth } from "@/hooks/use-auth";
-import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { ShieldCheck, Check, X, ExternalLink, FileText, Download } from "lucide-react";
-import { claimAdminIfNone, isCurrentUserAdmin } from "@/lib/admin.functions";
+import { claimAdminIfNone, getAdminProductFileUrl, isCurrentUserAdmin, listAdminProducts, moderateProduct } from "@/lib/admin.functions";
 
 export const Route = createFileRoute("/admin")({
   component: AdminPage,
@@ -27,7 +26,7 @@ type ProductRow = {
   created_at: string;
   preview_url: string | null;
   sample_url: string | null;
-  file_path: string | null;
+  has_file: boolean;
   seller_id: string;
   tags: string[] | null;
   review_notes: string | null;
@@ -39,6 +38,9 @@ function AdminPage() {
   const qc = useQueryClient();
   const checkAdmin = useServerFn(isCurrentUserAdmin);
   const claim = useServerFn(claimAdminIfNone);
+  const fetchAdminProducts = useServerFn(listAdminProducts);
+  const updateProductStatus = useServerFn(moderateProduct);
+  const getProductFileUrl = useServerFn(getAdminProductFileUrl);
   const [filter, setFilter] = useState<"pending_review" | "published" | "rejected" | "all">("pending_review");
   const [notes, setNotes] = useState<Record<string, string>>({});
 
@@ -57,37 +59,26 @@ function AdminPage() {
   const { data: products, isLoading: loadingProducts } = useQuery({
     queryKey: ["admin-products", filter],
     enabled: isAdmin,
-    queryFn: async () => {
-      let q = supabase
-        .from("products")
-        .select("id,title,description,price,currency,status,created_at,preview_url,sample_url,file_path,seller_id,tags,review_notes")
-        .order("created_at", { ascending: false });
-      if (filter !== "all") q = q.eq("status", filter as any);
-      const { data, error } = await q;
-      if (error) throw error;
-      return (data ?? []) as ProductRow[];
-    },
+    queryFn: () => fetchAdminProducts({ data: { filter } }) as Promise<ProductRow[]>,
   });
 
   const moderate = async (id: string, newStatus: "published" | "rejected") => {
-    const { error } = await supabase
-      .from("products")
-      .update({
-        status: newStatus,
-        review_notes: notes[id] ?? null,
-        reviewed_at: new Date().toISOString(),
-        reviewed_by: user!.id,
-      } as any)
-      .eq("id", id);
-    if (error) return toast.error(error.message);
-    toast.success(newStatus === "published" ? "Zatwierdzono" : "Odrzucono");
-    qc.invalidateQueries({ queryKey: ["admin-products"] });
+    try {
+      await updateProductStatus({ data: { productId: id, status: newStatus, reviewNotes: notes[id] ?? null } });
+      toast.success(newStatus === "published" ? "Zatwierdzono" : "Odrzucono");
+      qc.invalidateQueries({ queryKey: ["admin-products"] });
+    } catch (e: any) {
+      toast.error(e?.message ?? "Nie udało się zmienić statusu produktu");
+    }
   };
 
-  const signFile = async (path: string) => {
-    const { data, error } = await supabase.storage.from("product-files").createSignedUrl(path, 60 * 30);
-    if (error || !data) return toast.error(error?.message ?? "Błąd");
-    window.open(data.signedUrl, "_blank");
+  const signFile = async (productId: string) => {
+    try {
+      const data = await getProductFileUrl({ data: { productId } });
+      window.open(data.url, "_blank");
+    } catch (e: any) {
+      toast.error(e?.message ?? "Nie udało się pobrać pliku");
+    }
   };
 
   if (loading || !user) return null;
@@ -185,8 +176,8 @@ function AdminPage() {
                               <FileText className="h-3 w-3" /> Próbka
                             </a>
                           )}
-                          {p.file_path && (
-                            <button onClick={() => signFile(p.file_path!)} className="inline-flex items-center gap-1 px-2 py-1 rounded border border-border hover:border-primary/50">
+                          {p.has_file && (
+                            <button onClick={() => signFile(p.id)} className="inline-flex items-center gap-1 px-2 py-1 rounded border border-border hover:border-primary/50">
                               <Download className="h-3 w-3" /> Pobierz plik do weryfikacji
                             </button>
                           )}
