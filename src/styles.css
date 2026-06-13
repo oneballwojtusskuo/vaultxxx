@@ -133,6 +133,6 @@
     border: 1px solid oklch(1 0 0 / 0.06);
   }
   .glow-ring {
-    box-shadow: 0 0 0 1px oklch(0.72 0.20 295 / 0.35), 0 0 30px oklch(0.72 0.20 295 / 0.25);
+    box-shadow: 0 0 0 1px oklch(0.82 0.12 85 / 0.4), 0 0 30px oklch(0.82 0.12 85 / 0.25);
   }
 }
