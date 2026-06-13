@@ -19,6 +19,7 @@ import { ReportDialog } from "@/components/report-dialog";
 import { VerifiedBadge } from "@/components/verified-badge";
 import { getSecureStreamUrl } from "@/lib/secure-stream.functions";
 import { purchaseProduct } from "@/lib/purchase.functions";
+import { getProductDetails } from "@/lib/product.functions";
 import { generateLicensePdf } from "@/lib/license-pdf";
 
 export const Route = createFileRoute("/product/$id")({
@@ -29,18 +30,12 @@ function ProductPage() {
   const { id } = Route.useParams();
   const { user } = useAuth();
   const navigate = useNavigate();
+  const fetchProduct = useServerFn(getProductDetails);
+  const purchaseFn = useServerFn(purchaseProduct);
 
   const { data: p, refetch, isLoading, error } = useQuery({
     queryKey: ["product", id],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from("products")
-        .select("id, seller_id, category_id, title, description, price, currency, preview_url, sample_url, tags, status, is_tradable, license_terms, downloads_count, created_at, updated_at, category:categories(name), seller:profiles!products_seller_id_fkey(id,display_name,username,avatar_url,is_verified_seller)")
-        .eq("id", id)
-        .maybeSingle();
-      if (error) throw error;
-      return data;
-    },
+    queryFn: () => fetchProduct({ data: { productId: id } }),
     retry: 1,
   });
 
@@ -99,8 +94,6 @@ function ProductPage() {
   );
 
   const isOwner = user?.id === p.seller_id;
-
-  const purchaseFn = useServerFn(purchaseProduct);
 
   const buy = async () => {
     if (!user) { navigate({ to: "/auth" }); return; }
