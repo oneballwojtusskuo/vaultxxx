@@ -198,7 +198,7 @@ function ProductPage() {
               <LicenseSummary terms={(p as any).license_terms} />
             )}
 
-            {(myTransaction || isOwner) && p.file_path && (
+            {(myTransaction || isOwner) && (
               <SecureStreamPlayer
                 productId={p.id}
                 buyerEmail={user?.email ?? ""}
