@@ -14,6 +14,28 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { Upload, ShieldCheck, FileText } from "lucide-react";
 import { Checkbox } from "@/components/ui/checkbox";
+import { useServerFn } from "@tanstack/react-start";
+import { validateUploadedFile } from "@/lib/upload-validate.functions";
+
+const SAFE_IMAGE_MIME = ["image/jpeg", "image/png", "image/webp", "image/gif"];
+const SAFE_IMAGE_EXT = [".jpg", ".jpeg", ".png", ".webp", ".gif"];
+const FORBIDDEN_EXT = [".svg", ".html", ".htm", ".xhtml", ".xml", ".js", ".mjs"];
+
+function checkImageFile(file: File) {
+  const name = file.name.toLowerCase();
+  if (FORBIDDEN_EXT.some((e) => name.endsWith(e))) return "File type not allowed";
+  if (!SAFE_IMAGE_EXT.some((e) => name.endsWith(e))) return "Use JPG, PNG, WebP or GIF";
+  if (file.type && !SAFE_IMAGE_MIME.includes(file.type)) return "File type not allowed";
+  if (file.size > 10 * 1024 * 1024) return "Image too large (max 10 MB)";
+  return null;
+}
+
+function checkProductFile(file: File) {
+  const name = file.name.toLowerCase();
+  if (FORBIDDEN_EXT.some((e) => name.endsWith(e))) return "File type not allowed";
+  if (file.size > 500 * 1024 * 1024) return "File too large (max 500 MB)";
+  return null;
+}
 
 export const Route = createFileRoute("/sell")({
   component: Sell,
