@@ -28,13 +28,13 @@ export const Route = createFileRoute("/product/$id")({
 
 function ProductPage() {
   const { id } = Route.useParams();
-  const { user } = useAuth();
+  const { user, loading: authLoading } = useAuth();
   const navigate = useNavigate();
   const fetchProduct = useServerFn(getProductDetails);
   const purchaseFn = useServerFn(purchaseProduct);
 
   const { data: p, refetch, isLoading, error } = useQuery({
-    queryKey: ["product", id],
+    queryKey: ["product", id, user?.id ?? "anon"],
     queryFn: () => fetchProduct({ data: { productId: id } }),
     retry: 1,
   });
@@ -71,7 +71,7 @@ function ProductPage() {
   const [offeredId, setOfferedId] = useState<string>("");
   const [message, setMessage] = useState("");
 
-  if (isLoading) return (
+  if (isLoading || (authLoading && !p)) return (
     <div className="min-h-screen flex flex-col">
       <SiteHeader />
       <div className="flex-1 flex items-center justify-center text-muted-foreground">Ładowanie produktu...</div>
