@@ -84,7 +84,7 @@ function ProductPage() {
       <SiteHeader />
       <main className="flex-1 container mx-auto px-4 py-20 text-center">
         <h1 className="font-display text-4xl font-bold mb-3">Produkt niedostępny</h1>
-        <p className="text-muted-foreground mb-6">Ten produkt nie istnieje lub został usunięty.</p>
+        <p className="text-muted-foreground mb-6">Ten produkt nie istnieje, został usunięty albo czeka jeszcze na weryfikację.</p>
         <Link to="/browse" className="inline-flex items-center gap-2 text-accent hover:underline">
           <ArrowLeft className="h-4 w-4" /> Wróć do przeglądania
         </Link>
