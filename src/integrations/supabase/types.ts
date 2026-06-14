@@ -173,6 +173,7 @@ export type Database = {
           created_at: string
           display_name: string | null
           id: string
+          is_banned: boolean
           is_verified_seller: boolean
           updated_at: string
           username: string | null
@@ -183,6 +184,7 @@ export type Database = {
           created_at?: string
           display_name?: string | null
           id: string
+          is_banned?: boolean
           is_verified_seller?: boolean
           updated_at?: string
           username?: string | null
@@ -193,6 +195,7 @@ export type Database = {
           created_at?: string
           display_name?: string | null
           id?: string
+          is_banned?: boolean
           is_verified_seller?: boolean
           updated_at?: string
           username?: string | null
@@ -201,33 +204,42 @@ export type Database = {
       }
       reports: {
         Row: {
+          admin_notes: string | null
           created_at: string
           description: string | null
           id: string
           reason: string
           reporter_id: string
+          resolved_at: string | null
+          resolved_by: string | null
           status: Database["public"]["Enums"]["report_status"]
           target_id: string
           target_type: Database["public"]["Enums"]["report_target"]
           updated_at: string
         }
         Insert: {
+          admin_notes?: string | null
           created_at?: string
           description?: string | null
           id?: string
           reason: string
           reporter_id: string
+          resolved_at?: string | null
+          resolved_by?: string | null
           status?: Database["public"]["Enums"]["report_status"]
           target_id: string
           target_type: Database["public"]["Enums"]["report_target"]
           updated_at?: string
         }
         Update: {
+          admin_notes?: string | null
           created_at?: string
           description?: string | null
           id?: string
           reason?: string
           reporter_id?: string
+          resolved_at?: string | null
+          resolved_by?: string | null
           status?: Database["public"]["Enums"]["report_status"]
           target_id?: string
           target_type?: Database["public"]["Enums"]["report_target"]
