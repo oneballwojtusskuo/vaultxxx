@@ -229,3 +229,186 @@ function AdminPage() {
     </div>
   );
 }
+
+type ReportRow = {
+  id: string;
+  reporter_id: string;
+  target_type: "product" | "user";
+  target_id: string;
+  reason: string;
+  description: string | null;
+  status: "pending" | "reviewing" | "resolved" | "dismissed";
+  admin_notes: string | null;
+  created_at: string;
+  reporter: { id: string; display_name: string | null; username: string | null } | null;
+  product: { id: string; title: string; status: string; seller_id: string } | null;
+  user_target: { id: string; display_name: string | null; username: string | null; is_banned: boolean } | null;
+};
+
+function ReportsPanel() {
+  const qc = useQueryClient();
+  const fetchReports = useServerFn(listReports);
+  const updateStatus = useServerFn(updateReportStatus);
+  const takedown = useServerFn(takedownProduct);
+  const ban = useServerFn(setUserBan);
+  const [status, setStatus] = useState<"pending" | "reviewing" | "resolved" | "dismissed" | "all">("pending");
+  const [adminNotes, setAdminNotes] = useState<Record<string, string>>({});
+
+  const { data: reports, isLoading } = useQuery({
+    queryKey: ["admin-reports", status],
+    queryFn: () => fetchReports({ data: { status } }) as Promise<ReportRow[]>,
+  });
+
+  const refresh = () => qc.invalidateQueries({ queryKey: ["admin-reports"] });
+
+  const setRStatus = async (id: string, s: "reviewing" | "resolved" | "dismissed") => {
+    try {
+      await updateStatus({ data: { reportId: id, status: s, adminNotes: adminNotes[id] ?? null } });
+      toast.success("Zaktualizowano status zgłoszenia");
+      refresh();
+    } catch (e: any) { toast.error(e?.message ?? "Błąd"); }
+  };
+
+  const doTakedown = async (productId: string, reportId: string) => {
+    if (!confirm("Zdjąć to ogłoszenie?")) return;
+    try {
+      await takedown({ data: { productId, reason: adminNotes[reportId] || undefined } });
+      await updateStatus({ data: { reportId, status: "resolved", adminNotes: adminNotes[reportId] ?? "Zdjęte" } });
+      toast.success("Ogłoszenie zdjęte");
+      refresh();
+    } catch (e: any) { toast.error(e?.message ?? "Błąd"); }
+  };
+
+  const doBan = async (userId: string, banned: boolean, reportId?: string) => {
+    if (!confirm(banned ? "Zablokować tego użytkownika?" : "Odblokować tego użytkownika?")) return;
+    try {
+      await ban({ data: { userId, banned } });
+      if (reportId && banned) {
+        await updateStatus({ data: { reportId, status: "resolved", adminNotes: adminNotes[reportId] ?? "Użytkownik zablokowany" } });
+      }
+      toast.success(banned ? "Użytkownik zablokowany" : "Użytkownik odblokowany");
+      refresh();
+    } catch (e: any) { toast.error(e?.message ?? "Błąd"); }
+  };
+
+  return (
+    <div className="mt-4">
+      <div className="flex flex-wrap gap-2">
+        {(["pending", "reviewing", "resolved", "dismissed", "all"] as const).map((s) => (
+          <button
+            key={s}
+            onClick={() => setStatus(s)}
+            className={`px-3 py-1.5 rounded-full text-xs border transition-colors ${
+              status === s ? "bg-primary text-primary-foreground border-primary" : "border-border hover:border-primary/50"
+            }`}
+          >
+            {s === "pending" ? "Nowe" : s === "reviewing" ? "W toku" : s === "resolved" ? "Rozwiązane" : s === "dismissed" ? "Odrzucone" : "Wszystkie"}
+          </button>
+        ))}
+      </div>
+
+      <div className="mt-6 space-y-4">
+        {isLoading ? (
+          <div className="text-muted-foreground">Ładowanie zgłoszeń...</div>
+        ) : !reports || reports.length === 0 ? (
+          <div className="text-muted-foreground py-10 text-center">Brak zgłoszeń w tej kategorii.</div>
+        ) : (
+          reports.map((r) => (
+            <div key={r.id} className="rounded-2xl border border-border/40 bg-gradient-surface p-5">
+              <div className="flex items-start justify-between gap-3">
+                <div className="min-w-0">
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <Badge variant={r.target_type === "product" ? "secondary" : "outline"}>
+                      {r.target_type === "product" ? "Produkt" : "Użytkownik"}
+                    </Badge>
+                    <span className="font-semibold">{r.reason}</span>
+                  </div>
+                  <p className="text-xs text-muted-foreground mt-1">
+                    {new Date(r.created_at).toLocaleString("pl-PL")} · zgłoszone przez{" "}
+                    <span className="font-medium">@{r.reporter?.username ?? r.reporter_id.slice(0, 8)}</span>
+                  </p>
+                </div>
+                <Badge variant={r.status === "resolved" ? "default" : r.status === "dismissed" ? "destructive" : "secondary"}>
+                  {r.status}
+                </Badge>
+              </div>
+
+              {r.description && (
+                <p className="text-sm text-muted-foreground mt-3 whitespace-pre-wrap">{r.description}</p>
+              )}
+
+              <div className="mt-4 rounded-lg border border-border/40 bg-background/40 p-3 text-sm">
+                {r.target_type === "product" ? (
+                  r.product ? (
+                    <div className="flex flex-wrap items-center justify-between gap-3">
+                      <div>
+                        <p className="font-medium">{r.product.title}</p>
+                        <p className="text-xs text-muted-foreground">status: {r.product.status}</p>
+                      </div>
+                      <div className="flex flex-wrap gap-2">
+                        <Link
+                          to="/product/$id"
+                          params={{ id: r.product.id }}
+                          className="inline-flex items-center gap-1 px-2 py-1 rounded border border-border hover:border-primary/50 text-xs"
+                        >
+                          <ExternalLink className="h-3 w-3" /> Zobacz
+                        </Link>
+                        <Button size="sm" variant="destructive" onClick={() => doTakedown(r.product!.id, r.id)}>
+                          <Trash2 className="h-4 w-4 mr-1" /> Zdejmij ogłoszenie
+                        </Button>
+                        <Button size="sm" variant="outline" onClick={() => doBan(r.product!.seller_id, true, r.id)}>
+                          <Ban className="h-4 w-4 mr-1" /> Zablokuj sprzedawcę
+                        </Button>
+                      </div>
+                    </div>
+                  ) : (
+                    <p className="text-xs text-muted-foreground">Produkt nie istnieje już w bazie.</p>
+                  )
+                ) : r.user_target ? (
+                  <div className="flex flex-wrap items-center justify-between gap-3">
+                    <div>
+                      <p className="font-medium">{r.user_target.display_name ?? r.user_target.username ?? r.user_target.id}</p>
+                      <p className="text-xs text-muted-foreground">@{r.user_target.username ?? "—"} {r.user_target.is_banned && "· ZABLOKOWANY"}</p>
+                    </div>
+                    <div className="flex flex-wrap gap-2">
+                      {r.user_target.is_banned ? (
+                        <Button size="sm" variant="outline" onClick={() => doBan(r.user_target!.id, false, r.id)}>
+                          <UserCheck className="h-4 w-4 mr-1" /> Odblokuj
+                        </Button>
+                      ) : (
+                        <Button size="sm" variant="destructive" onClick={() => doBan(r.user_target!.id, true, r.id)}>
+                          <Ban className="h-4 w-4 mr-1" /> Zablokuj użytkownika
+                        </Button>
+                      )}
+                    </div>
+                  </div>
+                ) : (
+                  <p className="text-xs text-muted-foreground">Profil nie istnieje już w bazie.</p>
+                )}
+              </div>
+
+              <div className="mt-4 space-y-2">
+                <Textarea
+                  rows={2}
+                  placeholder="Notatka administratora (opcjonalna)"
+                  value={adminNotes[r.id] ?? r.admin_notes ?? ""}
+                  onChange={(e) => setAdminNotes((s) => ({ ...s, [r.id]: e.target.value }))}
+                />
+                <div className="flex flex-wrap gap-2">
+                  <Button size="sm" variant="outline" onClick={() => setRStatus(r.id, "reviewing")}>W toku</Button>
+                  <Button size="sm" className="bg-gradient-primary text-primary-foreground" onClick={() => setRStatus(r.id, "resolved")}>
+                    <Check className="h-4 w-4 mr-1" /> Oznacz rozwiązane
+                  </Button>
+                  <Button size="sm" variant="destructive" onClick={() => setRStatus(r.id, "dismissed")}>
+                    <X className="h-4 w-4 mr-1" /> Odrzuć zgłoszenie
+                  </Button>
+                </div>
+              </div>
+            </div>
+          ))
+        )}
+      </div>
+    </div>
+  );
+}
+
