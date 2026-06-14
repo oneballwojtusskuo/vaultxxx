@@ -7,10 +7,13 @@ import { SiteFooter } from "@/components/site-footer";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { useAuth } from "@/hooks/use-auth";
 import { toast } from "sonner";
-import { ShieldCheck, Check, X, ExternalLink, FileText, Download } from "lucide-react";
+import { ShieldCheck, Check, X, ExternalLink, FileText, Download, Flag, Ban, Trash2, UserCheck } from "lucide-react";
 import { claimAdminIfNone, getAdminProductFileUrl, isCurrentUserAdmin, listAdminProducts, moderateProduct } from "@/lib/admin.functions";
+import { listReports, updateReportStatus, takedownProduct, setUserBan } from "@/lib/reports.functions";
+
 
 export const Route = createFileRoute("/admin")({
   component: AdminPage,
