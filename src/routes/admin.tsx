@@ -124,8 +124,14 @@ function AdminPage() {
             </Button>
           </div>
         ) : (
-          <>
-            <div className="mt-6 flex flex-wrap gap-2">
+          <Tabs defaultValue="products" className="mt-6">
+            <TabsList>
+              <TabsTrigger value="products"><ShieldCheck className="h-4 w-4 mr-1.5" /> Produkty</TabsTrigger>
+              <TabsTrigger value="reports"><Flag className="h-4 w-4 mr-1.5" /> Zgłoszenia</TabsTrigger>
+            </TabsList>
+
+            <TabsContent value="products">
+            <div className="mt-4 flex flex-wrap gap-2">
               {(["pending_review", "published", "rejected", "all"] as const).map((s) => (
                 <button
                   key={s}
@@ -210,8 +216,14 @@ function AdminPage() {
                 ))
               )}
             </div>
-          </>
+            </TabsContent>
+
+            <TabsContent value="reports">
+              <ReportsPanel />
+            </TabsContent>
+          </Tabs>
         )}
+
       </main>
       <SiteFooter />
     </div>
