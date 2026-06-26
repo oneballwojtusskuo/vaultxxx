@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
-import { ArrowRight, Repeat2, Shield, Zap, Sparkles, Palette, BookOpen, Music, Code, GraduationCap, Camera, Box } from "lucide-react";
+import { ArrowRight, Repeat2, Shield, Zap, Sparkles, Palette, BookOpen, Music, Code, GraduationCap, Camera, Box, Film, Boxes, RefreshCw } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
@@ -45,17 +45,25 @@ function Index() {
       {/* HERO */}
       <section className="relative overflow-hidden">
         <div className="absolute inset-0 bg-gradient-hero opacity-80" />
-        <img src={heroImg} alt="" className="absolute inset-0 w-full h-full object-cover opacity-30 mix-blend-screen" />
+        <img src={heroImg} alt="" className="absolute inset-0 w-full h-full object-cover opacity-20 mix-blend-screen" />
+        {/* Gold glow accents */}
+        <div className="pointer-events-none absolute -top-32 left-1/2 -translate-x-1/2 h-[520px] w-[820px] rounded-full blur-3xl opacity-40"
+             style={{ background: "radial-gradient(closest-side, oklch(0.82 0.14 85 / 0.55), transparent 70%)" }} />
+        <div className="pointer-events-none absolute top-40 -left-32 h-[360px] w-[360px] rounded-full blur-3xl opacity-30"
+             style={{ background: "radial-gradient(closest-side, oklch(0.78 0.14 70 / 0.6), transparent 70%)" }} />
+        <div className="pointer-events-none absolute top-20 -right-24 h-[320px] w-[320px] rounded-full blur-3xl opacity-25"
+             style={{ background: "radial-gradient(closest-side, oklch(0.85 0.12 90 / 0.55), transparent 70%)" }} />
+
         <div className="relative container mx-auto px-4 pt-24 pb-32 text-center">
           <div className="inline-flex items-center gap-2 rounded-full glass px-4 py-1.5 text-xs font-medium mb-8">
             <Sparkles className="h-3.5 w-3.5 text-accent" />
-            <span>Marketplace dla twórców cyfrowych</span>
+            <span>Bezgotówkowy barter dla twórców cyfrowych</span>
           </div>
           <h1 className="font-display text-5xl md:text-7xl font-bold tracking-tight max-w-4xl mx-auto leading-[1.05]">
-            Kupuj, sprzedawaj i <span className="text-gradient">wymieniaj</span> materiały cyfrowe
+            Kupuj, sprzedawaj i <span className="text-gradient">wymieniaj bezgotówkowo</span> materiały cyfrowe
           </h1>
           <p className="mt-6 text-lg text-muted-foreground max-w-2xl mx-auto">
-            Grafiki, e-booki, muzyka, kod, kursy, modele 3D. Wszystko w jednym miejscu — z możliwością wymiany jeden-na-jeden z innymi twórcami.
+            Połącz siły z innymi twórcami. Wymieniaj kod na grafiki, muzykę na 3D lub sprzedawaj tradycyjnie. Wszystko bezpiecznie w jednym miejscu.
           </p>
           <div className="mt-10 flex flex-wrap items-center justify-center gap-3">
             <Link to="/browse">
@@ -63,34 +71,38 @@ function Index() {
                 Odkryj produkty <ArrowRight className="ml-2 h-4 w-4" />
               </Button>
             </Link>
-            <Link to="/sell">
-              <Button size="lg" variant="outline" className="h-12 px-6 border-border/60">
-                Zacznij sprzedawać
+            <Link to="/exchanges">
+              <Button size="lg" variant="outline" className="h-12 px-6 border-border/60 glass backdrop-blur-md hover:border-primary/50">
+                <RefreshCw className="mr-2 h-4 w-4" /> Przetestuj szybką wymianę
               </Button>
             </Link>
+          </div>
+
+          {/* Curated category tiles */}
+          <div className="mt-12 grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3 max-w-5xl mx-auto">
+            {[
+              { label: "Grafiki & UI", icon: Palette },
+              { label: "E-booki & Teksty", icon: BookOpen },
+              { label: "Muzyka & Audio", icon: Music },
+              { label: "Kod & Skrypty", icon: Code },
+              { label: "Modele 3D", icon: Boxes },
+              { label: "Wideo & LUTs", icon: Film },
+            ].map((t) => (
+              <Link
+                key={t.label}
+                to="/browse"
+                className="group relative flex items-center gap-3 rounded-xl glass border border-border/40 px-4 py-3 hover:border-primary/50 hover:shadow-glow transition-all text-left"
+              >
+                <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-gradient-primary shadow-glow shrink-0">
+                  <t.icon className="h-4 w-4 text-primary-foreground" />
+                </span>
+                <span className="text-sm font-medium">{t.label}</span>
+              </Link>
+            ))}
           </div>
         </div>
       </section>
 
-      {/* CATEGORIES */}
-      <section className="container mx-auto px-4 -mt-16 relative z-10">
-        <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-8 gap-3">
-          {categories?.map((c) => {
-            const Icon = ICONS[c.icon ?? "Sparkles"] ?? Sparkles;
-            return (
-              <Link
-                key={c.id}
-                to="/browse"
-                search={{ category: c.slug }}
-                className="group flex flex-col items-center gap-2 rounded-xl bg-gradient-surface border border-border/40 p-4 hover:border-primary/50 hover:shadow-glow transition-all"
-              >
-                <Icon className="h-6 w-6 text-accent group-hover:text-primary transition-colors" />
-                <span className="text-xs font-medium text-center">{c.name}</span>
-              </Link>
-            );
-          })}
-        </div>
-      </section>
 
       {/* FEATURES */}
       <section className="container mx-auto px-4 py-24">
