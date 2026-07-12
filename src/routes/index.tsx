@@ -121,7 +121,7 @@ function Index() {
                 </div>
                 <div className="font-display text-4xl leading-none">
                   8,2k+
-                  <span className="block text-[10px] font-sans font-semibold uppercase tracking-widest mt-2 italic not-italic">
+                  <span className="block text-[10px] font-sans font-semibold uppercase tracking-widest mt-2">
                     Aktywnych ofert
                   </span>
                 </div>
