@@ -42,137 +42,98 @@ function Index() {
     <div className="min-h-screen flex flex-col">
       <SiteHeader />
 
-      {/* HERO — Editorial navy journal */}
-      <section className="relative overflow-hidden bg-gradient-hero">
-        <div className="pointer-events-none absolute -top-24 -right-24 h-[480px] w-[480px] rounded-full blur-3xl opacity-30"
-             style={{ background: "radial-gradient(closest-side, oklch(0.82 0.14 82 / 0.4), transparent 70%)" }} />
-        <div className="pointer-events-none absolute -bottom-40 -left-32 h-[520px] w-[520px] rounded-full blur-3xl opacity-20"
-             style={{ background: "radial-gradient(closest-side, oklch(0.55 0.14 82 / 0.5), transparent 70%)" }} />
+      {/* HERO */}
+      <section className="relative overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-hero opacity-80" />
+        <img src={heroImg} alt="" className="absolute inset-0 w-full h-full object-cover opacity-20 mix-blend-screen" />
+        {/* Gold glow accents */}
+        <div className="pointer-events-none absolute -top-32 left-1/2 -translate-x-1/2 h-[520px] w-[820px] rounded-full blur-3xl opacity-40"
+             style={{ background: "radial-gradient(closest-side, oklch(0.82 0.14 85 / 0.55), transparent 70%)" }} />
+        <div className="pointer-events-none absolute top-40 -left-32 h-[360px] w-[360px] rounded-full blur-3xl opacity-30"
+             style={{ background: "radial-gradient(closest-side, oklch(0.78 0.14 70 / 0.6), transparent 70%)" }} />
+        <div className="pointer-events-none absolute top-20 -right-24 h-[320px] w-[320px] rounded-full blur-3xl opacity-25"
+             style={{ background: "radial-gradient(closest-side, oklch(0.85 0.12 90 / 0.55), transparent 70%)" }} />
 
-        <div className="relative container mx-auto px-6 py-20 lg:py-28">
-          <div className="grid grid-cols-1 lg:grid-cols-10 gap-12 items-start">
-            {/* LEFT 60% */}
-            <div className="lg:col-span-6 space-y-10 lg:border-l lg:border-accent/30 lg:pl-10">
-              <div className="space-y-5">
-                <span className="block eyebrow">Platforma barterowa № 01</span>
-                <h1 className="font-display text-6xl md:text-8xl lg:text-9xl leading-[0.85] italic">
-                  Vault<span className="text-accent">X</span>
-                </h1>
-                <p className="font-display text-2xl md:text-4xl lg:text-5xl leading-[1.05] max-w-2xl">
-                  Kupuj, sprzedawaj, <span className="text-accent">wymieniaj</span> bezgotówkowo.
-                </p>
-              </div>
-
-              <div className="max-w-md">
-                <p className="text-base md:text-lg leading-relaxed text-muted-foreground">
-                  Przywracamy ludzki wymiar handlu cyfrowego. Dołącz do społeczności twórców, gdzie kod, grafika, muzyka i wiedza mają realną wartość — bez pośrednictwa waluty.
-                </p>
-                <div className="mt-8 flex flex-wrap items-center gap-6">
-                  <Link to="/browse">
-                    <Button size="lg" className="h-12 px-8 rounded-none bg-accent text-accent-foreground hover:bg-primary-glow uppercase tracking-widest text-xs font-bold">
-                      Zacznij wymianę
-                    </Button>
-                  </Link>
-                  <Link
-                    to="/browse"
-                    className="uppercase tracking-widest text-xs font-semibold border-b border-accent pb-1 hover:text-accent transition-colors"
-                  >
-                    Zobacz rynek →
-                  </Link>
-                </div>
-              </div>
-
-              {/* Feature highlights — editorial numbered */}
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-8 pt-10">
-                {[
-                  { n: "01", t: "Bezpieczny skarbiec", d: "Gwarancja uczciwej transakcji i chronione pliki." },
-                  { n: "02", t: "Wymiana 1:1", d: "Bezgotówkowy barter między twórcami cyfrowymi." },
-                  { n: "03", t: "Błyskawiczny dostęp", d: "Pobierz plik natychmiast po zakupie." },
-                ].map((f) => (
-                  <div key={f.n} className="space-y-2">
-                    <span className="font-display text-4xl text-accent italic">{f.n}</span>
-                    <h3 className="font-sans font-bold uppercase tracking-tight text-sm">{f.t}</h3>
-                    <p className="text-sm text-muted-foreground leading-relaxed">{f.d}</p>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            {/* RIGHT 40% — Editorial visual */}
-            <div className="lg:col-span-4 relative mt-8 lg:mt-4">
-              <div className="pointer-events-none absolute -top-8 -right-4 select-none opacity-[0.08]">
-                <span className="font-display text-[10rem] md:text-[14rem] leading-none italic">VX</span>
-              </div>
-
-              <div className="relative z-10 aspect-[4/5] overflow-hidden border-8 shadow-elevated"
-                   style={{ borderColor: "oklch(0.28 0.07 258)" }}>
-                <img src={heroImg} alt="Rzemiosło & pasja twórców" className="w-full h-full object-cover grayscale hover:grayscale-0 transition-all duration-700" />
-                <div className="absolute inset-0" style={{ background: "linear-gradient(180deg, transparent 50%, oklch(0.19 0.07 260 / 0.85))" }} />
-                <div className="absolute bottom-0 left-0 right-0 p-6">
-                  <span className="eyebrow block mb-2">Edycja bieżąca</span>
-                  <p className="font-display text-2xl italic leading-tight">Rzemiosło &amp; pasja</p>
-                </div>
-              </div>
-
-              {/* Mustard offset callout */}
-              <div className="relative z-20 lg:absolute lg:-bottom-10 lg:-left-10 mt-4 lg:mt-0 w-full lg:w-56 bg-accent p-6 text-accent-foreground shadow-elevated">
-                <div className="text-[10px] font-bold uppercase leading-tight tracking-tighter mb-4">
-                  Ostatnia<br/>aktualizacja<br/>2026
-                </div>
-                <div className="font-display text-4xl leading-none">
-                  8,2k+
-                  <span className="block text-[10px] font-sans font-semibold uppercase tracking-widest mt-2">
-                    Aktywnych ofert
-                  </span>
-                </div>
-              </div>
-            </div>
+        <div className="relative container mx-auto px-4 pt-24 pb-32 text-center">
+          <div className="inline-flex items-center gap-2 rounded-full glass px-4 py-1.5 text-xs font-medium mb-8">
+            <Sparkles className="h-3.5 w-3.5 text-accent" />
+            <span>Bezgotówkowy barter dla twórców cyfrowych</span>
+          </div>
+          <h1 className="font-display text-5xl md:text-7xl font-bold tracking-tight max-w-4xl mx-auto leading-[1.05]">
+            Kupuj, sprzedawaj i <span className="text-gradient">wymieniaj bezgotówkowo</span> materiały cyfrowe
+          </h1>
+          <p className="mt-6 text-lg text-muted-foreground max-w-2xl mx-auto">
+            Połącz siły z innymi twórcami. Wymieniaj kod na grafiki, muzykę na 3D lub sprzedawaj tradycyjnie. Wszystko bezpiecznie w jednym miejscu.
+          </p>
+          <div className="mt-10 flex flex-wrap items-center justify-center gap-3">
+            <Link to="/browse">
+              <Button size="lg" className="bg-gradient-primary text-primary-foreground hover:opacity-90 shadow-glow h-12 px-6">
+                Odkryj produkty <ArrowRight className="ml-2 h-4 w-4" />
+              </Button>
+            </Link>
+            <Link to="/exchanges">
+              <Button size="lg" variant="outline" className="h-12 px-6 border-border/60 glass backdrop-blur-md hover:border-primary/50">
+                <RefreshCw className="mr-2 h-4 w-4" /> Przetestuj szybką wymianę
+              </Button>
+            </Link>
           </div>
 
-          {/* Category strip — editorial index */}
-          <div className="mt-24 pt-10 border-t border-accent/20">
-            <div className="flex items-baseline justify-between mb-6">
-              <span className="eyebrow">Spis kategorii</span>
-              <span className="text-xs text-muted-foreground font-mono">— sześć działów</span>
-            </div>
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-px bg-accent/20">
-              {[
-                { label: "Grafiki & UI", icon: Palette, slug: "graphics", n: "I" },
-                { label: "E-booki & Teksty", icon: BookOpen, slug: "ebooks", n: "II" },
-                { label: "Muzyka & Audio", icon: Music, slug: "music", n: "III" },
-                { label: "Kod & Skrypty", icon: Code, slug: "code", n: "IV" },
-                { label: "Modele 3D", icon: Boxes, slug: "3d", n: "V" },
-                { label: "Wideo & LUTs", icon: Film, slug: "photos", n: "VI" },
-              ].map((t) => (
-                <Link
-                  key={t.label}
-                  to="/browse"
-                  search={{ category: t.slug }}
-                  className="group relative bg-background hover:bg-surface transition-colors px-5 py-6 flex flex-col gap-3"
-                >
-                  <div className="flex items-center justify-between">
-                    <span className="font-display italic text-accent text-xl">{t.n}</span>
-                    <t.icon className="h-4 w-4 text-muted-foreground group-hover:text-accent transition-colors" />
-                  </div>
-                  <span className="font-display text-lg leading-tight">{t.label}</span>
-                </Link>
-              ))}
-            </div>
+          {/* Curated category tiles */}
+          <div className="mt-12 grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3 max-w-5xl mx-auto">
+            {[
+              { label: "Grafiki & UI", icon: Palette, slug: "graphics" },
+              { label: "E-booki & Teksty", icon: BookOpen, slug: "ebooks" },
+              { label: "Muzyka & Audio", icon: Music, slug: "music" },
+              { label: "Kod & Skrypty", icon: Code, slug: "code" },
+              { label: "Modele 3D", icon: Boxes, slug: "3d" },
+              { label: "Wideo & LUTs", icon: Film, slug: "photos" },
+            ].map((t) => (
+              <Link
+                key={t.label}
+                to="/browse"
+                search={{ category: t.slug }}
+                className="group relative flex items-center gap-3 rounded-xl glass border border-border/40 px-4 py-3 hover:border-primary/50 hover:shadow-glow transition-all text-left"
+              >
+                <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-gradient-primary shadow-glow shrink-0">
+                  <t.icon className="h-4 w-4 text-primary-foreground" />
+                </span>
+                <span className="text-sm font-medium">{t.label}</span>
+              </Link>
+            ))}
+
           </div>
         </div>
       </section>
 
 
+      {/* FEATURES */}
+      <section className="container mx-auto px-4 py-24">
+        <div className="grid md:grid-cols-3 gap-6">
+          {[
+            { icon: Zap, title: "Natychmiastowy dostęp", desc: "Pobierz pliki od razu po zakupie. Bez czekania, bez kolejek." },
+            { icon: Repeat2, title: "Wymiana 1:1", desc: "Wymień swój produkt na czyjś. Idealne dla twórców szukających inspiracji." },
+            { icon: Shield, title: "Bezpieczne transakcje", desc: "Płatności i pliki chronione. Każdy twórca to zweryfikowany użytkownik." },
+          ].map((f) => (
+            <div key={f.title} className="rounded-2xl bg-gradient-surface border border-border/40 p-6 hover:border-primary/40 transition-colors">
+              <div className="inline-flex h-11 w-11 items-center justify-center rounded-xl bg-gradient-primary shadow-glow mb-4">
+                <f.icon className="h-5 w-5 text-primary-foreground" />
+              </div>
+              <h3 className="font-display text-xl font-semibold">{f.title}</h3>
+              <p className="mt-2 text-sm text-muted-foreground">{f.desc}</p>
+            </div>
+          ))}
+        </div>
+      </section>
+
       {/* FEATURED */}
-      <section className="container mx-auto px-6 py-24">
-        <div className="flex items-end justify-between mb-10 border-b border-accent/20 pb-6">
+      <section className="container mx-auto px-4 pb-24">
+        <div className="flex items-end justify-between mb-8">
           <div>
-            <span className="eyebrow block mb-3">Kronika № 02</span>
-            <h2 className="font-display text-4xl md:text-5xl italic">Najnowsze produkty</h2>
-            <p className="text-muted-foreground mt-2">Świeżo dodane przez społeczność twórców.</p>
+            <h2 className="font-display text-3xl md:text-4xl font-bold">Najnowsze produkty</h2>
+            <p className="text-muted-foreground mt-1">Świeżo dodane przez społeczność</p>
           </div>
-          <Link to="/browse" className="hidden md:inline-flex text-xs uppercase tracking-widest font-semibold border-b border-accent pb-1 hover:text-accent transition-colors">
-            Zobacz wszystkie →
+          <Link to="/browse" className="text-sm text-accent hover:text-primary inline-flex items-center gap-1">
+            Zobacz wszystkie <ArrowRight className="h-3 w-3" />
           </Link>
         </div>
 
