@@ -81,17 +81,16 @@ function Index() {
           {/* Curated category tiles */}
           <div className="mt-12 grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3 max-w-5xl mx-auto">
             {[
-              { label: "Grafiki & UI", icon: Palette, slug: "graphics" },
-              { label: "E-booki & Teksty", icon: BookOpen, slug: "ebooks" },
-              { label: "Muzyka & Audio", icon: Music, slug: "music" },
-              { label: "Kod & Skrypty", icon: Code, slug: "code" },
-              { label: "Modele 3D", icon: Boxes, slug: "3d" },
-              { label: "Wideo & LUTs", icon: Film, slug: "photos" },
+              { label: "Grafiki & UI", icon: Palette },
+              { label: "E-booki & Teksty", icon: BookOpen },
+              { label: "Muzyka & Audio", icon: Music },
+              { label: "Kod & Skrypty", icon: Code },
+              { label: "Modele 3D", icon: Boxes },
+              { label: "Wideo & LUTs", icon: Film },
             ].map((t) => (
               <Link
                 key={t.label}
                 to="/browse"
-                search={{ category: t.slug }}
                 className="group relative flex items-center gap-3 rounded-xl glass border border-border/40 px-4 py-3 hover:border-primary/50 hover:shadow-glow transition-all text-left"
               >
                 <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-gradient-primary shadow-glow shrink-0">
@@ -100,7 +99,6 @@ function Index() {
                 <span className="text-sm font-medium">{t.label}</span>
               </Link>
             ))}
-
           </div>
         </div>
       </section>
