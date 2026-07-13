@@ -11,7 +11,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 
 export function SiteHeader() {
-  const { user, signOut } = useAuth();
+  const { user, isAdmin, signOut } = useAuth();
 
   return (
     <header className="sticky top-0 z-50 glass border-b border-border/40">
