@@ -1,24 +1,41 @@
 import { useEffect, useState, createContext, useContext, type ReactNode } from "react";
 import type { Session, User } from "@supabase/supabase-js";
 import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
 
 interface AuthCtx {
   user: User | null;
   session: Session | null;
   loading: boolean;
+  isAdmin: boolean;
   signOut: () => Promise<void>;
 }
 
-const Ctx = createContext<AuthCtx>({ user: null, session: null, loading: true, signOut: async () => {} });
+const Ctx = createContext<AuthCtx>({
+  user: null,
+  session: null,
+  loading: true,
+  isAdmin: false,
+  signOut: async () => {},
+});
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
+  const [isAdmin, setIsAdmin] = useState(false);
 
   useEffect(() => {
-    const { data: sub } = supabase.auth.onAuthStateChange((_e, s) => {
+    const { data: sub } = supabase.auth.onAuthStateChange((event, s) => {
       setSession(s);
       setLoading(false);
+
+      if (event === "SIGNED_IN" && typeof window !== "undefined") {
+        // Clean OAuth/confirmation tokens from URL and land on home
+        if (window.location.hash.includes("access_token") || window.location.search.includes("code=")) {
+          toast.success("Zalogowano pomyślnie");
+          window.history.replaceState({}, "", "/");
+        }
+      }
     });
     supabase.auth.getSession().then(({ data }) => {
       setSession(data.session);
@@ -27,12 +44,34 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return () => sub.subscription.unsubscribe();
   }, []);
 
+  useEffect(() => {
+    const uid = session?.user?.id;
+    if (!uid) {
+      setIsAdmin(false);
+      return;
+    }
+    let cancelled = false;
+    supabase
+      .from("user_roles")
+      .select("role")
+      .eq("user_id", uid)
+      .eq("role", "admin")
+      .maybeSingle()
+      .then(({ data }) => {
+        if (!cancelled) setIsAdmin(!!data);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [session?.user?.id]);
+
   return (
     <Ctx.Provider
       value={{
         user: session?.user ?? null,
         session,
         loading,
+        isAdmin,
         signOut: async () => {
           await supabase.auth.signOut();
         },
