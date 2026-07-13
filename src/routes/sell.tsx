@@ -143,7 +143,40 @@ function Sell() {
     queryFn: async () => (await supabase.from("categories").select("*").order("name")).data ?? [],
   });
 
+  const { data: sellerProfile } = useQuery({
+    queryKey: ["seller-profile", user?.id],
+    enabled: !!user?.id,
+    queryFn: async () =>
+      (await supabase.from("profiles").select("display_name, username").eq("id", user!.id).maybeSingle()).data,
+  });
+  const sellerName =
+    sellerProfile?.display_name?.trim() ||
+    sellerProfile?.username?.trim() ||
+    (user?.email ? user.email.split("@")[0] : "PREVIEW");
+
   const validateFile = useServerFn(validateUploadedFile);
+
+  const handleGenerateWatermark = async () => {
+    if (!previewFile) {
+      toast.error("Najpierw wgraj okładkę produktu — z niej wygenerujemy próbkę.");
+      return;
+    }
+    const imgErr = checkImageFile(previewFile);
+    if (imgErr) {
+      toast.error(`Okładka: ${imgErr}`);
+      return;
+    }
+    setGeneratingWatermark(true);
+    try {
+      const watermarked = await generateWatermarkedImage(previewFile, sellerName);
+      setSampleFile(watermarked);
+      toast.success("Próbka ze znakiem wodnym wygenerowana.");
+    } catch (err: any) {
+      toast.error(err?.message ?? "Nie udało się wygenerować znaku wodnego");
+    } finally {
+      setGeneratingWatermark(false);
+    }
+  };
 
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
