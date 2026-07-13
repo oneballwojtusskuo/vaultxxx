@@ -126,6 +126,7 @@ function Sell() {
   const [previewFile, setPreviewFile] = useState<File | null>(null);
   const [productFile, setProductFile] = useState<File | null>(null);
   const [sampleFile, setSampleFile] = useState<File | null>(null);
+  const [generatingWatermark, setGeneratingWatermark] = useState(false);
   const [licCommercial, setLicCommercial] = useState(false);
   const [licExclusive, setLicExclusive] = useState(false);
   const [licAttribution, setLicAttribution] = useState(true);
