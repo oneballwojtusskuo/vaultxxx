@@ -12,7 +12,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { useAuth } from "@/hooks/use-auth";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { Upload, ShieldCheck, FileText } from "lucide-react";
+import { Upload, ShieldCheck, FileText, Droplets, Loader2 } from "lucide-react";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useServerFn } from "@tanstack/react-start";
 import { validateUploadedFile } from "@/lib/upload-validate.functions";
