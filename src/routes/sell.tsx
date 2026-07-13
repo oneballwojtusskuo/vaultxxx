@@ -182,6 +182,15 @@ function Sell() {
     e.preventDefault();
     if (!user) return;
 
+    if (!previewFile) {
+      return toast.error("Wgraj okładkę produktu — to pole jest wymagane.");
+    }
+    if (!productFile) {
+      return toast.error("Wgraj plik produktu — to pole jest wymagane.");
+    }
+
+
+
     // Client-side guard (defense-in-depth; server re-validates)
     if (previewFile) {
       const err = checkImageFile(previewFile);
