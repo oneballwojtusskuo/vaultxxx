@@ -37,6 +37,78 @@ function checkProductFile(file: File) {
   return null;
 }
 
+async function generateWatermarkedImage(source: File, watermarkText: string): Promise<File> {
+  const dataUrl: string = await new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(reader.result as string);
+    reader.onerror = () => reject(new Error("Nie udało się odczytać obrazu"));
+    reader.readAsDataURL(source);
+  });
+  const img = await new Promise<HTMLImageElement>((resolve, reject) => {
+    const i = new Image();
+    i.onload = () => resolve(i);
+    i.onerror = () => reject(new Error("Niepoprawny obraz okładki"));
+    i.src = dataUrl;
+  });
+  const maxDim = 1600;
+  const scale = Math.min(1, maxDim / Math.max(img.width, img.height));
+  const w = Math.round(img.width * scale);
+  const h = Math.round(img.height * scale);
+  const canvas = document.createElement("canvas");
+  canvas.width = w;
+  canvas.height = h;
+  const ctx = canvas.getContext("2d");
+  if (!ctx) throw new Error("Canvas nieobsługiwany");
+  ctx.drawImage(img, 0, 0, w, h);
+
+  // Dimming overlay for contrast
+  ctx.fillStyle = "rgba(0,0,0,0.18)";
+  ctx.fillRect(0, 0, w, h);
+
+  const text = (watermarkText || "PREVIEW").toUpperCase();
+  const diag = Math.sqrt(w * w + h * h);
+  const fontSize = Math.max(28, Math.floor(diag / (Math.max(6, text.length * 0.9))));
+  ctx.font = `900 ${fontSize}px "Space Grotesk", Inter, system-ui, sans-serif`;
+  ctx.textAlign = "center";
+  ctx.textBaseline = "middle";
+
+  // Big diagonal main watermark
+  ctx.save();
+  ctx.translate(w / 2, h / 2);
+  ctx.rotate(-Math.atan2(h, w));
+  ctx.fillStyle = "rgba(255,255,255,0.32)";
+  ctx.strokeStyle = "rgba(0,0,0,0.55)";
+  ctx.lineWidth = Math.max(2, fontSize / 22);
+  ctx.strokeText(text, 0, 0);
+  ctx.fillText(text, 0, 0);
+  ctx.restore();
+
+  // Tiled subtle repetition so it's harder to crop out
+  ctx.save();
+  ctx.globalAlpha = 0.18;
+  ctx.fillStyle = "#ffffff";
+  const smallFont = Math.max(16, Math.floor(fontSize / 3.2));
+  ctx.font = `700 ${smallFont}px "Space Grotesk", Inter, system-ui, sans-serif`;
+  const stepX = smallFont * (text.length * 0.7 + 4);
+  const stepY = smallFont * 5;
+  for (let y = -h; y < h * 2; y += stepY) {
+    for (let x = -w; x < w * 2; x += stepX) {
+      ctx.save();
+      ctx.translate(x, y);
+      ctx.rotate(-Math.PI / 6);
+      ctx.fillText(text, 0, 0);
+      ctx.restore();
+    }
+  }
+  ctx.restore();
+
+  const blob: Blob = await new Promise((resolve, reject) =>
+    canvas.toBlob((b) => (b ? resolve(b) : reject(new Error("Nie udało się wygenerować pliku"))), "image/jpeg", 0.85),
+  );
+  const base = source.name.replace(/\.[^.]+$/, "");
+  return new File([blob], `${base}-watermark.jpg`, { type: "image/jpeg" });
+}
+
 export const Route = createFileRoute("/sell")({
   component: Sell,
 });
