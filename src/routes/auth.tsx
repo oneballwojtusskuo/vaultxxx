@@ -139,6 +139,47 @@ function AuthPage() {
           </Button>
         </div>
       </div>
+
+      <AlertDialog open={showSpamNotice} onOpenChange={setShowSpamNotice}>
+        <AlertDialogContent className="glass border-primary/30">
+          <AlertDialogHeader>
+            <div className="mx-auto mb-2 flex h-12 w-12 items-center justify-center rounded-full bg-gradient-primary shadow-glow">
+              <MailCheck className="h-6 w-6 text-primary-foreground" />
+            </div>
+            <AlertDialogTitle className="text-center">Sprawdź swoją skrzynkę email</AlertDialogTitle>
+            <AlertDialogDescription asChild>
+              <div className="space-y-3 text-sm">
+                <p className="text-center">
+                  Wysłaliśmy link aktywacyjny na adres{" "}
+                  <span className="font-semibold text-foreground">{pendingEmail}</span>.
+                </p>
+                <div className="rounded-lg border border-amber-500/30 bg-amber-500/10 p-3 text-left">
+                  <div className="flex gap-2">
+                    <ShieldAlert className="h-5 w-5 shrink-0 text-amber-500" />
+                    <div className="space-y-1.5">
+                      <p className="font-semibold text-foreground">Nie widzisz maila?</p>
+                      <p>
+                        Sprawdź folder <span className="font-semibold text-foreground">SPAM</span> lub{" "}
+                        <span className="font-semibold text-foreground">Oferty / Powiadomienia</span>.
+                      </p>
+                      <p>
+                        Jeśli wiadomość tam jest — kliknij{" "}
+                        <span className="font-semibold text-foreground">„To nie jest spam”</span>,
+                        aby aktywacja konta zadziałała poprawnie.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogAction className="w-full bg-gradient-primary text-primary-foreground shadow-glow">
+              Rozumiem
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }
