@@ -305,12 +305,31 @@ function Sell() {
           </div>
           <div className="grid md:grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label className="flex items-center gap-2"><Upload className="h-4 w-4" /> Okładka (obraz)</Label>
-              <Input type="file" accept="image/*" onChange={(e) => setPreviewFile(e.target.files?.[0] ?? null)} />
+              <Label className="flex items-center gap-2">
+                <Upload className="h-4 w-4" /> Okładka (obraz) <span className="text-destructive">*</span>
+              </Label>
+              <Input
+                type="file"
+                accept="image/*"
+                required
+                onChange={(e) => setPreviewFile(e.target.files?.[0] ?? null)}
+              />
+              {previewFile && (
+                <p className="text-xs text-muted-foreground truncate">✓ {previewFile.name}</p>
+              )}
             </div>
             <div className="space-y-2">
-              <Label className="flex items-center gap-2"><Upload className="h-4 w-4" /> Plik produktu</Label>
-              <Input type="file" onChange={(e) => setProductFile(e.target.files?.[0] ?? null)} />
+              <Label className="flex items-center gap-2">
+                <Upload className="h-4 w-4" /> Plik produktu <span className="text-destructive">*</span>
+              </Label>
+              <Input
+                type="file"
+                required
+                onChange={(e) => setProductFile(e.target.files?.[0] ?? null)}
+              />
+              {productFile && (
+                <p className="text-xs text-muted-foreground truncate">✓ {productFile.name}</p>
+              )}
             </div>
           </div>
           <div className="space-y-3 rounded-lg border border-accent/30 bg-accent/5 p-4">
@@ -323,7 +342,44 @@ function Sell() {
                 </p>
               </div>
             </div>
-            <Input type="file" accept="audio/*,video/*,image/*,application/pdf" onChange={(e) => setSampleFile(e.target.files?.[0] ?? null)} />
+            <Input
+              type="file"
+              accept="audio/*,video/*,image/*,application/pdf"
+              onChange={(e) => setSampleFile(e.target.files?.[0] ?? null)}
+            />
+            <div className="rounded-md border border-dashed border-accent/40 bg-background/40 p-3 space-y-2">
+              <div className="flex items-start gap-2">
+                <Droplets className="h-4 w-4 text-accent mt-0.5 shrink-0" />
+                <div className="text-xs text-muted-foreground">
+                  <p className="font-semibold text-foreground">Automatyczny znak wodny</p>
+                  <p className="mt-0.5">
+                    Wygeneruj próbkę z okładki z Twoją nazwą (<span className="font-medium text-foreground">{sellerName}</span>) nadrukowaną po skosie na obrazie.
+                  </p>
+                </div>
+              </div>
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                disabled={generatingWatermark || !previewFile}
+                onClick={handleGenerateWatermark}
+                className="w-full"
+              >
+                {generatingWatermark ? (
+                  <><Loader2 className="h-4 w-4 mr-2 animate-spin" /> Generuję...</>
+                ) : (
+                  <><Droplets className="h-4 w-4 mr-2" /> Wygeneruj znak wodny z okładki</>
+                )}
+              </Button>
+              {sampleFile && (
+                <p className="text-xs text-muted-foreground truncate">
+                  Aktualna próbka: <span className="text-foreground">{sampleFile.name}</span>
+                </p>
+              )}
+              {!previewFile && (
+                <p className="text-[11px] text-muted-foreground">Najpierw wgraj okładkę powyżej.</p>
+              )}
+            </div>
           </div>
           <div className="space-y-3 rounded-lg border border-primary/30 bg-primary/5 p-4">
             <div className="flex items-start gap-3">
