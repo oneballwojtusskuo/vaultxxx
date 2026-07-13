@@ -54,7 +54,8 @@ function AuthPage() {
     });
     setLoading(false);
     if (error) return toast.error(error.message);
-    toast.success("Konto utworzone! Sprawdź email aby potwierdzić.");
+    setPendingEmail(email);
+    setShowSpamNotice(true);
   };
 
   const google = async () => {
