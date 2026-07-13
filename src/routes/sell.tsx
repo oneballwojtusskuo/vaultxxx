@@ -12,7 +12,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { useAuth } from "@/hooks/use-auth";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { Upload, ShieldCheck, FileText } from "lucide-react";
+import { Upload, ShieldCheck, FileText, Droplets, Loader2 } from "lucide-react";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useServerFn } from "@tanstack/react-start";
 import { validateUploadedFile } from "@/lib/upload-validate.functions";
@@ -37,6 +37,78 @@ function checkProductFile(file: File) {
   return null;
 }
 
+async function generateWatermarkedImage(source: File, watermarkText: string): Promise<File> {
+  const dataUrl: string = await new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(reader.result as string);
+    reader.onerror = () => reject(new Error("Nie udało się odczytać obrazu"));
+    reader.readAsDataURL(source);
+  });
+  const img = await new Promise<HTMLImageElement>((resolve, reject) => {
+    const i = new Image();
+    i.onload = () => resolve(i);
+    i.onerror = () => reject(new Error("Niepoprawny obraz okładki"));
+    i.src = dataUrl;
+  });
+  const maxDim = 1600;
+  const scale = Math.min(1, maxDim / Math.max(img.width, img.height));
+  const w = Math.round(img.width * scale);
+  const h = Math.round(img.height * scale);
+  const canvas = document.createElement("canvas");
+  canvas.width = w;
+  canvas.height = h;
+  const ctx = canvas.getContext("2d");
+  if (!ctx) throw new Error("Canvas nieobsługiwany");
+  ctx.drawImage(img, 0, 0, w, h);
+
+  // Dimming overlay for contrast
+  ctx.fillStyle = "rgba(0,0,0,0.18)";
+  ctx.fillRect(0, 0, w, h);
+
+  const text = (watermarkText || "PREVIEW").toUpperCase();
+  const diag = Math.sqrt(w * w + h * h);
+  const fontSize = Math.max(28, Math.floor(diag / (Math.max(6, text.length * 0.9))));
+  ctx.font = `900 ${fontSize}px "Space Grotesk", Inter, system-ui, sans-serif`;
+  ctx.textAlign = "center";
+  ctx.textBaseline = "middle";
+
+  // Big diagonal main watermark
+  ctx.save();
+  ctx.translate(w / 2, h / 2);
+  ctx.rotate(-Math.atan2(h, w));
+  ctx.fillStyle = "rgba(255,255,255,0.32)";
+  ctx.strokeStyle = "rgba(0,0,0,0.55)";
+  ctx.lineWidth = Math.max(2, fontSize / 22);
+  ctx.strokeText(text, 0, 0);
+  ctx.fillText(text, 0, 0);
+  ctx.restore();
+
+  // Tiled subtle repetition so it's harder to crop out
+  ctx.save();
+  ctx.globalAlpha = 0.18;
+  ctx.fillStyle = "#ffffff";
+  const smallFont = Math.max(16, Math.floor(fontSize / 3.2));
+  ctx.font = `700 ${smallFont}px "Space Grotesk", Inter, system-ui, sans-serif`;
+  const stepX = smallFont * (text.length * 0.7 + 4);
+  const stepY = smallFont * 5;
+  for (let y = -h; y < h * 2; y += stepY) {
+    for (let x = -w; x < w * 2; x += stepX) {
+      ctx.save();
+      ctx.translate(x, y);
+      ctx.rotate(-Math.PI / 6);
+      ctx.fillText(text, 0, 0);
+      ctx.restore();
+    }
+  }
+  ctx.restore();
+
+  const blob: Blob = await new Promise((resolve, reject) =>
+    canvas.toBlob((b) => (b ? resolve(b) : reject(new Error("Nie udało się wygenerować pliku"))), "image/jpeg", 0.85),
+  );
+  const base = source.name.replace(/\.[^.]+$/, "");
+  return new File([blob], `${base}-watermark.jpg`, { type: "image/jpeg" });
+}
+
 export const Route = createFileRoute("/sell")({
   component: Sell,
 });
@@ -54,6 +126,7 @@ function Sell() {
   const [previewFile, setPreviewFile] = useState<File | null>(null);
   const [productFile, setProductFile] = useState<File | null>(null);
   const [sampleFile, setSampleFile] = useState<File | null>(null);
+  const [generatingWatermark, setGeneratingWatermark] = useState(false);
   const [licCommercial, setLicCommercial] = useState(false);
   const [licExclusive, setLicExclusive] = useState(false);
   const [licAttribution, setLicAttribution] = useState(true);
@@ -70,11 +143,53 @@ function Sell() {
     queryFn: async () => (await supabase.from("categories").select("*").order("name")).data ?? [],
   });
 
+  const { data: sellerProfile } = useQuery({
+    queryKey: ["seller-profile", user?.id],
+    enabled: !!user?.id,
+    queryFn: async () =>
+      (await supabase.from("profiles").select("display_name, username").eq("id", user!.id).maybeSingle()).data,
+  });
+  const sellerName =
+    sellerProfile?.display_name?.trim() ||
+    sellerProfile?.username?.trim() ||
+    (user?.email ? user.email.split("@")[0] : "PREVIEW");
+
   const validateFile = useServerFn(validateUploadedFile);
+
+  const handleGenerateWatermark = async () => {
+    if (!previewFile) {
+      toast.error("Najpierw wgraj okładkę produktu — z niej wygenerujemy próbkę.");
+      return;
+    }
+    const imgErr = checkImageFile(previewFile);
+    if (imgErr) {
+      toast.error(`Okładka: ${imgErr}`);
+      return;
+    }
+    setGeneratingWatermark(true);
+    try {
+      const watermarked = await generateWatermarkedImage(previewFile, sellerName);
+      setSampleFile(watermarked);
+      toast.success("Próbka ze znakiem wodnym wygenerowana.");
+    } catch (err: any) {
+      toast.error(err?.message ?? "Nie udało się wygenerować znaku wodnego");
+    } finally {
+      setGeneratingWatermark(false);
+    }
+  };
 
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!user) return;
+
+    if (!previewFile) {
+      return toast.error("Wgraj okładkę produktu — to pole jest wymagane.");
+    }
+    if (!productFile) {
+      return toast.error("Wgraj plik produktu — to pole jest wymagane.");
+    }
+
+
 
     // Client-side guard (defense-in-depth; server re-validates)
     if (previewFile) {
@@ -190,12 +305,31 @@ function Sell() {
           </div>
           <div className="grid md:grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label className="flex items-center gap-2"><Upload className="h-4 w-4" /> Okładka (obraz)</Label>
-              <Input type="file" accept="image/*" onChange={(e) => setPreviewFile(e.target.files?.[0] ?? null)} />
+              <Label className="flex items-center gap-2">
+                <Upload className="h-4 w-4" /> Okładka (obraz) <span className="text-destructive">*</span>
+              </Label>
+              <Input
+                type="file"
+                accept="image/*"
+                required
+                onChange={(e) => setPreviewFile(e.target.files?.[0] ?? null)}
+              />
+              {previewFile && (
+                <p className="text-xs text-muted-foreground truncate">✓ {previewFile.name}</p>
+              )}
             </div>
             <div className="space-y-2">
-              <Label className="flex items-center gap-2"><Upload className="h-4 w-4" /> Plik produktu</Label>
-              <Input type="file" onChange={(e) => setProductFile(e.target.files?.[0] ?? null)} />
+              <Label className="flex items-center gap-2">
+                <Upload className="h-4 w-4" /> Plik produktu <span className="text-destructive">*</span>
+              </Label>
+              <Input
+                type="file"
+                required
+                onChange={(e) => setProductFile(e.target.files?.[0] ?? null)}
+              />
+              {productFile && (
+                <p className="text-xs text-muted-foreground truncate">✓ {productFile.name}</p>
+              )}
             </div>
           </div>
           <div className="space-y-3 rounded-lg border border-accent/30 bg-accent/5 p-4">
@@ -208,7 +342,44 @@ function Sell() {
                 </p>
               </div>
             </div>
-            <Input type="file" accept="audio/*,video/*,image/*,application/pdf" onChange={(e) => setSampleFile(e.target.files?.[0] ?? null)} />
+            <Input
+              type="file"
+              accept="audio/*,video/*,image/*,application/pdf"
+              onChange={(e) => setSampleFile(e.target.files?.[0] ?? null)}
+            />
+            <div className="rounded-md border border-dashed border-accent/40 bg-background/40 p-3 space-y-2">
+              <div className="flex items-start gap-2">
+                <Droplets className="h-4 w-4 text-accent mt-0.5 shrink-0" />
+                <div className="text-xs text-muted-foreground">
+                  <p className="font-semibold text-foreground">Automatyczny znak wodny</p>
+                  <p className="mt-0.5">
+                    Wygeneruj próbkę z okładki z Twoją nazwą (<span className="font-medium text-foreground">{sellerName}</span>) nadrukowaną po skosie na obrazie.
+                  </p>
+                </div>
+              </div>
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                disabled={generatingWatermark || !previewFile}
+                onClick={handleGenerateWatermark}
+                className="w-full"
+              >
+                {generatingWatermark ? (
+                  <><Loader2 className="h-4 w-4 mr-2 animate-spin" /> Generuję...</>
+                ) : (
+                  <><Droplets className="h-4 w-4 mr-2" /> Wygeneruj znak wodny z okładki</>
+                )}
+              </Button>
+              {sampleFile && (
+                <p className="text-xs text-muted-foreground truncate">
+                  Aktualna próbka: <span className="text-foreground">{sampleFile.name}</span>
+                </p>
+              )}
+              {!previewFile && (
+                <p className="text-[11px] text-muted-foreground">Najpierw wgraj okładkę powyżej.</p>
+              )}
+            </div>
           </div>
           <div className="space-y-3 rounded-lg border border-primary/30 bg-primary/5 p-4">
             <div className="flex items-start gap-3">
