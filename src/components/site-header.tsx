@@ -60,7 +60,9 @@ export function SiteHeader() {
                   <DropdownMenuItem asChild><Link to="/dashboard">Mój panel</Link></DropdownMenuItem>
                   <DropdownMenuItem asChild><Link to="/dashboard/purchases"><ShoppingBag className="h-4 w-4 mr-2"/>Zakupy</Link></DropdownMenuItem>
                   <DropdownMenuItem asChild><Link to="/exchanges">Moje wymiany</Link></DropdownMenuItem>
-                  <DropdownMenuItem asChild><Link to="/admin"><ShieldCheck className="h-4 w-4 mr-2"/>Panel admina</Link></DropdownMenuItem>
+                  {isAdmin && (
+                    <DropdownMenuItem asChild><Link to="/admin"><ShieldCheck className="h-4 w-4 mr-2"/>Panel admina</Link></DropdownMenuItem>
+                  )}
                   <DropdownMenuSeparator />
                   <DropdownMenuItem onClick={() => signOut()}>
                     <LogOut className="h-4 w-4 mr-2"/>Wyloguj
