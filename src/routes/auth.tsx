@@ -28,6 +28,8 @@ function AuthPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [displayName, setDisplayName] = useState("");
+  const [showSpamNotice, setShowSpamNotice] = useState(false);
+  const [pendingEmail, setPendingEmail] = useState("");
 
   const signIn = async (e: React.FormEvent) => {
     e.preventDefault();
