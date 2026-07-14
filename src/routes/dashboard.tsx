@@ -7,7 +7,7 @@ import { useAuth } from "@/hooks/use-auth";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
-import { Plus, PlayCircle, Trash2, FileText } from "lucide-react";
+import { Plus, PlayCircle, Trash2, FileText, AlertTriangle, X } from "lucide-react";
 import { toast } from "sonner";
 import { generateLicensePdf } from "@/lib/license-pdf";
 
@@ -40,6 +40,19 @@ function Dashboard() {
     enabled: !!user,
     queryFn: async () => (await supabase.from("transactions").select("*, product:products(title)").eq("seller_id", user!.id).order("created_at", { ascending: false })).data ?? [],
   });
+
+  const { data: notifications, refetch: refetchNotifications } = useQuery({
+    queryKey: ["notifications", user?.id],
+    enabled: !!user,
+    queryFn: async () =>
+      (await (supabase as any).from("seller_notifications").select("*").eq("user_id", user!.id).is("read_at", null).order("created_at", { ascending: false })).data ?? [],
+  });
+
+  const dismissNotification = async (id: string) => {
+    const { error } = await (supabase as any).from("seller_notifications").update({ read_at: new Date().toISOString() }).eq("id", id);
+    if (error) return toast.error(error.message);
+    refetchNotifications();
+  };
 
   const deleteProduct = async (id: string) => {
     if (!confirm("Usunąć produkt?")) return;
@@ -87,6 +100,31 @@ function Dashboard() {
           <Stat label="Zakupy" value={purchases?.length ?? 0} />
           <Stat label="Przychód" value={`${totalRevenue.toFixed(2)} PLN`} />
         </div>
+
+        {notifications && notifications.length > 0 && (
+          <div className="mt-8 space-y-3">
+            {notifications.map((n: any) => (
+              <div key={n.id} className="flex items-start gap-3 rounded-xl border border-destructive/40 bg-destructive/10 p-4">
+                <AlertTriangle className="h-5 w-5 text-destructive shrink-0 mt-0.5" />
+                <div className="flex-1 min-w-0">
+                  <p className="font-semibold">
+                    Twoje ogłoszenie {n.product_title ? <>„{n.product_title}"</> : null} zostało usunięte przez administratora.
+                  </p>
+                  {n.admin_note && (
+                    <p className="text-sm text-muted-foreground mt-1 whitespace-pre-wrap">
+                      <span className="font-medium text-foreground">Powód:</span> {n.admin_note}
+                    </p>
+                  )}
+                  <p className="text-xs text-muted-foreground mt-1">{new Date(n.created_at).toLocaleString("pl-PL")}</p>
+                </div>
+                <Button variant="ghost" size="icon" onClick={() => dismissNotification(n.id)} aria-label="Odrzuć">
+                  <X className="h-4 w-4" />
+                </Button>
+              </div>
+            ))}
+          </div>
+        )}
+
 
         <Tabs defaultValue="products" className="mt-10">
           <TabsList>

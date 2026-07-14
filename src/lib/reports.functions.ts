@@ -76,14 +76,42 @@ export const takedownProduct = createServerFn({ method: "POST" })
   .handler(async ({ data, context }) => {
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     await assertAdmin(supabaseAdmin, context.userId);
-    const { error } = await supabaseAdmin.from("products").update({
-      status: "rejected",
-      review_notes: data.reason ?? "Zdjęte przez administratora",
-      reviewed_at: new Date().toISOString(),
-      reviewed_by: context.userId,
-    } as any).eq("id", data.productId);
+
+    const { data: product, error: fetchErr } = await supabaseAdmin
+      .from("products")
+      .select("id, seller_id, title, file_path, preview_url, sample_url")
+      .eq("id", data.productId)
+      .maybeSingle();
+    if (fetchErr) throw fetchErr;
+    if (!product) throw new Response("Product not found", { status: 404 });
+
+    if (product.file_path) {
+      await supabaseAdmin.storage.from("product-files").remove([product.file_path]).catch(() => {});
+    }
+    const publicPaths: string[] = [];
+    const extract = (url: string | null) => {
+      if (!url) return;
+      const marker = "/product-previews/";
+      const idx = url.indexOf(marker);
+      if (idx >= 0) publicPaths.push(url.substring(idx + marker.length));
+    };
+    extract(product.preview_url);
+    extract(product.sample_url);
+    if (publicPaths.length) {
+      await supabaseAdmin.storage.from("product-previews").remove(publicPaths).catch(() => {});
+    }
+
+    const { error } = await supabaseAdmin.from("products").delete().eq("id", data.productId);
     if (error) throw error;
-    return { ok: true };
+
+    await supabaseAdmin.from("seller_notifications").insert({
+      user_id: product.seller_id,
+      kind: "product_rejected",
+      product_title: product.title,
+      admin_note: data.reason ?? "Zdjęte przez administratora",
+    } as any);
+
+    return { ok: true, deleted: true };
   });
 
 export const setUserBan = createServerFn({ method: "POST" })

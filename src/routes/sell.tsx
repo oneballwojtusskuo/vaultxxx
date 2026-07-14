@@ -157,20 +157,20 @@ function Sell() {
   const validateFile = useServerFn(validateUploadedFile);
 
   const handleGenerateWatermark = async () => {
-    if (!previewFile) {
-      toast.error("Najpierw wgraj okładkę produktu — z niej wygenerujemy próbkę.");
+    if (!sampleFile) {
+      toast.error("Najpierw wgraj plik próbki (obraz) — na nim nałożymy znak wodny.");
       return;
     }
-    const imgErr = checkImageFile(previewFile);
+    const imgErr = checkImageFile(sampleFile);
     if (imgErr) {
-      toast.error(`Okładka: ${imgErr}`);
+      toast.error(`Próbka musi być obrazem (JPG/PNG/WebP/GIF): ${imgErr}`);
       return;
     }
     setGeneratingWatermark(true);
     try {
-      const watermarked = await generateWatermarkedImage(previewFile, sellerName);
+      const watermarked = await generateWatermarkedImage(sampleFile, sellerName);
       setSampleFile(watermarked);
-      toast.success("Próbka ze znakiem wodnym wygenerowana.");
+      toast.success("Znak wodny nałożony na próbkę.");
     } catch (err: any) {
       toast.error(err?.message ?? "Nie udało się wygenerować znaku wodnego");
     } finally {
@@ -353,7 +353,7 @@ function Sell() {
                 <div className="text-xs text-muted-foreground">
                   <p className="font-semibold text-foreground">Automatyczny znak wodny</p>
                   <p className="mt-0.5">
-                    Wygeneruj próbkę z okładki z Twoją nazwą (<span className="font-medium text-foreground">{sellerName}</span>) nadrukowaną po skosie na obrazie.
+                    Nałóż na wgraną próbkę (obraz) Twoją nazwę (<span className="font-medium text-foreground">{sellerName}</span>) po skosie, w dużym rozmiarze.
                   </p>
                 </div>
               </div>
@@ -361,14 +361,14 @@ function Sell() {
                 type="button"
                 variant="outline"
                 size="sm"
-                disabled={generatingWatermark || !previewFile}
+                disabled={generatingWatermark || !sampleFile}
                 onClick={handleGenerateWatermark}
                 className="w-full"
               >
                 {generatingWatermark ? (
                   <><Loader2 className="h-4 w-4 mr-2 animate-spin" /> Generuję...</>
                 ) : (
-                  <><Droplets className="h-4 w-4 mr-2" /> Wygeneruj znak wodny z okładki</>
+                  <><Droplets className="h-4 w-4 mr-2" /> Nałóż znak wodny na próbkę</>
                 )}
               </Button>
               {sampleFile && (
@@ -376,8 +376,8 @@ function Sell() {
                   Aktualna próbka: <span className="text-foreground">{sampleFile.name}</span>
                 </p>
               )}
-              {!previewFile && (
-                <p className="text-[11px] text-muted-foreground">Najpierw wgraj okładkę powyżej.</p>
+              {!sampleFile && (
+                <p className="text-[11px] text-muted-foreground">Najpierw wgraj plik próbki (obraz) powyżej.</p>
               )}
             </div>
           </div>
