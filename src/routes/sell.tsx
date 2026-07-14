@@ -157,20 +157,20 @@ function Sell() {
   const validateFile = useServerFn(validateUploadedFile);
 
   const handleGenerateWatermark = async () => {
-    if (!previewFile) {
-      toast.error("Najpierw wgraj okładkę produktu — z niej wygenerujemy próbkę.");
+    if (!sampleFile) {
+      toast.error("Najpierw wgraj plik próbki (obraz) — na nim nałożymy znak wodny.");
       return;
     }
-    const imgErr = checkImageFile(previewFile);
+    const imgErr = checkImageFile(sampleFile);
     if (imgErr) {
-      toast.error(`Okładka: ${imgErr}`);
+      toast.error(`Próbka musi być obrazem (JPG/PNG/WebP/GIF): ${imgErr}`);
       return;
     }
     setGeneratingWatermark(true);
     try {
-      const watermarked = await generateWatermarkedImage(previewFile, sellerName);
+      const watermarked = await generateWatermarkedImage(sampleFile, sellerName);
       setSampleFile(watermarked);
-      toast.success("Próbka ze znakiem wodnym wygenerowana.");
+      toast.success("Znak wodny nałożony na próbkę.");
     } catch (err: any) {
       toast.error(err?.message ?? "Nie udało się wygenerować znaku wodnego");
     } finally {
