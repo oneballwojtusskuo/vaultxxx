@@ -41,6 +41,19 @@ function Dashboard() {
     queryFn: async () => (await supabase.from("transactions").select("*, product:products(title)").eq("seller_id", user!.id).order("created_at", { ascending: false })).data ?? [],
   });
 
+  const { data: notifications, refetch: refetchNotifications } = useQuery({
+    queryKey: ["notifications", user?.id],
+    enabled: !!user,
+    queryFn: async () =>
+      (await (supabase as any).from("seller_notifications").select("*").eq("user_id", user!.id).is("read_at", null).order("created_at", { ascending: false })).data ?? [],
+  });
+
+  const dismissNotification = async (id: string) => {
+    const { error } = await (supabase as any).from("seller_notifications").update({ read_at: new Date().toISOString() }).eq("id", id);
+    if (error) return toast.error(error.message);
+    refetchNotifications();
+  };
+
   const deleteProduct = async (id: string) => {
     if (!confirm("Usunąć produkt?")) return;
     const { error } = await supabase.from("products").delete().eq("id", id);
