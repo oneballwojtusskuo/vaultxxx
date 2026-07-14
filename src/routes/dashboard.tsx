@@ -101,6 +101,31 @@ function Dashboard() {
           <Stat label="Przychód" value={`${totalRevenue.toFixed(2)} PLN`} />
         </div>
 
+        {notifications && notifications.length > 0 && (
+          <div className="mt-8 space-y-3">
+            {notifications.map((n: any) => (
+              <div key={n.id} className="flex items-start gap-3 rounded-xl border border-destructive/40 bg-destructive/10 p-4">
+                <AlertTriangle className="h-5 w-5 text-destructive shrink-0 mt-0.5" />
+                <div className="flex-1 min-w-0">
+                  <p className="font-semibold">
+                    Twoje ogłoszenie {n.product_title ? <>„{n.product_title}"</> : null} zostało usunięte przez administratora.
+                  </p>
+                  {n.admin_note && (
+                    <p className="text-sm text-muted-foreground mt-1 whitespace-pre-wrap">
+                      <span className="font-medium text-foreground">Powód:</span> {n.admin_note}
+                    </p>
+                  )}
+                  <p className="text-xs text-muted-foreground mt-1">{new Date(n.created_at).toLocaleString("pl-PL")}</p>
+                </div>
+                <Button variant="ghost" size="icon" onClick={() => dismissNotification(n.id)} aria-label="Odrzuć">
+                  <X className="h-4 w-4" />
+                </Button>
+              </div>
+            ))}
+          </div>
+        )}
+
+
         <Tabs defaultValue="products" className="mt-10">
           <TabsList>
             <TabsTrigger value="products">Moje produkty</TabsTrigger>
