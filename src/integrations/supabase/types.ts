@@ -247,6 +247,36 @@ export type Database = {
         }
         Relationships: []
       }
+      seller_notifications: {
+        Row: {
+          admin_note: string | null
+          created_at: string
+          id: string
+          kind: string
+          product_title: string | null
+          read_at: string | null
+          user_id: string
+        }
+        Insert: {
+          admin_note?: string | null
+          created_at?: string
+          id?: string
+          kind?: string
+          product_title?: string | null
+          read_at?: string | null
+          user_id: string
+        }
+        Update: {
+          admin_note?: string | null
+          created_at?: string
+          id?: string
+          kind?: string
+          product_title?: string | null
+          read_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       transactions: {
         Row: {
           amount: number
