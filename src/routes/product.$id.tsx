@@ -190,7 +190,7 @@ function ProductPage() {
             )}
 
             {(p as any).license_terms && (
-              <LicenseSummary terms={(p as any).license_terms} />
+              <LicenseSummary terms={(p as any).license_terms} productTitle={p.title} sellerName={seller?.display_name ?? undefined} />
             )}
 
             {!isPublished && (
