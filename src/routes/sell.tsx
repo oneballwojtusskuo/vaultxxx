@@ -137,12 +137,17 @@ function Sell() {
   const [productFile, setProductFile] = useState<File | null>(null);
   const [sampleFile, setSampleFile] = useState<File | null>(null);
   const [generatingWatermark, setGeneratingWatermark] = useState(false);
-  const [licCommercial, setLicCommercial] = useState(false);
-  const [licExclusive, setLicExclusive] = useState(false);
-  const [licAttribution, setLicAttribution] = useState(true);
-  const [licMaxStreams, setLicMaxStreams] = useState("");
+  const [licType, setLicType] = useState<LicenseType>("personal");
+  const [licTerms, setLicTerms] = useState<LicenseTerms>(() => presetForType("personal"));
   const [licTerritory, setLicTerritory] = useState("worldwide");
   const [licCustom, setLicCustom] = useState("");
+  const [licMaxStreams, setLicMaxStreams] = useState("");
+
+  const setLic = (patch: Partial<LicenseTerms>) => setLicTerms((prev) => ({ ...prev, ...patch }));
+  const applyPreset = (type: LicenseType) => {
+    setLicType(type);
+    setLicTerms(presetForType(type));
+  };
 
   useEffect(() => {
     if (!loading && !user) navigate({ to: "/auth" });
