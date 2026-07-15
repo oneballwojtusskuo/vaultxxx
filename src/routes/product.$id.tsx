@@ -21,6 +21,7 @@ import { getSecureStreamUrl } from "@/lib/secure-stream.functions";
 import { purchaseProduct } from "@/lib/purchase.functions";
 import { getProductDetails } from "@/lib/product.functions";
 import { generateLicensePdf } from "@/lib/license-pdf";
+import { generateLicenseText, LICENSE_TYPE_LABELS } from "@/lib/license";
 
 export const Route = createFileRoute("/product/$id")({
   component: ProductPage,
