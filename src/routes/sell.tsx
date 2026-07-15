@@ -262,9 +262,9 @@ function Sell() {
         file_path,
         status: "pending_review",
         license_terms: {
-          commercial_use: licCommercial,
-          exclusive: licExclusive,
-          attribution_required: licAttribution,
+          ...licTerms,
+          license_type: licType,
+          exclusive: licType === "exclusive" || !!licTerms.exclusive,
           max_streams: licMaxStreams ? parseInt(licMaxStreams, 10) : null,
           territory: licTerritory,
           custom_terms: licCustom,
