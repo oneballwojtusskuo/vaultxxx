@@ -21,6 +21,7 @@ import { getSecureStreamUrl } from "@/lib/secure-stream.functions";
 import { purchaseProduct } from "@/lib/purchase.functions";
 import { getProductDetails } from "@/lib/product.functions";
 import { generateLicensePdf } from "@/lib/license-pdf";
+import { generateLicenseText, LICENSE_TYPE_LABELS } from "@/lib/license";
 
 export const Route = createFileRoute("/product/$id")({
   component: ProductPage,
@@ -189,7 +190,7 @@ function ProductPage() {
             )}
 
             {(p as any).license_terms && (
-              <LicenseSummary terms={(p as any).license_terms} />
+              <LicenseSummary terms={(p as any).license_terms} productTitle={p.title} sellerName={seller?.display_name ?? undefined} />
             )}
 
             {!isPublished && (
@@ -326,22 +327,28 @@ function SamplePreview({ url, title }: { url: string; title: string }) {
   );
 }
 
-function LicenseSummary({ terms }: { terms: any }) {
+function LicenseSummary({ terms, productTitle, sellerName }: { terms: any; productTitle?: string; sellerName?: string }) {
   const t = terms ?? {};
+  const typeKey = (t.license_type as keyof typeof LICENSE_TYPE_LABELS) ?? (t.exclusive ? "exclusive" : "personal");
+  const typeLabel = LICENSE_TYPE_LABELS[typeKey] ?? "Personal";
+  const text = generateLicenseText({ terms: t, productTitle, sellerName });
   return (
     <div className="mt-6 rounded-xl border border-border/40 bg-gradient-surface p-4">
-      <div className="flex items-center gap-2 mb-3">
-        <FileText className="h-4 w-4 text-primary" />
-        <span className="text-sm font-semibold uppercase tracking-wider text-primary">Warunki licencji</span>
+      <div className="flex items-center justify-between gap-2 mb-3">
+        <div className="flex items-center gap-2">
+          <FileText className="h-4 w-4 text-primary" />
+          <span className="text-sm font-semibold uppercase tracking-wider text-primary">Licencja</span>
+        </div>
+        <span className="text-[11px] uppercase tracking-wider px-2 py-1 rounded-full bg-primary/15 text-primary font-semibold">
+          {typeLabel}
+        </span>
       </div>
-      <ul className="text-sm space-y-1.5 text-foreground/80">
-        <li>• Użytek komercyjny: <strong>{t.commercial_use ? "TAK" : "tylko prywatny"}</strong></li>
-        <li>• Wyłączność: <strong>{t.exclusive ? "wyłączna" : "niewyłączna"}</strong></li>
-        <li>• Limit odtworzeń: <strong>{t.max_streams ? Number(t.max_streams).toLocaleString() : "bez limitu"}</strong></li>
-        <li>• Oznaczenie autora: <strong>{t.attribution_required ? "wymagane" : "niewymagane"}</strong></li>
-        <li>• Terytorium: <strong>{t.territory || "worldwide"}</strong></li>
-        {t.custom_terms && <li className="pt-1 italic text-muted-foreground">"{t.custom_terms}"</li>}
-      </ul>
+      <pre className="text-[12px] leading-relaxed whitespace-pre-wrap font-mono max-h-72 overflow-auto text-foreground/85">
+        {text}
+      </pre>
+      <p className="mt-3 text-[11px] text-muted-foreground">
+        Pełna wersja licencji z Twoimi danymi zostanie dołączona do zamówienia jako PDF.
+      </p>
     </div>
   );
 }

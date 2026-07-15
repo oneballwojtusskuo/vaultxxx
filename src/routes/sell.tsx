@@ -16,6 +16,16 @@ import { Upload, ShieldCheck, FileText, Droplets, Loader2 } from "lucide-react";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useServerFn } from "@tanstack/react-start";
 import { validateUploadedFile } from "@/lib/upload-validate.functions";
+import {
+  LICENSE_TYPE_LABELS,
+  LICENSE_DURATION_LABELS,
+  presetForType,
+  generateLicenseText,
+  type LicenseType,
+  type LicenseLimit,
+  type LicenseDuration,
+  type LicenseTerms,
+} from "@/lib/license";
 
 const SAFE_IMAGE_MIME = ["image/jpeg", "image/png", "image/webp", "image/gif"];
 const SAFE_IMAGE_EXT = [".jpg", ".jpeg", ".png", ".webp", ".gif"];
@@ -127,12 +137,17 @@ function Sell() {
   const [productFile, setProductFile] = useState<File | null>(null);
   const [sampleFile, setSampleFile] = useState<File | null>(null);
   const [generatingWatermark, setGeneratingWatermark] = useState(false);
-  const [licCommercial, setLicCommercial] = useState(false);
-  const [licExclusive, setLicExclusive] = useState(false);
-  const [licAttribution, setLicAttribution] = useState(true);
-  const [licMaxStreams, setLicMaxStreams] = useState("");
+  const [licType, setLicType] = useState<LicenseType>("personal");
+  const [licTerms, setLicTerms] = useState<LicenseTerms>(() => presetForType("personal"));
   const [licTerritory, setLicTerritory] = useState("worldwide");
   const [licCustom, setLicCustom] = useState("");
+  const [licMaxStreams, setLicMaxStreams] = useState("");
+
+  const setLic = (patch: Partial<LicenseTerms>) => setLicTerms((prev) => ({ ...prev, ...patch }));
+  const applyPreset = (type: LicenseType) => {
+    setLicType(type);
+    setLicTerms(presetForType(type));
+  };
 
   useEffect(() => {
     if (!loading && !user) navigate({ to: "/auth" });
@@ -247,9 +262,9 @@ function Sell() {
         file_path,
         status: "pending_review",
         license_terms: {
-          commercial_use: licCommercial,
-          exclusive: licExclusive,
-          attribution_required: licAttribution,
+          ...licTerms,
+          license_type: licType,
+          exclusive: licType === "exclusive" || !!licTerms.exclusive,
           max_streams: licMaxStreams ? parseInt(licMaxStreams, 10) : null,
           territory: licTerritory,
           custom_terms: licCustom,
@@ -381,34 +396,117 @@ function Sell() {
               )}
             </div>
           </div>
-          <div className="space-y-3 rounded-lg border border-primary/30 bg-primary/5 p-4">
+          <div className="space-y-4 rounded-lg border border-primary/30 bg-primary/5 p-4">
             <div className="flex items-start gap-3">
               <FileText className="h-5 w-5 text-primary mt-0.5 shrink-0" />
               <div>
-                <Label className="text-base">Warunki licencji</Label>
+                <Label className="text-base">Licencja</Label>
                 <p className="text-xs text-muted-foreground mt-1">
-                  Po zakupie kupujący otrzyma automatycznie wygenerowany PDF z licencją zawierający te warunki, jego dane i hash transakcji.
+                  Wybierz typ licencji i dopasuj opcje. Aplikacja automatycznie wygeneruje profesjonalny tekst umowy, który pojawi się na stronie produktu i w PDF dołączanym do każdego zamówienia.
                 </p>
               </div>
             </div>
+
+            <div className="space-y-2">
+              <Label className="text-xs uppercase tracking-wider">Typ licencji</Label>
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
+                {(Object.keys(LICENSE_TYPE_LABELS) as LicenseType[]).map((k) => (
+                  <button
+                    key={k}
+                    type="button"
+                    onClick={() => applyPreset(k)}
+                    className={`rounded-lg border px-3 py-2 text-sm font-medium transition-all ${
+                      licType === k
+                        ? "border-primary bg-primary/15 text-foreground shadow-glow"
+                        : "border-border/40 bg-background/40 text-muted-foreground hover:border-primary/40"
+                    }`}
+                  >
+                    {LICENSE_TYPE_LABELS[k]}
+                  </button>
+                ))}
+              </div>
+              <p className="text-[11px] text-muted-foreground">
+                Wybór typu ustawi sensowne domyślne opcje — możesz je dowolnie zmienić poniżej.
+              </p>
+            </div>
+
+            <div className="grid sm:grid-cols-2 gap-2 pt-1">
+              {([
+                ["commercial_use", "Dozwolony użytek komercyjny"],
+                ["private_use", "Dozwolony użytek prywatny"],
+                ["can_modify", "Można modyfikować plik"],
+                ["use_in_client_projects", "Można używać w projektach klientów"],
+                ["use_for_ai", "Można używać do AI"],
+                ["train_ai", "Można trenować AI"],
+                ["create_nft", "Można tworzyć NFT"],
+                ["attribution_required", "Wymagane podanie autora"],
+                ["redistribution", "Dozwolona redystrybucja"],
+                ["resale", "Dozwolona odsprzedaż"],
+                ["worldwide", "Licencja na cały świat"],
+              ] as [keyof LicenseTerms, string][]).map(([key, label]) => (
+                <label key={key as string} className="flex items-center gap-2 cursor-pointer rounded-md px-2 py-1.5 hover:bg-background/40">
+                  <Checkbox
+                    checked={!!licTerms[key]}
+                    onCheckedChange={(v) => setLic({ [key]: !!v } as any)}
+                  />
+                  <span className="text-sm">{label}</span>
+                </label>
+              ))}
+            </div>
+
             <div className="grid sm:grid-cols-2 gap-3 pt-2">
-              <label className="flex items-center gap-2 cursor-pointer">
-                <Checkbox checked={licCommercial} onCheckedChange={(v) => setLicCommercial(!!v)} />
-                <span className="text-sm">Użytek komercyjny dozwolony</span>
-              </label>
-              <label className="flex items-center gap-2 cursor-pointer">
-                <Checkbox checked={licExclusive} onCheckedChange={(v) => setLicExclusive(!!v)} />
-                <span className="text-sm">Licencja wyłączna</span>
-              </label>
-              <label className="flex items-center gap-2 cursor-pointer">
-                <Checkbox checked={licAttribution} onCheckedChange={(v) => setLicAttribution(!!v)} />
-                <span className="text-sm">Wymagane oznaczenie autora</span>
-              </label>
+              <div className="space-y-1">
+                <Label className="text-xs">Maksymalna liczba użytkowników</Label>
+                <Select value={licTerms.max_users ?? "unlimited"} onValueChange={(v) => setLic({ max_users: v as LicenseLimit })}>
+                  <SelectTrigger><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="1">1</SelectItem>
+                    <SelectItem value="5">5</SelectItem>
+                    <SelectItem value="50">50</SelectItem>
+                    <SelectItem value="unlimited">Bez limitu</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-1">
+                <Label className="text-xs">Maksymalna liczba projektów</Label>
+                <Select value={licTerms.max_projects ?? "unlimited"} onValueChange={(v) => setLic({ max_projects: v as LicenseLimit })}>
+                  <SelectTrigger><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="1">1</SelectItem>
+                    <SelectItem value="10">10</SelectItem>
+                    <SelectItem value="100">100</SelectItem>
+                    <SelectItem value="unlimited">Bez limitu</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-1">
+                <Label className="text-xs">Maks. liczba sprzedanych produktów końcowych</Label>
+                <Select value={licTerms.max_end_products ?? "unlimited"} onValueChange={(v) => setLic({ max_end_products: v as LicenseLimit })}>
+                  <SelectTrigger><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="500">500</SelectItem>
+                    <SelectItem value="5000">5 000</SelectItem>
+                    <SelectItem value="50000">50 000</SelectItem>
+                    <SelectItem value="unlimited">Bez limitu</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-1">
+                <Label className="text-xs">Czas obowiązywania licencji</Label>
+                <Select value={licTerms.duration ?? "perpetual"} onValueChange={(v) => setLic({ duration: v as LicenseDuration })}>
+                  <SelectTrigger><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    {(Object.keys(LICENSE_DURATION_LABELS) as LicenseDuration[]).map((k) => (
+                      <SelectItem key={k} value={k}>{LICENSE_DURATION_LABELS[k]}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
               <div className="space-y-1">
                 <Label className="text-xs">Limit odtworzeń (puste = bez limitu)</Label>
                 <Input type="number" min="0" placeholder="np. 100000" value={licMaxStreams} onChange={(e) => setLicMaxStreams(e.target.value)} />
               </div>
-              <div className="space-y-1 sm:col-span-2">
+              <div className="space-y-1">
                 <Label className="text-xs">Terytorium</Label>
                 <Input value={licTerritory} onChange={(e) => setLicTerritory(e.target.value)} placeholder="worldwide" />
               </div>
@@ -416,6 +514,17 @@ function Sell() {
                 <Label className="text-xs">Postanowienia dodatkowe (opcjonalne)</Label>
                 <Textarea rows={3} value={licCustom} onChange={(e) => setLicCustom(e.target.value)} />
               </div>
+            </div>
+
+            <div className="rounded-lg border border-border/40 bg-background/50 p-3">
+              <div className="text-[11px] uppercase tracking-wider text-muted-foreground mb-2">Podgląd wygenerowanej licencji</div>
+              <pre className="text-[11px] leading-relaxed whitespace-pre-wrap font-mono max-h-56 overflow-auto text-foreground/80">
+                {generateLicenseText({
+                  terms: { ...licTerms, license_type: licType, territory: licTerritory, custom_terms: licCustom, max_streams: licMaxStreams ? parseInt(licMaxStreams, 10) : null },
+                  productTitle: title || "[tytuł produktu]",
+                  sellerName,
+                })}
+              </pre>
             </div>
           </div>
           <div className="flex items-center gap-3 rounded-lg border border-border/40 p-3">
