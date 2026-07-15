@@ -16,6 +16,16 @@ import { Upload, ShieldCheck, FileText, Droplets, Loader2 } from "lucide-react";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useServerFn } from "@tanstack/react-start";
 import { validateUploadedFile } from "@/lib/upload-validate.functions";
+import {
+  LICENSE_TYPE_LABELS,
+  LICENSE_DURATION_LABELS,
+  presetForType,
+  generateLicenseText,
+  type LicenseType,
+  type LicenseLimit,
+  type LicenseDuration,
+  type LicenseTerms,
+} from "@/lib/license";
 
 const SAFE_IMAGE_MIME = ["image/jpeg", "image/png", "image/webp", "image/gif"];
 const SAFE_IMAGE_EXT = [".jpg", ".jpeg", ".png", ".webp", ".gif"];
