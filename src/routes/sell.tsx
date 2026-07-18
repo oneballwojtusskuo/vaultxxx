@@ -128,6 +128,24 @@ async function generateWatermarkedImage(source: File, watermarkText: string): Pr
   return new File([blob], `${base}-watermark.jpg`, { type: "image/jpeg" });
 }
 
+function HelpLabel({ text, help }: { text: string; help?: string }) {
+  return (
+    <div className="flex items-center gap-1.5">
+      <Label className="text-xs">{text}</Label>
+      {help && (
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <Info className="h-3.5 w-3.5 text-muted-foreground hover:text-primary" />
+          </TooltipTrigger>
+          <TooltipContent side="top" className="max-w-xs text-xs leading-relaxed">
+            {help}
+          </TooltipContent>
+        </Tooltip>
+      )}
+    </div>
+  );
+}
+
 export const Route = createFileRoute("/sell")({
   component: Sell,
 });
