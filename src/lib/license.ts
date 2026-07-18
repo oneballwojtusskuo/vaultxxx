@@ -22,7 +22,7 @@ export const LICENSE_OPTION_HELP: Record<string, string> = {
   use_for_ai: "Produkt może być wejściem/zasobem dla narzędzi AI (np. generatywne prompt-y, referencje). Nie oznacza zgody na trenowanie modeli.",
   train_ai: "Zgoda na trenowanie modeli uczenia maszynowego / AI na podstawie tego pliku (osobne, silniejsze uprawnienie).",
   create_nft: "Kupujący może wykorzystać produkt jako podstawę tokena niewymiennego (NFT).",
-  attribution_required: "Kupujący musi wskazać autora (np. „Beat by X", credits w opisie wideo) przy każdym publicznym wykorzystaniu.",
+  attribution_required: 'Kupujący musi wskazać autora (np. "Beat by X", credits w opisie wideo) przy każdym publicznym wykorzystaniu.',
   redistribution: "Kupujący może rozpowszechniać oryginalny plik dalej (np. wrzucić na inną platformę). Zwykle WYŁĄCZONE.",
   resale: "Kupujący może odsprzedać licencję lub sam plik osobom trzecim. Zwykle WYŁĄCZONE.",
   worldwide: "Licencja obowiązuje na całym świecie. Odznacz, aby ograniczyć do konkretnego terytorium.",
