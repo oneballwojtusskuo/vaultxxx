@@ -102,7 +102,7 @@ function AdminPage() {
           <div className="mt-10 rounded-2xl border border-border/40 bg-gradient-surface p-8 text-center">
             <p className="text-lg font-semibold">Brak uprawnień administratora</p>
             <p className="text-muted-foreground mt-2 text-sm">
-              Jeżeli jesteś właścicielem platformy i żaden admin jeszcze nie istnieje, możesz przejąć rolę administratora poniżej (jednorazowo, dla pierwszego konta).
+              Tylko konto właściciela platformy może aktywować rolę administratora. Uprawnienia są sprawdzane w bazie danych.
             </p>
             <Button
               className="mt-4 bg-gradient-primary text-primary-foreground shadow-glow"
@@ -113,14 +113,14 @@ function AdminPage() {
                     toast.success("Zostałeś administratorem.");
                     qc.invalidateQueries({ queryKey: ["is-admin"] });
                   } else {
-                    toast.error("Administrator już istnieje. Poproś go o nadanie roli.");
+                    toast.error("Nie można aktywować roli admina dla tego konta.");
                   }
                 } catch (e: any) {
                   toast.error(e?.message ?? "Błąd");
                 }
               }}
             >
-              Przejmij rolę admina (pierwsze konto)
+              Aktywuj rolę admina
             </Button>
           </div>
         ) : (
