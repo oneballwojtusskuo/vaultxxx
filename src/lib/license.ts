@@ -58,6 +58,9 @@ export type LicenseTerms = {
   max_end_products?: LicenseLimit;  // 500 / 5000 / 50000 / unlimited
   duration?: LicenseDuration;
 
+  // Delivery
+  delivery_mode?: DeliveryMode;
+
   // Legacy / free-form
   exclusive?: boolean;
   max_streams?: number | null;
