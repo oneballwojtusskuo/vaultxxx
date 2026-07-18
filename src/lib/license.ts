@@ -5,6 +5,36 @@ export type LicenseType = "personal" | "commercial" | "extended_commercial" | "e
 
 export type LicenseLimit = "1" | "5" | "10" | "50" | "100" | "500" | "5000" | "50000" | "unlimited";
 export type LicenseDuration = "perpetual" | "1y" | "3y" | "5y";
+export type DeliveryMode = "stream" | "download" | "both";
+
+export const DELIVERY_MODE_LABELS: Record<DeliveryMode, string> = {
+  stream: "Tylko streaming na stronie",
+  download: "Tylko pobieranie pliku",
+  both: "Streaming + pobieranie",
+};
+
+/** Human-readable descriptions used in UI tooltips. */
+export const LICENSE_OPTION_HELP: Record<string, string> = {
+  commercial_use: "Kupujący może wykorzystywać produkt w celach zarobkowych — np. w reklamach, produktach na sprzedaż, kanałach monetyzowanych.",
+  private_use: "Kupujący może korzystać z produktu prywatnie, niekomercyjnie — np. do własnych projektów, nauki, użytku domowego.",
+  can_modify: "Kupujący może edytować, remiksować i tworzyć utwory zależne na podstawie pliku (np. remix beatu, edycja PSD).",
+  use_in_client_projects: "Kupujący (np. freelancer, agencja) może użyć produktu w projekcie realizowanym dla swojego klienta.",
+  use_for_ai: "Produkt może być wejściem/zasobem dla narzędzi AI (np. generatywne prompt-y, referencje). Nie oznacza zgody na trenowanie modeli.",
+  train_ai: "Zgoda na trenowanie modeli uczenia maszynowego / AI na podstawie tego pliku (osobne, silniejsze uprawnienie).",
+  create_nft: "Kupujący może wykorzystać produkt jako podstawę tokena niewymiennego (NFT).",
+  attribution_required: "Kupujący musi wskazać autora (np. „Beat by X", credits w opisie wideo) przy każdym publicznym wykorzystaniu.",
+  redistribution: "Kupujący może rozpowszechniać oryginalny plik dalej (np. wrzucić na inną platformę). Zwykle WYŁĄCZONE.",
+  resale: "Kupujący może odsprzedać licencję lub sam plik osobom trzecim. Zwykle WYŁĄCZONE.",
+  worldwide: "Licencja obowiązuje na całym świecie. Odznacz, aby ograniczyć do konkretnego terytorium.",
+  max_users: "Maksymalna liczba osób w organizacji kupującego, które mogą korzystać z pliku (np. członków zespołu).",
+  max_projects: "Maksymalna liczba oddzielnych projektów, w których kupujący może wykorzystać plik.",
+  max_end_products: "Maksymalna liczba egzemplarzy produktu końcowego zawierającego ten plik, które kupujący może sprzedać (np. sztuk merchu, kopii albumu).",
+  duration: "Jak długo licencja obowiązuje. „Bezterminowa" = bezterminowo, bez terminu wygaśnięcia.",
+  max_streams: "Maksymalna łączna liczba odtworzeń / dystrybucji strumieniowych utworu zawierającego plik.",
+  territory: "Geograficzny zasięg licencji — jeśli nie chcesz „całego świata", wpisz np. „Polska", „UE", „Ameryka Północna".",
+  delivery_mode: "Jak kupujący otrzyma plik: tylko strumieniowo w naszym odtwarzaczu (max ochrona), tylko do pobrania, lub oba naraz.",
+  custom_terms: "Twoje dodatkowe zapisy, które trafią do umowy — np. wyjątki, specjalne wymagania, kontakt.",
+};
 
 export type LicenseTerms = {
   license_type?: LicenseType;
