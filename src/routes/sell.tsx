@@ -504,7 +504,7 @@ function Sell() {
 
             <div className="grid sm:grid-cols-2 gap-3 pt-2">
               <div className="space-y-1">
-                <Label className="text-xs">Maksymalna liczba użytkowników</Label>
+                <HelpLabel text="Maksymalna liczba użytkowników" help={LICENSE_OPTION_HELP.max_users} />
                 <Select value={licTerms.max_users ?? "unlimited"} onValueChange={(v) => setLic({ max_users: v as LicenseLimit })}>
                   <SelectTrigger><SelectValue /></SelectTrigger>
                   <SelectContent>
@@ -516,7 +516,7 @@ function Sell() {
                 </Select>
               </div>
               <div className="space-y-1">
-                <Label className="text-xs">Maksymalna liczba projektów</Label>
+                <HelpLabel text="Maksymalna liczba projektów" help={LICENSE_OPTION_HELP.max_projects} />
                 <Select value={licTerms.max_projects ?? "unlimited"} onValueChange={(v) => setLic({ max_projects: v as LicenseLimit })}>
                   <SelectTrigger><SelectValue /></SelectTrigger>
                   <SelectContent>
@@ -528,7 +528,7 @@ function Sell() {
                 </Select>
               </div>
               <div className="space-y-1">
-                <Label className="text-xs">Maks. liczba sprzedanych produktów końcowych</Label>
+                <HelpLabel text="Maks. liczba sprzedanych produktów końcowych" help={LICENSE_OPTION_HELP.max_end_products} />
                 <Select value={licTerms.max_end_products ?? "unlimited"} onValueChange={(v) => setLic({ max_end_products: v as LicenseLimit })}>
                   <SelectTrigger><SelectValue /></SelectTrigger>
                   <SelectContent>
@@ -540,7 +540,7 @@ function Sell() {
                 </Select>
               </div>
               <div className="space-y-1">
-                <Label className="text-xs">Czas obowiązywania licencji</Label>
+                <HelpLabel text="Czas obowiązywania licencji" help={LICENSE_OPTION_HELP.duration} />
                 <Select value={licTerms.duration ?? "perpetual"} onValueChange={(v) => setLic({ duration: v as LicenseDuration })}>
                   <SelectTrigger><SelectValue /></SelectTrigger>
                   <SelectContent>
@@ -551,11 +551,11 @@ function Sell() {
                 </Select>
               </div>
               <div className="space-y-1">
-                <Label className="text-xs">Limit odtworzeń (puste = bez limitu)</Label>
+                <HelpLabel text="Limit odtworzeń (puste = bez limitu)" help={LICENSE_OPTION_HELP.max_streams} />
                 <Input type="number" min="0" placeholder="np. 100000" value={licMaxStreams} onChange={(e) => setLicMaxStreams(e.target.value)} />
               </div>
               <div className="space-y-1">
-                <Label className="text-xs">Terytorium</Label>
+                <HelpLabel text="Terytorium" help={LICENSE_OPTION_HELP.territory} />
                 <Input value={licTerritory} onChange={(e) => setLicTerritory(e.target.value)} placeholder="worldwide" />
               </div>
               <div className="space-y-1 sm:col-span-2">
