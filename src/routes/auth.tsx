@@ -36,6 +36,7 @@ function AuthPage() {
   const navigate = useNavigate();
   const { next } = Route.useSearch();
   const nextPath = safeNext(next);
+  const lovableAuth = createLovableAuth();
   const [loading, setLoading] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -86,13 +87,14 @@ function AuthPage() {
     const redirectUri = nextPath
       ? `${window.location.origin}${nextPath}`
       : window.location.origin;
-    const r = await lovable.auth.signInWithOAuth("google", { redirect_uri: redirectUri });
+    const r = await lovableAuth.signInWithOAuth("google", { redirect_uri: redirectUri });
     if (r.error) {
       setLoading(false);
       toast.error("Logowanie Google nie powiodło się");
       return;
     }
     if (r.redirected) return;
+    if (r.tokens) await supabase.auth.setSession(r.tokens);
     goNext();
   };
 
