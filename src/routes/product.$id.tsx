@@ -355,7 +355,7 @@ function LicenseSummary({ terms, productTitle, sellerName }: { terms: any; produ
   );
 }
 
-function SecureStreamPlayer({ productId, buyerEmail, isOwner }: { productId: string; buyerEmail: string; isOwner: boolean }) {
+function SecureStreamPlayer({ productId, buyerEmail, isOwner, deliveryMode = "both", productTitle }: { productId: string; buyerEmail: string; isOwner: boolean; deliveryMode?: "stream" | "download" | "both"; productTitle?: string }) {
   const fetchUrl = useServerFn(getSecureStreamUrl);
   const { data, isLoading, error } = useQuery({
     queryKey: ["stream-url", productId],
