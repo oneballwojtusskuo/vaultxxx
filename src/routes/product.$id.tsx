@@ -382,17 +382,35 @@ function SecureStreamPlayer({ productId, buyerEmail, isOwner, deliveryMode = "bo
   const isAudio = /\.(mp3|wav|ogg|m4a|aac|flac)$/.test(lower);
   const isVideo = /\.(mp4|webm|mov|m4v)$/.test(lower);
   const watermark = isOwner ? "PODGLĄD WŁAŚCICIELA" : buyerEmail;
+  const showStream = deliveryMode !== "download";
+  const showDownload = deliveryMode !== "stream" || isOwner;
+
+  const headerLabel =
+    deliveryMode === "download"
+      ? "Twój dostęp (plik do pobrania)"
+      : deliveryMode === "stream"
+      ? "Twój dostęp (tylko streaming)"
+      : "Twój dostęp (streaming + pobieranie)";
+
+  const handleDownload = () => {
+    const a = document.createElement("a");
+    a.href = data.url;
+    a.download = productTitle ?? "";
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+  };
 
   return (
     <div className="mt-6 rounded-xl border border-success/30 bg-success/5 p-4">
       <div className="flex items-center justify-between gap-2 mb-3">
         <span className="inline-flex items-center gap-2 text-sm font-semibold text-success">
-          <PlayCircle className="h-4 w-4" /> Twój dostęp (streaming in-app)
+          <PlayCircle className="h-4 w-4" /> {headerLabel}
         </span>
         <span className="text-[10px] uppercase tracking-wider text-muted-foreground">Link wygasa za ~1h</span>
       </div>
 
-      {isVideo ? (
+      {showStream && (isVideo ? (
         <div className="relative rounded-lg overflow-hidden bg-black">
           <video
             controls
@@ -428,8 +446,21 @@ function SecureStreamPlayer({ productId, buyerEmail, isOwner, deliveryMode = "bo
         </div>
       ) : (
         <p className="text-sm text-muted-foreground">
-          Ten typ pliku nie jest streamowalny. Skontaktuj się ze sprzedawcą po dostarczenie zawartości.
+          Ten typ pliku nie jest streamowalny — użyj przycisku pobierania poniżej.
         </p>
+      ))}
+
+      {showDownload && (
+        <div className={showStream ? "mt-3" : ""}>
+          <Button onClick={handleDownload} className="bg-gradient-primary text-primary-foreground shadow-glow">
+            <Download className="h-4 w-4 mr-2" /> Pobierz plik
+          </Button>
+          {deliveryMode === "stream" && isOwner && (
+            <p className="mt-2 text-[11px] text-muted-foreground">
+              Pobieranie widoczne tylko dla Ciebie (właściciela). Kupujący otrzymują wyłącznie streaming.
+            </p>
+          )}
+        </div>
       )}
 
       <p className="mt-3 text-[11px] text-muted-foreground">
