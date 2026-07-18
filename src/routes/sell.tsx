@@ -12,19 +12,28 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { useAuth } from "@/hooks/use-auth";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { Upload, ShieldCheck, FileText, Droplets, Loader2 } from "lucide-react";
+import { Upload, ShieldCheck, FileText, Droplets, Loader2, Info } from "lucide-react";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useServerFn } from "@tanstack/react-start";
 import { validateUploadedFile } from "@/lib/upload-validate.functions";
 import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+import {
   LICENSE_TYPE_LABELS,
   LICENSE_DURATION_LABELS,
+  LICENSE_OPTION_HELP,
+  DELIVERY_MODE_LABELS,
   presetForType,
   generateLicenseText,
   type LicenseType,
   type LicenseLimit,
   type LicenseDuration,
   type LicenseTerms,
+  type DeliveryMode,
 } from "@/lib/license";
 
 const SAFE_IMAGE_MIME = ["image/jpeg", "image/png", "image/webp", "image/gif"];
