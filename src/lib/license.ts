@@ -29,9 +29,9 @@ export const LICENSE_OPTION_HELP: Record<string, string> = {
   max_users: "Maksymalna liczba osób w organizacji kupującego, które mogą korzystać z pliku (np. członków zespołu).",
   max_projects: "Maksymalna liczba oddzielnych projektów, w których kupujący może wykorzystać plik.",
   max_end_products: "Maksymalna liczba egzemplarzy produktu końcowego zawierającego ten plik, które kupujący może sprzedać (np. sztuk merchu, kopii albumu).",
-  duration: "Jak długo licencja obowiązuje. „Bezterminowa" = bezterminowo, bez terminu wygaśnięcia.",
+  duration: 'Jak długo licencja obowiązuje. "Bezterminowa" = bezterminowo, bez terminu wygaśnięcia.',
   max_streams: "Maksymalna łączna liczba odtworzeń / dystrybucji strumieniowych utworu zawierającego plik.",
-  territory: "Geograficzny zasięg licencji — jeśli nie chcesz „całego świata", wpisz np. „Polska", „UE", „Ameryka Północna".",
+  territory: 'Geograficzny zasięg licencji — jeśli nie chcesz całego świata, wpisz np. "Polska", "UE", "Ameryka Północna".',
   delivery_mode: "Jak kupujący otrzyma plik: tylko strumieniowo w naszym odtwarzaczu (max ochrona), tylko do pobrania, lub oba naraz.",
   custom_terms: "Twoje dodatkowe zapisy, które trafią do umowy — np. wyjątki, specjalne wymagania, kontakt.",
 };
