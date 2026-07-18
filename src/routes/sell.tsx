@@ -293,6 +293,7 @@ function Sell() {
   if (loading || !user) return null;
 
   return (
+    <TooltipProvider delayDuration={150}>
     <div className="min-h-screen flex flex-col">
       <SiteHeader />
       <main className="container mx-auto px-4 py-10 flex-1 max-w-3xl">
