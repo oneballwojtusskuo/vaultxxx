@@ -204,6 +204,8 @@ function ProductPage() {
                 productId={p.id}
                 buyerEmail={user?.email ?? ""}
                 isOwner={isOwner}
+                deliveryMode={((p as any).license_terms?.delivery_mode ?? "both")}
+                productTitle={p.title}
               />
             )}
 
