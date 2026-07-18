@@ -10,7 +10,7 @@ import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useAuth } from "@/hooks/use-auth";
-import { supabase } from "@/integrations/supabase/client";
+import { supabase } from "@/lib/supabase-browser";
 import { toast } from "sonner";
 import { Upload, ShieldCheck, FileText, Droplets, Loader2, Info } from "lucide-react";
 import { Checkbox } from "@/components/ui/checkbox";

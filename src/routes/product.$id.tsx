@@ -5,7 +5,7 @@ import { Download, Repeat2, ShoppingCart, ArrowLeft, Share2, Check, FileText, Lo
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 import { Button } from "@/components/ui/button";
-import { supabase } from "@/integrations/supabase/client";
+import { supabase } from "@/lib/supabase-browser";
 import { useAuth } from "@/hooks/use-auth";
 import { toast } from "sonner";
 import { useState } from "react";

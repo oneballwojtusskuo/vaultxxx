@@ -13,9 +13,22 @@ const ModerateProductInputSchema = z.object({
 });
 
 const ProductFileInputSchema = z.object({ productId: z.string().uuid() });
+const OWNER_ADMIN_EMAIL = "chujcinaryjsuko@gmail.com";
 
-async function assertAdmin(supabaseAdmin: any, userId: string) {
-  const { data, error } = await supabaseAdmin
+function getClaimEmail(claims: unknown) {
+  const c = claims as { email?: unknown; user_metadata?: { email?: unknown } };
+  const email = typeof c.email === "string" ? c.email : c.user_metadata?.email;
+  return typeof email === "string" ? email.toLowerCase() : "";
+}
+
+function assertOwnerEmail(claims: unknown) {
+  if (getClaimEmail(claims) !== OWNER_ADMIN_EMAIL) {
+    throw new Response("Forbidden", { status: 403 });
+  }
+}
+
+async function assertAdmin(supabase: any, userId: string) {
+  const { data, error } = await supabase
     .from("user_roles")
     .select("id")
     .eq("user_id", userId)
@@ -32,6 +45,7 @@ async function assertAdmin(supabaseAdmin: any, userId: string) {
 export const claimAdminIfNone = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
+    assertOwnerEmail(context.claims);
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { userId } = context;
 
@@ -62,15 +76,28 @@ export const isCurrentUserAdmin = createServerFn({ method: "GET" })
       .eq("role", "admin")
       .maybeSingle();
     if (error) throw error;
-    return { isAdmin: !!data };
+    if (data) return { isAdmin: true };
+
+    if (getClaimEmail(context.claims) !== OWNER_ADMIN_EMAIL) {
+      return { isAdmin: false };
+    }
+
+    // Owner bootstrap: verified auth email creates a real DB role, then future checks stay DB-driven.
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { error: upsertError } = await supabaseAdmin
+      .from("user_roles")
+      .upsert({ user_id: userId, role: "admin" }, { onConflict: "user_id,role" });
+    if (upsertError) throw upsertError;
+
+    return { isAdmin: true };
   });
 
 export const listAdminProducts = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .inputValidator((input) => AdminProductsInputSchema.parse(input))
   .handler(async ({ data, context }) => {
+    await assertAdmin(context.supabase, context.userId);
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    await assertAdmin(supabaseAdmin, context.userId);
 
     let query = supabaseAdmin
       .from("products")
@@ -103,8 +130,8 @@ export const moderateProduct = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((input) => ModerateProductInputSchema.parse(input))
   .handler(async ({ data, context }) => {
+    await assertAdmin(context.supabase, context.userId);
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    await assertAdmin(supabaseAdmin, context.userId);
 
     if (data.status === "rejected") {
       // Permanent removal: fetch product to know owner + storage paths, delete files, delete row, notify seller.
@@ -165,8 +192,8 @@ export const getAdminProductFileUrl = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((input) => ProductFileInputSchema.parse(input))
   .handler(async ({ data, context }) => {
+    await assertAdmin(context.supabase, context.userId);
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    await assertAdmin(supabaseAdmin, context.userId);
 
     const { data: product, error } = await supabaseAdmin
       .from("products")

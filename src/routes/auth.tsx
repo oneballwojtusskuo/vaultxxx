@@ -1,8 +1,8 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
 import { Sparkles, MailCheck, ShieldAlert } from "lucide-react";
-import { supabase } from "@/integrations/supabase/client";
-import { lovable } from "@/integrations/lovable/index";
+import { supabase } from "@/lib/supabase-browser";
+import { createLovableAuth } from "@lovable.dev/cloud-auth-js";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -36,6 +36,7 @@ function AuthPage() {
   const navigate = useNavigate();
   const { next } = Route.useSearch();
   const nextPath = safeNext(next);
+  const lovableAuth = createLovableAuth();
   const [loading, setLoading] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -86,13 +87,14 @@ function AuthPage() {
     const redirectUri = nextPath
       ? `${window.location.origin}${nextPath}`
       : window.location.origin;
-    const r = await lovable.auth.signInWithOAuth("google", { redirect_uri: redirectUri });
+    const r = await lovableAuth.signInWithOAuth("google", { redirect_uri: redirectUri });
     if (r.error) {
       setLoading(false);
       toast.error("Logowanie Google nie powiodło się");
       return;
     }
     if (r.redirected) return;
+    if (r.tokens) await supabase.auth.setSession(r.tokens);
     goNext();
   };
 
