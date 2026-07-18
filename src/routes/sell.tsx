@@ -459,7 +459,17 @@ function Sell() {
                     checked={!!licTerms[key]}
                     onCheckedChange={(v) => setLic({ [key]: !!v } as any)}
                   />
-                  <span className="text-sm">{label}</span>
+                  <span className="text-sm flex-1">{label}</span>
+                  {LICENSE_OPTION_HELP[key as string] && (
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Info className="h-3.5 w-3.5 text-muted-foreground hover:text-primary shrink-0" />
+                      </TooltipTrigger>
+                      <TooltipContent side="top" className="max-w-xs text-xs leading-relaxed">
+                        {LICENSE_OPTION_HELP[key as string]}
+                      </TooltipContent>
+                    </Tooltip>
+                  )}
                 </label>
               ))}
             </div>
