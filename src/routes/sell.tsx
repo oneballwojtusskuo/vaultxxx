@@ -12,19 +12,28 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { useAuth } from "@/hooks/use-auth";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { Upload, ShieldCheck, FileText, Droplets, Loader2 } from "lucide-react";
+import { Upload, ShieldCheck, FileText, Droplets, Loader2, Info } from "lucide-react";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useServerFn } from "@tanstack/react-start";
 import { validateUploadedFile } from "@/lib/upload-validate.functions";
 import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+import {
   LICENSE_TYPE_LABELS,
   LICENSE_DURATION_LABELS,
+  LICENSE_OPTION_HELP,
+  DELIVERY_MODE_LABELS,
   presetForType,
   generateLicenseText,
   type LicenseType,
   type LicenseLimit,
   type LicenseDuration,
   type LicenseTerms,
+  type DeliveryMode,
 } from "@/lib/license";
 
 const SAFE_IMAGE_MIME = ["image/jpeg", "image/png", "image/webp", "image/gif"];
@@ -117,6 +126,24 @@ async function generateWatermarkedImage(source: File, watermarkText: string): Pr
   );
   const base = source.name.replace(/\.[^.]+$/, "");
   return new File([blob], `${base}-watermark.jpg`, { type: "image/jpeg" });
+}
+
+function HelpLabel({ text, help }: { text: string; help?: string }) {
+  return (
+    <div className="flex items-center gap-1.5">
+      <Label className="text-xs">{text}</Label>
+      {help && (
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <Info className="h-3.5 w-3.5 text-muted-foreground hover:text-primary" />
+          </TooltipTrigger>
+          <TooltipContent side="top" className="max-w-xs text-xs leading-relaxed">
+            {help}
+          </TooltipContent>
+        </Tooltip>
+      )}
+    </div>
+  );
 }
 
 export const Route = createFileRoute("/sell")({
@@ -284,6 +311,7 @@ function Sell() {
   if (loading || !user) return null;
 
   return (
+    <TooltipProvider delayDuration={150}>
     <div className="min-h-screen flex flex-col">
       <SiteHeader />
       <main className="container mx-auto px-4 py-10 flex-1 max-w-3xl">
@@ -430,6 +458,34 @@ function Sell() {
               </p>
             </div>
 
+            <div className="space-y-1 pt-1">
+              <div className="flex items-center gap-1.5">
+                <Label className="text-xs">Sposób dostarczenia pliku</Label>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Info className="h-3.5 w-3.5 text-muted-foreground hover:text-primary" />
+                  </TooltipTrigger>
+                  <TooltipContent side="top" className="max-w-xs text-xs leading-relaxed">
+                    {LICENSE_OPTION_HELP.delivery_mode}
+                  </TooltipContent>
+                </Tooltip>
+              </div>
+              <Select
+                value={(licTerms.delivery_mode ?? "stream") as DeliveryMode}
+                onValueChange={(v) => setLic({ delivery_mode: v as DeliveryMode })}
+              >
+                <SelectTrigger><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  {(Object.keys(DELIVERY_MODE_LABELS) as DeliveryMode[]).map((k) => (
+                    <SelectItem key={k} value={k}>{DELIVERY_MODE_LABELS[k]}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <p className="text-[11px] text-muted-foreground">
+                „Tylko streaming" = kupujący nie dostanie pliku do pobrania, tylko odtwarzacz na stronie z watermarkiem.
+              </p>
+            </div>
+
             <div className="grid sm:grid-cols-2 gap-2 pt-1">
               {([
                 ["commercial_use", "Dozwolony użytek komercyjny"],
@@ -449,14 +505,24 @@ function Sell() {
                     checked={!!licTerms[key]}
                     onCheckedChange={(v) => setLic({ [key]: !!v } as any)}
                   />
-                  <span className="text-sm">{label}</span>
+                  <span className="text-sm flex-1">{label}</span>
+                  {LICENSE_OPTION_HELP[key as string] && (
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Info className="h-3.5 w-3.5 text-muted-foreground hover:text-primary shrink-0" />
+                      </TooltipTrigger>
+                      <TooltipContent side="top" className="max-w-xs text-xs leading-relaxed">
+                        {LICENSE_OPTION_HELP[key as string]}
+                      </TooltipContent>
+                    </Tooltip>
+                  )}
                 </label>
               ))}
             </div>
 
             <div className="grid sm:grid-cols-2 gap-3 pt-2">
               <div className="space-y-1">
-                <Label className="text-xs">Maksymalna liczba użytkowników</Label>
+                <HelpLabel text="Maksymalna liczba użytkowników" help={LICENSE_OPTION_HELP.max_users} />
                 <Select value={licTerms.max_users ?? "unlimited"} onValueChange={(v) => setLic({ max_users: v as LicenseLimit })}>
                   <SelectTrigger><SelectValue /></SelectTrigger>
                   <SelectContent>
@@ -468,7 +534,7 @@ function Sell() {
                 </Select>
               </div>
               <div className="space-y-1">
-                <Label className="text-xs">Maksymalna liczba projektów</Label>
+                <HelpLabel text="Maksymalna liczba projektów" help={LICENSE_OPTION_HELP.max_projects} />
                 <Select value={licTerms.max_projects ?? "unlimited"} onValueChange={(v) => setLic({ max_projects: v as LicenseLimit })}>
                   <SelectTrigger><SelectValue /></SelectTrigger>
                   <SelectContent>
@@ -480,7 +546,7 @@ function Sell() {
                 </Select>
               </div>
               <div className="space-y-1">
-                <Label className="text-xs">Maks. liczba sprzedanych produktów końcowych</Label>
+                <HelpLabel text="Maks. liczba sprzedanych produktów końcowych" help={LICENSE_OPTION_HELP.max_end_products} />
                 <Select value={licTerms.max_end_products ?? "unlimited"} onValueChange={(v) => setLic({ max_end_products: v as LicenseLimit })}>
                   <SelectTrigger><SelectValue /></SelectTrigger>
                   <SelectContent>
@@ -492,7 +558,7 @@ function Sell() {
                 </Select>
               </div>
               <div className="space-y-1">
-                <Label className="text-xs">Czas obowiązywania licencji</Label>
+                <HelpLabel text="Czas obowiązywania licencji" help={LICENSE_OPTION_HELP.duration} />
                 <Select value={licTerms.duration ?? "perpetual"} onValueChange={(v) => setLic({ duration: v as LicenseDuration })}>
                   <SelectTrigger><SelectValue /></SelectTrigger>
                   <SelectContent>
@@ -503,11 +569,11 @@ function Sell() {
                 </Select>
               </div>
               <div className="space-y-1">
-                <Label className="text-xs">Limit odtworzeń (puste = bez limitu)</Label>
+                <HelpLabel text="Limit odtworzeń (puste = bez limitu)" help={LICENSE_OPTION_HELP.max_streams} />
                 <Input type="number" min="0" placeholder="np. 100000" value={licMaxStreams} onChange={(e) => setLicMaxStreams(e.target.value)} />
               </div>
               <div className="space-y-1">
-                <Label className="text-xs">Terytorium</Label>
+                <HelpLabel text="Terytorium" help={LICENSE_OPTION_HELP.territory} />
                 <Input value={licTerritory} onChange={(e) => setLicTerritory(e.target.value)} placeholder="worldwide" />
               </div>
               <div className="space-y-1 sm:col-span-2">
@@ -538,5 +604,6 @@ function Sell() {
       </main>
       <SiteFooter />
     </div>
+    </TooltipProvider>
   );
 }
