@@ -440,6 +440,34 @@ function Sell() {
               </p>
             </div>
 
+            <div className="space-y-1 pt-1">
+              <div className="flex items-center gap-1.5">
+                <Label className="text-xs">Sposób dostarczenia pliku</Label>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Info className="h-3.5 w-3.5 text-muted-foreground hover:text-primary" />
+                  </TooltipTrigger>
+                  <TooltipContent side="top" className="max-w-xs text-xs leading-relaxed">
+                    {LICENSE_OPTION_HELP.delivery_mode}
+                  </TooltipContent>
+                </Tooltip>
+              </div>
+              <Select
+                value={(licTerms.delivery_mode ?? "stream") as DeliveryMode}
+                onValueChange={(v) => setLic({ delivery_mode: v as DeliveryMode })}
+              >
+                <SelectTrigger><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  {(Object.keys(DELIVERY_MODE_LABELS) as DeliveryMode[]).map((k) => (
+                    <SelectItem key={k} value={k}>{DELIVERY_MODE_LABELS[k]}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <p className="text-[11px] text-muted-foreground">
+                „Tylko streaming" = kupujący nie dostanie pliku do pobrania, tylko odtwarzacz na stronie z watermarkiem.
+              </p>
+            </div>
+
             <div className="grid sm:grid-cols-2 gap-2 pt-1">
               {([
                 ["commercial_use", "Dozwolony użytek komercyjny"],
