@@ -223,6 +223,8 @@ export function generateLicenseText(params: {
   if (t.max_streams && t.max_streams > 0) {
     lines.push(`4. Maksymalna liczba odtworzeń / dystrybucji strumieniowych: ${Number(t.max_streams).toLocaleString()}.`);
   }
+  const dm = (t.delivery_mode ?? "both") as DeliveryMode;
+  lines.push(`5. Sposób dostarczenia Produktu: ${DELIVERY_MODE_LABELS[dm]}.`);
   lines.push("");
 
   lines.push("§4. Prawa autorskie");
