@@ -548,5 +548,6 @@ function Sell() {
       </main>
       <SiteFooter />
     </div>
+    </TooltipProvider>
   );
 }
