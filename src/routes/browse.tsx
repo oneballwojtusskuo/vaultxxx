@@ -30,6 +30,20 @@ function Browse() {
     queryFn: async () => (await supabase.from("categories").select("*").order("name")).data ?? [],
   });
 
+  const { data: users } = useQuery({
+    queryKey: ["browse-users", sp.q],
+    enabled: !!sp.q,
+    queryFn: async () => {
+      const term = sp.q!;
+      const { data } = await supabase
+        .from("profiles")
+        .select("id, username, display_name, avatar_url, is_verified_seller, bio")
+        .or(`username.ilike.%${term}%,display_name.ilike.%${term}%`)
+        .limit(12);
+      return data ?? [];
+    },
+  });
+
   const { data: products, isLoading } = useQuery({
     queryKey: ["browse", sp.category, sp.q],
     queryFn: async () => {
@@ -86,6 +100,38 @@ function Browse() {
           ))}
         </div>
 
+        {sp.q && users && users.length > 0 && (
+          <div className="mt-8">
+            <h2 className="font-display text-xl font-bold mb-3">Twórcy pasujący do „{sp.q}"</h2>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+              {users.map((u) => {
+                const name = u.display_name ?? u.username ?? "Twórca";
+                const initials = name.slice(0, 2).toUpperCase();
+                return (
+                  <Link
+                    key={u.id}
+                    to="/u/$username"
+                    params={{ username: u.username ?? "" }}
+                    className="flex items-center gap-3 rounded-xl bg-gradient-surface border border-border/40 p-3 hover:border-primary/40 transition-colors"
+                  >
+                    <div className="h-11 w-11 rounded-full overflow-hidden bg-gradient-primary flex items-center justify-center shrink-0">
+                      {u.avatar_url ? (
+                        <img src={u.avatar_url} alt="" className="w-full h-full object-cover" />
+                      ) : (
+                        <span className="text-primary-foreground font-semibold text-sm">{initials}</span>
+                      )}
+                    </div>
+                    <div className="min-w-0">
+                      <p className="font-semibold truncate">{name}</p>
+                      <p className="text-xs text-muted-foreground truncate">@{u.username}</p>
+                    </div>
+                  </Link>
+                );
+              })}
+            </div>
+          </div>
+        )}
+
         <div className="mt-8">
           {isLoading ? (
             <div className="text-center text-muted-foreground py-20">Ładowanie...</div>
@@ -94,7 +140,9 @@ function Browse() {
               {products.map((p: any) => <ProductCard key={p.id} p={p} />)}
             </div>
           ) : (
-            <div className="text-center text-muted-foreground py-20">Brak wyników.</div>
+            <div className="text-center text-muted-foreground py-20">
+              {sp.q ? "Brak produktów pasujących do zapytania." : "Brak wyników."}
+            </div>
           )}
         </div>
       </main>

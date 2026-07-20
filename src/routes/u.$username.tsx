@@ -9,6 +9,7 @@ import { ProductCard } from "@/components/product-card";
 import { Button } from "@/components/ui/button";
 import { MessageSquare, Users } from "lucide-react";
 import { useAuth } from "@/hooks/use-auth";
+import { RatingSummary, SellerReviews } from "@/components/reviews";
 
 export const Route = createFileRoute("/u/$username")({
   component: Profile,
@@ -102,10 +103,11 @@ function Profile() {
               </div>
               <p className="text-muted-foreground">@{profile.username}</p>
               {profile.bio && <p className="mt-3 text-foreground/80 whitespace-pre-wrap">{profile.bio}</p>}
-              <div className="mt-3 flex items-center gap-4 text-sm text-muted-foreground">
+              <div className="mt-3 flex items-center gap-4 text-sm text-muted-foreground flex-wrap">
                 <span className="inline-flex items-center gap-1"><Users className="h-4 w-4" /> {stats?.followers ?? 0} obserwujących</span>
                 <span>{stats?.following ?? 0} obserwowanych</span>
                 <span>{products?.length ?? 0} produktów</span>
+                <RatingSummary sellerId={profile.id} />
               </div>
             </div>
             <div className="flex gap-2 flex-wrap">
@@ -129,6 +131,10 @@ function Profile() {
             Ten twórca nie ma jeszcze opublikowanych produktów.
           </div>
         )}
+
+        <h2 className="font-display text-2xl font-bold mt-10 mb-4">Opinie o twórcy</h2>
+        <SellerReviews sellerId={profile.id} />
+
 
         <div className="mt-8 text-center">
           <Link to="/browse" className="text-sm text-muted-foreground hover:text-foreground">← Przeglądaj wszystkie produkty</Link>

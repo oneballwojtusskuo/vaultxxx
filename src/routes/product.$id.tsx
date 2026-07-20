@@ -1,7 +1,7 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
-import { Download, Repeat2, ShoppingCart, ArrowLeft, Share2, Check, FileText, Lock, PlayCircle } from "lucide-react";
+import { Download, Repeat2, ShoppingCart, ArrowLeft, Share2, Check, FileText, Lock, PlayCircle, MessageSquare } from "lucide-react";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 import { Button } from "@/components/ui/button";
@@ -23,6 +23,7 @@ import { getProductDetails } from "@/lib/product.functions";
 import { generateLicensePdf } from "@/lib/license-pdf";
 import { generateLicenseText, LICENSE_TYPE_LABELS } from "@/lib/license";
 import { LikeButton } from "@/components/like-button";
+import { ProductReviews, RatingSummary } from "@/components/reviews";
 
 export const Route = createFileRoute("/product/$id")({
   component: ProductPage,
@@ -176,9 +177,23 @@ function ProductPage() {
               )}
               {seller?.is_verified_seller && <VerifiedBadge />}
               {!isOwner && user && (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="h-7 px-2"
+                  onClick={() => navigate({ to: "/messages/$userId", params: { userId: p.seller_id } })}
+                >
+                  <MessageSquare className="h-3.5 w-3.5 mr-1" /> Napisz
+                </Button>
+              )}
+              {!isOwner && user && (
                 <ReportDialog targetType="product" targetId={p.id} />
               )}
             </div>
+            <div className="mt-2">
+              <RatingSummary sellerId={p.seller_id} />
+            </div>
+
 
             <div className="mt-6 flex items-baseline gap-3">
               <span className="text-5xl font-bold text-gradient">
@@ -282,6 +297,12 @@ function ProductPage() {
             </div>
           </div>
         </div>
+
+        <ProductReviews
+          productId={p.id}
+          sellerId={p.seller_id}
+          transactionId={myTransaction?.id ?? null}
+        />
       </main>
       <SiteFooter />
     </div>
