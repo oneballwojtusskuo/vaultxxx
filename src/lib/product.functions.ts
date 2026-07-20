@@ -34,7 +34,7 @@ export const getProductDetails = createServerFn({ method: "GET" })
 
     const { data: product, error } = await supabaseAdmin
       .from("products")
-      .select("id, seller_id, category_id, title, description, price, currency, preview_url, sample_url, tags, status, is_tradable, license_terms, downloads_count, created_at, updated_at")
+      .select("id, seller_id, category_id, title, description, price, currency, preview_url, sample_url, tags, status, is_tradable, license_terms, downloads_count, affiliate_commission_pct, created_at, updated_at")
       .eq("id", data.productId)
       .maybeSingle();
 

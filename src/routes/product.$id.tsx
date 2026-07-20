@@ -8,7 +8,8 @@ import { Button } from "@/components/ui/button";
 import { supabase } from "@/lib/supabase-browser";
 import { useAuth } from "@/hooks/use-auth";
 import { toast } from "sonner";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { setReferralCookie, getReferralCookie, buildReferralLink, clearReferralCookie } from "@/lib/affiliate";
 import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter,
 } from "@/components/ui/dialog";
@@ -35,6 +36,21 @@ function ProductPage() {
   const navigate = useNavigate();
   const fetchProduct = useServerFn(getProductDetails);
   const purchaseFn = useServerFn(purchaseProduct);
+
+  // Capture ?ref=<userId> into a per-product cookie (30 days), then clean URL.
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const params = new URLSearchParams(window.location.search);
+    const ref = params.get("ref");
+    if (ref && user?.id !== ref) {
+      setReferralCookie(id, ref);
+      params.delete("ref");
+      const clean = window.location.pathname + (params.toString() ? `?${params.toString()}` : "");
+      window.history.replaceState({}, "", clean);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [id]);
+
 
   const { data: p, refetch, isLoading, error } = useQuery({
     queryKey: ["product", id, user?.id ?? "anon"],
@@ -103,11 +119,18 @@ function ProductPage() {
     if (!user) { navigate({ to: "/auth" }); return; }
     if (isOwner) return toast.error("To Twój produkt");
     try {
-      const res = await purchaseFn({ data: { productId: p.id } });
+      const referralUserId = getReferralCookie(p.id);
+      const res = await purchaseFn({
+        data: {
+          productId: p.id,
+          referralUserId: referralUserId && referralUserId !== user.id ? referralUserId : null,
+        },
+      });
       if (res.alreadyOwned) {
         toast.info("Już posiadasz ten produkt.");
       } else if (res.status === "completed") {
         toast.success("Zakupiono! Dostęp do treści odblokowany.");
+        clearReferralCookie(p.id);
       } else {
         toast.success("Zamówienie utworzone. Oczekuje na potwierdzenie płatności.");
       }
@@ -117,6 +140,7 @@ function ProductPage() {
       toast.error(e?.message ?? "Nie udało się sfinalizować zakupu");
     }
   };
+
 
   const proposeExchange = async () => {
     if (!user || !offeredId) return;
@@ -258,6 +282,9 @@ function ProductPage() {
             <div className="mt-8 flex flex-wrap gap-3">
               <LikeButton productId={p.id} />
               <ShareButton title={p.title} />
+              {user && !isOwner && isPublished && (p as any).affiliate_commission_pct > 0 && (
+                <ReferralButton productId={p.id} referrerId={user.id} pct={(p as any).affiliate_commission_pct} />
+              )}
               {!isOwner && isPublished && (
                 <Button onClick={buy} size="lg" className="bg-gradient-primary text-primary-foreground shadow-glow h-12">
                   <ShoppingCart className="h-4 w-4 mr-2" /> Kup teraz
@@ -307,6 +334,27 @@ function ProductPage() {
       <SiteFooter />
     </div>
     </TooltipProvider>
+  );
+}
+
+function ReferralButton({ productId, referrerId, pct }: { productId: string; referrerId: string; pct: number }) {
+  const [copied, setCopied] = useState(false);
+  const link = buildReferralLink(productId, referrerId);
+  const handle = async () => {
+    try {
+      await navigator.clipboard.writeText(link);
+      setCopied(true);
+      toast.success(`Link polecający skopiowany! Za każdy zakup z tego linku dostaniesz ${pct}% prowizji.`);
+      setTimeout(() => setCopied(false), 2500);
+    } catch {
+      toast.error("Nie udało się skopiować linku");
+    }
+  };
+  return (
+    <Button onClick={handle} size="lg" variant="outline" className="h-12 border-accent/50 text-accent hover:bg-accent/10">
+      {copied ? <Check className="h-4 w-4 mr-2" /> : <Share2 className="h-4 w-4 mr-2" />}
+      {copied ? "Link partnera skopiowany" : `Generuj link polecający (${pct}%)`}
+    </Button>
   );
 }
 

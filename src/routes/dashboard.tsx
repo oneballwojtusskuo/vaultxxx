@@ -42,6 +42,17 @@ function Dashboard() {
     queryFn: async () => (await supabase.from("transactions").select("*, product:products(title)").eq("seller_id", user!.id).order("created_at", { ascending: false })).data ?? [],
   });
 
+  const { data: affiliateEarnings } = useQuery({
+    queryKey: ["affiliate", user?.id],
+    enabled: !!user,
+    queryFn: async () =>
+      (await supabase
+        .from("transactions")
+        .select("id, amount, currency, status, affiliate_amount, affiliate_commission_pct, created_at, product:products(id,title)")
+        .eq("affiliate_user_id", user!.id)
+        .order("created_at", { ascending: false })).data ?? [],
+  });
+
   const { data: notifications, refetch: refetchNotifications } = useQuery({
     queryKey: ["notifications", user?.id],
     enabled: !!user,
@@ -83,6 +94,7 @@ function Dashboard() {
   if (loading || !user) return null;
 
   const totalRevenue = sales?.reduce((s, t) => s + Number(t.amount), 0) ?? 0;
+  const totalAffiliate = affiliateEarnings?.reduce((s, t: any) => s + Number(t.affiliate_amount ?? 0), 0) ?? 0;
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -99,10 +111,11 @@ function Dashboard() {
           </div>
         </div>
 
-        <div className="grid md:grid-cols-3 gap-4 mt-8">
+        <div className="grid md:grid-cols-4 gap-4 mt-8">
           <Stat label="Moje produkty" value={myProducts?.length ?? 0} />
           <Stat label="Zakupy" value={purchases?.length ?? 0} />
           <Stat label="Przychód" value={`${totalRevenue.toFixed(2)} PLN`} />
+          <Stat label="Zarobki z afiliacji" value={`${totalAffiliate.toFixed(2)} PLN`} />
         </div>
 
         {notifications && notifications.length > 0 && (
@@ -135,6 +148,7 @@ function Dashboard() {
             <TabsTrigger value="products">Moje produkty</TabsTrigger>
             <TabsTrigger value="purchases">Zakupy</TabsTrigger>
             <TabsTrigger value="sales">Sprzedaż</TabsTrigger>
+            <TabsTrigger value="affiliate">Afiliacja</TabsTrigger>
           </TabsList>
 
           <TabsContent value="products" className="mt-6 space-y-3">
@@ -187,6 +201,26 @@ function Dashboard() {
                   <p className="text-sm text-muted-foreground">{new Date(t.created_at).toLocaleString("pl-PL")}</p>
                 </div>
                 <span className="font-bold text-gradient">+{Number(t.amount).toFixed(2)} {t.currency}</span>
+              </div>
+            ))}
+          </TabsContent>
+
+          <TabsContent value="affiliate" className="mt-6 space-y-3">
+            <div className="rounded-xl border border-accent/30 bg-accent/5 p-4 text-sm text-muted-foreground">
+              Skopiuj link „Generuj link polecający" na stronie dowolnego produktu z prowizją i udostępniaj go na social mediach. Kiedy ktoś dokona zakupu w ciągu 30 dni od kliknięcia, dostaniesz procent od sprzedaży automatycznie.
+            </div>
+            {(!affiliateEarnings || affiliateEarnings.length === 0) && <Empty msg="Brak zarobków z afiliacji" />}
+            {affiliateEarnings?.map((t: any) => (
+              <div key={t.id} className="flex items-center justify-between rounded-xl bg-gradient-surface border border-border/40 p-4 gap-4">
+                <div className="min-w-0">
+                  <p className="font-semibold line-clamp-1">{t.product?.title ?? "Produkt"}</p>
+                  <p className="text-sm text-muted-foreground">
+                    {new Date(t.created_at).toLocaleString("pl-PL")} · prowizja {t.affiliate_commission_pct}% · status {t.status === "completed" ? "opłacone" : "oczekuje"}
+                  </p>
+                </div>
+                <span className={`font-bold ${t.status === "completed" ? "text-gradient" : "text-muted-foreground"}`}>
+                  +{Number(t.affiliate_amount).toFixed(2)} {t.currency}
+                </span>
               </div>
             ))}
           </TabsContent>

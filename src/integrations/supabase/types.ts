@@ -198,6 +198,7 @@ export type Database = {
       }
       products: {
         Row: {
+          affiliate_commission_pct: number
           category_id: string | null
           created_at: string
           currency: string
@@ -220,6 +221,7 @@ export type Database = {
           updated_at: string
         }
         Insert: {
+          affiliate_commission_pct?: number
           category_id?: string | null
           created_at?: string
           currency?: string
@@ -242,6 +244,7 @@ export type Database = {
           updated_at?: string
         }
         Update: {
+          affiliate_commission_pct?: number
           category_id?: string | null
           created_at?: string
           currency?: string
@@ -437,32 +440,50 @@ export type Database = {
       }
       transactions: {
         Row: {
+          affiliate_amount: number
+          affiliate_commission_pct: number
+          affiliate_user_id: string | null
           amount: number
           buyer_id: string
           created_at: string
           currency: string
           id: string
+          platform_amount: number
+          platform_fee_pct: number
           product_id: string
+          seller_amount: number
           seller_id: string
           status: Database["public"]["Enums"]["transaction_status"]
         }
         Insert: {
+          affiliate_amount?: number
+          affiliate_commission_pct?: number
+          affiliate_user_id?: string | null
           amount: number
           buyer_id: string
           created_at?: string
           currency?: string
           id?: string
+          platform_amount?: number
+          platform_fee_pct?: number
           product_id: string
+          seller_amount?: number
           seller_id: string
           status?: Database["public"]["Enums"]["transaction_status"]
         }
         Update: {
+          affiliate_amount?: number
+          affiliate_commission_pct?: number
+          affiliate_user_id?: string | null
           amount?: number
           buyer_id?: string
           created_at?: string
           currency?: string
           id?: string
+          platform_amount?: number
+          platform_fee_pct?: number
           product_id?: string
+          seller_amount?: number
           seller_id?: string
           status?: Database["public"]["Enums"]["transaction_status"]
         }
