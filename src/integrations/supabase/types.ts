@@ -454,6 +454,7 @@ export type Database = {
           seller_amount: number
           seller_id: string
           status: Database["public"]["Enums"]["transaction_status"]
+          stripe_session_id: string | null
         }
         Insert: {
           affiliate_amount?: number
@@ -470,6 +471,7 @@ export type Database = {
           seller_amount?: number
           seller_id: string
           status?: Database["public"]["Enums"]["transaction_status"]
+          stripe_session_id?: string | null
         }
         Update: {
           affiliate_amount?: number
@@ -486,6 +488,7 @@ export type Database = {
           seller_amount?: number
           seller_id?: string
           status?: Database["public"]["Enums"]["transaction_status"]
+          stripe_session_id?: string | null
         }
         Relationships: [
           {
