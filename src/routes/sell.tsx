@@ -170,6 +170,8 @@ function Sell() {
   const [licCustom, setLicCustom] = useState("");
   const [licMaxStreams, setLicMaxStreams] = useState("");
 
+  const [affiliatePct, setAffiliatePct] = useState<string>("0");
+
   const setLic = (patch: Partial<LicenseTerms>) => setLicTerms((prev) => ({ ...prev, ...patch }));
   const applyPreset = (type: LicenseType) => {
     setLicType(type);
