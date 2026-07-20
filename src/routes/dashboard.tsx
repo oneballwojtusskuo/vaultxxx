@@ -94,6 +94,7 @@ function Dashboard() {
   if (loading || !user) return null;
 
   const totalRevenue = sales?.reduce((s, t) => s + Number(t.amount), 0) ?? 0;
+  const totalAffiliate = affiliateEarnings?.reduce((s, t: any) => s + Number(t.affiliate_amount ?? 0), 0) ?? 0;
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -110,10 +111,11 @@ function Dashboard() {
           </div>
         </div>
 
-        <div className="grid md:grid-cols-3 gap-4 mt-8">
+        <div className="grid md:grid-cols-4 gap-4 mt-8">
           <Stat label="Moje produkty" value={myProducts?.length ?? 0} />
           <Stat label="Zakupy" value={purchases?.length ?? 0} />
           <Stat label="Przychód" value={`${totalRevenue.toFixed(2)} PLN`} />
+          <Stat label="Zarobki z afiliacji" value={`${totalAffiliate.toFixed(2)} PLN`} />
         </div>
 
         {notifications && notifications.length > 0 && (
@@ -146,6 +148,7 @@ function Dashboard() {
             <TabsTrigger value="products">Moje produkty</TabsTrigger>
             <TabsTrigger value="purchases">Zakupy</TabsTrigger>
             <TabsTrigger value="sales">Sprzedaż</TabsTrigger>
+            <TabsTrigger value="affiliate">Afiliacja</TabsTrigger>
           </TabsList>
 
           <TabsContent value="products" className="mt-6 space-y-3">
