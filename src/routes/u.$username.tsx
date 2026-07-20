@@ -9,6 +9,7 @@ import { ProductCard } from "@/components/product-card";
 import { Button } from "@/components/ui/button";
 import { MessageSquare, Users } from "lucide-react";
 import { useAuth } from "@/hooks/use-auth";
+import { RatingSummary, SellerReviews } from "@/components/reviews";
 
 export const Route = createFileRoute("/u/$username")({
   component: Profile,
