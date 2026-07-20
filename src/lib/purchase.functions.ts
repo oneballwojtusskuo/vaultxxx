@@ -137,7 +137,7 @@ export const purchaseProduct = createServerFn({ method: "POST" })
             quantity: 1,
             price_data: {
               currency,
-              unit_amount: Math.round(price * 100),
+              unit_amount: Math.round(buyerPrice * 100),
               product_data: {
                 name: product.title,
               },
