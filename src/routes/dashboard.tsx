@@ -204,6 +204,26 @@ function Dashboard() {
               </div>
             ))}
           </TabsContent>
+
+          <TabsContent value="affiliate" className="mt-6 space-y-3">
+            <div className="rounded-xl border border-accent/30 bg-accent/5 p-4 text-sm text-muted-foreground">
+              Skopiuj link „Generuj link polecający" na stronie dowolnego produktu z prowizją i udostępniaj go na social mediach. Kiedy ktoś dokona zakupu w ciągu 30 dni od kliknięcia, dostaniesz procent od sprzedaży automatycznie.
+            </div>
+            {(!affiliateEarnings || affiliateEarnings.length === 0) && <Empty msg="Brak zarobków z afiliacji" />}
+            {affiliateEarnings?.map((t: any) => (
+              <div key={t.id} className="flex items-center justify-between rounded-xl bg-gradient-surface border border-border/40 p-4 gap-4">
+                <div className="min-w-0">
+                  <p className="font-semibold line-clamp-1">{t.product?.title ?? "Produkt"}</p>
+                  <p className="text-sm text-muted-foreground">
+                    {new Date(t.created_at).toLocaleString("pl-PL")} · prowizja {t.affiliate_commission_pct}% · status {t.status === "completed" ? "opłacone" : "oczekuje"}
+                  </p>
+                </div>
+                <span className={`font-bold ${t.status === "completed" ? "text-gradient" : "text-muted-foreground"}`}>
+                  +{Number(t.affiliate_amount).toFixed(2)} {t.currency}
+                </span>
+              </div>
+            ))}
+          </TabsContent>
         </Tabs>
       </main>
       <SiteFooter />
