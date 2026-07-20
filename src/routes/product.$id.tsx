@@ -37,6 +37,21 @@ function ProductPage() {
   const fetchProduct = useServerFn(getProductDetails);
   const purchaseFn = useServerFn(purchaseProduct);
 
+  // Capture ?ref=<userId> into a per-product cookie (30 days), then clean URL.
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const params = new URLSearchParams(window.location.search);
+    const ref = params.get("ref");
+    if (ref && user?.id !== ref) {
+      setReferralCookie(id, ref);
+      params.delete("ref");
+      const clean = window.location.pathname + (params.toString() ? `?${params.toString()}` : "");
+      window.history.replaceState({}, "", clean);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [id]);
+
+
   const { data: p, refetch, isLoading, error } = useQuery({
     queryKey: ["product", id, user?.id ?? "anon"],
     queryFn: () => fetchProduct({ data: { productId: id } }),
