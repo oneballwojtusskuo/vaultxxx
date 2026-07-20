@@ -365,6 +365,7 @@ function ProductPage() {
         />
       </main>
       <SiteFooter />
+      <CheckoutDialog clientSecret={checkoutSecret} open={checkoutOpen} onOpenChange={setCheckoutOpen} />
     </div>
     </TooltipProvider>
   );
