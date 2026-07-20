@@ -1,5 +1,6 @@
 import { Link } from "@tanstack/react-router";
 import { Download, Repeat2 } from "lucide-react";
+import { LikeButton } from "@/components/like-button";
 
 export interface ProductCardData {
   id: string;
@@ -35,6 +36,9 @@ export function ProductCard({ p }: { p: ProductCardData }) {
             <Repeat2 className="h-3 w-3" /> wymiana
           </span>
         )}
+        <div className="absolute top-2 left-2 glass rounded-full">
+          <LikeButton productId={p.id} variant="icon" />
+        </div>
       </div>
       <div className="p-4">
         {p.category && (

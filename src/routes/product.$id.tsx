@@ -22,6 +22,7 @@ import { purchaseProduct } from "@/lib/purchase.functions";
 import { getProductDetails } from "@/lib/product.functions";
 import { generateLicensePdf } from "@/lib/license-pdf";
 import { generateLicenseText, LICENSE_TYPE_LABELS } from "@/lib/license";
+import { LikeButton } from "@/components/like-button";
 
 export const Route = createFileRoute("/product/$id")({
   component: ProductPage,
@@ -165,7 +166,14 @@ function ProductPage() {
             {p.category && <span className="text-xs uppercase tracking-wider text-accent">{(p.category as any).name}</span>}
             <h1 className="font-display text-4xl font-bold mt-2">{p.title}</h1>
             <div className="text-muted-foreground mt-1 flex items-center gap-2 flex-wrap">
-              <span>od {seller?.display_name ?? "Twórca"}</span>
+              <span>od </span>
+              {seller?.username ? (
+                <Link to="/u/$username" params={{ username: seller.username }} className="text-foreground hover:text-primary font-medium">
+                  {seller?.display_name ?? seller.username}
+                </Link>
+              ) : (
+                <span>{seller?.display_name ?? "Twórca"}</span>
+              )}
               {seller?.is_verified_seller && <VerifiedBadge />}
               {!isOwner && user && (
                 <ReportDialog targetType="product" targetId={p.id} />
@@ -233,6 +241,7 @@ function ProductPage() {
             )}
 
             <div className="mt-8 flex flex-wrap gap-3">
+              <LikeButton productId={p.id} />
               <ShareButton title={p.title} />
               {!isOwner && isPublished && (
                 <Button onClick={buy} size="lg" className="bg-gradient-primary text-primary-foreground shadow-glow h-12">
