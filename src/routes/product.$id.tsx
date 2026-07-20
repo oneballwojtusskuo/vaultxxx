@@ -177,9 +177,23 @@ function ProductPage() {
               )}
               {seller?.is_verified_seller && <VerifiedBadge />}
               {!isOwner && user && (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="h-7 px-2"
+                  onClick={() => navigate({ to: "/messages/$userId", params: { userId: p.seller_id } })}
+                >
+                  <MessageSquare className="h-3.5 w-3.5 mr-1" /> Napisz
+                </Button>
+              )}
+              {!isOwner && user && (
                 <ReportDialog targetType="product" targetId={p.id} />
               )}
             </div>
+            <div className="mt-2">
+              <RatingSummary sellerId={p.seller_id} />
+            </div>
+
 
             <div className="mt-6 flex items-baseline gap-3">
               <span className="text-5xl font-bold text-gradient">
