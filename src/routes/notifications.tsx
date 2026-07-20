@@ -1,4 +1,4 @@
-import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect } from "react";
 import { SiteHeader } from "@/components/site-header";
@@ -80,7 +80,7 @@ function Notifications() {
             const unread = !n.read_at;
             const Wrapper = ({ children }: { children: React.ReactNode }) =>
               n.link ? (
-                <Link to={n.link} className="flex-1 min-w-0">{children}</Link>
+                <a href={n.link} className="flex-1 min-w-0">{children}</a>
               ) : (
                 <div className="flex-1 min-w-0">{children}</div>
               );
