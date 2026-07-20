@@ -35,7 +35,7 @@ export const getSecureStreamUrl = createServerFn({ method: "POST" })
         .select("id")
         .eq("product_id", product.id)
         .eq("buyer_id", userId)
-        .eq("status", "completed")
+        .in("status", ["held", "released", "completed", "disputed"])
         .limit(1)
         .maybeSingle();
 
