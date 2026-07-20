@@ -297,6 +297,12 @@ function ProductPage() {
             </div>
           </div>
         </div>
+
+        <ProductReviews
+          productId={p.id}
+          sellerId={p.seller_id}
+          transactionId={myTransaction?.id ?? null}
+        />
       </main>
       <SiteFooter />
     </div>
