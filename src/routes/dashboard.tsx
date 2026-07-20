@@ -42,6 +42,17 @@ function Dashboard() {
     queryFn: async () => (await supabase.from("transactions").select("*, product:products(title)").eq("seller_id", user!.id).order("created_at", { ascending: false })).data ?? [],
   });
 
+  const { data: affiliateEarnings } = useQuery({
+    queryKey: ["affiliate", user?.id],
+    enabled: !!user,
+    queryFn: async () =>
+      (await supabase
+        .from("transactions")
+        .select("id, amount, currency, status, affiliate_amount, affiliate_commission_pct, created_at, product:products(id,title)")
+        .eq("affiliate_user_id", user!.id)
+        .order("created_at", { ascending: false })).data ?? [],
+  });
+
   const { data: notifications, refetch: refetchNotifications } = useQuery({
     queryKey: ["notifications", user?.id],
     enabled: !!user,
