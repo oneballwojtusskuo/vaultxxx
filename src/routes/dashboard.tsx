@@ -10,6 +10,7 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Plus, PlayCircle, Trash2, FileText, AlertTriangle, X } from "lucide-react";
 import { toast } from "sonner";
 import { generateLicensePdf } from "@/lib/license-pdf";
+import { ProfileEditor } from "@/components/profile-editor";
 
 export const Route = createFileRoute("/dashboard")({
   component: Dashboard,
@@ -92,7 +93,10 @@ function Dashboard() {
             <h1 className="font-display text-4xl font-bold">Mój panel</h1>
             <p className="text-muted-foreground mt-1">Zarządzaj produktami, zakupami i wymianami.</p>
           </div>
-          <Link to="/sell"><Button className="bg-gradient-primary text-primary-foreground shadow-glow"><Plus className="h-4 w-4 mr-1"/> Nowy produkt</Button></Link>
+          <div className="flex items-center gap-2 flex-wrap">
+            <ProfileEditor />
+            <Link to="/sell"><Button className="bg-gradient-primary text-primary-foreground shadow-glow"><Plus className="h-4 w-4 mr-1"/> Nowy produkt</Button></Link>
+          </div>
         </div>
 
         <div className="grid md:grid-cols-3 gap-4 mt-8">
