@@ -118,7 +118,7 @@ export const purchaseProduct = createServerFn({ method: "POST" })
         mode: "payment",
         ui_mode: "embedded_page",
         return_url: `${data.returnUrl ?? ""}?checkout=success&session_id={CHECKOUT_SESSION_ID}`,
-        payment_method_types: paymentMethodTypes as unknown as string[],
+        payment_method_types: paymentMethodTypes as any,
         line_items: [
           {
             quantity: 1,
