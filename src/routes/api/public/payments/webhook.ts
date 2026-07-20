@@ -29,13 +29,13 @@ async function completeTransaction(transactionId: string) {
   const { data: p } = await supabase
     .from("products")
     .select("downloads_count")
-    .eq("id", tx.product_id as string)
+    .eq("id", tx.product_id)
     .maybeSingle();
   if (p) {
     await supabase
       .from("products")
-      .update({ downloads_count: ((p.downloads_count as number) ?? 0) + 1 })
-      .eq("id", tx.product_id as string);
+      .update({ downloads_count: (p.downloads_count ?? 0) + 1 })
+      .eq("id", tx.product_id);
   }
 }
 
