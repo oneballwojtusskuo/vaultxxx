@@ -337,6 +337,27 @@ function ProductPage() {
   );
 }
 
+function ReferralButton({ productId, referrerId, pct }: { productId: string; referrerId: string; pct: number }) {
+  const [copied, setCopied] = useState(false);
+  const link = buildReferralLink(productId, referrerId);
+  const handle = async () => {
+    try {
+      await navigator.clipboard.writeText(link);
+      setCopied(true);
+      toast.success(`Link polecający skopiowany! Za każdy zakup z tego linku dostaniesz ${pct}% prowizji.`);
+      setTimeout(() => setCopied(false), 2500);
+    } catch {
+      toast.error("Nie udało się skopiować linku");
+    }
+  };
+  return (
+    <Button onClick={handle} size="lg" variant="outline" className="h-12 border-accent/50 text-accent hover:bg-accent/10">
+      {copied ? <Check className="h-4 w-4 mr-2" /> : <Share2 className="h-4 w-4 mr-2" />}
+      {copied ? "Link partnera skopiowany" : `Generuj link polecający (${pct}%)`}
+    </Button>
+  );
+}
+
 function ShareButton({ title }: { title: string }) {
   const [copied, setCopied] = useState(false);
   const url = typeof window !== "undefined" ? window.location.href : "";
