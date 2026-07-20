@@ -69,7 +69,7 @@ function ProductPage() {
         .select("*")
         .eq("product_id", id)
         .eq("buyer_id", user!.id)
-        .eq("status", "completed")
+        .in("status", ["held", "released", "completed", "disputed"])
         .limit(1)
         .maybeSingle();
       return data;
@@ -157,7 +157,7 @@ function ProductPage() {
       if (res.alreadyOwned) {
         toast.info("Już posiadasz ten produkt.");
         refetchTx();
-      } else if (res.status === "completed") {
+      } else if (res.status === "released") {
         toast.success("Zakupiono! Dostęp do treści odblokowany.");
         clearReferralCookie(p.id);
         refetch();
