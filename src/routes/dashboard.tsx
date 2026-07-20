@@ -215,10 +215,10 @@ function Dashboard() {
                 <div className="min-w-0">
                   <p className="font-semibold line-clamp-1">{t.product?.title ?? "Produkt"}</p>
                   <p className="text-sm text-muted-foreground">
-                    {new Date(t.created_at).toLocaleString("pl-PL")} · prowizja {t.affiliate_commission_pct}% · status {t.status === "completed" ? "opłacone" : "oczekuje"}
+                    {new Date(t.created_at).toLocaleString("pl-PL")} · prowizja {t.affiliate_commission_pct}% · status {statusLabel(t.status)}
                   </p>
                 </div>
-                <span className={`font-bold ${t.status === "completed" ? "text-gradient" : "text-muted-foreground"}`}>
+                <span className={`font-bold ${t.status === "released" || t.status === "completed" ? "text-gradient" : "text-muted-foreground"}`}>
                   +{Number(t.affiliate_amount).toFixed(2)} {t.currency}
                 </span>
               </div>
@@ -229,6 +229,26 @@ function Dashboard() {
       <SiteFooter />
     </div>
   );
+}
+
+function statusLabel(status: string): string {
+  switch (status) {
+    case "released":
+    case "completed":
+      return "wypłacone";
+    case "held":
+      return "w depozycie";
+    case "disputed":
+      return "zgłoszony problem";
+    case "pending":
+      return "oczekuje na płatność";
+    case "failed":
+      return "nieudane";
+    case "refunded":
+      return "zwrot";
+    default:
+      return status;
+  }
 }
 
 function Stat({ label, value }: { label: string; value: string | number }) {
