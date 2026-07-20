@@ -132,6 +132,10 @@ function Profile() {
           </div>
         )}
 
+        <h2 className="font-display text-2xl font-bold mt-10 mb-4">Opinie o twórcy</h2>
+        <SellerReviews sellerId={profile.id} />
+
+
         <div className="mt-8 text-center">
           <Link to="/browse" className="text-sm text-muted-foreground hover:text-foreground">← Przeglądaj wszystkie produkty</Link>
         </div>
