@@ -143,10 +143,18 @@ export function ProductReviews({
     queryFn: async () => {
       const { data } = await supabase
         .from("reviews")
-        .select("id, rating, comment, created_at, buyer_id, buyer:profiles!reviews_buyer_id_fkey(username, display_name, avatar_url)")
+        .select("id, rating, comment, created_at, buyer_id")
         .eq("product_id", productId)
         .order("created_at", { ascending: false });
-      return data ?? [];
+      const arr = data ?? [];
+      const buyerIds = Array.from(new Set(arr.map((r: any) => r.buyer_id)));
+      if (buyerIds.length === 0) return arr;
+      const { data: profiles } = await supabase
+        .from("profiles")
+        .select("id, username, display_name, avatar_url")
+        .in("id", buyerIds);
+      const pmap = new Map((profiles ?? []).map((p) => [p.id, p]));
+      return arr.map((r: any) => ({ ...r, buyer: pmap.get(r.buyer_id) }));
     },
   });
 
