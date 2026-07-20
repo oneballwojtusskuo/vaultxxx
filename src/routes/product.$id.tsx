@@ -172,8 +172,7 @@ function ProductPage() {
       toast.error(e?.message ?? "Nie udało się sfinalizować zakupu");
     }
   };
-    }
-  };
+
 
 
   const proposeExchange = async () => {
