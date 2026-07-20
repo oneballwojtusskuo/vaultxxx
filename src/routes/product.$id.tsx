@@ -282,6 +282,9 @@ function ProductPage() {
             <div className="mt-8 flex flex-wrap gap-3">
               <LikeButton productId={p.id} />
               <ShareButton title={p.title} />
+              {user && !isOwner && isPublished && (p as any).affiliate_commission_pct > 0 && (
+                <ReferralButton productId={p.id} referrerId={user.id} pct={(p as any).affiliate_commission_pct} />
+              )}
               {!isOwner && isPublished && (
                 <Button onClick={buy} size="lg" className="bg-gradient-primary text-primary-foreground shadow-glow h-12">
                   <ShoppingCart className="h-4 w-4 mr-2" /> Kup teraz
