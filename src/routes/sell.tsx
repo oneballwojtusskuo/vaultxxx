@@ -349,6 +349,31 @@ function Sell() {
             <Label>Tagi (oddzielone przecinkami)</Label>
             <Input value={tags} onChange={(e) => setTags(e.target.value)} placeholder="design, ui, dark" />
           </div>
+          <div className="space-y-2 rounded-lg border border-accent/30 bg-accent/5 p-4">
+            <Label className="flex items-center gap-2">
+              💸 Prowizja partnerska (%)
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Info className="h-3.5 w-3.5 text-muted-foreground hover:text-primary" />
+                </TooltipTrigger>
+                <TooltipContent side="top" className="max-w-xs text-xs leading-relaxed">
+                  Ustaw ile procent (0–50) od ceny sprzedaży dostanie użytkownik, który poleci Twój produkt swoim linkiem afiliacyjnym. 0% = brak programu partnerskiego dla tego produktu. Platforma i tak pobiera stałą opłatę 10%.
+                </TooltipContent>
+              </Tooltip>
+            </Label>
+            <Input
+              type="number"
+              min="0"
+              max="50"
+              step="1"
+              value={affiliatePct}
+              onChange={(e) => setAffiliatePct(e.target.value)}
+              placeholder="np. 15"
+            />
+            <p className="text-[11px] text-muted-foreground">
+              Przykład dla ceny 100 PLN i prowizji 15%: partner dostaje 15 PLN, platforma 10 PLN, Ty otrzymujesz 75 PLN.
+            </p>
+          </div>
           <div className="grid md:grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label className="flex items-center gap-2">
