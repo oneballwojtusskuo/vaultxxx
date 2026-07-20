@@ -103,10 +103,11 @@ function Profile() {
               </div>
               <p className="text-muted-foreground">@{profile.username}</p>
               {profile.bio && <p className="mt-3 text-foreground/80 whitespace-pre-wrap">{profile.bio}</p>}
-              <div className="mt-3 flex items-center gap-4 text-sm text-muted-foreground">
+              <div className="mt-3 flex items-center gap-4 text-sm text-muted-foreground flex-wrap">
                 <span className="inline-flex items-center gap-1"><Users className="h-4 w-4" /> {stats?.followers ?? 0} obserwujących</span>
                 <span>{stats?.following ?? 0} obserwowanych</span>
                 <span>{products?.length ?? 0} produktów</span>
+                <RatingSummary sellerId={profile.id} />
               </div>
             </div>
             <div className="flex gap-2 flex-wrap">
