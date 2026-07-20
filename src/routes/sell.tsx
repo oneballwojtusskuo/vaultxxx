@@ -286,6 +286,7 @@ function Sell() {
         category_id: categoryId || null,
         tags: tags.split(",").map((t) => t.trim()).filter(Boolean),
         is_tradable: tradable,
+        affiliate_commission_pct: Math.max(0, Math.min(50, parseInt(affiliatePct || "0", 10) || 0)),
         preview_url,
         sample_url,
         file_path,
