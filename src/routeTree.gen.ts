@@ -11,7 +11,6 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as SellRouteImport } from './routes/sell'
 import { Route as NotificationsRouteImport } from './routes/notifications'
-import { Route as MessagesRouteImport } from './routes/messages'
 import { Route as LikesRouteImport } from './routes/likes'
 import { Route as ExchangesRouteImport } from './routes/exchanges'
 import { Route as DashboardRouteImport } from './routes/dashboard'
@@ -19,6 +18,7 @@ import { Route as BrowseRouteImport } from './routes/browse'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AdminRouteImport } from './routes/admin'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as MessagesIndexRouteImport } from './routes/messages.index'
 import { Route as UUsernameRouteImport } from './routes/u.$username'
 import { Route as ProductIdRouteImport } from './routes/product.$id'
 import { Route as MessagesUserIdRouteImport } from './routes/messages.$userId'
@@ -31,11 +31,6 @@ const SellRoute = SellRouteImport.update({
 const NotificationsRoute = NotificationsRouteImport.update({
   id: '/notifications',
   path: '/notifications',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const MessagesRoute = MessagesRouteImport.update({
-  id: '/messages',
-  path: '/messages',
   getParentRoute: () => rootRouteImport,
 } as any)
 const LikesRoute = LikesRouteImport.update({
@@ -73,6 +68,11 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const MessagesIndexRoute = MessagesIndexRouteImport.update({
+  id: '/messages/',
+  path: '/messages/',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const UUsernameRoute = UUsernameRouteImport.update({
   id: '/u/$username',
   path: '/u/$username',
@@ -84,9 +84,9 @@ const ProductIdRoute = ProductIdRouteImport.update({
   getParentRoute: () => rootRouteImport,
 } as any)
 const MessagesUserIdRoute = MessagesUserIdRouteImport.update({
-  id: '/$userId',
-  path: '/$userId',
-  getParentRoute: () => MessagesRoute,
+  id: '/messages/$userId',
+  path: '/messages/$userId',
+  getParentRoute: () => rootRouteImport,
 } as any)
 
 export interface FileRoutesByFullPath {
@@ -97,12 +97,12 @@ export interface FileRoutesByFullPath {
   '/dashboard': typeof DashboardRoute
   '/exchanges': typeof ExchangesRoute
   '/likes': typeof LikesRoute
-  '/messages': typeof MessagesRouteWithChildren
   '/notifications': typeof NotificationsRoute
   '/sell': typeof SellRoute
   '/messages/$userId': typeof MessagesUserIdRoute
   '/product/$id': typeof ProductIdRoute
   '/u/$username': typeof UUsernameRoute
+  '/messages/': typeof MessagesIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -112,12 +112,12 @@ export interface FileRoutesByTo {
   '/dashboard': typeof DashboardRoute
   '/exchanges': typeof ExchangesRoute
   '/likes': typeof LikesRoute
-  '/messages': typeof MessagesRouteWithChildren
   '/notifications': typeof NotificationsRoute
   '/sell': typeof SellRoute
   '/messages/$userId': typeof MessagesUserIdRoute
   '/product/$id': typeof ProductIdRoute
   '/u/$username': typeof UUsernameRoute
+  '/messages': typeof MessagesIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -128,12 +128,12 @@ export interface FileRoutesById {
   '/dashboard': typeof DashboardRoute
   '/exchanges': typeof ExchangesRoute
   '/likes': typeof LikesRoute
-  '/messages': typeof MessagesRouteWithChildren
   '/notifications': typeof NotificationsRoute
   '/sell': typeof SellRoute
   '/messages/$userId': typeof MessagesUserIdRoute
   '/product/$id': typeof ProductIdRoute
   '/u/$username': typeof UUsernameRoute
+  '/messages/': typeof MessagesIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -145,12 +145,12 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/exchanges'
     | '/likes'
-    | '/messages'
     | '/notifications'
     | '/sell'
     | '/messages/$userId'
     | '/product/$id'
     | '/u/$username'
+    | '/messages/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -160,12 +160,12 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/exchanges'
     | '/likes'
-    | '/messages'
     | '/notifications'
     | '/sell'
     | '/messages/$userId'
     | '/product/$id'
     | '/u/$username'
+    | '/messages'
   id:
     | '__root__'
     | '/'
@@ -175,12 +175,12 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/exchanges'
     | '/likes'
-    | '/messages'
     | '/notifications'
     | '/sell'
     | '/messages/$userId'
     | '/product/$id'
     | '/u/$username'
+    | '/messages/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -191,11 +191,12 @@ export interface RootRouteChildren {
   DashboardRoute: typeof DashboardRoute
   ExchangesRoute: typeof ExchangesRoute
   LikesRoute: typeof LikesRoute
-  MessagesRoute: typeof MessagesRouteWithChildren
   NotificationsRoute: typeof NotificationsRoute
   SellRoute: typeof SellRoute
+  MessagesUserIdRoute: typeof MessagesUserIdRoute
   ProductIdRoute: typeof ProductIdRoute
   UUsernameRoute: typeof UUsernameRoute
+  MessagesIndexRoute: typeof MessagesIndexRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -212,13 +213,6 @@ declare module '@tanstack/react-router' {
       path: '/notifications'
       fullPath: '/notifications'
       preLoaderRoute: typeof NotificationsRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/messages': {
-      id: '/messages'
-      path: '/messages'
-      fullPath: '/messages'
-      preLoaderRoute: typeof MessagesRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/likes': {
@@ -270,6 +264,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/messages/': {
+      id: '/messages/'
+      path: '/messages'
+      fullPath: '/messages/'
+      preLoaderRoute: typeof MessagesIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/u/$username': {
       id: '/u/$username'
       path: '/u/$username'
@@ -286,25 +287,13 @@ declare module '@tanstack/react-router' {
     }
     '/messages/$userId': {
       id: '/messages/$userId'
-      path: '/$userId'
+      path: '/messages/$userId'
       fullPath: '/messages/$userId'
       preLoaderRoute: typeof MessagesUserIdRouteImport
-      parentRoute: typeof MessagesRoute
+      parentRoute: typeof rootRouteImport
     }
   }
 }
-
-interface MessagesRouteChildren {
-  MessagesUserIdRoute: typeof MessagesUserIdRoute
-}
-
-const MessagesRouteChildren: MessagesRouteChildren = {
-  MessagesUserIdRoute: MessagesUserIdRoute,
-}
-
-const MessagesRouteWithChildren = MessagesRoute._addFileChildren(
-  MessagesRouteChildren,
-)
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
@@ -314,11 +303,12 @@ const rootRouteChildren: RootRouteChildren = {
   DashboardRoute: DashboardRoute,
   ExchangesRoute: ExchangesRoute,
   LikesRoute: LikesRoute,
-  MessagesRoute: MessagesRouteWithChildren,
   NotificationsRoute: NotificationsRoute,
   SellRoute: SellRoute,
+  MessagesUserIdRoute: MessagesUserIdRoute,
   ProductIdRoute: ProductIdRoute,
   UUsernameRoute: UUsernameRoute,
+  MessagesIndexRoute: MessagesIndexRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

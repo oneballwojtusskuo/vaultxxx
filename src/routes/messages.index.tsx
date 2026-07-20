@@ -7,7 +7,7 @@ import { supabase } from "@/lib/supabase-browser";
 import { useAuth } from "@/hooks/use-auth";
 import { MessageSquare } from "lucide-react";
 
-export const Route = createFileRoute("/messages")({
+export const Route = createFileRoute("/messages/")({
   component: Inbox,
 });
 
