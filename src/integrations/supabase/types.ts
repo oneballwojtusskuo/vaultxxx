@@ -445,12 +445,16 @@ export type Database = {
           affiliate_user_id: string | null
           amount: number
           buyer_id: string
+          buyer_price: number | null
           created_at: string
           currency: string
+          dispute_reason: string | null
+          disputed_at: string | null
           id: string
           platform_amount: number
           platform_fee_pct: number
           product_id: string
+          released_at: string | null
           seller_amount: number
           seller_id: string
           status: Database["public"]["Enums"]["transaction_status"]
@@ -462,12 +466,16 @@ export type Database = {
           affiliate_user_id?: string | null
           amount: number
           buyer_id: string
+          buyer_price?: number | null
           created_at?: string
           currency?: string
+          dispute_reason?: string | null
+          disputed_at?: string | null
           id?: string
           platform_amount?: number
           platform_fee_pct?: number
           product_id: string
+          released_at?: string | null
           seller_amount?: number
           seller_id: string
           status?: Database["public"]["Enums"]["transaction_status"]
@@ -479,12 +487,16 @@ export type Database = {
           affiliate_user_id?: string | null
           amount?: number
           buyer_id?: string
+          buyer_price?: number | null
           created_at?: string
           currency?: string
+          dispute_reason?: string | null
+          disputed_at?: string | null
           id?: string
           platform_amount?: number
           platform_fee_pct?: number
           product_id?: string
+          released_at?: string | null
           seller_amount?: number
           seller_id?: string
           status?: Database["public"]["Enums"]["transaction_status"]
@@ -546,7 +558,14 @@ export type Database = {
         | "rejected"
       report_status: "pending" | "reviewing" | "resolved" | "dismissed"
       report_target: "product" | "user"
-      transaction_status: "pending" | "completed" | "failed" | "refunded"
+      transaction_status:
+        | "pending"
+        | "completed"
+        | "failed"
+        | "refunded"
+        | "held"
+        | "released"
+        | "disputed"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -686,7 +705,15 @@ export const Constants = {
       ],
       report_status: ["pending", "reviewing", "resolved", "dismissed"],
       report_target: ["product", "user"],
-      transaction_status: ["pending", "completed", "failed", "refunded"],
+      transaction_status: [
+        "pending",
+        "completed",
+        "failed",
+        "refunded",
+        "held",
+        "released",
+        "disputed",
+      ],
     },
   },
 } as const

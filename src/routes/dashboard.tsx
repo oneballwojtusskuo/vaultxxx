@@ -160,7 +160,7 @@ function Dashboard() {
                 </div>
                 <div className="flex-1 min-w-0">
                   <Link to="/product/$id" params={{ id: p.id }} className="font-semibold hover:text-primary line-clamp-1">{p.title}</Link>
-                  <p className="text-sm text-muted-foreground">{Number(p.price).toFixed(2)} {p.currency} · {p.downloads_count} pobrań</p>
+                  <p className="text-sm text-muted-foreground">{Number(p.price).toFixed(2)} {p.currency} netto (kupujący widzi +10%) · {p.downloads_count} pobrań</p>
                 </div>
                 <Button variant="ghost" size="icon" onClick={() => deleteProduct(p.id)}><Trash2 className="h-4 w-4 text-destructive"/></Button>
               </div>
@@ -198,9 +198,13 @@ function Dashboard() {
               <div key={t.id} className="flex items-center justify-between rounded-xl bg-gradient-surface border border-border/40 p-4">
                 <div>
                   <p className="font-semibold">{t.product?.title}</p>
-                  <p className="text-sm text-muted-foreground">{new Date(t.created_at).toLocaleString("pl-PL")}</p>
+                  <p className="text-sm text-muted-foreground">
+                    {new Date(t.created_at).toLocaleString("pl-PL")} · {statusLabel(t.status)}
+                  </p>
                 </div>
-                <span className="font-bold text-gradient">+{Number(t.amount).toFixed(2)} {t.currency}</span>
+                <span className={`font-bold ${t.status === "released" || t.status === "completed" ? "text-gradient" : "text-muted-foreground"}`}>
+                  +{Number(t.seller_amount ?? t.amount).toFixed(2)} {t.currency}
+                </span>
               </div>
             ))}
           </TabsContent>
@@ -215,10 +219,10 @@ function Dashboard() {
                 <div className="min-w-0">
                   <p className="font-semibold line-clamp-1">{t.product?.title ?? "Produkt"}</p>
                   <p className="text-sm text-muted-foreground">
-                    {new Date(t.created_at).toLocaleString("pl-PL")} · prowizja {t.affiliate_commission_pct}% · status {t.status === "completed" ? "opłacone" : "oczekuje"}
+                    {new Date(t.created_at).toLocaleString("pl-PL")} · prowizja {t.affiliate_commission_pct}% · status {statusLabel(t.status)}
                   </p>
                 </div>
-                <span className={`font-bold ${t.status === "completed" ? "text-gradient" : "text-muted-foreground"}`}>
+                <span className={`font-bold ${t.status === "released" || t.status === "completed" ? "text-gradient" : "text-muted-foreground"}`}>
                   +{Number(t.affiliate_amount).toFixed(2)} {t.currency}
                 </span>
               </div>
@@ -229,6 +233,26 @@ function Dashboard() {
       <SiteFooter />
     </div>
   );
+}
+
+function statusLabel(status: string): string {
+  switch (status) {
+    case "released":
+    case "completed":
+      return "wypłacone";
+    case "held":
+      return "w depozycie";
+    case "disputed":
+      return "zgłoszony problem";
+    case "pending":
+      return "oczekuje na płatność";
+    case "failed":
+      return "nieudane";
+    case "refunded":
+      return "zwrot";
+    default:
+      return status;
+  }
 }
 
 function Stat({ label, value }: { label: string; value: string | number }) {

@@ -9,14 +9,16 @@ const InputSchema = z.object({
   environment: z.enum(["sandbox", "live"]).optional(),
 });
 
-const PLATFORM_FEE_PCT = 10;
+const PLATFORM_MARKUP_PCT = 10; // added on top of seller price -> buyer pays price * 1.10
 
 /**
- * Buyer purchase flow:
- * - Free products: mark completed immediately.
- * - Paid products: create a pending transaction, open a Stripe Embedded
- *   Checkout session (BLIK promoted as the first payment method for PLN),
- *   and let the webhook flip the row to `completed` after Stripe confirms.
+ * Escrow purchase flow:
+ * - Seller sets `price` (NET) — what they receive.
+ * - Buyer pays `price * 1.10`. The 10% markup is the platform cut.
+ * - Free products: mark `released` immediately (no escrow needed).
+ * - Paid products: create `pending` → Stripe Embedded Checkout →
+ *   webhook flips to `held`. Funds stay in escrow until the buyer
+ *   confirms delivery, which moves the row to `released`.
  */
 export const purchaseProduct = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
@@ -35,16 +37,16 @@ export const purchaseProduct = createServerFn({ method: "POST" })
     if (product.status !== "published") throw new Response("Product not available", { status: 400 });
     if (product.seller_id === userId) throw new Response("Cannot purchase your own product", { status: 400 });
 
-    // Reject duplicates
+    // Reject duplicates — any successful state (paid, held, released, or legacy completed)
     const { data: existing } = await supabaseAdmin
       .from("transactions")
       .select("id, status")
       .eq("product_id", product.id)
       .eq("buyer_id", userId)
-      .eq("status", "completed")
+      .in("status", ["held", "released", "completed", "disputed"] as any)
       .limit(1)
       .maybeSingle();
-    if (existing) return { transactionId: existing.id, status: "completed" as const, alreadyOwned: true };
+    if (existing) return { transactionId: existing.id, status: existing.status as string, alreadyOwned: true };
 
     // Validate affiliate
     let affiliateUserId: string | null = null;
@@ -66,13 +68,21 @@ export const purchaseProduct = createServerFn({ method: "POST" })
       }
     }
 
-    const price = Number(product.price);
-    const isFree = price === 0;
-    const status = isFree ? "completed" : "pending";
+    const sellerNet = Number(product.price);
+    const isFree = sellerNet === 0;
+    const buyerPrice = +(sellerNet * (1 + PLATFORM_MARKUP_PCT / 100)).toFixed(2);
 
-    const platformAmount = +(price * (PLATFORM_FEE_PCT / 100)).toFixed(2);
-    const affiliateAmount = affiliateUserId ? +(price * (affiliatePct / 100)).toFixed(2) : 0;
-    const sellerAmount = +(price - platformAmount - affiliateAmount).toFixed(2);
+    // Seller always receives their full net price. Affiliate commission is
+    // paid out of the platform markup — never out of the seller's cut.
+    const sellerAmount = sellerNet;
+    const affiliateAmount = affiliateUserId
+      ? +(buyerPrice * (affiliatePct / 100)).toFixed(2)
+      : 0;
+    const grossMarkup = +(buyerPrice - sellerNet).toFixed(2);
+    const platformAmount = +(Math.max(grossMarkup - affiliateAmount, 0)).toFixed(2);
+
+    // New rows start `pending`; webhook promotes to `held` after payment.
+    const status = isFree ? "released" : "pending";
 
     const { data: tx, error: tErr } = await supabaseAdmin
       .from("transactions")
@@ -80,7 +90,8 @@ export const purchaseProduct = createServerFn({ method: "POST" })
         product_id: product.id,
         buyer_id: userId,
         seller_id: product.seller_id,
-        amount: price,
+        amount: buyerPrice, // what the buyer actually pays
+        buyer_price: buyerPrice,
         currency: product.currency,
         status,
         affiliate_user_id: affiliateUserId,
@@ -88,6 +99,7 @@ export const purchaseProduct = createServerFn({ method: "POST" })
         platform_amount: platformAmount,
         affiliate_amount: affiliateAmount,
         seller_amount: sellerAmount,
+        released_at: isFree ? new Date().toISOString() : null,
       } as any)
       .select("id, status")
       .single();
@@ -98,8 +110,9 @@ export const purchaseProduct = createServerFn({ method: "POST" })
         .from("products")
         .update({ downloads_count: (product.downloads_count ?? 0) + 1 })
         .eq("id", product.id);
-      return { transactionId: tx.id, status: "completed" as const, alreadyOwned: false };
+      return { transactionId: tx.id, status: "released" as const, alreadyOwned: false };
     }
+
 
     // ---- Stripe Embedded Checkout ----
     const env = data.environment ?? "sandbox";
@@ -124,7 +137,7 @@ export const purchaseProduct = createServerFn({ method: "POST" })
             quantity: 1,
             price_data: {
               currency,
-              unit_amount: Math.round(price * 100),
+              unit_amount: Math.round(buyerPrice * 100),
               product_data: {
                 name: product.title,
               },

@@ -18,14 +18,14 @@ async function completeTransaction(transactionId: string) {
     .select("id, product_id, status")
     .eq("id", transactionId)
     .maybeSingle();
-  if (!tx || tx.status === "completed") return;
+  // Idempotent: only promote from `pending`. Any other state (held/released/disputed/failed) is a no-op.
+  if (!tx || tx.status !== "pending") return;
 
   await supabase
     .from("transactions")
-    .update({ status: "completed" })
+    .update({ status: "held" as any })
     .eq("id", transactionId);
 
-  // Bump downloads counter atomically-ish
   const { data: p } = await supabase
     .from("products")
     .select("downloads_count")
