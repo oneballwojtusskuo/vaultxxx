@@ -30,6 +30,20 @@ function Browse() {
     queryFn: async () => (await supabase.from("categories").select("*").order("name")).data ?? [],
   });
 
+  const { data: users } = useQuery({
+    queryKey: ["browse-users", sp.q],
+    enabled: !!sp.q,
+    queryFn: async () => {
+      const term = sp.q!;
+      const { data } = await supabase
+        .from("profiles")
+        .select("id, username, display_name, avatar_url, is_verified_seller, bio")
+        .or(`username.ilike.%${term}%,display_name.ilike.%${term}%`)
+        .limit(12);
+      return data ?? [];
+    },
+  });
+
   const { data: products, isLoading } = useQuery({
     queryKey: ["browse", sp.category, sp.q],
     queryFn: async () => {
