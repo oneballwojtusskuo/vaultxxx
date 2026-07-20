@@ -27,6 +27,8 @@ import { LikeButton } from "@/components/like-button";
 import { ProductReviews, RatingSummary } from "@/components/reviews";
 import { CheckoutDialog } from "@/components/checkout-dialog";
 import { getStripeEnvironment } from "@/lib/stripe";
+import { buyerPriceOf } from "@/lib/pricing";
+import { EscrowActions } from "@/components/escrow-actions";
 
 export const Route = createFileRoute("/product/$id")({
   component: ProductPage,
@@ -254,10 +256,15 @@ function ProductPage() {
 
             <div className="mt-6 flex items-baseline gap-3">
               <span className="text-5xl font-bold text-gradient">
-                {Number(p.price) === 0 ? "Free" : `${Number(p.price).toFixed(2)}`}
+                {Number(p.price) === 0 ? "Free" : `${buyerPriceOf(p.price).toFixed(2)}`}
               </span>
               {Number(p.price) > 0 && <span className="text-muted-foreground">{p.currency}</span>}
             </div>
+            {Number(p.price) > 0 && (
+              <p className="mt-1 text-xs text-muted-foreground">
+                Sprzedawca otrzyma {Number(p.price).toFixed(2)} {p.currency} · doliczone 10% prowizji platformy
+              </p>
+            )}
 
             <p className="mt-6 text-foreground/80 whitespace-pre-wrap">{p.description}</p>
 
@@ -290,26 +297,33 @@ function ProductPage() {
             )}
 
             {myTransaction && (
-              <Button
-                variant="outline"
-                className="mt-3 w-full sm:w-auto"
-                onClick={() =>
-                  generateLicensePdf({
-                    transactionId: myTransaction.id,
-                    createdAt: myTransaction.created_at,
-                    productTitle: p.title,
-                    productId: p.id,
-                    amount: Number(myTransaction.amount),
-                    currency: myTransaction.currency,
-                    buyerName: user?.user_metadata?.display_name ?? user?.email ?? "Licencjobiorca",
-                    buyerEmail: user?.email ?? "",
-                    sellerName: seller?.display_name ?? "Sprzedawca",
-                    terms: (p as any).license_terms ?? {},
-                  })
-                }
-              >
-                <FileText className="h-4 w-4 mr-2" /> Pobierz licencję PDF
-              </Button>
+              <>
+                <EscrowActions
+                  transactionId={myTransaction.id}
+                  status={myTransaction.status as string}
+                  onChanged={() => refetchTx()}
+                />
+                <Button
+                  variant="outline"
+                  className="mt-3 w-full sm:w-auto"
+                  onClick={() =>
+                    generateLicensePdf({
+                      transactionId: myTransaction.id,
+                      createdAt: myTransaction.created_at,
+                      productTitle: p.title,
+                      productId: p.id,
+                      amount: Number(myTransaction.amount),
+                      currency: myTransaction.currency,
+                      buyerName: user?.user_metadata?.display_name ?? user?.email ?? "Licencjobiorca",
+                      buyerEmail: user?.email ?? "",
+                      sellerName: seller?.display_name ?? "Sprzedawca",
+                      terms: (p as any).license_terms ?? {},
+                    })
+                  }
+                >
+                  <FileText className="h-4 w-4 mr-2" /> Pobierz licencję PDF
+                </Button>
+              </>
             )}
 
             <div className="mt-8 flex flex-wrap gap-3">
