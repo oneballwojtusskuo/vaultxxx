@@ -25,6 +25,8 @@ import { generateLicensePdf } from "@/lib/license-pdf";
 import { generateLicenseText, LICENSE_TYPE_LABELS } from "@/lib/license";
 import { LikeButton } from "@/components/like-button";
 import { ProductReviews, RatingSummary } from "@/components/reviews";
+import { CheckoutDialog } from "@/components/checkout-dialog";
+import { getStripeEnvironment } from "@/lib/stripe";
 
 export const Route = createFileRoute("/product/$id")({
   component: ProductPage,
@@ -89,6 +91,30 @@ function ProductPage() {
 
   const [offeredId, setOfferedId] = useState<string>("");
   const [message, setMessage] = useState("");
+  const [checkoutSecret, setCheckoutSecret] = useState<string | null>(null);
+  const [checkoutOpen, setCheckoutOpen] = useState(false);
+
+  // Handle Stripe return_url: ?checkout=success
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const params = new URLSearchParams(window.location.search);
+    if (params.get("checkout") === "success") {
+      toast.success("Płatność zaksięgowana! Odblokowuję dostęp…");
+      params.delete("checkout");
+      params.delete("session_id");
+      const clean = window.location.pathname + (params.toString() ? `?${params.toString()}` : "");
+      window.history.replaceState({}, "", clean);
+      // Poll a few times — webhook is usually near-instant, but async methods (BLIK) can lag.
+      let attempts = 0;
+      const iv = setInterval(async () => {
+        attempts++;
+        const r = await refetchTx();
+        if (r.data || attempts >= 8) clearInterval(iv);
+      }, 1500);
+      return () => clearInterval(iv);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   if (isLoading || (authLoading && !p)) return (
     <div className="min-h-screen flex flex-col">
@@ -124,22 +150,29 @@ function ProductPage() {
         data: {
           productId: p.id,
           referralUserId: referralUserId && referralUserId !== user.id ? referralUserId : null,
+          returnUrl: typeof window !== "undefined" ? window.location.origin + window.location.pathname : undefined,
+          environment: (() => { try { return getStripeEnvironment(); } catch { return "sandbox" as const; } })(),
         },
       });
       if (res.alreadyOwned) {
         toast.info("Już posiadasz ten produkt.");
+        refetchTx();
       } else if (res.status === "completed") {
         toast.success("Zakupiono! Dostęp do treści odblokowany.");
         clearReferralCookie(p.id);
+        refetch();
+        refetchTx();
+      } else if ("clientSecret" in res && res.clientSecret) {
+        setCheckoutSecret(res.clientSecret);
+        setCheckoutOpen(true);
       } else {
         toast.success("Zamówienie utworzone. Oczekuje na potwierdzenie płatności.");
       }
-      refetch();
-      refetchTx();
     } catch (e: any) {
       toast.error(e?.message ?? "Nie udało się sfinalizować zakupu");
     }
   };
+
 
 
   const proposeExchange = async () => {
@@ -332,6 +365,7 @@ function ProductPage() {
         />
       </main>
       <SiteFooter />
+      <CheckoutDialog clientSecret={checkoutSecret} open={checkoutOpen} onOpenChange={setCheckoutOpen} />
     </div>
     </TooltipProvider>
   );
