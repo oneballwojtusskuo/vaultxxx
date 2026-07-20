@@ -23,6 +23,7 @@ import { getProductDetails } from "@/lib/product.functions";
 import { generateLicensePdf } from "@/lib/license-pdf";
 import { generateLicenseText, LICENSE_TYPE_LABELS } from "@/lib/license";
 import { LikeButton } from "@/components/like-button";
+import { ProductReviews, RatingSummary } from "@/components/reviews";
 
 export const Route = createFileRoute("/product/$id")({
   component: ProductPage,
