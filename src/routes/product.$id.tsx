@@ -119,11 +119,18 @@ function ProductPage() {
     if (!user) { navigate({ to: "/auth" }); return; }
     if (isOwner) return toast.error("To Twój produkt");
     try {
-      const res = await purchaseFn({ data: { productId: p.id } });
+      const referralUserId = getReferralCookie(p.id);
+      const res = await purchaseFn({
+        data: {
+          productId: p.id,
+          referralUserId: referralUserId && referralUserId !== user.id ? referralUserId : null,
+        },
+      });
       if (res.alreadyOwned) {
         toast.info("Już posiadasz ten produkt.");
       } else if (res.status === "completed") {
         toast.success("Zakupiono! Dostęp do treści odblokowany.");
+        clearReferralCookie(p.id);
       } else {
         toast.success("Zamówienie utworzone. Oczekuje na potwierdzenie płatności.");
       }
@@ -133,6 +140,7 @@ function ProductPage() {
       toast.error(e?.message ?? "Nie udało się sfinalizować zakupu");
     }
   };
+
 
   const proposeExchange = async () => {
     if (!user || !offeredId) return;
