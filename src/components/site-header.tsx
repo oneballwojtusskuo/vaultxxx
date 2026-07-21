@@ -76,8 +76,8 @@ export function SiteHeader() {
     <header className="sticky top-0 z-50 glass border-b border-border/40">
       <div className="container mx-auto flex h-16 items-center justify-between px-4">
         <Link to="/" className="flex items-center gap-2 group">
-          <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-gradient-primary shadow-glow transition-transform group-hover:scale-105">
-            <span className="font-display text-lg font-bold text-primary-foreground leading-none">V</span>
+          <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-gradient-primary shadow-glow transition-transform group-hover:scale-105 p-1">
+            <VlndLogo className="h-full w-full" />
           </div>
           <span className="font-display text-xl font-bold tracking-tight lowercase">
             vlnd
