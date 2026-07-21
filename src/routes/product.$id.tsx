@@ -273,6 +273,7 @@ function ProductPage() {
                     Sprzedawca otrzyma {Number(p.price).toFixed(2)} {p.currency} · doliczone 10% prowizji platformy
                   </p>
                 )}
+                <DeliveryModeCallout mode={((p as any).license_terms?.delivery_mode ?? "both")} />
               </>
             )}
 
@@ -595,16 +596,21 @@ function SecureStreamPlayer({ productId, buyerEmail, isOwner, deliveryMode = "bo
         </div>
       ) : (
         <p className="text-sm text-muted-foreground">
-          Ten typ pliku nie jest streamowalny — użyj przycisku pobierania poniżej.
+          Ten typ pliku nie jest odtwarzany w przeglądarce — użyj przycisku pobierania poniżej.
         </p>
       ))}
 
-      {showDownload && (
+      {(showDownload || (deliveryMode === "stream" && !isVideo && !isAudio)) && (
         <div className={showStream ? "mt-3" : ""}>
           <Button onClick={handleDownload} className="bg-gradient-primary text-primary-foreground shadow-glow">
             <Download className="h-4 w-4 mr-2" /> Pobierz plik
           </Button>
-          {deliveryMode === "stream" && isOwner && (
+          {deliveryMode === "stream" && !isVideo && !isAudio && !isOwner && (
+            <p className="mt-2 text-[11px] text-muted-foreground">
+              Sprzedawca oznaczył ten produkt jako „tylko streaming", ale format pliku nie umożliwia odtwarzania w przeglądarce — udostępniamy pobieranie, żebyś w ogóle miał dostęp do zakupionej treści.
+            </p>
+          )}
+          {deliveryMode === "stream" && (isVideo || isAudio) && isOwner && (
             <p className="mt-2 text-[11px] text-muted-foreground">
               Pobieranie widoczne tylko dla Ciebie (właściciela). Kupujący otrzymują wyłącznie streaming.
             </p>
@@ -615,6 +621,39 @@ function SecureStreamPlayer({ productId, buyerEmail, isOwner, deliveryMode = "bo
       <p className="mt-3 text-[11px] text-muted-foreground">
         Treść chroniona prawem autorskim. Nagrywanie, kopiowanie i redystrybucja są zabronione i mogą być podstawą roszczeń.
       </p>
+    </div>
+  );
+}
+
+function DeliveryModeCallout({ mode }: { mode: "stream" | "download" | "both" }) {
+  const cfg =
+    mode === "stream"
+      ? {
+          icon: <PlayCircle className="h-5 w-5" />,
+          title: "Tylko streaming w przeglądarce",
+          desc: "Po zakupie odtworzysz plik bezpośrednio na tej stronie. Sprzedawca nie udostępnia pobierania — nie zapiszesz kopii na dysku.",
+          cls: "border-accent/40 bg-accent/10 text-accent",
+        }
+      : mode === "download"
+      ? {
+          icon: <Download className="h-5 w-5" />,
+          title: "Plik do pobrania",
+          desc: "Po zakupie otrzymasz przycisk pobierania — plik zapiszesz lokalnie na swoim urządzeniu.",
+          cls: "border-primary/40 bg-primary/10 text-primary",
+        }
+      : {
+          icon: <PlayCircle className="h-5 w-5" />,
+          title: "Streaming + pobieranie",
+          desc: "Po zakupie możesz zarówno odtworzyć plik w przeglądarce, jak i pobrać go na dysk.",
+          cls: "border-success/40 bg-success/10 text-success",
+        };
+  return (
+    <div className={`mt-4 rounded-xl border p-4 flex gap-3 ${cfg.cls}`}>
+      <div className="shrink-0 mt-0.5">{cfg.icon}</div>
+      <div className="min-w-0">
+        <div className="text-sm font-semibold">Sposób dostawy: {cfg.title}</div>
+        <p className="mt-1 text-xs text-foreground/80">{cfg.desc}</p>
+      </div>
     </div>
   );
 }
