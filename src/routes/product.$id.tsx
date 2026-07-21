@@ -625,3 +625,36 @@ function SecureStreamPlayer({ productId, buyerEmail, isOwner, deliveryMode = "bo
   );
 }
 
+function DeliveryModeCallout({ mode }: { mode: "stream" | "download" | "both" }) {
+  const cfg =
+    mode === "stream"
+      ? {
+          icon: <PlayCircle className="h-5 w-5" />,
+          title: "Tylko streaming w przeglądarce",
+          desc: "Po zakupie odtworzysz plik bezpośrednio na tej stronie. Sprzedawca nie udostępnia pobierania — nie zapiszesz kopii na dysku.",
+          cls: "border-accent/40 bg-accent/10 text-accent",
+        }
+      : mode === "download"
+      ? {
+          icon: <Download className="h-5 w-5" />,
+          title: "Plik do pobrania",
+          desc: "Po zakupie otrzymasz przycisk pobierania — plik zapiszesz lokalnie na swoim urządzeniu.",
+          cls: "border-primary/40 bg-primary/10 text-primary",
+        }
+      : {
+          icon: <PlayCircle className="h-5 w-5" />,
+          title: "Streaming + pobieranie",
+          desc: "Po zakupie możesz zarówno odtworzyć plik w przeglądarce, jak i pobrać go na dysk.",
+          cls: "border-success/40 bg-success/10 text-success",
+        };
+  return (
+    <div className={`mt-4 rounded-xl border p-4 flex gap-3 ${cfg.cls}`}>
+      <div className="shrink-0 mt-0.5">{cfg.icon}</div>
+      <div className="min-w-0">
+        <div className="text-sm font-semibold">Sposób dostawy: {cfg.title}</div>
+        <p className="mt-1 text-xs text-foreground/80">{cfg.desc}</p>
+      </div>
+    </div>
+  );
+}
+
