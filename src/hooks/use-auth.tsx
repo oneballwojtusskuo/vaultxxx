@@ -59,7 +59,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         if (!cancelled) setIsAdmin(nextIsAdmin);
       })
       .catch((error) => {
-        console.error("[VaultX] Nie udało się sprawdzić roli admina w bazie danych", error);
+        console.error("[vlnd] Nie udało się sprawdzić roli admina w bazie danych", error);
         if (!cancelled) setIsAdmin(false);
       });
     return () => {
