@@ -15,7 +15,7 @@ async function completeTransaction(transactionId: string) {
   const supabase = getSupabase();
   const { data: tx } = await supabase
     .from("transactions")
-    .select("id, product_id, status")
+    .select("id, product_id, seller_id, buyer_id, status, amount, seller_amount, currency")
     .eq("id", transactionId)
     .maybeSingle();
   // Idempotent: only promote from `pending`. Any other state (held/released/disputed/failed) is a no-op.
@@ -28,7 +28,7 @@ async function completeTransaction(transactionId: string) {
 
   const { data: p } = await supabase
     .from("products")
-    .select("downloads_count")
+    .select("title, downloads_count")
     .eq("id", tx.product_id)
     .maybeSingle();
   if (p) {
@@ -36,6 +36,18 @@ async function completeTransaction(transactionId: string) {
       .from("products")
       .update({ downloads_count: (p.downloads_count ?? 0) + 1 })
       .eq("id", tx.product_id);
+  }
+
+  // Notify seller about the new purchase (funds are held in escrow).
+  if (tx.seller_id) {
+    const amt = Number(tx.seller_amount ?? tx.amount).toFixed(2);
+    await supabase.from("seller_notifications").insert({
+      user_id: tx.seller_id,
+      type: "new_sale",
+      title: "Nowa sprzedaż!",
+      body: `Ktoś kupił „${p?.title ?? "Twój produkt"}" — ${amt} ${tx.currency} czeka w depozycie do potwierdzenia odbioru.`,
+      link: `/dashboard`,
+    } as any);
   }
 }
 
