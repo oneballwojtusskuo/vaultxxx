@@ -35,7 +35,7 @@ export function generateLicensePdf(input: LicenseInput) {
   doc.setFont("helvetica", "normal");
   doc.setFontSize(10);
   doc.setTextColor(120);
-  doc.text(`VaultX Marketplace · ID: ${input.transactionId}`, pageW / 2, y, { align: "center" });
+  doc.text(`vlnd Marketplace · ID: ${input.transactionId}`, pageW / 2, y, { align: "center" });
   doc.setTextColor(0);
 
   y += 30;
