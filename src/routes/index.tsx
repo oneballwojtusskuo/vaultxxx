@@ -1,20 +1,11 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
-import { useQuery } from "@tanstack/react-query";
-import { ArrowRight, Repeat2, Shield, Zap, Sparkles, Palette, BookOpen, Music, Code, GraduationCap, Camera, Box } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { SiteHeader } from "@/components/site-header";
-import { SiteFooter } from "@/components/site-footer";
-import { ProductCard } from "@/components/product-card";
-import { supabase } from "@/lib/supabase-browser";
-import heroImg from "@/assets/hero.jpg";
-
-const ICONS: Record<string, React.ComponentType<{ className?: string }>> = {
-  Palette, BookOpen, Music, Code, GraduationCap, Camera, Box, Sparkles,
-};
+import { createFileRoute, redirect } from "@tanstack/react-router";
 
 export const Route = createFileRoute("/")({
-  component: Index,
+  beforeLoad: () => {
+    throw redirect({ to: "/browse" });
+  },
 });
+
 
 function Index() {
   const { data: products } = useQuery({
