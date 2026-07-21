@@ -1,3 +1,4 @@
+import { Link } from "@tanstack/react-router";
 import { VlndLogo } from "@/components/vlnd-logo";
 
 export function SiteFooter() {
@@ -10,8 +11,14 @@ export function SiteFooter() {
           </div>
           <span className="text-sm text-muted-foreground">© {new Date().getFullYear()} vlnd — marketplace cyfrowy</span>
         </div>
-        <p className="text-xs text-muted-foreground">Kupuj. Sprzedawaj. Wymieniaj.</p>
+        <div className="flex items-center gap-4">
+          <Link to="/help" className="text-xs text-muted-foreground hover:text-foreground transition-colors">
+            Centrum pomocy
+          </Link>
+          <p className="text-xs text-muted-foreground">Kupuj. Sprzedawaj. Wymieniaj.</p>
+        </div>
       </div>
     </footer>
   );
 }
+
