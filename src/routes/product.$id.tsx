@@ -342,12 +342,12 @@ function ProductPage() {
               {user && !isOwner && isPublished && (p as any).affiliate_commission_pct > 0 && (
                 <ReferralButton productId={p.id} referrerId={user.id} pct={(p as any).affiliate_commission_pct} />
               )}
-              {!isOwner && isPublished && (
+              {!isOwner && isPublished && !myTransaction && (
                 <Button onClick={buy} size="lg" className="bg-gradient-primary text-primary-foreground shadow-glow h-12">
                   <ShoppingCart className="h-4 w-4 mr-2" /> Kup teraz
                 </Button>
               )}
-              {!isOwner && isPublished && p.is_tradable && user && (
+              {!isOwner && isPublished && p.is_tradable && user && !myTransaction && (
                 <Dialog>
                   <DialogTrigger asChild>
                     <Button size="lg" variant="outline" className="h-12">
