@@ -104,9 +104,10 @@ function AuthPage() {
       <div className="w-full max-w-md">
         <Link to="/" className="flex items-center gap-2 justify-center mb-8">
           <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-gradient-primary shadow-glow">
-            <Sparkles className="h-5 w-5 text-primary-foreground" />
+            <span className="font-display text-xl font-bold text-primary-foreground leading-none">V</span>
           </div>
-          <span className="font-display text-2xl font-bold">Vault<span className="text-gradient">X</span></span>
+          <span className="font-display text-2xl font-bold lowercase">vlnd</span>
+
         </Link>
 
         <div className="rounded-2xl glass border border-border/40 p-6 shadow-elevated">
