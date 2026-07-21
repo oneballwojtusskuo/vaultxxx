@@ -3,6 +3,7 @@ import { useState } from "react";
 import { MailCheck, ShieldAlert } from "lucide-react";
 import { supabase } from "@/lib/supabase-browser";
 import { createLovableAuth } from "@lovable.dev/cloud-auth-js";
+import { VlndLogo } from "@/components/vlnd-logo";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
