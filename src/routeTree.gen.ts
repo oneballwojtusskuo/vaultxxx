@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as SellRouteImport } from './routes/sell'
 import { Route as NotificationsRouteImport } from './routes/notifications'
 import { Route as LikesRouteImport } from './routes/likes'
+import { Route as HelpRouteImport } from './routes/help'
 import { Route as ExchangesRouteImport } from './routes/exchanges'
 import { Route as DashboardRouteImport } from './routes/dashboard'
 import { Route as BrowseRouteImport } from './routes/browse'
@@ -37,6 +38,11 @@ const NotificationsRoute = NotificationsRouteImport.update({
 const LikesRoute = LikesRouteImport.update({
   id: '/likes',
   path: '/likes',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const HelpRoute = HelpRouteImport.update({
+  id: '/help',
+  path: '/help',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ExchangesRoute = ExchangesRouteImport.update({
@@ -103,6 +109,7 @@ export interface FileRoutesByFullPath {
   '/browse': typeof BrowseRoute
   '/dashboard': typeof DashboardRoute
   '/exchanges': typeof ExchangesRoute
+  '/help': typeof HelpRoute
   '/likes': typeof LikesRoute
   '/notifications': typeof NotificationsRoute
   '/sell': typeof SellRoute
@@ -119,6 +126,7 @@ export interface FileRoutesByTo {
   '/browse': typeof BrowseRoute
   '/dashboard': typeof DashboardRoute
   '/exchanges': typeof ExchangesRoute
+  '/help': typeof HelpRoute
   '/likes': typeof LikesRoute
   '/notifications': typeof NotificationsRoute
   '/sell': typeof SellRoute
@@ -136,6 +144,7 @@ export interface FileRoutesById {
   '/browse': typeof BrowseRoute
   '/dashboard': typeof DashboardRoute
   '/exchanges': typeof ExchangesRoute
+  '/help': typeof HelpRoute
   '/likes': typeof LikesRoute
   '/notifications': typeof NotificationsRoute
   '/sell': typeof SellRoute
@@ -154,6 +163,7 @@ export interface FileRouteTypes {
     | '/browse'
     | '/dashboard'
     | '/exchanges'
+    | '/help'
     | '/likes'
     | '/notifications'
     | '/sell'
@@ -170,6 +180,7 @@ export interface FileRouteTypes {
     | '/browse'
     | '/dashboard'
     | '/exchanges'
+    | '/help'
     | '/likes'
     | '/notifications'
     | '/sell'
@@ -186,6 +197,7 @@ export interface FileRouteTypes {
     | '/browse'
     | '/dashboard'
     | '/exchanges'
+    | '/help'
     | '/likes'
     | '/notifications'
     | '/sell'
@@ -203,6 +215,7 @@ export interface RootRouteChildren {
   BrowseRoute: typeof BrowseRoute
   DashboardRoute: typeof DashboardRoute
   ExchangesRoute: typeof ExchangesRoute
+  HelpRoute: typeof HelpRoute
   LikesRoute: typeof LikesRoute
   NotificationsRoute: typeof NotificationsRoute
   SellRoute: typeof SellRoute
@@ -234,6 +247,13 @@ declare module '@tanstack/react-router' {
       path: '/likes'
       fullPath: '/likes'
       preLoaderRoute: typeof LikesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/help': {
+      id: '/help'
+      path: '/help'
+      fullPath: '/help'
+      preLoaderRoute: typeof HelpRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/exchanges': {
@@ -323,6 +343,7 @@ const rootRouteChildren: RootRouteChildren = {
   BrowseRoute: BrowseRoute,
   DashboardRoute: DashboardRoute,
   ExchangesRoute: ExchangesRoute,
+  HelpRoute: HelpRoute,
   LikesRoute: LikesRoute,
   NotificationsRoute: NotificationsRoute,
   SellRoute: SellRoute,

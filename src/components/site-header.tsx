@@ -95,6 +95,9 @@ export function SiteHeader() {
           <Link to="/sell" className="px-3 py-2 text-sm text-muted-foreground hover:text-foreground transition-colors">
             Sprzedawaj
           </Link>
+          <Link to="/help" className="px-3 py-2 text-sm text-muted-foreground hover:text-foreground transition-colors">
+            Pomoc
+          </Link>
         </nav>
 
         <div className="flex items-center gap-1">
