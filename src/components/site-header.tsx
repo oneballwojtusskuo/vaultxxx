@@ -4,6 +4,7 @@ import { useEffect } from "react";
 import { Search, ShoppingBag, Plus, LogOut, User as UserIcon, ShieldCheck, Bell, MessageSquare, Heart } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/use-auth";
+import { VlndLogo } from "@/components/vlnd-logo";
 import { supabase } from "@/lib/supabase-browser";
 import {
   DropdownMenu,
