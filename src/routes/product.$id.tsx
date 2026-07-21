@@ -211,13 +211,19 @@ function ProductPage() {
                 <div className="w-full h-full bg-gradient-primary opacity-30" />
               )}
             </div>
-            {(p as any).sample_url && (
+            {(p as any).sample_url && !myTransaction && !isOwner && (
               <div className="rounded-2xl border border-accent/30 bg-accent/5 p-4">
                 <div className="flex items-center justify-between mb-3">
                   <span className="text-xs uppercase tracking-wider text-accent font-medium">Próbka z zabezpieczeniem</span>
                   <span className="text-xs text-muted-foreground">Pełna wersja po zakupie</span>
                 </div>
                 <SamplePreview url={(p as any).sample_url} title={p.title} />
+              </div>
+            )}
+            {(myTransaction || isOwner) && (
+              <div className="rounded-2xl border border-success/30 bg-success/5 p-4 text-sm text-success inline-flex items-center gap-2">
+                <Check className="h-4 w-4" />
+                {isOwner ? "To Twój produkt — widzisz pełną wersję poniżej." : "Masz już dostęp do tego produktu — próbka ukryta."}
               </div>
             )}
           </div>
