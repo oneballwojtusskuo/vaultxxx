@@ -123,6 +123,7 @@ function RootComponent() {
       <AuthProvider>
         <PaymentTestModeBanner />
         <Outlet />
+        <WelcomePopup />
         <Toaster />
       </AuthProvider>
     </QueryClientProvider>
