@@ -1,7 +1,7 @@
 import { Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useEffect } from "react";
-import { Search, ShoppingBag, Plus, LogOut, User as UserIcon, ShieldCheck, Bell, MessageSquare, Heart } from "lucide-react";
+import { Search, ShoppingBag, Plus, LogOut, User as UserIcon, ShieldCheck, Bell, MessageSquare, Heart, HelpCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/use-auth";
 import { VlndLogo } from "@/components/vlnd-logo";
@@ -95,15 +95,17 @@ export function SiteHeader() {
           <Link to="/sell" className="px-3 py-2 text-sm text-muted-foreground hover:text-foreground transition-colors">
             Sprzedawaj
           </Link>
-          <Link to="/help" className="px-3 py-2 text-sm text-muted-foreground hover:text-foreground transition-colors">
-            Pomoc
-          </Link>
         </nav>
 
         <div className="flex items-center gap-1">
           <Link to="/browse">
             <Button variant="ghost" size="icon" className="hidden sm:inline-flex">
               <Search className="h-4 w-4" />
+            </Button>
+          </Link>
+          <Link to="/help">
+            <Button variant="ghost" size="icon" aria-label="Pomoc">
+              <HelpCircle className="h-4 w-4" />
             </Button>
           </Link>
           {user ? (
