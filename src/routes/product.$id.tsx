@@ -273,6 +273,7 @@ function ProductPage() {
                     Sprzedawca otrzyma {Number(p.price).toFixed(2)} {p.currency} · doliczone 10% prowizji platformy
                   </p>
                 )}
+                <DeliveryModeCallout mode={((p as any).license_terms?.delivery_mode ?? "both")} />
               </>
             )}
 
