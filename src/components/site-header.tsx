@@ -103,6 +103,11 @@ export function SiteHeader() {
               <Search className="h-4 w-4" />
             </Button>
           </Link>
+          <Link to="/help">
+            <Button variant="ghost" size="icon" aria-label="Pomoc">
+              <HelpCircle className="h-4 w-4" />
+            </Button>
+          </Link>
           {user ? (
             <>
               <Link to="/messages" className="relative">
