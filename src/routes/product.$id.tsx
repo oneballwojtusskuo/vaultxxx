@@ -211,13 +211,19 @@ function ProductPage() {
                 <div className="w-full h-full bg-gradient-primary opacity-30" />
               )}
             </div>
-            {(p as any).sample_url && (
+            {(p as any).sample_url && !myTransaction && !isOwner && (
               <div className="rounded-2xl border border-accent/30 bg-accent/5 p-4">
                 <div className="flex items-center justify-between mb-3">
                   <span className="text-xs uppercase tracking-wider text-accent font-medium">Próbka z zabezpieczeniem</span>
                   <span className="text-xs text-muted-foreground">Pełna wersja po zakupie</span>
                 </div>
                 <SamplePreview url={(p as any).sample_url} title={p.title} />
+              </div>
+            )}
+            {(myTransaction || isOwner) && (
+              <div className="rounded-2xl border border-success/30 bg-success/5 p-4 text-sm text-success inline-flex items-center gap-2">
+                <Check className="h-4 w-4" />
+                {isOwner ? "To Twój produkt — widzisz pełną wersję poniżej." : "Masz już dostęp do tego produktu — próbka ukryta."}
               </div>
             )}
           </div>
@@ -254,16 +260,20 @@ function ProductPage() {
             </div>
 
 
-            <div className="mt-6 flex items-baseline gap-3">
-              <span className="text-5xl font-bold text-gradient">
-                {Number(p.price) === 0 ? "Free" : `${buyerPriceOf(p.price).toFixed(2)}`}
-              </span>
-              {Number(p.price) > 0 && <span className="text-muted-foreground">{p.currency}</span>}
-            </div>
-            {Number(p.price) > 0 && (
-              <p className="mt-1 text-xs text-muted-foreground">
-                Sprzedawca otrzyma {Number(p.price).toFixed(2)} {p.currency} · doliczone 10% prowizji platformy
-              </p>
+            {!myTransaction && !isOwner && (
+              <>
+                <div className="mt-6 flex items-baseline gap-3">
+                  <span className="text-5xl font-bold text-gradient">
+                    {Number(p.price) === 0 ? "Free" : `${buyerPriceOf(p.price).toFixed(2)}`}
+                  </span>
+                  {Number(p.price) > 0 && <span className="text-muted-foreground">{p.currency}</span>}
+                </div>
+                {Number(p.price) > 0 && (
+                  <p className="mt-1 text-xs text-muted-foreground">
+                    Sprzedawca otrzyma {Number(p.price).toFixed(2)} {p.currency} · doliczone 10% prowizji platformy
+                  </p>
+                )}
+              </>
             )}
 
             <p className="mt-6 text-foreground/80 whitespace-pre-wrap">{p.description}</p>
@@ -332,12 +342,12 @@ function ProductPage() {
               {user && !isOwner && isPublished && (p as any).affiliate_commission_pct > 0 && (
                 <ReferralButton productId={p.id} referrerId={user.id} pct={(p as any).affiliate_commission_pct} />
               )}
-              {!isOwner && isPublished && (
+              {!isOwner && isPublished && !myTransaction && (
                 <Button onClick={buy} size="lg" className="bg-gradient-primary text-primary-foreground shadow-glow h-12">
                   <ShoppingCart className="h-4 w-4 mr-2" /> Kup teraz
                 </Button>
               )}
-              {!isOwner && isPublished && p.is_tradable && user && (
+              {!isOwner && isPublished && p.is_tradable && user && !myTransaction && (
                 <Dialog>
                   <DialogTrigger asChild>
                     <Button size="lg" variant="outline" className="h-12">
@@ -518,13 +528,26 @@ function SecureStreamPlayer({ productId, buyerEmail, isOwner, deliveryMode = "bo
       ? "Twój dostęp (tylko streaming)"
       : "Twój dostęp (streaming + pobieranie)";
 
-  const handleDownload = () => {
-    const a = document.createElement("a");
-    a.href = data.url;
-    a.download = productTitle ?? "";
-    document.body.appendChild(a);
-    a.click();
-    a.remove();
+  const handleDownload = async () => {
+    try {
+      const res = await fetch(data.url);
+      if (!res.ok) throw new Error("Nie udało się pobrać pliku");
+      const blob = await res.blob();
+      const urlPath = data.url.split("?")[0];
+      const ext = urlPath.substring(urlPath.lastIndexOf(".")) || "";
+      const filename = (productTitle ? productTitle.replace(/[^\w\-. ]+/g, "_") : "plik") + ext;
+      const objectUrl = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = objectUrl;
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      setTimeout(() => URL.revokeObjectURL(objectUrl), 1000);
+    } catch (e: any) {
+      toast.error(e?.message ?? "Nie udało się pobrać pliku");
+      window.open(data.url, "_blank");
+    }
   };
 
   return (
