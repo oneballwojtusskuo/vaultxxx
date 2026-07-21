@@ -260,16 +260,20 @@ function ProductPage() {
             </div>
 
 
-            <div className="mt-6 flex items-baseline gap-3">
-              <span className="text-5xl font-bold text-gradient">
-                {Number(p.price) === 0 ? "Free" : `${buyerPriceOf(p.price).toFixed(2)}`}
-              </span>
-              {Number(p.price) > 0 && <span className="text-muted-foreground">{p.currency}</span>}
-            </div>
-            {Number(p.price) > 0 && (
-              <p className="mt-1 text-xs text-muted-foreground">
-                Sprzedawca otrzyma {Number(p.price).toFixed(2)} {p.currency} · doliczone 10% prowizji platformy
-              </p>
+            {!myTransaction && !isOwner && (
+              <>
+                <div className="mt-6 flex items-baseline gap-3">
+                  <span className="text-5xl font-bold text-gradient">
+                    {Number(p.price) === 0 ? "Free" : `${buyerPriceOf(p.price).toFixed(2)}`}
+                  </span>
+                  {Number(p.price) > 0 && <span className="text-muted-foreground">{p.currency}</span>}
+                </div>
+                {Number(p.price) > 0 && (
+                  <p className="mt-1 text-xs text-muted-foreground">
+                    Sprzedawca otrzyma {Number(p.price).toFixed(2)} {p.currency} · doliczone 10% prowizji platformy
+                  </p>
+                )}
+              </>
             )}
 
             <p className="mt-6 text-foreground/80 whitespace-pre-wrap">{p.description}</p>
