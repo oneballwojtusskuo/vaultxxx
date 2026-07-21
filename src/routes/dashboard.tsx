@@ -93,7 +93,7 @@ function Dashboard() {
 
   if (loading || !user) return null;
 
-  const totalRevenue = sales?.reduce((s, t) => s + Number(t.amount), 0) ?? 0;
+  const totalRevenue = sales?.reduce((s, t: any) => s + Number(t.seller_amount ?? t.amount), 0) ?? 0;
   const totalAffiliate = affiliateEarnings?.reduce((s, t: any) => s + Number(t.affiliate_amount ?? 0), 0) ?? 0;
 
   return (
