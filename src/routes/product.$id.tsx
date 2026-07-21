@@ -528,13 +528,26 @@ function SecureStreamPlayer({ productId, buyerEmail, isOwner, deliveryMode = "bo
       ? "Twój dostęp (tylko streaming)"
       : "Twój dostęp (streaming + pobieranie)";
 
-  const handleDownload = () => {
-    const a = document.createElement("a");
-    a.href = data.url;
-    a.download = productTitle ?? "";
-    document.body.appendChild(a);
-    a.click();
-    a.remove();
+  const handleDownload = async () => {
+    try {
+      const res = await fetch(data.url);
+      if (!res.ok) throw new Error("Nie udało się pobrać pliku");
+      const blob = await res.blob();
+      const urlPath = data.url.split("?")[0];
+      const ext = urlPath.substring(urlPath.lastIndexOf(".")) || "";
+      const filename = (productTitle ? productTitle.replace(/[^\w\-. ]+/g, "_") : "plik") + ext;
+      const objectUrl = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = objectUrl;
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      setTimeout(() => URL.revokeObjectURL(objectUrl), 1000);
+    } catch (e: any) {
+      toast.error(e?.message ?? "Nie udało się pobrać pliku");
+      window.open(data.url, "_blank");
+    }
   };
 
   return (
