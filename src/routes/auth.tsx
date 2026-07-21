@@ -104,8 +104,8 @@ function AuthPage() {
     <div className="min-h-screen flex items-center justify-center px-4 bg-gradient-hero">
       <div className="w-full max-w-md">
         <Link to="/" className="flex items-center gap-2 justify-center mb-8">
-          <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-gradient-primary shadow-glow">
-            <span className="font-display text-xl font-bold text-primary-foreground leading-none">V</span>
+          <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-gradient-primary shadow-glow p-1">
+            <VlndLogo className="h-full w-full" />
           </div>
           <span className="font-display text-2xl font-bold lowercase">vlnd</span>
 
