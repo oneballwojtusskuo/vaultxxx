@@ -1,7 +1,7 @@
 import { Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useEffect } from "react";
-import { Search, ShoppingBag, Plus, LogOut, User as UserIcon, ShieldCheck, Bell, MessageSquare, Heart } from "lucide-react";
+import { Search, ShoppingBag, Plus, LogOut, User as UserIcon, ShieldCheck, Bell, MessageSquare, Heart, HelpCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/use-auth";
 import { VlndLogo } from "@/components/vlnd-logo";
