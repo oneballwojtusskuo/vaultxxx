@@ -13,7 +13,7 @@ function getSupabaseConfig() {
 
   if (missing.length > 0) {
     const message =
-      `[VaultX] Brak konfiguracji bazy danych: ${missing.join(", ")}. ` +
+      `[vlnd] Brak konfiguracji bazy danych: ${missing.join(", ")}. ` +
       "Ustaw te zmienne w Netlify Site settings → Environment variables i zrób ponowny deploy.";
     console.error(message);
     throw new Error(message);

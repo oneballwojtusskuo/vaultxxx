@@ -1,7 +1,7 @@
 import { Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useEffect } from "react";
-import { Sparkles, Search, ShoppingBag, Plus, LogOut, User as UserIcon, ShieldCheck, Bell, MessageSquare, Heart } from "lucide-react";
+import { Search, ShoppingBag, Plus, LogOut, User as UserIcon, ShieldCheck, Bell, MessageSquare, Heart } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/use-auth";
 import { supabase } from "@/lib/supabase-browser";
@@ -76,12 +76,13 @@ export function SiteHeader() {
       <div className="container mx-auto flex h-16 items-center justify-between px-4">
         <Link to="/" className="flex items-center gap-2 group">
           <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-gradient-primary shadow-glow transition-transform group-hover:scale-105">
-            <Sparkles className="h-5 w-5 text-primary-foreground" />
+            <span className="font-display text-lg font-bold text-primary-foreground leading-none">V</span>
           </div>
-          <span className="font-display text-xl font-bold tracking-tight">
-            Vault<span className="text-gradient">X</span>
+          <span className="font-display text-xl font-bold tracking-tight lowercase">
+            vlnd
           </span>
         </Link>
+
 
         <nav className="hidden md:flex items-center gap-1">
           <Link to="/browse" className="px-3 py-2 text-sm text-muted-foreground hover:text-foreground transition-colors">

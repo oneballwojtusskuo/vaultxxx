@@ -10,7 +10,7 @@ export function VerifiedBadge({ className = "" }: { className?: string }) {
           Zweryfikowany
         </span>
       </TooltipTrigger>
-      <TooltipContent>Sprzedawca zweryfikowany przez VaultX</TooltipContent>
+      <TooltipContent>Sprzedawca zweryfikowany przez vlnd</TooltipContent>
     </Tooltip>
   );
 }

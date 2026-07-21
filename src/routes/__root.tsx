@@ -75,14 +75,15 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "VaultX — kupuj, sprzedawaj i wymieniaj materiały cyfrowe" },
+      { title: "vlnd — kupuj, sprzedawaj i wymieniaj materiały cyfrowe" },
       { name: "description", content: "Premium marketplace cyfrowy. Grafiki, e-booki, muzyka, kod, kursy, modele 3D — kup, sprzedaj lub wymień z innymi twórcami." },
-      { property: "og:title", content: "VaultX — kupuj, sprzedawaj i wymieniaj materiały cyfrowe" },
+      { property: "og:title", content: "vlnd — kupuj, sprzedawaj i wymieniaj materiały cyfrowe" },
       { property: "og:description", content: "Premium marketplace cyfrowy. Grafiki, e-booki, muzyka, kod, kursy, modele 3D — kup, sprzedaj lub wymień z innymi twórcami." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
-      { name: "twitter:title", content: "VaultX — kupuj, sprzedawaj i wymieniaj materiały cyfrowe" },
+      { name: "twitter:title", content: "vlnd — kupuj, sprzedawaj i wymieniaj materiały cyfrowe" },
       { name: "twitter:description", content: "Premium marketplace cyfrowy. Grafiki, e-booki, muzyka, kod, kursy, modele 3D — kup, sprzedaj lub wymień z innymi twórcami." },
+
       { property: "og:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/0aa42a4d-9342-415a-b17f-3b27901e4395/id-preview-bdc3ebc5--09f54668-4a05-4338-8a7c-a20024e1c999.lovable.app-1780587597438.png" },
       { name: "twitter:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/0aa42a4d-9342-415a-b17f-3b27901e4395/id-preview-bdc3ebc5--09f54668-4a05-4338-8a7c-a20024e1c999.lovable.app-1780587597438.png" },
     ],
