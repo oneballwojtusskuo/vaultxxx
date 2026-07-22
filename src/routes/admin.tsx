@@ -251,10 +251,8 @@ function ReportsPanel() {
   const [status, setStatus] = useState<"pending" | "reviewing" | "resolved" | "dismissed" | "all">("pending");
   const [adminNotes, setAdminNotes] = useState<Record<string, string>>({});
 
-  const { data: reports, isLoading } = useQuery({
-    queryKey: ["admin-reports", status],
-    queryFn: () => fetchReports({ data: { status } }) as Promise<ReportRow[]>,
-  });
+  const reports: ReportRow[] = [];
+  const isLoading = false;
 
   const refresh = () => qc.invalidateQueries({ queryKey: ["admin-reports"] });
 
