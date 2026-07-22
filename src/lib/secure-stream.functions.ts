@@ -12,9 +12,10 @@ export const getSecureStreamUrl = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((input) => InputSchema.parse(input))
   .handler(async ({ data, context }) => {
-    const { supabase, userId } = context;
+    const { userId } = context;
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
 
-    const { data: product, error: pErr } = await supabase
+    const { data: product, error: pErr } = await supabaseAdmin
       .from("products")
       .select("id, seller_id, file_path, title")
       .eq("id", data.productId)
@@ -30,7 +31,7 @@ export const getSecureStreamUrl = createServerFn({ method: "POST" })
     const isOwner = product.seller_id === userId;
 
     if (!isOwner) {
-      const { data: tx } = await supabase
+      const { data: tx, error: txErr } = await supabaseAdmin
         .from("transactions")
         .select("id")
         .eq("product_id", product.id)
@@ -39,7 +40,7 @@ export const getSecureStreamUrl = createServerFn({ method: "POST" })
         .limit(1)
         .maybeSingle();
 
-      if (!tx) {
+      if (txErr || !tx) {
         throw new Response("Forbidden — purchase required", { status: 403 });
       }
     }
@@ -52,8 +53,8 @@ export const getSecureStreamUrl = createServerFn({ method: "POST" })
     const downloadName = safeTitle + rawExt;
 
     const [{ data: streamSigned, error: sErr }, { data: dlSigned, error: dErr }] = await Promise.all([
-      supabase.storage.from("product-files").createSignedUrl(product.file_path, 60 * 60),
-      supabase.storage.from("product-files").createSignedUrl(product.file_path, 60 * 60, { download: downloadName }),
+      supabaseAdmin.storage.from("product-files").createSignedUrl(product.file_path, 60 * 60),
+      supabaseAdmin.storage.from("product-files").createSignedUrl(product.file_path, 60 * 60, { download: downloadName }),
     ]);
 
     if (sErr || !streamSigned || dErr || !dlSigned) {
