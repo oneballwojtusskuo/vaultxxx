@@ -520,7 +520,19 @@ function Sell() {
               </div>
               <Select
                 value={(licTerms.delivery_mode ?? "download") as DeliveryMode}
-                onValueChange={(v) => setLic({ delivery_mode: v as DeliveryMode })}
+                onValueChange={(v) => {
+                  const next = v as DeliveryMode;
+                  if ((next === "stream" || next === "both") && productFile && !isStreamableFile(productFile)) {
+                    toast.error(
+                      `Nie możesz wybrać „${DELIVERY_MODE_LABELS[next]}" dla pliku „${productFile.name}". ` +
+                      `Streaming w przeglądarce działa tylko dla audio i wideo (${STREAMABLE_EXT.join(", ")}). ` +
+                      `Wgraj inny plik albo zostaw „Tylko pobieranie".`,
+                      { duration: 8000 },
+                    );
+                    return;
+                  }
+                  setLic({ delivery_mode: next });
+                }}
               >
                 <SelectTrigger><SelectValue /></SelectTrigger>
                 <SelectContent>
@@ -529,9 +541,24 @@ function Sell() {
                   ))}
                 </SelectContent>
               </Select>
-              <p className="text-[11px] text-muted-foreground">
-                „Tylko streaming" = kupujący nie dostanie pliku do pobrania, tylko odtwarzacz na stronie z watermarkiem.
-              </p>
+              <div className="rounded-md border border-border/40 bg-background/40 p-2 text-[11px] leading-relaxed text-muted-foreground space-y-1">
+                <div>
+                  <span className="text-foreground font-medium">Streaming na stronie</span> — obsługiwane formaty:
+                  {" "}<span className="text-foreground">{STREAMABLE_EXT.join(", ")}</span> (audio / wideo).
+                </div>
+                <div>
+                  <span className="text-foreground font-medium">Tylko pobieranie</span> — dowolny plik, m.in. {DOWNLOAD_ONLY_HINT}
+                </div>
+                <div>
+                  Jeśli Twój plik nie jest audio ani wideo, wybierz „Tylko pobieranie" — inaczej kupujący nie odtworzy go w przeglądarce.
+                </div>
+                {productFile && !isStreamableFile(productFile) && (
+                  <div className="text-destructive">
+                    Aktualny plik „{productFile.name}" nie jest obsługiwany przez streaming — dostępna tylko opcja „Tylko pobieranie".
+                  </div>
+                )}
+              </div>
+
             </div>
 
             <div className="grid sm:grid-cols-2 gap-2 pt-1">
