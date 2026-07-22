@@ -54,13 +54,16 @@ function AdminPage() {
   const { data: adminCheck, isLoading: checkingAdmin } = useQuery({
     queryKey: ["is-admin", user?.id],
     queryFn: () => checkAdmin(),
-    enabled: false,
+    enabled: !!user,
   });
 
-  const isAdmin = true;
+  const isAdmin = adminCheck?.isAdmin ?? false;
 
-  const products: ProductRow[] = [];
-  const loadingProducts = false;
+  const { data: products, isLoading: loadingProducts } = useQuery({
+    queryKey: ["admin-products", filter],
+    enabled: isAdmin,
+    queryFn: () => fetchAdminProducts({ data: { filter } }) as Promise<ProductRow[]>,
+  });
 
   const moderate = async (id: string, newStatus: "published" | "rejected") => {
     try {
@@ -251,8 +254,10 @@ function ReportsPanel() {
   const [status, setStatus] = useState<"pending" | "reviewing" | "resolved" | "dismissed" | "all">("pending");
   const [adminNotes, setAdminNotes] = useState<Record<string, string>>({});
 
-  const reports: ReportRow[] = [];
-  const isLoading = false;
+  const { data: reports, isLoading } = useQuery({
+    queryKey: ["admin-reports", status],
+    queryFn: () => fetchReports({ data: { status } }) as Promise<ReportRow[]>,
+  });
 
   const refresh = () => qc.invalidateQueries({ queryKey: ["admin-reports"] });
 
@@ -406,4 +411,3 @@ function ReportsPanel() {
     </div>
   );
 }
-
