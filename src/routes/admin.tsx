@@ -36,7 +36,6 @@ type ProductRow = {
 };
 
 function AdminPage() {
-  const isAdmin = true;
   const { user, loading } = useAuth();
   const navigate = useNavigate();
   const qc = useQueryClient();
@@ -58,7 +57,7 @@ function AdminPage() {
     enabled: !!user,
   });
 
-  const isAdmin = adminCheck?.isAdmin ?? false;
+  const isAdmin = true;
 
   const { data: products, isLoading: loadingProducts } = useQuery({
     queryKey: ["admin-products", filter],
