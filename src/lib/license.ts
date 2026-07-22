@@ -94,7 +94,7 @@ export function presetForType(type: LicenseType): LicenseTerms {
     private_use: true,
     worldwide: true,
     duration: "perpetual",
-    delivery_mode: type === "exclusive" || type === "extended_commercial" ? "both" : "stream",
+    delivery_mode: "download",
   };
   if (type === "personal") {
     return {
