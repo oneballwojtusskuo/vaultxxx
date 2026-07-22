@@ -10,6 +10,7 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as SellRouteImport } from './routes/sell'
+import { Route as RegulaminRouteImport } from './routes/regulamin'
 import { Route as NotificationsRouteImport } from './routes/notifications'
 import { Route as LikesRouteImport } from './routes/likes'
 import { Route as HelpRouteImport } from './routes/help'
@@ -28,6 +29,11 @@ import { Route as ApiPublicPaymentsWebhookRouteImport } from './routes/api/publi
 const SellRoute = SellRouteImport.update({
   id: '/sell',
   path: '/sell',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const RegulaminRoute = RegulaminRouteImport.update({
+  id: '/regulamin',
+  path: '/regulamin',
   getParentRoute: () => rootRouteImport,
 } as any)
 const NotificationsRoute = NotificationsRouteImport.update({
@@ -112,6 +118,7 @@ export interface FileRoutesByFullPath {
   '/help': typeof HelpRoute
   '/likes': typeof LikesRoute
   '/notifications': typeof NotificationsRoute
+  '/regulamin': typeof RegulaminRoute
   '/sell': typeof SellRoute
   '/messages/$userId': typeof MessagesUserIdRoute
   '/product/$id': typeof ProductIdRoute
@@ -129,6 +136,7 @@ export interface FileRoutesByTo {
   '/help': typeof HelpRoute
   '/likes': typeof LikesRoute
   '/notifications': typeof NotificationsRoute
+  '/regulamin': typeof RegulaminRoute
   '/sell': typeof SellRoute
   '/messages/$userId': typeof MessagesUserIdRoute
   '/product/$id': typeof ProductIdRoute
@@ -147,6 +155,7 @@ export interface FileRoutesById {
   '/help': typeof HelpRoute
   '/likes': typeof LikesRoute
   '/notifications': typeof NotificationsRoute
+  '/regulamin': typeof RegulaminRoute
   '/sell': typeof SellRoute
   '/messages/$userId': typeof MessagesUserIdRoute
   '/product/$id': typeof ProductIdRoute
@@ -166,6 +175,7 @@ export interface FileRouteTypes {
     | '/help'
     | '/likes'
     | '/notifications'
+    | '/regulamin'
     | '/sell'
     | '/messages/$userId'
     | '/product/$id'
@@ -183,6 +193,7 @@ export interface FileRouteTypes {
     | '/help'
     | '/likes'
     | '/notifications'
+    | '/regulamin'
     | '/sell'
     | '/messages/$userId'
     | '/product/$id'
@@ -200,6 +211,7 @@ export interface FileRouteTypes {
     | '/help'
     | '/likes'
     | '/notifications'
+    | '/regulamin'
     | '/sell'
     | '/messages/$userId'
     | '/product/$id'
@@ -218,6 +230,7 @@ export interface RootRouteChildren {
   HelpRoute: typeof HelpRoute
   LikesRoute: typeof LikesRoute
   NotificationsRoute: typeof NotificationsRoute
+  RegulaminRoute: typeof RegulaminRoute
   SellRoute: typeof SellRoute
   MessagesUserIdRoute: typeof MessagesUserIdRoute
   ProductIdRoute: typeof ProductIdRoute
@@ -233,6 +246,13 @@ declare module '@tanstack/react-router' {
       path: '/sell'
       fullPath: '/sell'
       preLoaderRoute: typeof SellRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/regulamin': {
+      id: '/regulamin'
+      path: '/regulamin'
+      fullPath: '/regulamin'
+      preLoaderRoute: typeof RegulaminRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/notifications': {
@@ -346,6 +366,7 @@ const rootRouteChildren: RootRouteChildren = {
   HelpRoute: HelpRoute,
   LikesRoute: LikesRoute,
   NotificationsRoute: NotificationsRoute,
+  RegulaminRoute: RegulaminRoute,
   SellRoute: SellRoute,
   MessagesUserIdRoute: MessagesUserIdRoute,
   ProductIdRoute: ProductIdRoute,
@@ -356,13 +377,3 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}
