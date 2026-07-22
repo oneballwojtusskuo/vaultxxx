@@ -359,9 +359,9 @@ function Sell() {
               <Input type="number" min="0" step="0.01" value={price} onChange={(e) => setPrice(e.target.value)} />
             </div>
             <div className="space-y-2">
-              <Label>Kategoria</Label>
-              <Select value={categoryId} onValueChange={setCategoryId}>
-                <SelectTrigger><SelectValue placeholder="Wybierz" /></SelectTrigger>
+              <Label>Kategoria <span className="text-destructive">*</span></Label>
+              <Select value={categoryId} onValueChange={setCategoryId} required>
+                <SelectTrigger><SelectValue placeholder="Wybierz kategorię" /></SelectTrigger>
                 <SelectContent>
                   {cats?.map((c) => <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>)}
                 </SelectContent>
