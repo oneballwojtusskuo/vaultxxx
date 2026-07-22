@@ -15,8 +15,12 @@ export function SiteFooter() {
           <Link to="/help" className="text-xs text-muted-foreground hover:text-foreground transition-colors">
             Centrum pomocy
           </Link>
+          <Link to="/regulamin" className="text-xs text-muted-foreground hover:text-foreground transition-colors">
+            Regulamin
+          </Link>
           <p className="text-xs text-muted-foreground">Kupuj. Sprzedawaj. Wymieniaj.</p>
         </div>
+
       </div>
     </footer>
   );
