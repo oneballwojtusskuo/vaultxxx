@@ -39,19 +39,8 @@ async function completeTransaction(transactionId: string) {
         .eq("id", tx.product_id);
     }
   }
+  // Seller & affiliate notifications are inserted by DB triggers on transactions.
 
-
-  // Notify seller about the new purchase (funds are held in escrow).
-  if (tx.seller_id) {
-    const amt = Number(tx.seller_amount ?? tx.amount).toFixed(2);
-    await supabase.from("seller_notifications").insert({
-      user_id: tx.seller_id,
-      type: "new_sale",
-      title: "Nowa sprzedaż!",
-      body: `Ktoś kupił „${p?.title ?? "Twój produkt"}" — ${amt} ${tx.currency} czeka w depozycie do potwierdzenia odbioru.`,
-      link: `/dashboard`,
-    } as any);
-  }
 }
 
 async function failTransaction(transactionId: string) {
