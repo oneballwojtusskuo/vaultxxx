@@ -259,6 +259,16 @@ function Sell() {
       if (err) return toast.error(`File: ${err}`);
     }
 
+    const dm = (licTerms.delivery_mode ?? "download") as DeliveryMode;
+    if ((dm === "stream" || dm === "both") && !isStreamableFile(productFile)) {
+      return toast.error(
+        `Wybrałeś sposób dostarczenia „${DELIVERY_MODE_LABELS[dm]}", ale plik „${productFile?.name ?? ""}" nie jest obsługiwany przez przeglądarkowy odtwarzacz. ` +
+        `Streaming działa tylko dla audio/wideo (${STREAMABLE_EXT.join(", ")}). Zmień plik lub wybierz „Tylko pobieranie".`,
+        { duration: 8000 },
+      );
+    }
+
+
     setSubmitting(true);
     try {
       let preview_url: string | null = null;
