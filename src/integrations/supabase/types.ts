@@ -453,7 +453,7 @@ export type Database = {
           id: string
           platform_amount: number
           platform_fee_pct: number
-          product_id: string
+          product_id: string | null
           released_at: string | null
           seller_amount: number
           seller_id: string
@@ -474,7 +474,7 @@ export type Database = {
           id?: string
           platform_amount?: number
           platform_fee_pct?: number
-          product_id: string
+          product_id?: string | null
           released_at?: string | null
           seller_amount?: number
           seller_id: string
@@ -495,7 +495,7 @@ export type Database = {
           id?: string
           platform_amount?: number
           platform_fee_pct?: number
-          product_id?: string
+          product_id?: string | null
           released_at?: string | null
           seller_amount?: number
           seller_id?: string
