@@ -242,6 +242,9 @@ function Sell() {
     if (!productFile) {
       return toast.error("Wgraj plik produktu — to pole jest wymagane.");
     }
+    if (!categoryId) {
+      return toast.error("Wybierz kategorię produktu — to pole jest wymagane.");
+    }
 
 
 
