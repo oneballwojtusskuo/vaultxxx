@@ -56,6 +56,16 @@ function checkProductFile(file: File) {
   return null;
 }
 
+// Formaty, które można odtworzyć bezpośrednio w przeglądarce (streaming).
+const STREAMABLE_EXT = [".mp3", ".wav", ".ogg", ".m4a", ".aac", ".flac", ".mp4", ".webm", ".mov", ".m4v"];
+const DOWNLOAD_ONLY_HINT = ".zip, .rar, .psd, .ai, .pdf, .fbx, .blend, .wav bez odtwarzacza, itp.";
+export function isStreamableFile(file: File | null | undefined): boolean {
+  if (!file) return false;
+  const n = file.name.toLowerCase();
+  return STREAMABLE_EXT.some((e) => n.endsWith(e));
+}
+
+
 async function generateWatermarkedImage(source: File, watermarkText: string): Promise<File> {
   const dataUrl: string = await new Promise((resolve, reject) => {
     const reader = new FileReader();
