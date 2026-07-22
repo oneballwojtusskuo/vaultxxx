@@ -26,29 +26,21 @@ async function completeTransaction(transactionId: string) {
     .update({ status: "held" as any })
     .eq("id", transactionId);
 
-  const { data: p } = await supabase
-    .from("products")
-    .select("title, downloads_count")
-    .eq("id", tx.product_id)
-    .maybeSingle();
-  if (p) {
-    await supabase
+  if (tx.product_id) {
+    const { data: p } = await supabase
       .from("products")
-      .update({ downloads_count: (p.downloads_count ?? 0) + 1 })
-      .eq("id", tx.product_id);
+      .select("title, downloads_count")
+      .eq("id", tx.product_id)
+      .maybeSingle();
+    if (p) {
+      await supabase
+        .from("products")
+        .update({ downloads_count: (p.downloads_count ?? 0) + 1 })
+        .eq("id", tx.product_id);
+    }
   }
+  // Seller & affiliate notifications are inserted by DB triggers on transactions.
 
-  // Notify seller about the new purchase (funds are held in escrow).
-  if (tx.seller_id) {
-    const amt = Number(tx.seller_amount ?? tx.amount).toFixed(2);
-    await supabase.from("seller_notifications").insert({
-      user_id: tx.seller_id,
-      type: "new_sale",
-      title: "Nowa sprzedaż!",
-      body: `Ktoś kupił „${p?.title ?? "Twój produkt"}" — ${amt} ${tx.currency} czeka w depozycie do potwierdzenia odbioru.`,
-      link: `/dashboard`,
-    } as any);
-  }
 }
 
 async function failTransaction(transactionId: string) {

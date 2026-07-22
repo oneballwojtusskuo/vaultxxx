@@ -75,8 +75,10 @@ export const purchaseProduct = createServerFn({ method: "POST" })
     // Seller always receives their full net price. Affiliate commission is
     // paid out of the platform markup — never out of the seller's cut.
     const sellerAmount = sellerNet;
+    // Affiliate commission is a % of the SELLER's net price (not the buyer's total).
+    // It's paid out of the platform's 10% markup — never out of the seller's cut.
     const affiliateAmount = affiliateUserId
-      ? +(buyerPrice * (affiliatePct / 100)).toFixed(2)
+      ? +(sellerNet * (affiliatePct / 100)).toFixed(2)
       : 0;
     const grossMarkup = +(buyerPrice - sellerNet).toFixed(2);
     const platformAmount = +(Math.max(grossMarkup - affiliateAmount, 0)).toFixed(2);
