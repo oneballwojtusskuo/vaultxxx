@@ -553,27 +553,17 @@ function SecureStreamPlayer({ productId, buyerEmail, isOwner, deliveryMode = "bo
       ? "Twój dostęp (tylko streaming)"
       : "Twój dostęp (streaming + pobieranie)";
 
-  const handleDownload = async () => {
-    try {
-      const res = await fetch(data.url);
-      if (!res.ok) throw new Error("Nie udało się pobrać pliku");
-      const blob = await res.blob();
-      const urlPath = data.url.split("?")[0];
-      const ext = urlPath.substring(urlPath.lastIndexOf(".")) || "";
-      const filename = (productTitle ? productTitle.replace(/[^\w\-. ]+/g, "_") : "plik") + ext;
-      const objectUrl = URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = objectUrl;
-      a.download = filename;
-      document.body.appendChild(a);
-      a.click();
-      a.remove();
-      setTimeout(() => URL.revokeObjectURL(objectUrl), 1000);
-    } catch (e: any) {
-      toast.error(e?.message ?? "Nie udało się pobrać pliku");
-      window.open(data.url, "_blank");
-    }
+  const handleDownload = () => {
+    const href = (data as any).downloadUrl || data.url;
+    const a = document.createElement("a");
+    a.href = href;
+    a.download = (data as any).downloadName || "";
+    a.rel = "noopener";
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
   };
+
 
   return (
     <div className="mt-6 rounded-xl border border-success/30 bg-success/5 p-4">
