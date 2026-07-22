@@ -682,3 +682,52 @@ function DeliveryModeCallout({ mode }: { mode: "stream" | "download" | "both" })
   );
 }
 
+function PurchaseConsents({
+  acceptTerms,
+  setAcceptTerms,
+  acceptWithdrawal,
+  setAcceptWithdrawal,
+}: {
+  acceptTerms: boolean;
+  setAcceptTerms: (v: boolean) => void;
+  acceptWithdrawal: boolean;
+  setAcceptWithdrawal: (v: boolean) => void;
+}) {
+  return (
+    <div className="mt-8 rounded-xl border border-border/60 bg-card/40 p-4 space-y-3">
+      <label className="flex items-start gap-3 cursor-pointer">
+        <Checkbox
+          checked={acceptTerms}
+          onCheckedChange={(v) => setAcceptTerms(v === true)}
+          className="mt-0.5"
+          aria-label="Akceptuję Regulamin i Politykę Prywatności"
+        />
+        <span className="text-xs sm:text-sm text-foreground/90 leading-relaxed">
+          Akceptuję{" "}
+          <Link to="/regulamin" target="_blank" className="text-accent underline hover:text-accent/80">
+            Regulamin Serwisu
+          </Link>{" "}
+          oraz Politykę Prywatności.
+        </span>
+      </label>
+      <label className="flex items-start gap-3 cursor-pointer">
+        <Checkbox
+          checked={acceptWithdrawal}
+          onCheckedChange={(v) => setAcceptWithdrawal(v === true)}
+          className="mt-0.5"
+          aria-label="Zgoda na dostarczenie treści cyfrowych przed upływem terminu odstąpienia"
+        />
+        <span className="text-xs sm:text-sm text-foreground/90 leading-relaxed">
+          Wyrażam zgodę na dostarczenie treści cyfrowych przed upływem terminu do odstąpienia od
+          umowy i przyjmuję do wiadomości, że{" "}
+          <b className="text-foreground">
+            stracę prawo do odstąpienia od umowy z chwilą rozpoczęcia pobierania pliku
+          </b>{" "}
+          (art. 38 pkt 13 ustawy o prawach konsumenta).
+        </span>
+      </label>
+    </div>
+  );
+}
+
+
