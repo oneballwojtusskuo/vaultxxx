@@ -624,22 +624,23 @@ function SecureStreamPlayer({ productId, buyerEmail, isOwner, deliveryMode = "bo
         </p>
       ))}
 
-      {(showDownload || (deliveryMode === "stream" && !isVideo && !isAudio)) && (
+      {showDownload && (
         <div className={showStream ? "mt-3" : ""}>
           <Button onClick={handleDownload} className="bg-gradient-primary text-primary-foreground shadow-glow">
             <Download className="h-4 w-4 mr-2" /> Pobierz plik
           </Button>
-          {deliveryMode === "stream" && !isVideo && !isAudio && !isOwner && (
-            <p className="mt-2 text-[11px] text-muted-foreground">
-              Sprzedawca oznaczył ten produkt jako „tylko streaming", ale format pliku nie umożliwia odtwarzania w przeglądarce — udostępniamy pobieranie, żebyś w ogóle miał dostęp do zakupionej treści.
-            </p>
-          )}
           {deliveryMode === "stream" && (isVideo || isAudio) && isOwner && (
             <p className="mt-2 text-[11px] text-muted-foreground">
               Pobieranie widoczne tylko dla Ciebie (właściciela). Kupujący otrzymują wyłącznie streaming.
             </p>
           )}
         </div>
+      )}
+
+      {deliveryMode === "stream" && !isVideo && !isAudio && !isOwner && (
+        <p className="mt-3 text-[11px] text-destructive">
+          Sprzedawca oznaczył ten produkt jako „tylko streaming", ale format pliku nie umożliwia odtwarzania w przeglądarce. Skontaktuj się ze sprzedawcą lub zespołem vlnd.
+        </p>
       )}
 
       <p className="mt-3 text-[11px] text-muted-foreground">
