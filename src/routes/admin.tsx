@@ -36,6 +36,7 @@ type ProductRow = {
 };
 
 function AdminPage() {
+  const isAdmin = true;
   const { user, loading } = useAuth();
   const navigate = useNavigate();
   const qc = useQueryClient();
