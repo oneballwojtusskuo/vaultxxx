@@ -518,7 +518,7 @@ function LicenseSummary({ terms, productTitle, sellerName }: { terms: any; produ
 
 function SecureStreamPlayer({ productId, buyerEmail, isOwner, deliveryMode = "both", productTitle }: { productId: string; buyerEmail: string; isOwner: boolean; deliveryMode?: "stream" | "download" | "both"; productTitle?: string }) {
   const fetchUrl = useServerFn(getSecureStreamUrl);
-  const { data, isLoading, error } = useQuery({
+  const { data, isLoading, error, refetch } = useQuery({
     queryKey: ["stream-url", productId],
     queryFn: () => fetchUrl({ data: { productId } }),
     staleTime: 50 * 60 * 1000, // 50 min
@@ -554,28 +554,29 @@ function SecureStreamPlayer({ productId, buyerEmail, isOwner, deliveryMode = "bo
       : "Twój dostęp (streaming + pobieranie)";
 
   const handleDownload = async () => {
-    const href = (data as any).downloadUrl || data.url;
-    const name = (data as any).downloadName || productTitle || "plik";
-    if (!href || typeof href !== "string" || !/^https?:\/\//i.test(href)) {
+    const latest = await refetch();
+    const access = latest.data ?? data;
+    const href = (access as any)?.downloadUrl || access?.url;
+    const name = (access as any)?.downloadName || productTitle || "plik";
+    if (!href || typeof href !== "string") {
       toast.error("Nie udało się przygotować pliku do pobrania. Odśwież stronę i spróbuj ponownie.");
       return;
     }
     try {
-      const res = await fetch(href, { credentials: "omit" });
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
-      const blob = await res.blob();
-      const objectUrl = URL.createObjectURL(blob);
+      const url = new URL(href, window.location.origin);
+      if (url.pathname.startsWith("/_serverFn")) {
+        throw new Error("Invalid download endpoint");
+      }
       const a = document.createElement("a");
-      a.href = objectUrl;
+      a.href = url.toString();
       a.download = name;
-      a.rel = "noopener";
+      a.target = "_blank";
+      a.rel = "noopener noreferrer";
       document.body.appendChild(a);
       a.click();
       a.remove();
-      setTimeout(() => URL.revokeObjectURL(objectUrl), 60_000);
     } catch {
-      // Fallback: open the signed URL directly in a new tab
-      window.open(href, "_blank", "noopener,noreferrer");
+      toast.error("Nie udało się przygotować linku do pliku. Spróbuj ponownie za chwilę.");
     }
   };
 
