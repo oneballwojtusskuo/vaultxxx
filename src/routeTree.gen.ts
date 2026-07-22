@@ -10,6 +10,7 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as SellRouteImport } from './routes/sell'
+import { Route as ReportInfringementRouteImport } from './routes/report-infringement'
 import { Route as RegulaminRouteImport } from './routes/regulamin'
 import { Route as NotificationsRouteImport } from './routes/notifications'
 import { Route as LikesRouteImport } from './routes/likes'
@@ -29,6 +30,11 @@ import { Route as ApiPublicPaymentsWebhookRouteImport } from './routes/api/publi
 const SellRoute = SellRouteImport.update({
   id: '/sell',
   path: '/sell',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ReportInfringementRoute = ReportInfringementRouteImport.update({
+  id: '/report-infringement',
+  path: '/report-infringement',
   getParentRoute: () => rootRouteImport,
 } as any)
 const RegulaminRoute = RegulaminRouteImport.update({
@@ -119,6 +125,7 @@ export interface FileRoutesByFullPath {
   '/likes': typeof LikesRoute
   '/notifications': typeof NotificationsRoute
   '/regulamin': typeof RegulaminRoute
+  '/report-infringement': typeof ReportInfringementRoute
   '/sell': typeof SellRoute
   '/messages/$userId': typeof MessagesUserIdRoute
   '/product/$id': typeof ProductIdRoute
@@ -137,6 +144,7 @@ export interface FileRoutesByTo {
   '/likes': typeof LikesRoute
   '/notifications': typeof NotificationsRoute
   '/regulamin': typeof RegulaminRoute
+  '/report-infringement': typeof ReportInfringementRoute
   '/sell': typeof SellRoute
   '/messages/$userId': typeof MessagesUserIdRoute
   '/product/$id': typeof ProductIdRoute
@@ -156,6 +164,7 @@ export interface FileRoutesById {
   '/likes': typeof LikesRoute
   '/notifications': typeof NotificationsRoute
   '/regulamin': typeof RegulaminRoute
+  '/report-infringement': typeof ReportInfringementRoute
   '/sell': typeof SellRoute
   '/messages/$userId': typeof MessagesUserIdRoute
   '/product/$id': typeof ProductIdRoute
@@ -176,6 +185,7 @@ export interface FileRouteTypes {
     | '/likes'
     | '/notifications'
     | '/regulamin'
+    | '/report-infringement'
     | '/sell'
     | '/messages/$userId'
     | '/product/$id'
@@ -194,6 +204,7 @@ export interface FileRouteTypes {
     | '/likes'
     | '/notifications'
     | '/regulamin'
+    | '/report-infringement'
     | '/sell'
     | '/messages/$userId'
     | '/product/$id'
@@ -212,6 +223,7 @@ export interface FileRouteTypes {
     | '/likes'
     | '/notifications'
     | '/regulamin'
+    | '/report-infringement'
     | '/sell'
     | '/messages/$userId'
     | '/product/$id'
@@ -231,6 +243,7 @@ export interface RootRouteChildren {
   LikesRoute: typeof LikesRoute
   NotificationsRoute: typeof NotificationsRoute
   RegulaminRoute: typeof RegulaminRoute
+  ReportInfringementRoute: typeof ReportInfringementRoute
   SellRoute: typeof SellRoute
   MessagesUserIdRoute: typeof MessagesUserIdRoute
   ProductIdRoute: typeof ProductIdRoute
@@ -246,6 +259,13 @@ declare module '@tanstack/react-router' {
       path: '/sell'
       fullPath: '/sell'
       preLoaderRoute: typeof SellRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/report-infringement': {
+      id: '/report-infringement'
+      path: '/report-infringement'
+      fullPath: '/report-infringement'
+      preLoaderRoute: typeof ReportInfringementRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/regulamin': {
@@ -367,6 +387,7 @@ const rootRouteChildren: RootRouteChildren = {
   LikesRoute: LikesRoute,
   NotificationsRoute: NotificationsRoute,
   RegulaminRoute: RegulaminRoute,
+  ReportInfringementRoute: ReportInfringementRoute,
   SellRoute: SellRoute,
   MessagesUserIdRoute: MessagesUserIdRoute,
   ProductIdRoute: ProductIdRoute,
@@ -377,13 +398,3 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}
