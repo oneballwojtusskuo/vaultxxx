@@ -1,4 +1,4 @@
-timport { useEffect, useState, createContext, useContext, type ReactNode } from "react";
+import { useEffect, useState, createContext, useContext, type ReactNode } from "react";
 import type { Session, User } from "@supabase/supabase-js";
 import { useServerFn } from "@tanstack/react-start";
 import { supabase } from "@/lib/supabase-browser";
