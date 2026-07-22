@@ -98,7 +98,8 @@ function Notifications() {
             return (
               <div
                 key={n.id}
-                className={`flex items-start gap-3 rounded-xl border p-4 ${
+                onClick={() => unread && markRead(n.id)}
+                className={`flex items-start gap-3 rounded-xl border p-4 cursor-pointer ${
                   unread ? "border-primary/40 bg-primary/5" : "border-border/40 bg-gradient-surface"
                 }`}
               >
@@ -107,7 +108,7 @@ function Notifications() {
                   {n.body && <p className="text-sm text-muted-foreground line-clamp-2">{n.body}</p>}
                   <p className="text-xs text-muted-foreground mt-1">{new Date(n.created_at).toLocaleString("pl-PL")}</p>
                 </Wrapper>
-                <Button variant="ghost" size="icon" onClick={() => dismiss(n.id)} aria-label="Usuń">
+                <Button variant="ghost" size="icon" onClick={(e) => { e.stopPropagation(); dismiss(n.id); }} aria-label="Usuń">
                   <Trash2 className="h-4 w-4" />
                 </Button>
               </div>
