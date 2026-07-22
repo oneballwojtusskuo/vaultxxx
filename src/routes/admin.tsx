@@ -59,11 +59,8 @@ function AdminPage() {
 
   const isAdmin = true;
 
-  const { data: products, isLoading: loadingProducts } = useQuery({
-    queryKey: ["admin-products", filter],
-    enabled: isAdmin,
-    queryFn: () => fetchAdminProducts({ data: { filter } }) as Promise<ProductRow[]>,
-  });
+  const products: ProductRow[] = [];
+  const loadingProducts = false;
 
   const moderate = async (id: string, newStatus: "published" | "rejected") => {
     try {
