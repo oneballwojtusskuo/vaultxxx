@@ -15,6 +15,8 @@ import {
 } from "@/components/ui/dialog";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Checkbox } from "@/components/ui/checkbox";
+
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { ReportDialog } from "@/components/report-dialog";
 import { VerifiedBadge } from "@/components/verified-badge";
@@ -95,6 +97,9 @@ function ProductPage() {
   const [message, setMessage] = useState("");
   const [checkoutSecret, setCheckoutSecret] = useState<string | null>(null);
   const [checkoutOpen, setCheckoutOpen] = useState(false);
+  const [acceptTerms, setAcceptTerms] = useState(false);
+  const [acceptWithdrawal, setAcceptWithdrawal] = useState(false);
+
 
   // Handle Stripe return_url: ?checkout=success
   useEffect(() => {
@@ -146,6 +151,10 @@ function ProductPage() {
   const buy = async () => {
     if (!user) { navigate({ to: "/auth" }); return; }
     if (isOwner) return toast.error("To Twój produkt");
+    if (!acceptTerms || !acceptWithdrawal) {
+      return toast.error("Zaznacz oba wymagane zgody przed dokonaniem zakupu.");
+    }
+
     try {
       const referralUserId = getReferralCookie(p.id);
       const res = await purchaseFn({
@@ -337,17 +346,32 @@ function ProductPage() {
               </>
             )}
 
-            <div className="mt-8 flex flex-wrap gap-3">
+            {!isOwner && isPublished && !myTransaction && (
+              <PurchaseConsents
+                acceptTerms={acceptTerms}
+                setAcceptTerms={setAcceptTerms}
+                acceptWithdrawal={acceptWithdrawal}
+                setAcceptWithdrawal={setAcceptWithdrawal}
+              />
+            )}
+
+            <div className="mt-6 flex flex-wrap gap-3">
               <LikeButton productId={p.id} />
               <ShareButton title={p.title} />
               {user && !isOwner && isPublished && (p as any).affiliate_commission_pct > 0 && (
                 <ReferralButton productId={p.id} referrerId={user.id} pct={(p as any).affiliate_commission_pct} />
               )}
               {!isOwner && isPublished && !myTransaction && (
-                <Button onClick={buy} size="lg" className="bg-gradient-primary text-primary-foreground shadow-glow h-12">
-                  <ShoppingCart className="h-4 w-4 mr-2" /> Kup teraz
+                <Button
+                  onClick={buy}
+                  size="lg"
+                  disabled={!acceptTerms || !acceptWithdrawal}
+                  className="bg-gradient-primary text-primary-foreground shadow-glow h-12 disabled:opacity-50"
+                >
+                  <ShoppingCart className="h-4 w-4 mr-2" /> Kupuję i płacę
                 </Button>
               )}
+
               {!isOwner && isPublished && p.is_tradable && user && !myTransaction && (
                 <Dialog>
                   <DialogTrigger asChild>
@@ -657,4 +681,53 @@ function DeliveryModeCallout({ mode }: { mode: "stream" | "download" | "both" })
     </div>
   );
 }
+
+function PurchaseConsents({
+  acceptTerms,
+  setAcceptTerms,
+  acceptWithdrawal,
+  setAcceptWithdrawal,
+}: {
+  acceptTerms: boolean;
+  setAcceptTerms: (v: boolean) => void;
+  acceptWithdrawal: boolean;
+  setAcceptWithdrawal: (v: boolean) => void;
+}) {
+  return (
+    <div className="mt-8 rounded-xl border border-border/60 bg-card/40 p-4 space-y-3">
+      <label className="flex items-start gap-3 cursor-pointer">
+        <Checkbox
+          checked={acceptTerms}
+          onCheckedChange={(v) => setAcceptTerms(v === true)}
+          className="mt-0.5"
+          aria-label="Akceptuję Regulamin i Politykę Prywatności"
+        />
+        <span className="text-xs sm:text-sm text-foreground/90 leading-relaxed">
+          Akceptuję{" "}
+          <Link to="/regulamin" target="_blank" className="text-accent underline hover:text-accent/80">
+            Regulamin Serwisu
+          </Link>{" "}
+          oraz Politykę Prywatności.
+        </span>
+      </label>
+      <label className="flex items-start gap-3 cursor-pointer">
+        <Checkbox
+          checked={acceptWithdrawal}
+          onCheckedChange={(v) => setAcceptWithdrawal(v === true)}
+          className="mt-0.5"
+          aria-label="Zgoda na dostarczenie treści cyfrowych przed upływem terminu odstąpienia"
+        />
+        <span className="text-xs sm:text-sm text-foreground/90 leading-relaxed">
+          Wyrażam zgodę na dostarczenie treści cyfrowych przed upływem terminu do odstąpienia od
+          umowy i przyjmuję do wiadomości, że{" "}
+          <b className="text-foreground">
+            stracę prawo do odstąpienia od umowy z chwilą rozpoczęcia pobierania pliku
+          </b>{" "}
+          (art. 38 pkt 13 ustawy o prawach konsumenta).
+        </span>
+      </label>
+    </div>
+  );
+}
+
 
