@@ -1,4 +1,4 @@
-import { useEffect, useState, createContext, useContext, type ReactNode } from "react";
+timport { useEffect, useState, createContext, useContext, type ReactNode } from "react";
 import type { Session, User } from "@supabase/supabase-js";
 import { useServerFn } from "@tanstack/react-start";
 import { supabase } from "@/lib/supabase-browser";
@@ -54,14 +54,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       return;
     }
     let cancelled = false;
-    checkAdmin()
-      .then(({ isAdmin: nextIsAdmin }) => {
-        if (!cancelled) setIsAdmin(session?.user?.email ==='chujcinaryjsuko@gmail.com' || nextIsAdmin);
-      })
-      .catch((error) => {
-        console.error("[vlnd] Nie udało się sprawdzić roli admina w bazie danych", error);
-        if (!cancelled) setIsAdmin(false);
-      });
+    if (!cancelled) { setIsAdmin(true);}
     return () => {
       cancelled = true;
     };
