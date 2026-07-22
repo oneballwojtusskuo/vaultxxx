@@ -95,6 +95,9 @@ function ProductPage() {
   const [message, setMessage] = useState("");
   const [checkoutSecret, setCheckoutSecret] = useState<string | null>(null);
   const [checkoutOpen, setCheckoutOpen] = useState(false);
+  const [acceptTerms, setAcceptTerms] = useState(false);
+  const [acceptWithdrawal, setAcceptWithdrawal] = useState(false);
+
 
   // Handle Stripe return_url: ?checkout=success
   useEffect(() => {
