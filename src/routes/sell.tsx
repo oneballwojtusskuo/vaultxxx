@@ -499,7 +499,7 @@ function Sell() {
                 </Tooltip>
               </div>
               <Select
-                value={(licTerms.delivery_mode ?? "stream") as DeliveryMode}
+                value={(licTerms.delivery_mode ?? "download") as DeliveryMode}
                 onValueChange={(v) => setLic({ delivery_mode: v as DeliveryMode })}
               >
                 <SelectTrigger><SelectValue /></SelectTrigger>
