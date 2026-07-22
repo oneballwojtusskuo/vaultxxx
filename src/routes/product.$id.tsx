@@ -149,6 +149,10 @@ function ProductPage() {
   const buy = async () => {
     if (!user) { navigate({ to: "/auth" }); return; }
     if (isOwner) return toast.error("To Twój produkt");
+    if (!acceptTerms || !acceptWithdrawal) {
+      return toast.error("Zaznacz oba wymagane zgody przed dokonaniem zakupu.");
+    }
+
     try {
       const referralUserId = getReferralCookie(p.id);
       const res = await purchaseFn({
@@ -340,17 +344,32 @@ function ProductPage() {
               </>
             )}
 
-            <div className="mt-8 flex flex-wrap gap-3">
+            {!isOwner && isPublished && !myTransaction && (
+              <PurchaseConsents
+                acceptTerms={acceptTerms}
+                setAcceptTerms={setAcceptTerms}
+                acceptWithdrawal={acceptWithdrawal}
+                setAcceptWithdrawal={setAcceptWithdrawal}
+              />
+            )}
+
+            <div className="mt-6 flex flex-wrap gap-3">
               <LikeButton productId={p.id} />
               <ShareButton title={p.title} />
               {user && !isOwner && isPublished && (p as any).affiliate_commission_pct > 0 && (
                 <ReferralButton productId={p.id} referrerId={user.id} pct={(p as any).affiliate_commission_pct} />
               )}
               {!isOwner && isPublished && !myTransaction && (
-                <Button onClick={buy} size="lg" className="bg-gradient-primary text-primary-foreground shadow-glow h-12">
-                  <ShoppingCart className="h-4 w-4 mr-2" /> Kup teraz
+                <Button
+                  onClick={buy}
+                  size="lg"
+                  disabled={!acceptTerms || !acceptWithdrawal}
+                  className="bg-gradient-primary text-primary-foreground shadow-glow h-12 disabled:opacity-50"
+                >
+                  <ShoppingCart className="h-4 w-4 mr-2" /> Kupuję i płacę
                 </Button>
               )}
+
               {!isOwner && isPublished && p.is_tradable && user && !myTransaction && (
                 <Dialog>
                   <DialogTrigger asChild>
