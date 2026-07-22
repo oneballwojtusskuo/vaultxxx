@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as SellRouteImport } from './routes/sell'
 import { Route as ReportInfringementRouteImport } from './routes/report-infringement'
 import { Route as RegulaminRouteImport } from './routes/regulamin'
+import { Route as PolitykaPrywatnosciRouteImport } from './routes/polityka-prywatnosci'
 import { Route as NotificationsRouteImport } from './routes/notifications'
 import { Route as LikesRouteImport } from './routes/likes'
 import { Route as HelpRouteImport } from './routes/help'
@@ -40,6 +41,11 @@ const ReportInfringementRoute = ReportInfringementRouteImport.update({
 const RegulaminRoute = RegulaminRouteImport.update({
   id: '/regulamin',
   path: '/regulamin',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PolitykaPrywatnosciRoute = PolitykaPrywatnosciRouteImport.update({
+  id: '/polityka-prywatnosci',
+  path: '/polityka-prywatnosci',
   getParentRoute: () => rootRouteImport,
 } as any)
 const NotificationsRoute = NotificationsRouteImport.update({
@@ -124,6 +130,7 @@ export interface FileRoutesByFullPath {
   '/help': typeof HelpRoute
   '/likes': typeof LikesRoute
   '/notifications': typeof NotificationsRoute
+  '/polityka-prywatnosci': typeof PolitykaPrywatnosciRoute
   '/regulamin': typeof RegulaminRoute
   '/report-infringement': typeof ReportInfringementRoute
   '/sell': typeof SellRoute
@@ -143,6 +150,7 @@ export interface FileRoutesByTo {
   '/help': typeof HelpRoute
   '/likes': typeof LikesRoute
   '/notifications': typeof NotificationsRoute
+  '/polityka-prywatnosci': typeof PolitykaPrywatnosciRoute
   '/regulamin': typeof RegulaminRoute
   '/report-infringement': typeof ReportInfringementRoute
   '/sell': typeof SellRoute
@@ -163,6 +171,7 @@ export interface FileRoutesById {
   '/help': typeof HelpRoute
   '/likes': typeof LikesRoute
   '/notifications': typeof NotificationsRoute
+  '/polityka-prywatnosci': typeof PolitykaPrywatnosciRoute
   '/regulamin': typeof RegulaminRoute
   '/report-infringement': typeof ReportInfringementRoute
   '/sell': typeof SellRoute
@@ -184,6 +193,7 @@ export interface FileRouteTypes {
     | '/help'
     | '/likes'
     | '/notifications'
+    | '/polityka-prywatnosci'
     | '/regulamin'
     | '/report-infringement'
     | '/sell'
@@ -203,6 +213,7 @@ export interface FileRouteTypes {
     | '/help'
     | '/likes'
     | '/notifications'
+    | '/polityka-prywatnosci'
     | '/regulamin'
     | '/report-infringement'
     | '/sell'
@@ -222,6 +233,7 @@ export interface FileRouteTypes {
     | '/help'
     | '/likes'
     | '/notifications'
+    | '/polityka-prywatnosci'
     | '/regulamin'
     | '/report-infringement'
     | '/sell'
@@ -242,6 +254,7 @@ export interface RootRouteChildren {
   HelpRoute: typeof HelpRoute
   LikesRoute: typeof LikesRoute
   NotificationsRoute: typeof NotificationsRoute
+  PolitykaPrywatnosciRoute: typeof PolitykaPrywatnosciRoute
   RegulaminRoute: typeof RegulaminRoute
   ReportInfringementRoute: typeof ReportInfringementRoute
   SellRoute: typeof SellRoute
@@ -273,6 +286,13 @@ declare module '@tanstack/react-router' {
       path: '/regulamin'
       fullPath: '/regulamin'
       preLoaderRoute: typeof RegulaminRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/polityka-prywatnosci': {
+      id: '/polityka-prywatnosci'
+      path: '/polityka-prywatnosci'
+      fullPath: '/polityka-prywatnosci'
+      preLoaderRoute: typeof PolitykaPrywatnosciRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/notifications': {
@@ -386,6 +406,7 @@ const rootRouteChildren: RootRouteChildren = {
   HelpRoute: HelpRoute,
   LikesRoute: LikesRoute,
   NotificationsRoute: NotificationsRoute,
+  PolitykaPrywatnosciRoute: PolitykaPrywatnosciRoute,
   RegulaminRoute: RegulaminRoute,
   ReportInfringementRoute: ReportInfringementRoute,
   SellRoute: SellRoute,
@@ -398,13 +419,3 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}
