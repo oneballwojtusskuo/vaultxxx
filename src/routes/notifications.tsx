@@ -55,6 +55,17 @@ function Notifications() {
     qc.invalidateQueries({ queryKey: ["unread-notifications"] });
   };
 
+  const markRead = async (id: string) => {
+    const { error } = await supabase
+      .from("notifications")
+      .update({ read_at: new Date().toISOString() })
+      .eq("id", id)
+      .is("read_at", null);
+    if (error) return;
+    refetch();
+    qc.invalidateQueries({ queryKey: ["unread-notifications"] });
+  };
+
   if (loading || !user) return null;
 
   return (
