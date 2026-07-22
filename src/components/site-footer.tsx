@@ -18,6 +18,9 @@ export function SiteFooter() {
           <Link to="/regulamin" className="text-xs text-muted-foreground hover:text-foreground transition-colors">
             Regulamin
           </Link>
+          <Link to="/report-infringement" className="text-xs text-muted-foreground hover:text-foreground transition-colors">
+            Zgłoś naruszenie praw autorskich
+          </Link>
           <p className="text-xs text-muted-foreground">Kupuj. Sprzedawaj. Wymieniaj.</p>
         </div>
 
