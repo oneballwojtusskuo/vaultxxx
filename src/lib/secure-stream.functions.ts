@@ -44,13 +44,28 @@ export const getSecureStreamUrl = createServerFn({ method: "POST" })
       }
     }
 
-    const { data: signed, error: sErr } = await supabase.storage
-      .from("product-files")
-      .createSignedUrl(product.file_path, 60 * 60); // 1h
+    // Derive a friendly filename with the correct extension
+    const rawExt = product.file_path.includes(".")
+      ? product.file_path.substring(product.file_path.lastIndexOf("."))
+      : "";
+    const safeTitle = (product.title || "plik").replace(/[^\w\-. ]+/g, "_").slice(0, 80) || "plik";
+    const downloadName = safeTitle + rawExt;
 
-    if (sErr || !signed) {
+    const [{ data: streamSigned, error: sErr }, { data: dlSigned, error: dErr }] = await Promise.all([
+      supabase.storage.from("product-files").createSignedUrl(product.file_path, 60 * 60),
+      supabase.storage.from("product-files").createSignedUrl(product.file_path, 60 * 60, { download: downloadName }),
+    ]);
+
+    if (sErr || !streamSigned || dErr || !dlSigned) {
       throw new Response("Could not sign URL", { status: 500 });
     }
 
-    return { url: signed.signedUrl, expiresAt: Date.now() + 60 * 60 * 1000, title: product.title };
+    return {
+      url: streamSigned.signedUrl,
+      downloadUrl: dlSigned.signedUrl,
+      downloadName,
+      expiresAt: Date.now() + 60 * 60 * 1000,
+      title: product.title,
+    };
   });
+
