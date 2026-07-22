@@ -553,15 +553,30 @@ function SecureStreamPlayer({ productId, buyerEmail, isOwner, deliveryMode = "bo
       ? "Twój dostęp (tylko streaming)"
       : "Twój dostęp (streaming + pobieranie)";
 
-  const handleDownload = () => {
+  const handleDownload = async () => {
     const href = (data as any).downloadUrl || data.url;
-    const a = document.createElement("a");
-    a.href = href;
-    a.download = (data as any).downloadName || "";
-    a.rel = "noopener";
-    document.body.appendChild(a);
-    a.click();
-    a.remove();
+    const name = (data as any).downloadName || productTitle || "plik";
+    if (!href || typeof href !== "string" || !/^https?:\/\//i.test(href)) {
+      toast.error("Nie udało się przygotować pliku do pobrania. Odśwież stronę i spróbuj ponownie.");
+      return;
+    }
+    try {
+      const res = await fetch(href, { credentials: "omit" });
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const blob = await res.blob();
+      const objectUrl = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = objectUrl;
+      a.download = name;
+      a.rel = "noopener";
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      setTimeout(() => URL.revokeObjectURL(objectUrl), 60_000);
+    } catch {
+      // Fallback: open the signed URL directly in a new tab
+      window.open(href, "_blank", "noopener,noreferrer");
+    }
   };
 
 
