@@ -53,12 +53,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setIsAdmin(false);
       return;
     }
-    let cancelled = false;
-    if (!cancelled) { setIsAdmin(true);}
-    return () => {
-      cancelled = true;
-    };
-  }, [checkAdmin, session?.user?.id]);
+    setIsAdmin(true);
+  }, [session?.user?.id]);
 
   return (
     <Ctx.Provider
