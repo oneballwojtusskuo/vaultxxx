@@ -53,17 +53,31 @@ function AdminPage() {
 
   const { data: adminCheck, isLoading: checkingAdmin } = useQuery({
     queryKey: ["is-admin", user?.id],
-    queryFn: () => checkAdmin(),
+    queryFn: async () => {
+      try {
+        return await checkAdmin();
+      } catch {
+        return false;
+      }
+    },
     enabled: !!user,
   });
-  const isAdmin = true;
-  
+  const isAdmin = adminCheck === true;
 
   const { data: products, isLoading: loadingProducts } = useQuery({
     queryKey: ["admin-products", filter],
     enabled: isAdmin,
-    queryFn: () => fetchAdminProducts({ data: { filter } }) as Promise<ProductRow[]>,
+    queryFn: async () => {
+      try {
+        const rows = await fetchAdminProducts({ data: { filter } });
+        return (rows ?? []) as ProductRow[];
+      } catch (e: any) {
+        toast.error(e?.message ?? "Nie udało się załadować produktów");
+        return [] as ProductRow[];
+      }
+    },
   });
+
 
   const moderate = async (id: string, newStatus: "published" | "rejected") => {
     try {
