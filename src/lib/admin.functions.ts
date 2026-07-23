@@ -31,28 +31,6 @@ function assertOwnerEmail(claims: unknown) {
   }
 }
 
-async function assertAdmin(context: { claims: unknown; userId: string }) {
-  const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-
-  if (isOwnerEmail(context.claims)) {
-    await supabaseAdmin
-      .from("user_roles")
-      .upsert({ user_id: context.userId, role: "admin" }, { onConflict: "user_id,role" });
-    return supabaseAdmin;
-  }
-
-  const { data, error } = await supabaseAdmin
-    .from("user_roles")
-    .select("id")
-    .eq("user_id", context.userId)
-    .eq("role", "admin")
-    .maybeSingle();
-  if (error) throw error;
-  if (!data) throw new Response("Forbidden", { status: 403 });
-
-  return supabaseAdmin;
-}
-
 /**
  * Bootstrap: if there is no admin yet, promote the current user to admin.
  * After the first admin exists, this becomes a no-op.
