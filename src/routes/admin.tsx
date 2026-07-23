@@ -51,23 +51,9 @@ function AdminPage() {
     if (!loading && !user) navigate({ to: "/auth" });
   }, [user, loading, navigate]);
 
-  const { data: adminCheck, isLoading: checkingAdmin } = useQuery({
-    queryKey: ["is-admin", user?.id],
-    queryFn: async () => {
-      try {
-        return await checkAdmin();
-      } catch {
-        return { isAdmin: false } as { isAdmin: boolean };
-      }
-    },
-    enabled: !!user,
-  });
-  const isAdmin = !!(adminCheck && (adminCheck as any).isAdmin);
-
-
   const { data: products, isLoading: loadingProducts } = useQuery({
     queryKey: ["admin-products", filter],
-    enabled: isAdmin,
+    enabled: !!user,
     queryFn: async () => {
       try {
         const rows = await fetchAdminProducts({ data: { filter } });
@@ -78,6 +64,7 @@ function AdminPage() {
       }
     },
   });
+
 
 
   const moderate = async (id: string, newStatus: "published" | "rejected") => {
