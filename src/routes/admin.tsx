@@ -11,7 +11,7 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { useAuth } from "@/hooks/use-auth";
 import { toast } from "sonner";
 import { ShieldCheck, Check, X, ExternalLink, FileText, Download, Flag, Ban, Trash2, UserCheck } from "lucide-react";
-import { claimAdminIfNone, getAdminProductFileUrl, isCurrentUserAdmin, listAdminProducts, moderateProduct } from "@/lib/admin.functions";
+import { getAdminProductFileUrl, listAdminProducts, moderateProduct } from "@/lib/admin.functions";
 import { listReports, updateReportStatus, takedownProduct, setUserBan } from "@/lib/reports.functions";
 
 
@@ -39,9 +39,8 @@ function AdminPage() {
   const { user, loading } = useAuth();
   const navigate = useNavigate();
   const qc = useQueryClient();
-  const checkAdmin = useServerFn(isCurrentUserAdmin);
-  const claim = useServerFn(claimAdminIfNone);
   const fetchAdminProducts = useServerFn(listAdminProducts);
+
   const updateProductStatus = useServerFn(moderateProduct);
   const getProductFileUrl = useServerFn(getAdminProductFileUrl);
   const [filter, setFilter] = useState<"pending_review" | "published" | "rejected" | "all">("pending_review");
@@ -51,23 +50,9 @@ function AdminPage() {
     if (!loading && !user) navigate({ to: "/auth" });
   }, [user, loading, navigate]);
 
-  const { data: adminCheck, isLoading: checkingAdmin } = useQuery({
-    queryKey: ["is-admin", user?.id],
-    queryFn: async () => {
-      try {
-        return await checkAdmin();
-      } catch {
-        return { isAdmin: false } as { isAdmin: boolean };
-      }
-    },
-    enabled: !!user,
-  });
-  const isAdmin = !!(adminCheck && (adminCheck as any).isAdmin);
-
-
   const { data: products, isLoading: loadingProducts } = useQuery({
     queryKey: ["admin-products", filter],
-    enabled: isAdmin,
+    enabled: !!user,
     queryFn: async () => {
       try {
         const rows = await fetchAdminProducts({ data: { filter } });
@@ -78,6 +63,7 @@ function AdminPage() {
       }
     },
   });
+
 
 
   const moderate = async (id: string, newStatus: "published" | "rejected") => {
@@ -111,34 +97,8 @@ function AdminPage() {
         </div>
         <p className="text-muted-foreground mt-1">Moderacja produktów cyfrowych.</p>
 
-        {checkingAdmin ? (
-          <div className="mt-10 text-muted-foreground">Sprawdzanie uprawnień...</div>
-        ) : !isAdmin ? (
-          <div className="mt-10 rounded-2xl border border-border/40 bg-gradient-surface p-8 text-center">
-            <p className="text-lg font-semibold">Brak uprawnień administratora</p>
-            <p className="text-muted-foreground mt-2 text-sm">
-              Tylko konto właściciela platformy może aktywować rolę administratora. Uprawnienia są sprawdzane w bazie danych.
-            </p>
-            <Button
-              className="mt-4 bg-gradient-primary text-primary-foreground shadow-glow"
-              onClick={async () => {
-                try {
-                  const res = await claim();
-                  if (res.claimed) {
-                    toast.success("Zostałeś administratorem.");
-                    qc.invalidateQueries({ queryKey: ["is-admin"] });
-                  } else {
-                    toast.error("Nie można aktywować roli admina dla tego konta.");
-                  }
-                } catch (e: any) {
-                  toast.error(e?.message ?? "Błąd");
-                }
-              }}
-            >
-              Aktywuj rolę admina
-            </Button>
-          </div>
-        ) : (
+        {(
+
           <Tabs defaultValue="products" className="mt-6">
             <TabsList>
               <TabsTrigger value="products"><ShieldCheck className="h-4 w-4 mr-1.5" /> Produkty</TabsTrigger>
