@@ -39,9 +39,8 @@ function AdminPage() {
   const { user, loading } = useAuth();
   const navigate = useNavigate();
   const qc = useQueryClient();
-  const checkAdmin = useServerFn(isCurrentUserAdmin);
-  const claim = useServerFn(claimAdminIfNone);
   const fetchAdminProducts = useServerFn(listAdminProducts);
+
   const updateProductStatus = useServerFn(moderateProduct);
   const getProductFileUrl = useServerFn(getAdminProductFileUrl);
   const [filter, setFilter] = useState<"pending_review" | "published" | "rejected" | "all">("pending_review");
