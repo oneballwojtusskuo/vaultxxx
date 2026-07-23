@@ -98,34 +98,8 @@ function AdminPage() {
         </div>
         <p className="text-muted-foreground mt-1">Moderacja produktów cyfrowych.</p>
 
-        {checkingAdmin ? (
-          <div className="mt-10 text-muted-foreground">Sprawdzanie uprawnień...</div>
-        ) : !isAdmin ? (
-          <div className="mt-10 rounded-2xl border border-border/40 bg-gradient-surface p-8 text-center">
-            <p className="text-lg font-semibold">Brak uprawnień administratora</p>
-            <p className="text-muted-foreground mt-2 text-sm">
-              Tylko konto właściciela platformy może aktywować rolę administratora. Uprawnienia są sprawdzane w bazie danych.
-            </p>
-            <Button
-              className="mt-4 bg-gradient-primary text-primary-foreground shadow-glow"
-              onClick={async () => {
-                try {
-                  const res = await claim();
-                  if (res.claimed) {
-                    toast.success("Zostałeś administratorem.");
-                    qc.invalidateQueries({ queryKey: ["is-admin"] });
-                  } else {
-                    toast.error("Nie można aktywować roli admina dla tego konta.");
-                  }
-                } catch (e: any) {
-                  toast.error(e?.message ?? "Błąd");
-                }
-              }}
-            >
-              Aktywuj rolę admina
-            </Button>
-          </div>
-        ) : (
+        {(
+
           <Tabs defaultValue="products" className="mt-6">
             <TabsList>
               <TabsTrigger value="products"><ShieldCheck className="h-4 w-4 mr-1.5" /> Produkty</TabsTrigger>
