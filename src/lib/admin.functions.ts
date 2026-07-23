@@ -84,7 +84,8 @@ export const isCurrentUserAdmin = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
     try {
-      await assertAdmin({ claims: context.claims, userId: context.userId });
+      const { getAdminClientForContext } = await import("@/lib/admin-auth.server");
+      await getAdminClientForContext(context);
       return { isAdmin: true };
     } catch {
       return { isAdmin: false };
@@ -95,7 +96,8 @@ export const listAdminProducts = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .inputValidator((input) => AdminProductsInputSchema.parse(input))
   .handler(async ({ data, context }) => {
-    const supabaseAdmin = await assertAdmin(context);
+    const { getAdminClientForContext } = await import("@/lib/admin-auth.server");
+    const supabaseAdmin = await getAdminClientForContext(context);
 
     let query = supabaseAdmin
       .from("products")
@@ -128,7 +130,8 @@ export const moderateProduct = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((input) => ModerateProductInputSchema.parse(input))
   .handler(async ({ data, context }) => {
-    const supabaseAdmin = await assertAdmin(context);
+    const { getAdminClientForContext } = await import("@/lib/admin-auth.server");
+    const supabaseAdmin = await getAdminClientForContext(context);
 
     if (data.status === "rejected") {
       // Permanent removal: fetch product to know owner + storage paths, delete files, delete row, notify seller.
@@ -189,7 +192,8 @@ export const getAdminProductFileUrl = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((input) => ProductFileInputSchema.parse(input))
   .handler(async ({ data, context }) => {
-    const supabaseAdmin = await assertAdmin(context);
+    const { getAdminClientForContext } = await import("@/lib/admin-auth.server");
+    const supabaseAdmin = await getAdminClientForContext(context);
 
     const { data: product, error } = await supabaseAdmin
       .from("products")
