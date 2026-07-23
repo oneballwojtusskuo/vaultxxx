@@ -113,7 +113,7 @@ function AdminPage() {
 
         {checkingAdmin ? (
           <div className="mt-10 text-muted-foreground">Sprawdzanie uprawnień...</div>
-        ) : false ? (
+        ) : !isAdmin ? (
           <div className="mt-10 rounded-2xl border border-border/40 bg-gradient-surface p-8 text-center">
             <p className="text-lg font-semibold">Brak uprawnień administratora</p>
             <p className="text-muted-foreground mt-2 text-sm">
