@@ -59,9 +59,9 @@ function AdminPage() {
   const isAdmin = true;
   
 
-  const { data: products = [], isLoading: loadingProducts } = useQuery({
+  const { data: products, isLoading: loadingProducts } = useQuery({
     queryKey: ["admin-products", filter],
-    enabled: false,
+    enabled: isAdmin,
     queryFn: () => fetchAdminProducts({ data: { filter } }) as Promise<ProductRow[]>,
   });
 
