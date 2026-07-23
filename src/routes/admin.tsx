@@ -57,12 +57,13 @@ function AdminPage() {
       try {
         return await checkAdmin();
       } catch {
-        return false;
+        return { isAdmin: false } as { isAdmin: boolean };
       }
     },
     enabled: !!user,
   });
-  const isAdmin = adminCheck === true;
+  const isAdmin = !!(adminCheck && (adminCheck as any).isAdmin);
+
 
   const { data: products, isLoading: loadingProducts } = useQuery({
     queryKey: ["admin-products", filter],
