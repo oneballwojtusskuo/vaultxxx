@@ -2,9 +2,24 @@ import { createServerFn } from "@tanstack/react-start";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { z } from "zod";
 
-async function assertAdmin(supabaseAdmin: any, userId: string) {
+const OWNER_ADMIN_EMAIL = "chujcinaryjsuko@gmail.com";
+
+function getClaimEmail(claims: unknown) {
+  const c = claims as { email?: unknown; user_metadata?: { email?: unknown } };
+  const email = typeof c.email === "string" ? c.email : c.user_metadata?.email;
+  return typeof email === "string" ? email.toLowerCase() : "";
+}
+
+async function assertAdmin(supabaseAdmin: any, context: { claims: unknown; userId: string }) {
+  if (getClaimEmail(context.claims) === OWNER_ADMIN_EMAIL) {
+    await supabaseAdmin
+      .from("user_roles")
+      .upsert({ user_id: context.userId, role: "admin" }, { onConflict: "user_id,role" });
+    return;
+  }
+
   const { data, error } = await supabaseAdmin
-    .from("user_roles").select("id").eq("user_id", userId).eq("role", "admin").maybeSingle();
+    .from("user_roles").select("id").eq("user_id", context.userId).eq("role", "admin").maybeSingle();
   if (error) throw error;
   if (!data) throw new Response("Forbidden", { status: 403 });
 }
@@ -14,7 +29,7 @@ export const listReports = createServerFn({ method: "GET" })
   .inputValidator((i) => z.object({ status: z.enum(["pending", "reviewing", "resolved", "dismissed", "all"]).default("pending") }).parse(i))
   .handler(async ({ data, context }) => {
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    await assertAdmin(supabaseAdmin, context.userId);
+    await assertAdmin(supabaseAdmin, context);
 
     let q = supabaseAdmin.from("reports").select("*").order("created_at", { ascending: false });
     if (data.status !== "all") q = q.eq("status", data.status);
@@ -55,7 +70,7 @@ export const updateReportStatus = createServerFn({ method: "POST" })
   }).parse(i))
   .handler(async ({ data, context }) => {
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    await assertAdmin(supabaseAdmin, context.userId);
+    await assertAdmin(supabaseAdmin, context);
     const isFinal = data.status === "resolved" || data.status === "dismissed";
     const { error } = await supabaseAdmin.from("reports").update({
       status: data.status,
@@ -75,7 +90,7 @@ export const takedownProduct = createServerFn({ method: "POST" })
   }).parse(i))
   .handler(async ({ data, context }) => {
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    await assertAdmin(supabaseAdmin, context.userId);
+    await assertAdmin(supabaseAdmin, context);
 
     const { data: product, error: fetchErr } = await supabaseAdmin
       .from("products")
@@ -123,7 +138,7 @@ export const setUserBan = createServerFn({ method: "POST" })
   .handler(async ({ data, context }) => {
     if (data.userId === context.userId) throw new Response("Nie możesz zablokować samego siebie", { status: 400 });
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    await assertAdmin(supabaseAdmin, context.userId);
+    await assertAdmin(supabaseAdmin, context);
 
     const { error: pErr } = await supabaseAdmin.from("profiles").update({ is_banned: data.banned } as any).eq("id", data.userId);
     if (pErr) throw pErr;

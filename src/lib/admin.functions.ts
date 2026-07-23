@@ -21,21 +21,14 @@ function getClaimEmail(claims: unknown) {
   return typeof email === "string" ? email.toLowerCase() : "";
 }
 
-function assertOwnerEmail(claims: unknown) {
-  if (getClaimEmail(claims) !== OWNER_ADMIN_EMAIL) {
-    throw new Response("Forbidden", { status: 403 });
-  }
+function isOwnerEmail(claims: unknown) {
+  return getClaimEmail(claims) === OWNER_ADMIN_EMAIL;
 }
 
-async function assertAdmin(supabase: any, userId: string) {
-  const { data, error } = await supabase
-    .from("user_roles")
-    .select("id")
-    .eq("user_id", userId)
-    .eq("role", "admin")
-    .maybeSingle();
-  if (error) throw error;
-  if (!data) throw new Response("Forbidden", { status: 403 });
+function assertOwnerEmail(claims: unknown) {
+  if (!isOwnerEmail(claims)) {
+    throw new Response("Forbidden", { status: 403 });
+  }
 }
 
 /**
@@ -68,37 +61,21 @@ export const claimAdminIfNone = createServerFn({ method: "POST" })
 export const isCurrentUserAdmin = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
-    return { isAdmin: true };
-    const { supabase, userId } = context;
-    const { data, error } = await supabase
-      .from("user_roles")
-      .select("id")
-      .eq("user_id", userId)
-      .eq("role", "admin")
-      .maybeSingle();
-    if (error) throw error;
-    if (data) return { isAdmin: true };
-
-    if (getClaimEmail(context.claims) !== OWNER_ADMIN_EMAIL) {
+    try {
+      const { getAdminClientForContext } = await import("@/lib/admin-auth.server");
+      await getAdminClientForContext(context);
+      return { isAdmin: true };
+    } catch {
       return { isAdmin: false };
     }
-
-    // Owner bootstrap: verified auth email creates a real DB role, then future checks stay DB-driven.
-    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    const { error: upsertError } = await supabaseAdmin
-      .from("user_roles")
-      .upsert({ user_id: userId, role: "admin" }, { onConflict: "user_id,role" });
-    if (upsertError) throw upsertError;
-
-    return { isAdmin: true };
   });
 
 export const listAdminProducts = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .inputValidator((input) => AdminProductsInputSchema.parse(input))
   .handler(async ({ data, context }) => {
-    await assertAdmin(context.supabase, context.userId);
-    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { getAdminClientForContext } = await import("@/lib/admin-auth.server");
+    const supabaseAdmin = await getAdminClientForContext(context);
 
     let query = supabaseAdmin
       .from("products")
@@ -131,8 +108,8 @@ export const moderateProduct = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((input) => ModerateProductInputSchema.parse(input))
   .handler(async ({ data, context }) => {
-    await assertAdmin(context.supabase, context.userId);
-    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { getAdminClientForContext } = await import("@/lib/admin-auth.server");
+    const supabaseAdmin = await getAdminClientForContext(context);
 
     if (data.status === "rejected") {
       // Permanent removal: fetch product to know owner + storage paths, delete files, delete row, notify seller.
@@ -193,8 +170,8 @@ export const getAdminProductFileUrl = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((input) => ProductFileInputSchema.parse(input))
   .handler(async ({ data, context }) => {
-    await assertAdmin(context.supabase, context.userId);
-    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { getAdminClientForContext } = await import("@/lib/admin-auth.server");
+    const supabaseAdmin = await getAdminClientForContext(context);
 
     const { data: product, error } = await supabaseAdmin
       .from("products")
