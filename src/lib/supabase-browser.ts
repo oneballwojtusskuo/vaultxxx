@@ -1,24 +1,17 @@
 import { createClient } from "@supabase/supabase-js";
 import type { Database } from "@/integrations/supabase/types";
 
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+const FALLBACK_URL = "https://vaclvpxspkankuqjegvy.supabase.co";
+const FALLBACK_KEY =
+  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZhY2x2cHhzcGthbmt1cWplZ3Z5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzgxNzEwMTMsImV4cCI6MjA5Mzc0NzAxM30.DgMLmxOXsr1HWAzvtD8XwqoyofZATMrdp53ZmKJGDi8";
+
+const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || FALLBACK_URL;
 const supabaseAnonKey =
-  import.meta.env.VITE_SUPABASE_ANON_KEY ?? import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
+  import.meta.env.VITE_SUPABASE_ANON_KEY ??
+  import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY ??
+  FALLBACK_KEY;
 
 function getSupabaseConfig() {
-  const missing = [
-    !supabaseUrl ? "VITE_SUPABASE_URL" : null,
-    !supabaseAnonKey ? "VITE_SUPABASE_ANON_KEY" : null,
-  ].filter(Boolean);
-
-  if (missing.length > 0) {
-    const message =
-      `[vlnd] Brak konfiguracji bazy danych: ${missing.join(", ")}. ` +
-      "Ustaw te zmienne w Netlify Site settings → Environment variables i zrób ponowny deploy.";
-    console.error(message);
-    throw new Error(message);
-  }
-
   return { supabaseUrl, supabaseAnonKey };
 }
 
