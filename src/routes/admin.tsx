@@ -231,7 +231,14 @@ function ReportsPanel() {
 
   const { data: reports, isLoading } = useQuery({
     queryKey: ["admin-reports", status],
-    queryFn: () => fetchReports({ data: { status } }) as Promise<ReportRow[]>,
+    queryFn: async () => {
+      try {
+        return (await fetchReports({ data: { status } })) as ReportRow[];
+      } catch (e: any) {
+        toast.error(e?.message ?? "Nie udało się załadować zgłoszeń");
+        return [] as ReportRow[];
+      }
+    },
   });
 
   const refresh = () => qc.invalidateQueries({ queryKey: ["admin-reports"] });
