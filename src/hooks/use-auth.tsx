@@ -1,9 +1,9 @@
 import { useEffect, useState, createContext, useContext, type ReactNode } from "react";
 import type { Session, User } from "@supabase/supabase-js";
-import { useServerFn } from "@tanstack/react-start";
 import { supabase } from "@/lib/supabase-browser";
-import { isCurrentUserAdmin } from "@/lib/admin.functions";
 import { toast } from "sonner";
+
+const OWNER_ADMIN_EMAIL = "chujcinaryjsuko@gmail.com";
 
 interface AuthCtx {
   user: User | null;
@@ -25,7 +25,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
   const [isAdmin, setIsAdmin] = useState(false);
-  const checkAdmin = useServerFn(isCurrentUserAdmin);
 
   useEffect(() => {
     const { data: sub } = supabase.auth.onAuthStateChange((event, s) => {
@@ -48,13 +47,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   useEffect(() => {
-    const uid = session?.user?.id;
-    if (!uid) {
-      setIsAdmin(false);
-      return;
-    }
-    setIsAdmin(true);
-  }, [session?.user?.id]);
+    setIsAdmin(session?.user?.email?.toLowerCase() === OWNER_ADMIN_EMAIL);
+  }, [session?.user?.email]);
 
   return (
     <Ctx.Provider
