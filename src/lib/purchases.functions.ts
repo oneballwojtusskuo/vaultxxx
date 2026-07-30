@@ -48,7 +48,7 @@ export const getMyTransactions = createServerFn({ method: "POST" })
     if (productIds.length > 0) {
       const { data: products } = await supabaseAdmin
         .from("products")
-        .select("id, title, preview_url, license_terms, seller_id, delivery_mode")
+        .select("id, title, preview_url, license_terms, seller_id")
         .in("id", productIds);
 
       const sellerIds = Array.from(new Set((products ?? []).map((p: any) => p.seller_id)));

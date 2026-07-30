@@ -29,8 +29,8 @@ export function OnboardingDialog() {
       return;
     }
     let cancelled = false;
-    supabase
-      .from("profiles")
+    (supabase as any)
+      .from("profiles" as any)
       .select("username, display_name, bio, avatar_url, onboarding_completed")
       .eq("id", user.id)
       .maybeSingle()
@@ -69,7 +69,7 @@ export function OnboardingDialog() {
 
     setSaving(true);
     const { data: taken } = await supabase
-      .from("profiles")
+      .from("profiles" as any)
       .select("id")
       .eq("username", uname)
       .neq("id", user.id)
@@ -80,7 +80,7 @@ export function OnboardingDialog() {
     }
 
     const { error } = await supabase
-      .from("profiles")
+      .from("profiles" as any)
       .update({
         username: uname,
         display_name: displayName.trim() || uname,
