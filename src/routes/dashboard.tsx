@@ -1,6 +1,8 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
+import { useServerFn } from "@tanstack/react-start";
+import { getMyTransactions } from "@/lib/purchases.functions";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 import { useAuth } from "@/hooks/use-auth";
@@ -30,28 +32,17 @@ function Dashboard() {
     queryFn: async () => (await supabase.from("products").select("*, category:categories(name)").eq("seller_id", user!.id).order("created_at", { ascending: false })).data ?? [],
   });
 
-  const { data: purchases } = useQuery({
-    queryKey: ["purchases", user?.id],
+  const fetchTransactions = useServerFn(getMyTransactions);
+  const { data: txData } = useQuery({
+    queryKey: ["my-transactions", user?.id],
     enabled: !!user,
-    queryFn: async () => (await supabase.from("transactions").select("*, product:products(id,title,preview_url,file_path,license_terms,seller:profiles!products_seller_id_fkey(display_name))").eq("buyer_id", user!.id).order("created_at", { ascending: false })).data ?? [],
+    queryFn: async () => await fetchTransactions({ data: undefined as any }),
   });
 
-  const { data: sales } = useQuery({
-    queryKey: ["sales", user?.id],
-    enabled: !!user,
-    queryFn: async () => (await supabase.from("transactions").select("*, product:products(title)").eq("seller_id", user!.id).order("created_at", { ascending: false })).data ?? [],
-  });
+  const purchases = txData?.purchases;
+  const sales = txData?.sales;
+  const affiliateEarnings = txData?.affiliate;
 
-  const { data: affiliateEarnings } = useQuery({
-    queryKey: ["affiliate", user?.id],
-    enabled: !!user,
-    queryFn: async () =>
-      (await supabase
-        .from("transactions")
-        .select("id, amount, currency, status, affiliate_amount, affiliate_commission_pct, created_at, product:products(id,title)")
-        .eq("affiliate_user_id", user!.id)
-        .order("created_at", { ascending: false })).data ?? [],
-  });
 
   const { data: notifications, refetch: refetchNotifications } = useQuery({
     queryKey: ["notifications", user?.id],
@@ -93,8 +84,8 @@ function Dashboard() {
 
   if (loading || !user) return null;
 
-  const totalRevenue = sales?.reduce((s, t: any) => s + Number(t.seller_amount ?? t.amount), 0) ?? 0;
-  const totalAffiliate = affiliateEarnings?.reduce((s, t: any) => s + Number(t.affiliate_amount ?? 0), 0) ?? 0;
+  const totalRevenue = sales?.reduce((s: number, t: any) => s + Number(t.seller_amount ?? t.amount), 0) ?? 0;
+  const totalAffiliate = affiliateEarnings?.reduce((s: number, t: any) => s + Number(t.affiliate_amount ?? 0), 0) ?? 0;
 
   return (
     <div className="min-h-screen flex flex-col">

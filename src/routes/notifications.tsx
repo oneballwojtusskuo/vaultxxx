@@ -1,4 +1,4 @@
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect } from "react";
 import { SiteHeader } from "@/components/site-header";
@@ -6,7 +6,7 @@ import { SiteFooter } from "@/components/site-footer";
 import { supabase } from "@/lib/supabase-browser";
 import { useAuth } from "@/hooks/use-auth";
 import { Button } from "@/components/ui/button";
-import { Bell, Check, Trash2 } from "lucide-react";
+import { Bell, Check, Trash2, MessageSquare } from "lucide-react";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/notifications")({
@@ -89,6 +89,10 @@ function Notifications() {
           )}
           {notifications?.map((n) => {
             const unread = !n.read_at;
+            const meta = (n.data ?? {}) as any;
+            const actorUsername: string | null = meta.actor_username ?? null;
+            const actorName: string = meta.actor_name ?? actorUsername ?? "";
+            const actorId: string | null = meta.actor_id ?? null;
             const Wrapper = ({ children }: { children: React.ReactNode }) =>
               n.link ? (
                 <a href={n.link} className="flex-1 min-w-0">{children}</a>
@@ -103,17 +107,47 @@ function Notifications() {
                   unread ? "border-primary/40 bg-primary/5" : "border-border/40 bg-gradient-surface"
                 }`}
               >
-                <Wrapper>
-                  <p className="font-semibold">{n.title}</p>
-                  {n.body && <p className="text-sm text-muted-foreground line-clamp-2">{n.body}</p>}
-                  <p className="text-xs text-muted-foreground mt-1">{new Date(n.created_at).toLocaleString("pl-PL")}</p>
-                </Wrapper>
+                <div className="flex-1 min-w-0">
+                  <Wrapper>
+                    <p className="font-semibold">{n.title}</p>
+                    {n.body && <p className="text-sm text-muted-foreground line-clamp-2">{n.body}</p>}
+                    <p className="text-xs text-muted-foreground mt-1">{new Date(n.created_at).toLocaleString("pl-PL")}</p>
+                  </Wrapper>
+
+                  {(actorUsername || actorId) && (
+                    <div className="mt-2 flex items-center gap-3 text-sm" onClick={(e) => e.stopPropagation()}>
+                      {actorUsername ? (
+                        <Link
+                          to="/u/$username"
+                          params={{ username: actorUsername }}
+                          className="font-medium text-primary hover:underline"
+                        >
+                          @{actorUsername}
+                          {actorName && actorName !== actorUsername ? ` (${actorName})` : ""}
+                        </Link>
+                      ) : (
+                        <span className="font-medium">{actorName}</span>
+                      )}
+                      {actorId && (
+                        <Link
+                          to="/messages/$userId"
+                          params={{ userId: actorId }}
+                          className="inline-flex items-center gap-1 text-muted-foreground hover:text-foreground"
+                        >
+                          <MessageSquare className="h-3.5 w-3.5" /> Napisz wiadomość
+                        </Link>
+                      )}
+                    </div>
+                  )}
+                </div>
+
                 <Button variant="ghost" size="icon" onClick={(e) => { e.stopPropagation(); dismiss(n.id); }} aria-label="Usuń">
                   <Trash2 className="h-4 w-4" />
                 </Button>
               </div>
             );
           })}
+
         </div>
       </main>
       <SiteFooter />

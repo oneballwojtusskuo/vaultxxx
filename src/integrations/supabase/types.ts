@@ -285,6 +285,7 @@ export type Database = {
           id: string
           is_banned: boolean
           is_verified_seller: boolean
+          onboarding_completed: boolean
           updated_at: string
           username: string | null
         }
@@ -296,6 +297,7 @@ export type Database = {
           id: string
           is_banned?: boolean
           is_verified_seller?: boolean
+          onboarding_completed?: boolean
           updated_at?: string
           username?: string | null
         }
@@ -307,6 +309,7 @@ export type Database = {
           id?: string
           is_banned?: boolean
           is_verified_seller?: boolean
+          onboarding_completed?: boolean
           updated_at?: string
           username?: string | null
         }

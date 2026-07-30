@@ -11,6 +11,7 @@ import { AuthProvider } from "@/hooks/use-auth";
 import { Toaster } from "@/components/ui/sonner";
 import { PaymentTestModeBanner } from "@/components/payment-test-mode-banner";
 import { WelcomePopup } from "@/components/welcome-popup";
+import { OnboardingDialog } from "@/components/onboarding-dialog";
 
 import appCss from "../styles.css?url";
 
@@ -124,6 +125,7 @@ function RootComponent() {
         <PaymentTestModeBanner />
         <Outlet />
         <WelcomePopup />
+        <OnboardingDialog />
         <Toaster />
       </AuthProvider>
     </QueryClientProvider>
