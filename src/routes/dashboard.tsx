@@ -1,6 +1,8 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
+import { useServerFn } from "@tanstack/react-start";
+import { getMyTransactions } from "@/lib/purchases.functions";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 import { useAuth } from "@/hooks/use-auth";
@@ -82,8 +84,8 @@ function Dashboard() {
 
   if (loading || !user) return null;
 
-  const totalRevenue = sales?.reduce((s, t: any) => s + Number(t.seller_amount ?? t.amount), 0) ?? 0;
-  const totalAffiliate = affiliateEarnings?.reduce((s, t: any) => s + Number(t.affiliate_amount ?? 0), 0) ?? 0;
+  const totalRevenue = sales?.reduce((s: number, t: any) => s + Number(t.seller_amount ?? t.amount), 0) ?? 0;
+  const totalAffiliate = affiliateEarnings?.reduce((s: number, t: any) => s + Number(t.affiliate_amount ?? 0), 0) ?? 0;
 
   return (
     <div className="min-h-screen flex flex-col">
