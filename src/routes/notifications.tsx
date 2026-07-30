@@ -108,6 +108,7 @@ function Notifications() {
                   {n.body && <p className="text-sm text-muted-foreground line-clamp-2">{n.body}</p>}
                   <p className="text-xs text-muted-foreground mt-1">{new Date(n.created_at).toLocaleString("pl-PL")}</p>
                 </Wrapper>
+
                 <Button variant="ghost" size="icon" onClick={(e) => { e.stopPropagation(); dismiss(n.id); }} aria-label="Usuń">
                   <Trash2 className="h-4 w-4" />
                 </Button>
