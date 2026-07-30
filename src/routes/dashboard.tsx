@@ -30,28 +30,17 @@ function Dashboard() {
     queryFn: async () => (await supabase.from("products").select("*, category:categories(name)").eq("seller_id", user!.id).order("created_at", { ascending: false })).data ?? [],
   });
 
-  const { data: purchases } = useQuery({
-    queryKey: ["purchases", user?.id],
+  const fetchTransactions = useServerFn(getMyTransactions);
+  const { data: txData } = useQuery({
+    queryKey: ["my-transactions", user?.id],
     enabled: !!user,
-    queryFn: async () => (await supabase.from("transactions").select("*, product:products(id,title,preview_url,file_path,license_terms,seller:profiles!products_seller_id_fkey(display_name))").eq("buyer_id", user!.id).order("created_at", { ascending: false })).data ?? [],
+    queryFn: async () => await fetchTransactions({ data: undefined as any }),
   });
 
-  const { data: sales } = useQuery({
-    queryKey: ["sales", user?.id],
-    enabled: !!user,
-    queryFn: async () => (await supabase.from("transactions").select("*, product:products(title)").eq("seller_id", user!.id).order("created_at", { ascending: false })).data ?? [],
-  });
+  const purchases = txData?.purchases;
+  const sales = txData?.sales;
+  const affiliateEarnings = txData?.affiliate;
 
-  const { data: affiliateEarnings } = useQuery({
-    queryKey: ["affiliate", user?.id],
-    enabled: !!user,
-    queryFn: async () =>
-      (await supabase
-        .from("transactions")
-        .select("id, amount, currency, status, affiliate_amount, affiliate_commission_pct, created_at, product:products(id,title)")
-        .eq("affiliate_user_id", user!.id)
-        .order("created_at", { ascending: false })).data ?? [],
-  });
 
   const { data: notifications, refetch: refetchNotifications } = useQuery({
     queryKey: ["notifications", user?.id],
