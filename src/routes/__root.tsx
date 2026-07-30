@@ -125,6 +125,7 @@ function RootComponent() {
         <PaymentTestModeBanner />
         <Outlet />
         <WelcomePopup />
+        <OnboardingDialog />
         <Toaster />
       </AuthProvider>
     </QueryClientProvider>
