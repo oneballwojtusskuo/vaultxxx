@@ -51,7 +51,7 @@ function Dashboard() {
   });
 
   const purchases = txData?.purchases;
-  const sales = txData?.sales;
+  const sales = txData?.sales?.filter((t: any) => t.source !== "exchange");
   const affiliateEarnings = txData?.affiliate;
 
 
