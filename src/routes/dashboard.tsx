@@ -14,7 +14,14 @@ import { toast } from "sonner";
 import { generateLicensePdf } from "@/lib/license-pdf";
 import { ProfileEditor } from "@/components/profile-editor";
 
+const TABS = ["products", "purchases", "sales", "affiliate"] as const;
+type DashboardTab = (typeof TABS)[number];
+
 export const Route = createFileRoute("/dashboard")({
+  validateSearch: (search: Record<string, unknown>): { tab?: DashboardTab } => {
+    const tab = search.tab as DashboardTab | undefined;
+    return TABS.includes(tab as DashboardTab) ? { tab } : {};
+  },
   component: Dashboard,
 });
 
