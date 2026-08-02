@@ -202,8 +202,6 @@ function Sell() {
 
   const { data: sellerProfile } = useQuery({
     queryKey: ["seller-profile", user?.id],
-  const { data: sellerProfile } = useQuery({
-    queryKey: ["seller-profile", user?.id],
     enabled: !!user?.id,
     queryFn: async () =>
       (await supabase
