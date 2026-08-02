@@ -38,6 +38,45 @@ export type Database = {
         }
         Relationships: []
       }
+      exchange_items: {
+        Row: {
+          created_at: string
+          exchange_id: string
+          id: string
+          product_id: string
+          side: string
+        }
+        Insert: {
+          created_at?: string
+          exchange_id: string
+          id?: string
+          product_id: string
+          side: string
+        }
+        Update: {
+          created_at?: string
+          exchange_id?: string
+          id?: string
+          product_id?: string
+          side?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "exchange_items_exchange_id_fkey"
+            columns: ["exchange_id"]
+            isOneToOne: false
+            referencedRelation: "exchanges"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "exchange_items_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       exchanges: {
         Row: {
           created_at: string
@@ -441,6 +480,30 @@ export type Database = {
         }
         Relationships: []
       }
+      seller_payouts: {
+        Row: {
+          created_at: string
+          payout_account: string
+          payout_holder: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          payout_account: string
+          payout_holder: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          payout_account?: string
+          payout_holder?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       transactions: {
         Row: {
           affiliate_amount: number
@@ -460,6 +523,7 @@ export type Database = {
           released_at: string | null
           seller_amount: number
           seller_id: string
+          source: string
           status: Database["public"]["Enums"]["transaction_status"]
           stripe_session_id: string | null
         }
@@ -481,6 +545,7 @@ export type Database = {
           released_at?: string | null
           seller_amount?: number
           seller_id: string
+          source?: string
           status?: Database["public"]["Enums"]["transaction_status"]
           stripe_session_id?: string | null
         }
@@ -502,6 +567,7 @@ export type Database = {
           released_at?: string | null
           seller_amount?: number
           seller_id?: string
+          source?: string
           status?: Database["public"]["Enums"]["transaction_status"]
           stripe_session_id?: string | null
         }

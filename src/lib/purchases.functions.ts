@@ -16,7 +16,7 @@ export const getMyTransactions = createServerFn({ method: "POST" })
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
 
     const select =
-      "id, product_id, amount, buyer_price, seller_amount, affiliate_amount, affiliate_commission_pct, currency, status, created_at, released_at, buyer_id, seller_id";
+      "id, product_id, amount, buyer_price, seller_amount, affiliate_amount, affiliate_commission_pct, currency, status, source, created_at, released_at, buyer_id, seller_id";
 
     const [purchasesRes, salesRes, affiliateRes] = await Promise.all([
       supabaseAdmin

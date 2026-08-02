@@ -37,7 +37,7 @@ export function ProductCard({ p }: { p: ProductCardData }) {
           </span>
         )}
         <div className="absolute top-2 left-2 glass rounded-full">
-          <LikeButton productId={p.id} variant="icon" />
+          <LikeButton productId={p.id} sellerId={(p as any).seller_id ?? null} variant="icon" />
         </div>
       </div>
       <div className="p-4">

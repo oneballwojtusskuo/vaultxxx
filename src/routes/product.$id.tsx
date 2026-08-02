@@ -93,7 +93,7 @@ function ProductPage() {
     },
   });
 
-  const [offeredId, setOfferedId] = useState<string>("");
+  const [offeredIds, setOfferedIds] = useState<string[]>([]);
   const [message, setMessage] = useState("");
   const [checkoutSecret, setCheckoutSecret] = useState<string | null>(null);
   const [checkoutOpen, setCheckoutOpen] = useState(false);
@@ -187,18 +187,31 @@ function ProductPage() {
 
 
   const proposeExchange = async () => {
-    if (!user || !offeredId) return;
-    const { error } = await supabase.from("exchanges").insert({
-      proposer_id: user.id,
-      receiver_id: p.seller_id,
-      offered_product_id: offeredId,
-      requested_product_id: p.id,
-      message,
-    });
-    if (error) return toast.error(error.message);
+    if (!user || offeredIds.length === 0) return;
+    const { data: ex, error } = await supabase
+      .from("exchanges")
+      .insert({
+        proposer_id: user.id,
+        receiver_id: p.seller_id,
+        offered_product_id: offeredIds[0],
+        requested_product_id: p.id,
+        message,
+      })
+      .select("id")
+      .maybeSingle();
+    if (error || !ex) return toast.error(error?.message ?? "Nie udało się wysłać propozycji");
+
+    const items = [
+      ...offeredIds.map((id) => ({ exchange_id: ex.id, product_id: id, side: "offered" })),
+      { exchange_id: ex.id, product_id: p.id, side: "requested" },
+    ];
+    const { error: iErr } = await (supabase as any).from("exchange_items").insert(items);
+    if (iErr) return toast.error(iErr.message);
+
     toast.success("Propozycja wymiany wysłana!");
-    setOfferedId(""); setMessage("");
+    setOfferedIds([]); setMessage("");
   };
+
 
   const seller = p.seller as any;
 
@@ -356,7 +369,7 @@ function ProductPage() {
             )}
 
             <div className="mt-6 flex flex-wrap gap-3">
-              <LikeButton productId={p.id} />
+              <LikeButton productId={p.id} sellerId={p.seller_id} />
               <ShareButton title={p.title} />
               {user && !isOwner && isPublished && (p as any).affiliate_commission_pct > 0 && (
                 <ReferralButton productId={p.id} referrerId={user.id} pct={(p as any).affiliate_commission_pct} />
@@ -381,22 +394,43 @@ function ProductPage() {
                   </DialogTrigger>
                   <DialogContent>
                     <DialogHeader>
-                      <DialogTitle>Wymiana 1:1</DialogTitle>
+                      <DialogTitle>Zaproponuj wymianę</DialogTitle>
                     </DialogHeader>
                     <div className="space-y-4">
-                      <Select value={offeredId} onValueChange={setOfferedId}>
-                        <SelectTrigger><SelectValue placeholder="Wybierz swój produkt" /></SelectTrigger>
-                        <SelectContent>
-                          {myProducts?.map((mp) => (
-                            <SelectItem key={mp.id} value={mp.id}>{mp.title}</SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                      <Textarea placeholder="Wiadomość (opcjonalna)" value={message} onChange={(e) => setMessage(e.target.value)} />
+                      <p className="text-sm text-muted-foreground">
+                        Zaznacz jeden lub więcej swoich produktów, które chcesz zaoferować w zamian.
+                      </p>
+                      <div className="max-h-64 overflow-auto rounded-lg border border-border/40 divide-y divide-border/40">
+                        {(myProducts ?? []).length === 0 && (
+                          <p className="p-3 text-sm text-muted-foreground">Nie masz jeszcze produktów do wymiany.</p>
+                        )}
+                        {myProducts?.map((mp) => {
+                          const checked = offeredIds.includes(mp.id);
+                          return (
+                            <label key={mp.id} className="flex items-center gap-3 p-3 cursor-pointer hover:bg-muted/40">
+                              <input
+                                type="checkbox"
+                                className="h-4 w-4 accent-primary"
+                                checked={checked}
+                                onChange={() =>
+                                  setOfferedIds((prev) =>
+                                    checked ? prev.filter((x) => x !== mp.id) : [...prev, mp.id],
+                                  )
+                                }
+                              />
+                              <span className="text-sm line-clamp-1">{mp.title}</span>
+                            </label>
+                          );
+                        })}
+                      </div>
+                      <Textarea placeholder="Wiadomość (opcjonalna) — możesz tu negocjować warunki" value={message} onChange={(e) => setMessage(e.target.value)} />
                     </div>
                     <DialogFooter>
-                      <Button onClick={proposeExchange} disabled={!offeredId} className="bg-gradient-primary text-primary-foreground">Wyślij propozycję</Button>
+                      <Button onClick={proposeExchange} disabled={offeredIds.length === 0} className="bg-gradient-primary text-primary-foreground">
+                        Wyślij propozycję{offeredIds.length > 1 ? ` (${offeredIds.length} produkty)` : ""}
+                      </Button>
                     </DialogFooter>
+
                   </DialogContent>
                 </Dialog>
               )}

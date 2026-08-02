@@ -1,7 +1,7 @@
 import { Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useEffect } from "react";
-import { Search, ShoppingBag, Plus, LogOut, User as UserIcon, ShieldCheck, Bell, MessageSquare, Heart, HelpCircle } from "lucide-react";
+import { Search, ShoppingBag, Plus, LogOut, User as UserIcon, ShieldCheck, Bell, MessageSquare, Heart, HelpCircle, LayoutDashboard, Repeat2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/use-auth";
 import { VlndLogo } from "@/components/vlnd-logo";
@@ -36,6 +36,15 @@ export function SiteHeader() {
         .eq("user_id", user!.id)
         .is("read_at", null);
       return count ?? 0;
+    },
+  });
+
+  const { data: myUsername } = useQuery({
+    queryKey: ["my-username", user?.id],
+    enabled: !!user,
+    queryFn: async () => {
+      const { data } = await supabase.from("profiles").select("username").eq("id", user!.id).maybeSingle();
+      return data?.username ?? null;
     },
   });
 
@@ -134,13 +143,25 @@ export function SiteHeader() {
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end" className="w-56">
-                  <DropdownMenuItem asChild><Link to="/dashboard">Mój panel</Link></DropdownMenuItem>
+                  <DropdownMenuItem asChild>
+                    <Link to="/dashboard" search={{ tab: "products" }}><LayoutDashboard className="h-4 w-4 mr-2"/>Mój panel</Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem asChild>
+                    <Link to="/u/$username" params={{ username: myUsername ?? "" }} disabled={!myUsername}>
+                      <UserIcon className="h-4 w-4 mr-2"/>Mój profil
+                    </Link>
+                  </DropdownMenuItem>
                   <DropdownMenuItem asChild><Link to="/likes"><Heart className="h-4 w-4 mr-2"/>Polubione</Link></DropdownMenuItem>
-                  <DropdownMenuItem asChild><Link to="/dashboard"><ShoppingBag className="h-4 w-4 mr-2"/>Zakupy</Link></DropdownMenuItem>
-                  <DropdownMenuItem asChild><Link to="/exchanges">Moje wymiany</Link></DropdownMenuItem>
+                  <DropdownMenuItem asChild>
+                    <Link to="/dashboard" search={{ tab: "purchases" }}><ShoppingBag className="h-4 w-4 mr-2"/>Zakupy</Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem asChild><Link to="/exchanges"><Repeat2 className="h-4 w-4 mr-2"/>Moje wymiany</Link></DropdownMenuItem>
+                  <DropdownMenuItem asChild><Link to="/messages"><MessageSquare className="h-4 w-4 mr-2"/>Wiadomości</Link></DropdownMenuItem>
+                  <DropdownMenuItem asChild><Link to="/notifications"><Bell className="h-4 w-4 mr-2"/>Powiadomienia</Link></DropdownMenuItem>
                   {isAdmin && (
                     <DropdownMenuItem asChild><Link to="/admin"><ShieldCheck className="h-4 w-4 mr-2"/>Panel admina</Link></DropdownMenuItem>
                   )}
+
                   <DropdownMenuSeparator />
                   <DropdownMenuItem onClick={() => signOut()}>
                     <LogOut className="h-4 w-4 mr-2"/>Wyloguj
