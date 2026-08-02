@@ -260,6 +260,16 @@ function Sell() {
       return toast.error("Wybierz kategorię produktu — to pole jest wymagane.");
     }
 
+    const accountNormalized = payoutAccount.replace(/\s+/g, "").toUpperCase();
+    if (!/^(PL)?\d{26}$/.test(accountNormalized)) {
+      return toast.error("Podaj poprawny numer konta bankowego (26 cyfr, opcjonalnie z prefiksem PL).");
+    }
+    if (payoutHolder.trim().length < 3) {
+      return toast.error("Podaj imię i nazwisko (lub nazwę firmy) właściciela konta.");
+    }
+
+
+
 
 
     // Client-side guard (defense-in-depth; server re-validates)
