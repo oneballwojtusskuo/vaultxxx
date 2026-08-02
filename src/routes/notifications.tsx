@@ -66,6 +66,21 @@ function Notifications() {
     qc.invalidateQueries({ queryKey: ["unread-notifications"] });
   };
 
+  // Auto-mark everything shown on this page as read shortly after it is displayed.
+  useEffect(() => {
+    if (!user || !notifications?.some((n: any) => !n.read_at)) return;
+    const t = setTimeout(async () => {
+      await supabase
+        .from("notifications")
+        .update({ read_at: new Date().toISOString() })
+        .eq("user_id", user.id)
+        .is("read_at", null);
+      refetch();
+      qc.invalidateQueries({ queryKey: ["unread-notifications"] });
+    }, 1200);
+    return () => clearTimeout(t);
+  }, [user, notifications, refetch, qc]);
+
   if (loading || !user) return null;
 
   return (
