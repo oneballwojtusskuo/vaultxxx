@@ -298,6 +298,12 @@ function Sell() {
 
     setSubmitting(true);
     try {
+      // Persist payout details for future payouts
+      await supabase
+        .from("profiles")
+        .update({ payout_account: accountNormalized, payout_holder: payoutHolder.trim() } as any)
+        .eq("id", user.id);
+
       let preview_url: string | null = null;
       let file_path: string | null = null;
       let sample_url: string | null = null;
