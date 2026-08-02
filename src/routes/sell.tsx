@@ -311,10 +311,13 @@ function Sell() {
     setSubmitting(true);
     try {
       // Persist payout details for future payouts
-      await supabase
-        .from("profiles")
-        .update({ payout_account: accountNormalized, payout_holder: payoutHolder.trim() } as any)
-        .eq("id", user.id);
+      await (supabase as any)
+        .from("seller_payouts")
+        .upsert(
+          { user_id: user.id, payout_account: accountNormalized, payout_holder: payoutHolder.trim(), updated_at: new Date().toISOString() },
+          { onConflict: "user_id" },
+        );
+
 
       let preview_url: string | null = null;
       let file_path: string | null = null;
