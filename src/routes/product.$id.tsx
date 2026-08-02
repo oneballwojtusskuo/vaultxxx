@@ -187,18 +187,31 @@ function ProductPage() {
 
 
   const proposeExchange = async () => {
-    if (!user || !offeredId) return;
-    const { error } = await supabase.from("exchanges").insert({
-      proposer_id: user.id,
-      receiver_id: p.seller_id,
-      offered_product_id: offeredId,
-      requested_product_id: p.id,
-      message,
-    });
-    if (error) return toast.error(error.message);
+    if (!user || offeredIds.length === 0) return;
+    const { data: ex, error } = await supabase
+      .from("exchanges")
+      .insert({
+        proposer_id: user.id,
+        receiver_id: p.seller_id,
+        offered_product_id: offeredIds[0],
+        requested_product_id: p.id,
+        message,
+      })
+      .select("id")
+      .maybeSingle();
+    if (error || !ex) return toast.error(error?.message ?? "Nie udało się wysłać propozycji");
+
+    const items = [
+      ...offeredIds.map((id) => ({ exchange_id: ex.id, product_id: id, side: "offered" })),
+      { exchange_id: ex.id, product_id: p.id, side: "requested" },
+    ];
+    const { error: iErr } = await (supabase as any).from("exchange_items").insert(items);
+    if (iErr) return toast.error(iErr.message);
+
     toast.success("Propozycja wymiany wysłana!");
-    setOfferedId(""); setMessage("");
+    setOfferedIds([]); setMessage("");
   };
+
 
   const seller = p.seller as any;
 
