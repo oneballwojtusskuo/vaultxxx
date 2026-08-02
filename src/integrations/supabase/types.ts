@@ -325,8 +325,6 @@ export type Database = {
           is_banned: boolean
           is_verified_seller: boolean
           onboarding_completed: boolean
-          payout_account: string | null
-          payout_holder: string | null
           updated_at: string
           username: string | null
         }
@@ -339,8 +337,6 @@ export type Database = {
           is_banned?: boolean
           is_verified_seller?: boolean
           onboarding_completed?: boolean
-          payout_account?: string | null
-          payout_holder?: string | null
           updated_at?: string
           username?: string | null
         }
@@ -353,8 +349,6 @@ export type Database = {
           is_banned?: boolean
           is_verified_seller?: boolean
           onboarding_completed?: boolean
-          payout_account?: string | null
-          payout_holder?: string | null
           updated_at?: string
           username?: string | null
         }
@@ -482,6 +476,30 @@ export type Database = {
           kind?: string
           product_title?: string | null
           read_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      seller_payouts: {
+        Row: {
+          created_at: string
+          payout_account: string
+          payout_holder: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          payout_account: string
+          payout_holder: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          payout_account?: string
+          payout_holder?: string
+          updated_at?: string
           user_id?: string
         }
         Relationships: []
