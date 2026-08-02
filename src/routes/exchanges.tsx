@@ -22,24 +22,54 @@ function Exchanges() {
     if (!loading && !user) navigate({ to: "/auth" });
   }, [user, loading, navigate]);
 
+  const withItems = async (rows: any[]) => {
+    if (rows.length === 0) return rows;
+    const { data: items } = await (supabase as any)
+      .from("exchange_items")
+      .select("exchange_id, side, product:products(id,title,preview_url)")
+      .in("exchange_id", rows.map((r) => r.id));
+    const byExchange: Record<string, any[]> = {};
+    for (const it of items ?? []) (byExchange[it.exchange_id] ||= []).push(it);
+    return rows.map((r) => {
+      const list = byExchange[r.id] ?? [];
+      const offered = list.filter((i) => i.side === "offered").map((i) => i.product).filter(Boolean);
+      const requested = list.filter((i) => i.side === "requested").map((i) => i.product).filter(Boolean);
+      return {
+        ...r,
+        offeredList: offered.length ? offered : [r.offered].filter(Boolean),
+        requestedList: requested.length ? requested : [r.requested].filter(Boolean),
+      };
+    });
+  };
+
+  const selectCols =
+    "*, offered:products!exchanges_offered_product_id_fkey(id,title,preview_url), requested:products!exchanges_requested_product_id_fkey(id,title,preview_url)";
+
   const incomingQ = useQuery({
     queryKey: ["exchanges-in", user?.id],
     enabled: !!user,
-    queryFn: async () => (await supabase
-      .from("exchanges")
-      .select("*, offered:products!exchanges_offered_product_id_fkey(id,title,preview_url), requested:products!exchanges_requested_product_id_fkey(id,title,preview_url)")
-      .eq("receiver_id", user!.id)
-      .order("created_at", { ascending: false })).data ?? [],
+    queryFn: async () =>
+      withItems(
+        (await supabase
+          .from("exchanges")
+          .select(selectCols)
+          .eq("receiver_id", user!.id)
+          .order("created_at", { ascending: false })).data ?? [],
+      ),
   });
   const outgoingQ = useQuery({
     queryKey: ["exchanges-out", user?.id],
     enabled: !!user,
-    queryFn: async () => (await supabase
-      .from("exchanges")
-      .select("*, offered:products!exchanges_offered_product_id_fkey(id,title,preview_url), requested:products!exchanges_requested_product_id_fkey(id,title,preview_url)")
-      .eq("proposer_id", user!.id)
-      .order("created_at", { ascending: false })).data ?? [],
+    queryFn: async () =>
+      withItems(
+        (await supabase
+          .from("exchanges")
+          .select(selectCols)
+          .eq("proposer_id", user!.id)
+          .order("created_at", { ascending: false })).data ?? [],
+      ),
   });
+
 
   const updateStatus = async (id: string, status: "accepted" | "rejected" | "cancelled") => {
     const { error } = await supabase.from("exchanges").update({ status }).eq("id", id);
