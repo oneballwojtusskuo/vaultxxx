@@ -356,7 +356,7 @@ function ProductPage() {
             )}
 
             <div className="mt-6 flex flex-wrap gap-3">
-              <LikeButton productId={p.id} />
+              <LikeButton productId={p.id} sellerId={p.seller_id} />
               <ShareButton title={p.title} />
               {user && !isOwner && isPublished && (p as any).affiliate_commission_pct > 0 && (
                 <ReferralButton productId={p.id} referrerId={user.id} pct={(p as any).affiliate_commission_pct} />
