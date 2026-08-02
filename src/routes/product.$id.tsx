@@ -93,7 +93,7 @@ function ProductPage() {
     },
   });
 
-  const [offeredId, setOfferedId] = useState<string>("");
+  const [offeredIds, setOfferedIds] = useState<string[]>([]);
   const [message, setMessage] = useState("");
   const [checkoutSecret, setCheckoutSecret] = useState<string | null>(null);
   const [checkoutOpen, setCheckoutOpen] = useState(false);
