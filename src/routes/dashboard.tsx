@@ -145,7 +145,11 @@ function Dashboard() {
         )}
 
 
-        <Tabs defaultValue="products" className="mt-10">
+        <Tabs
+          value={activeTab}
+          onValueChange={(v) => navigate({ to: "/dashboard", search: { tab: v as DashboardTab }, replace: true })}
+          className="mt-10"
+        >
           <TabsList>
             <TabsTrigger value="products">Moje produkty</TabsTrigger>
             <TabsTrigger value="purchases">Zakupy</TabsTrigger>
