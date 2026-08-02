@@ -394,7 +394,7 @@ function ProductPage() {
                   </DialogTrigger>
                   <DialogContent>
                     <DialogHeader>
-                      <DialogTitle>Wymiana 1:1</DialogTitle>
+                      <DialogTitle>Zaproponuj wymianę</DialogTitle>
                     </DialogHeader>
                     <div className="space-y-4">
                       <p className="text-sm text-muted-foreground">
