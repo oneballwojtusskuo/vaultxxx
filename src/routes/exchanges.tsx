@@ -121,29 +121,47 @@ function ExchangeRow({ ex, kind, onAction }: { ex: any; kind: "incoming" | "outg
     rejected: "text-destructive",
     cancelled: "text-muted-foreground",
   };
+  const counterpartId = kind === "incoming" ? ex.proposer_id : ex.receiver_id;
+  const offeredList: any[] = ex.offeredList ?? [ex.offered].filter(Boolean);
+  const requestedList: any[] = ex.requestedList ?? [ex.requested].filter(Boolean);
+
   return (
     <div className="rounded-xl bg-gradient-surface border border-border/40 p-4">
-      <div className="flex items-center gap-4">
-        <Mini p={ex.offered} label={kind === "incoming" ? "Oferują" : "Twoja oferta"} />
-        <Repeat2 className="h-5 w-5 text-accent shrink-0" />
-        <Mini p={ex.requested} label={kind === "incoming" ? "Za Twoje" : "Chcesz"} />
+      <div className="flex items-start gap-4 flex-wrap">
+        <div className="space-y-2">
+          {offeredList.map((p: any) => (
+            <Mini key={p.id} p={p} label={kind === "incoming" ? "Oferują" : "Twoja oferta"} />
+          ))}
+        </div>
+        <Repeat2 className="h-5 w-5 text-accent shrink-0 mt-4" />
+        <div className="space-y-2">
+          {requestedList.map((p: any) => (
+            <Mini key={p.id} p={p} label={kind === "incoming" ? "Za Twoje" : "Chcesz"} />
+          ))}
+        </div>
         <div className="ml-auto text-right">
           <p className={`text-sm font-medium uppercase ${statusColor[ex.status]}`}>{ex.status}</p>
-          {ex.status === "pending" && (
-            <div className="flex gap-2 mt-2">
-              {kind === "incoming" ? (
+          <div className="flex gap-2 mt-2 justify-end flex-wrap">
+            {counterpartId && (
+              <Link to="/messages/$userId" params={{ userId: counterpartId }}>
+                <Button size="sm" variant="outline"><MessageSquare className="h-3 w-3 mr-1"/>Kontakt</Button>
+              </Link>
+            )}
+            {ex.status === "pending" && (
+              kind === "incoming" ? (
                 <>
                   <Button size="sm" onClick={() => onAction(ex.id, "accepted")} className="bg-success text-success-foreground"><Check className="h-3 w-3 mr-1"/>Akceptuj</Button>
                   <Button size="sm" variant="outline" onClick={() => onAction(ex.id, "rejected")}><X className="h-3 w-3 mr-1"/>Odrzuć</Button>
                 </>
               ) : (
                 <Button size="sm" variant="outline" onClick={() => onAction(ex.id, "cancelled")}>Anuluj</Button>
-              )}
-            </div>
-          )}
+              )
+            )}
+          </div>
         </div>
       </div>
       {ex.message && <p className="mt-3 text-sm text-muted-foreground italic">"{ex.message}"</p>}
+
     </div>
   );
 }
