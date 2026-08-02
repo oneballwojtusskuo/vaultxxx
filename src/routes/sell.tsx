@@ -202,14 +202,27 @@ function Sell() {
 
   const { data: sellerProfile } = useQuery({
     queryKey: ["seller-profile", user?.id],
+  const { data: sellerProfile } = useQuery({
+    queryKey: ["seller-profile", user?.id],
     enabled: !!user?.id,
     queryFn: async () =>
-      (await supabase.from("profiles").select("display_name, username").eq("id", user!.id).maybeSingle()).data,
+      (await supabase
+        .from("profiles")
+        .select("display_name, username, payout_account, payout_holder")
+        .eq("id", user!.id)
+        .maybeSingle()).data as any,
   });
   const sellerName =
     sellerProfile?.display_name?.trim() ||
     sellerProfile?.username?.trim() ||
-    (user?.email ? user.email.split("@")[0] : "PREVIEW");
+    "PREVIEW";
+
+  useEffect(() => {
+    if (!sellerProfile) return;
+    setPayoutAccount((prev) => prev || (sellerProfile as any).payout_account || "");
+    setPayoutHolder((prev) => prev || (sellerProfile as any).payout_holder || "");
+  }, [sellerProfile]);
+
 
   const validateFile = useServerFn(validateUploadedFile);
 
