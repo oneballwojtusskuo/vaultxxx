@@ -28,6 +28,10 @@ export const Route = createFileRoute("/dashboard")({
 function Dashboard() {
   const { user, loading } = useAuth();
   const navigate = useNavigate();
+  const { tab } = Route.useSearch();
+  const activeTab: DashboardTab = tab ?? "products";
+
+
 
   useEffect(() => {
     if (!loading && !user) navigate({ to: "/auth" });
