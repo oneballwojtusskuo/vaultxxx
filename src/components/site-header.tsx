@@ -39,6 +39,15 @@ export function SiteHeader() {
     },
   });
 
+  const { data: myUsername } = useQuery({
+    queryKey: ["my-username", user?.id],
+    enabled: !!user,
+    queryFn: async () => {
+      const { data } = await supabase.from("profiles").select("username").eq("id", user!.id).maybeSingle();
+      return data?.username ?? null;
+    },
+  });
+
   const { data: unreadMsg = 0, refetch: refetchMsg } = useQuery({
     queryKey: ["unread-messages", user?.id],
     enabled: !!user,
