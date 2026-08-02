@@ -181,9 +181,19 @@ function Dashboard() {
                   {t.product?.preview_url ? <img src={t.product.preview_url} alt="" className="w-full h-full object-cover"/> : <div className="w-full h-full bg-gradient-primary opacity-40"/>}
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className="font-semibold line-clamp-1">{t.product?.title}</p>
-                  <p className="text-sm text-muted-foreground">{Number(t.amount).toFixed(2)} {t.currency}</p>
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <p className="font-semibold line-clamp-1">{t.product?.title}</p>
+                    {t.source === "exchange" && (
+                      <span className="inline-flex items-center gap-1 rounded-full border border-accent/40 bg-accent/10 px-2 py-0.5 text-[11px] font-medium text-accent">
+                        <Repeat2 className="h-3 w-3" /> z wymiany
+                      </span>
+                    )}
+                  </div>
+                  <p className="text-sm text-muted-foreground">
+                    {t.source === "exchange" ? "Otrzymane w ramach wymiany" : `${Number(t.amount).toFixed(2)} ${t.currency}`}
+                  </p>
                 </div>
+
                 <div className="flex flex-wrap gap-2 justify-end">
                   <Link to="/product/$id" params={{ id: t.product?.id ?? "" }}>
                     <Button size="sm" variant="outline">
