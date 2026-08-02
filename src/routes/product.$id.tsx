@@ -384,19 +384,40 @@ function ProductPage() {
                       <DialogTitle>Wymiana 1:1</DialogTitle>
                     </DialogHeader>
                     <div className="space-y-4">
-                      <Select value={offeredId} onValueChange={setOfferedId}>
-                        <SelectTrigger><SelectValue placeholder="Wybierz swój produkt" /></SelectTrigger>
-                        <SelectContent>
-                          {myProducts?.map((mp) => (
-                            <SelectItem key={mp.id} value={mp.id}>{mp.title}</SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                      <Textarea placeholder="Wiadomość (opcjonalna)" value={message} onChange={(e) => setMessage(e.target.value)} />
+                      <p className="text-sm text-muted-foreground">
+                        Zaznacz jeden lub więcej swoich produktów, które chcesz zaoferować w zamian.
+                      </p>
+                      <div className="max-h-64 overflow-auto rounded-lg border border-border/40 divide-y divide-border/40">
+                        {(myProducts ?? []).length === 0 && (
+                          <p className="p-3 text-sm text-muted-foreground">Nie masz jeszcze produktów do wymiany.</p>
+                        )}
+                        {myProducts?.map((mp) => {
+                          const checked = offeredIds.includes(mp.id);
+                          return (
+                            <label key={mp.id} className="flex items-center gap-3 p-3 cursor-pointer hover:bg-muted/40">
+                              <input
+                                type="checkbox"
+                                className="h-4 w-4 accent-primary"
+                                checked={checked}
+                                onChange={() =>
+                                  setOfferedIds((prev) =>
+                                    checked ? prev.filter((x) => x !== mp.id) : [...prev, mp.id],
+                                  )
+                                }
+                              />
+                              <span className="text-sm line-clamp-1">{mp.title}</span>
+                            </label>
+                          );
+                        })}
+                      </div>
+                      <Textarea placeholder="Wiadomość (opcjonalna) — możesz tu negocjować warunki" value={message} onChange={(e) => setMessage(e.target.value)} />
                     </div>
                     <DialogFooter>
-                      <Button onClick={proposeExchange} disabled={!offeredId} className="bg-gradient-primary text-primary-foreground">Wyślij propozycję</Button>
+                      <Button onClick={proposeExchange} disabled={offeredIds.length === 0} className="bg-gradient-primary text-primary-foreground">
+                        Wyślij propozycję{offeredIds.length > 1 ? ` (${offeredIds.length} produkty)` : ""}
+                      </Button>
                     </DialogFooter>
+
                   </DialogContent>
                 </Dialog>
               )}
