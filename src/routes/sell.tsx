@@ -701,10 +701,37 @@ function Sell() {
               </pre>
             </div>
           </div>
+          <div className="rounded-xl border border-border/40 bg-background/40 p-4 space-y-3">
+            <Label className="text-base">Dane do wypłaty *</Label>
+            <p className="text-xs text-muted-foreground">
+              Numer konta jest wymagany — na niego trafią środki po zatwierdzeniu zakupu przez kupującego.
+              Dane są zapisywane w Twoim profilu i widoczne tylko dla Ciebie i administracji.
+            </p>
+            <div className="space-y-2">
+              <Label className="text-xs uppercase tracking-wider">Właściciel konta *</Label>
+              <Input
+                required
+                value={payoutHolder}
+                onChange={(e) => setPayoutHolder(e.target.value)}
+                placeholder="Imię i nazwisko lub nazwa firmy"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label className="text-xs uppercase tracking-wider">Numer konta (IBAN) *</Label>
+              <Input
+                required
+                value={payoutAccount}
+                onChange={(e) => setPayoutAccount(e.target.value.toUpperCase())}
+                placeholder="PL00 0000 0000 0000 0000 0000 0000"
+              />
+            </div>
+          </div>
+
           <div className="flex items-center gap-3 rounded-lg border border-border/40 p-3">
             <Switch checked={tradable} onCheckedChange={setTradable} id="tradable" />
-            <Label htmlFor="tradable" className="cursor-pointer">Pozwól na wymianę 1:1</Label>
+            <Label htmlFor="tradable" className="cursor-pointer">Pozwól na wymianę</Label>
           </div>
+
           <Button type="submit" disabled={submitting} className="w-full h-12 bg-gradient-primary text-primary-foreground shadow-glow">
             {submitting ? "Publikuję..." : "Opublikuj produkt"}
           </Button>
