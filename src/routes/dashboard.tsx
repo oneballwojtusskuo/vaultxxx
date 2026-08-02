@@ -9,7 +9,7 @@ import { useAuth } from "@/hooks/use-auth";
 import { supabase } from "@/lib/supabase-browser";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
-import { Plus, PlayCircle, Trash2, FileText, AlertTriangle, X } from "lucide-react";
+import { Plus, PlayCircle, Trash2, FileText, AlertTriangle, X, Repeat2 } from "lucide-react";
 import { toast } from "sonner";
 import { generateLicensePdf } from "@/lib/license-pdf";
 import { ProfileEditor } from "@/components/profile-editor";
