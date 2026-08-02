@@ -8,10 +8,12 @@ import { useNavigate } from "@tanstack/react-router";
 
 export function LikeButton({
   productId,
+  sellerId,
   variant = "default",
   className = "",
 }: {
   productId: string;
+  sellerId?: string | null;
   variant?: "default" | "icon";
   className?: string;
 }) {
@@ -30,6 +32,17 @@ export function LikeButton({
     },
   });
 
+  const { data: ownerId } = useQuery({
+    queryKey: ["product-owner", productId],
+    enabled: !!user && sellerId === undefined,
+    queryFn: async () => {
+      const { data } = await supabase.from("products").select("seller_id").eq("id", productId).maybeSingle();
+      return data?.seller_id ?? null;
+    },
+  });
+
+  const isOwnProduct = !!user && (sellerId ?? ownerId) === user.id;
+
   const { data: liked = false } = useQuery({
     queryKey: ["liked", productId, user?.id],
     enabled: !!user,
@@ -43,6 +56,7 @@ export function LikeButton({
       return !!data;
     },
   });
+
 
   const toggle = async () => {
     if (!user) {
