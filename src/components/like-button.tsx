@@ -82,8 +82,11 @@ export function LikeButton({
     qc.invalidateQueries({ queryKey: ["my-likes"] });
   };
 
+  if (isOwnProduct) return null;
+
   if (variant === "icon") {
     return (
+
       <Button
         variant="ghost"
         size="icon"
