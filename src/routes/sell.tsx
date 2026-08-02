@@ -206,7 +206,7 @@ function Sell() {
     queryFn: async () =>
       (await supabase
         .from("profiles")
-        .select("display_name, username, payout_account, payout_holder")
+        .select("display_name, username")
         .eq("id", user!.id)
         .maybeSingle()).data as any,
   });
@@ -215,11 +215,23 @@ function Sell() {
     sellerProfile?.username?.trim() ||
     "PREVIEW";
 
+  const { data: payoutRow } = useQuery({
+    queryKey: ["seller-payout", user?.id],
+    enabled: !!user?.id,
+    queryFn: async () =>
+      (await (supabase as any)
+        .from("seller_payouts")
+        .select("payout_account, payout_holder")
+        .eq("user_id", user!.id)
+        .maybeSingle()).data as any,
+  });
+
   useEffect(() => {
-    if (!sellerProfile) return;
-    setPayoutAccount((prev) => prev || (sellerProfile as any).payout_account || "");
-    setPayoutHolder((prev) => prev || (sellerProfile as any).payout_holder || "");
-  }, [sellerProfile]);
+    if (!payoutRow) return;
+    setPayoutAccount((prev) => prev || payoutRow.payout_account || "");
+    setPayoutHolder((prev) => prev || payoutRow.payout_holder || "");
+  }, [payoutRow]);
+
 
 
   const validateFile = useServerFn(validateUploadedFile);
