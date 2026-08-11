@@ -1,5 +1,9 @@
 // Referral (affiliate) cookie helpers — browser only.
 // Cookie name is scoped per-product so different products can hold different refs.
+// Affiliate cookies are non-essential: they are only written after the visitor
+// opted into the "afiliacyjne" category in the cookie banner.
+
+import { affiliationCookiesAllowed } from "@/components/cookie-banner";
 
 const DAYS = 30;
 
@@ -7,11 +11,13 @@ const cookieName = (productId: string) => `vaultx_ref_${productId}`;
 
 export function setReferralCookie(productId: string, referrerId: string) {
   if (typeof document === "undefined") return;
+  if (!affiliationCookiesAllowed()) return;
   const maxAge = DAYS * 24 * 60 * 60;
   document.cookie = `${cookieName(productId)}=${encodeURIComponent(
     referrerId,
   )}; path=/; max-age=${maxAge}; SameSite=Lax`;
 }
+
 
 export function getReferralCookie(productId: string): string | null {
   if (typeof document === "undefined") return null;
