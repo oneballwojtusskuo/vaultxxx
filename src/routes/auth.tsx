@@ -42,6 +42,9 @@ function AuthPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [displayName, setDisplayName] = useState("");
+  const [birthDate, setBirthDate] = useState("");
+  const [acceptDocs, setAcceptDocs] = useState(false);
+
   const [showSpamNotice, setShowSpamNotice] = useState(false);
   const [pendingEmail, setPendingEmail] = useState("");
 
