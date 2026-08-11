@@ -14,6 +14,7 @@ import { Route as ReportInfringementRouteImport } from './routes/report-infringe
 import { Route as RegulaminRouteImport } from './routes/regulamin'
 import { Route as PolitykaPrywatnosciRouteImport } from './routes/polityka-prywatnosci'
 import { Route as NotificationsRouteImport } from './routes/notifications'
+import { Route as MojeDaneRouteImport } from './routes/moje-dane'
 import { Route as LikesRouteImport } from './routes/likes'
 import { Route as HelpRouteImport } from './routes/help'
 import { Route as ExchangesRouteImport } from './routes/exchanges'
@@ -51,6 +52,11 @@ const PolitykaPrywatnosciRoute = PolitykaPrywatnosciRouteImport.update({
 const NotificationsRoute = NotificationsRouteImport.update({
   id: '/notifications',
   path: '/notifications',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const MojeDaneRoute = MojeDaneRouteImport.update({
+  id: '/moje-dane',
+  path: '/moje-dane',
   getParentRoute: () => rootRouteImport,
 } as any)
 const LikesRoute = LikesRouteImport.update({
@@ -129,6 +135,7 @@ export interface FileRoutesByFullPath {
   '/exchanges': typeof ExchangesRoute
   '/help': typeof HelpRoute
   '/likes': typeof LikesRoute
+  '/moje-dane': typeof MojeDaneRoute
   '/notifications': typeof NotificationsRoute
   '/polityka-prywatnosci': typeof PolitykaPrywatnosciRoute
   '/regulamin': typeof RegulaminRoute
@@ -149,6 +156,7 @@ export interface FileRoutesByTo {
   '/exchanges': typeof ExchangesRoute
   '/help': typeof HelpRoute
   '/likes': typeof LikesRoute
+  '/moje-dane': typeof MojeDaneRoute
   '/notifications': typeof NotificationsRoute
   '/polityka-prywatnosci': typeof PolitykaPrywatnosciRoute
   '/regulamin': typeof RegulaminRoute
@@ -170,6 +178,7 @@ export interface FileRoutesById {
   '/exchanges': typeof ExchangesRoute
   '/help': typeof HelpRoute
   '/likes': typeof LikesRoute
+  '/moje-dane': typeof MojeDaneRoute
   '/notifications': typeof NotificationsRoute
   '/polityka-prywatnosci': typeof PolitykaPrywatnosciRoute
   '/regulamin': typeof RegulaminRoute
@@ -192,6 +201,7 @@ export interface FileRouteTypes {
     | '/exchanges'
     | '/help'
     | '/likes'
+    | '/moje-dane'
     | '/notifications'
     | '/polityka-prywatnosci'
     | '/regulamin'
@@ -212,6 +222,7 @@ export interface FileRouteTypes {
     | '/exchanges'
     | '/help'
     | '/likes'
+    | '/moje-dane'
     | '/notifications'
     | '/polityka-prywatnosci'
     | '/regulamin'
@@ -232,6 +243,7 @@ export interface FileRouteTypes {
     | '/exchanges'
     | '/help'
     | '/likes'
+    | '/moje-dane'
     | '/notifications'
     | '/polityka-prywatnosci'
     | '/regulamin'
@@ -253,6 +265,7 @@ export interface RootRouteChildren {
   ExchangesRoute: typeof ExchangesRoute
   HelpRoute: typeof HelpRoute
   LikesRoute: typeof LikesRoute
+  MojeDaneRoute: typeof MojeDaneRoute
   NotificationsRoute: typeof NotificationsRoute
   PolitykaPrywatnosciRoute: typeof PolitykaPrywatnosciRoute
   RegulaminRoute: typeof RegulaminRoute
@@ -300,6 +313,13 @@ declare module '@tanstack/react-router' {
       path: '/notifications'
       fullPath: '/notifications'
       preLoaderRoute: typeof NotificationsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/moje-dane': {
+      id: '/moje-dane'
+      path: '/moje-dane'
+      fullPath: '/moje-dane'
+      preLoaderRoute: typeof MojeDaneRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/likes': {
@@ -405,6 +425,7 @@ const rootRouteChildren: RootRouteChildren = {
   ExchangesRoute: ExchangesRoute,
   HelpRoute: HelpRoute,
   LikesRoute: LikesRoute,
+  MojeDaneRoute: MojeDaneRoute,
   NotificationsRoute: NotificationsRoute,
   PolitykaPrywatnosciRoute: PolitykaPrywatnosciRoute,
   RegulaminRoute: RegulaminRoute,

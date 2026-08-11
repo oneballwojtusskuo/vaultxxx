@@ -65,6 +65,11 @@ function AuthPage() {
 
   const signUp = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!birthDate) return toast.error("Podaj datę urodzenia.");
+    const age = (Date.now() - new Date(birthDate).getTime()) / (365.2425 * 24 * 3600 * 1000);
+    if (Number.isNaN(age)) return toast.error("Nieprawidłowa data urodzenia.");
+    if (age < 16) return toast.error("Z vlnd mogą korzystać wyłącznie osoby, które ukończyły 16 lat.");
+    if (!acceptDocs) return toast.error("Zaakceptuj regulamin i politykę prywatności.");
     setLoading(true);
     const redirectTo = nextPath
       ? `${window.location.origin}${nextPath}`
@@ -74,7 +79,7 @@ function AuthPage() {
       password,
       options: {
         emailRedirectTo: redirectTo,
-        data: { display_name: displayName },
+        data: { display_name: displayName, date_of_birth: birthDate, age_confirmed_16: true },
       },
     });
     setLoading(false);
@@ -82,6 +87,7 @@ function AuthPage() {
     setPendingEmail(email);
     setShowSpamNotice(true);
   };
+
 
   const google = async () => {
     setLoading(true);
