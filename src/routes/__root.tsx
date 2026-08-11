@@ -12,6 +12,8 @@ import { Toaster } from "@/components/ui/sonner";
 import { PaymentTestModeBanner } from "@/components/payment-test-mode-banner";
 import { WelcomePopup } from "@/components/welcome-popup";
 import { OnboardingDialog } from "@/components/onboarding-dialog";
+import { CookieBanner } from "@/components/cookie-banner";
+
 
 import appCss from "../styles.css?url";
 
