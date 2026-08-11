@@ -34,7 +34,7 @@ export const getProductDetails = createServerFn({ method: "GET" })
 
     const { data: product, error } = await supabaseAdmin
       .from("products")
-      .select("id, seller_id, category_id, title, description, price, currency, preview_url, sample_url, tags, status, is_tradable, license_terms, downloads_count, affiliate_commission_pct, created_at, updated_at")
+      .select("id, seller_id, category_id, title, description, price, currency, preview_url, sample_url, tags, status, is_tradable, license_terms, downloads_count, affiliate_commission_pct, created_at, updated_at, custom_category")
       .eq("id", data.productId)
       .maybeSingle();
 
@@ -42,11 +42,29 @@ export const getProductDetails = createServerFn({ method: "GET" })
     if (!product) return null;
 
     const userId = await getOptionalUserId(supabaseAdmin);
+
+    // A listing the seller took down (`archived`) stays fully accessible to
+    // everyone who already owns it — through purchase or an accepted exchange.
+    let ownsProduct = false;
+    if (userId) {
+      const { data: tx } = await supabaseAdmin
+        .from("transactions")
+        .select("id")
+        .eq("product_id", product.id)
+        .eq("buyer_id", userId)
+        .in("status", ["held", "released", "completed", "disputed"] as any)
+        .limit(1)
+        .maybeSingle();
+      ownsProduct = Boolean(tx);
+    }
+
     const allowed =
       product.status === "published" ||
+      ownsProduct ||
       (userId && (product.seller_id === userId || (await isAdmin(supabaseAdmin, userId))));
 
     if (!allowed) return null;
+
 
     const [{ data: category }, { data: seller }] = await Promise.all([
       product.category_id

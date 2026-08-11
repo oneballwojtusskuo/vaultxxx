@@ -38,6 +38,80 @@ export type Database = {
         }
         Relationships: []
       }
+      consents: {
+        Row: {
+          accepted_at: string
+          content: string
+          document_type: string
+          id: string
+          transaction_id: string | null
+          user_id: string
+          version: string
+        }
+        Insert: {
+          accepted_at?: string
+          content: string
+          document_type: string
+          id?: string
+          transaction_id?: string | null
+          user_id: string
+          version: string
+        }
+        Update: {
+          accepted_at?: string
+          content?: string
+          document_type?: string
+          id?: string
+          transaction_id?: string | null
+          user_id?: string
+          version?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "consents_transaction_id_fkey"
+            columns: ["transaction_id"]
+            isOneToOne: false
+            referencedRelation: "transactions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      cookie_consents: {
+        Row: {
+          affiliation: boolean
+          analytics: boolean
+          banner_version: string
+          created_at: string
+          functional: boolean
+          id: string
+          marketing: boolean
+          necessary: boolean
+          user_id: string | null
+        }
+        Insert: {
+          affiliation?: boolean
+          analytics?: boolean
+          banner_version: string
+          created_at?: string
+          functional?: boolean
+          id?: string
+          marketing?: boolean
+          necessary?: boolean
+          user_id?: string | null
+        }
+        Update: {
+          affiliation?: boolean
+          analytics?: boolean
+          banner_version?: string
+          created_at?: string
+          functional?: boolean
+          id?: string
+          marketing?: boolean
+          necessary?: boolean
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       exchange_items: {
         Row: {
           created_at: string
@@ -209,6 +283,39 @@ export type Database = {
         }
         Relationships: []
       }
+      privacy_requests: {
+        Row: {
+          admin_notes: string | null
+          created_at: string
+          details: string | null
+          id: string
+          kind: string
+          status: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          admin_notes?: string | null
+          created_at?: string
+          details?: string | null
+          id?: string
+          kind: string
+          status?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          admin_notes?: string | null
+          created_at?: string
+          details?: string | null
+          id?: string
+          kind?: string
+          status?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       product_likes: {
         Row: {
           created_at: string
@@ -241,6 +348,7 @@ export type Database = {
           category_id: string | null
           created_at: string
           currency: string
+          custom_category: string | null
           description: string | null
           downloads_count: number
           file_path: string | null
@@ -264,6 +372,7 @@ export type Database = {
           category_id?: string | null
           created_at?: string
           currency?: string
+          custom_category?: string | null
           description?: string | null
           downloads_count?: number
           file_path?: string | null
@@ -287,6 +396,7 @@ export type Database = {
           category_id?: string | null
           created_at?: string
           currency?: string
+          custom_category?: string | null
           description?: string | null
           downloads_count?: number
           file_path?: string | null
@@ -320,6 +430,7 @@ export type Database = {
           avatar_url: string | null
           bio: string | null
           created_at: string
+          date_of_birth: string | null
           display_name: string | null
           id: string
           is_banned: boolean
@@ -332,6 +443,7 @@ export type Database = {
           avatar_url?: string | null
           bio?: string | null
           created_at?: string
+          date_of_birth?: string | null
           display_name?: string | null
           id: string
           is_banned?: boolean
@@ -344,6 +456,7 @@ export type Database = {
           avatar_url?: string | null
           bio?: string | null
           created_at?: string
+          date_of_birth?: string | null
           display_name?: string | null
           id?: string
           is_banned?: boolean
@@ -615,6 +728,23 @@ export type Database = {
         Returns: boolean
       }
       is_current_user_admin: { Args: never; Returns: boolean }
+      search_products: {
+        Args: { cat?: string; q?: string }
+        Returns: {
+          category_icon: string
+          category_name: string
+          category_slug: string
+          currency: string
+          custom_category: string
+          downloads_count: number
+          id: string
+          is_tradable: boolean
+          preview_url: string
+          price: number
+          score: number
+          title: string
+        }[]
+      }
     }
     Enums: {
       app_role: "admin" | "user"

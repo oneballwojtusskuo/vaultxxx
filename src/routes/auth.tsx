@@ -20,9 +20,9 @@ import {
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/auth")({
-  validateSearch: (s: Record<string, unknown>) => ({
-    next: typeof s.next === "string" ? s.next : undefined,
-  }),
+  validateSearch: (s: Record<string, unknown>): { next?: string } =>
+    typeof s.next === "string" ? { next: s.next } : {},
+
   component: AuthPage,
 });
 
@@ -42,6 +42,9 @@ function AuthPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [displayName, setDisplayName] = useState("");
+  const [birthDate, setBirthDate] = useState("");
+  const [acceptDocs, setAcceptDocs] = useState(false);
+
   const [showSpamNotice, setShowSpamNotice] = useState(false);
   const [pendingEmail, setPendingEmail] = useState("");
 
@@ -65,6 +68,11 @@ function AuthPage() {
 
   const signUp = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!birthDate) return toast.error("Podaj datę urodzenia.");
+    const age = (Date.now() - new Date(birthDate).getTime()) / (365.2425 * 24 * 3600 * 1000);
+    if (Number.isNaN(age)) return toast.error("Nieprawidłowa data urodzenia.");
+    if (age < 16) return toast.error("Z vlnd mogą korzystać wyłącznie osoby, które ukończyły 16 lat.");
+    if (!acceptDocs) return toast.error("Zaakceptuj regulamin i politykę prywatności.");
     setLoading(true);
     const redirectTo = nextPath
       ? `${window.location.origin}${nextPath}`
@@ -74,7 +82,7 @@ function AuthPage() {
       password,
       options: {
         emailRedirectTo: redirectTo,
-        data: { display_name: displayName },
+        data: { display_name: displayName, date_of_birth: birthDate, age_confirmed_16: true },
       },
     });
     setLoading(false);
@@ -82,6 +90,7 @@ function AuthPage() {
     setPendingEmail(email);
     setShowSpamNotice(true);
   };
+
 
   const google = async () => {
     setLoading(true);
@@ -149,9 +158,27 @@ function AuthPage() {
                   <Input type="password" required minLength={8} value={password} onChange={(e) => setPassword(e.target.value)} />
                   <p className="text-xs text-muted-foreground">Min. 8 znaków. Sprawdzamy bazę wyciekłych haseł.</p>
                 </div>
+                <div className="space-y-2">
+                  <Label>Data urodzenia <span className="text-destructive">*</span></Label>
+                  <Input type="date" required value={birthDate} onChange={(e) => setBirthDate(e.target.value)} max={new Date().toISOString().slice(0, 10)} />
+                  <p className="text-xs text-muted-foreground">Z vlnd mogą korzystać wyłącznie osoby, które ukończyły 16 lat.</p>
+                </div>
+                <label className="flex items-start gap-2 text-xs text-muted-foreground">
+                  <input
+                    type="checkbox"
+                    className="mt-0.5"
+                    checked={acceptDocs}
+                    onChange={(e) => setAcceptDocs(e.target.checked)}
+                  />
+                  <span>
+                    Akceptuję <Link to="/regulamin" className="text-accent hover:underline">Regulamin</Link> i zapoznałem/am się z{" "}
+                    <Link to="/polityka-prywatnosci" className="text-accent hover:underline">Polityką prywatności</Link>. Oświadczam, że mam ukończone 16 lat.
+                  </span>
+                </label>
                 <div className="rounded-lg border border-primary/20 bg-primary/5 p-3 text-xs text-muted-foreground">
                   📧 Po rejestracji otrzymasz email z linkiem aktywacyjnym. Musisz potwierdzić adres przed pierwszym logowaniem.
                 </div>
+
                 <Button disabled={loading} type="submit" className="w-full bg-gradient-primary text-primary-foreground shadow-glow">
                   Utwórz konto
                 </Button>

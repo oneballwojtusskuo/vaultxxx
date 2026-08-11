@@ -315,9 +315,14 @@ function ProductPage() {
 
             {!isPublished && (
               <div className="mt-6 rounded-xl border border-accent/30 bg-accent/5 p-4 text-sm text-muted-foreground">
-                Ten produkt czeka na weryfikację i nie można go jeszcze kupić.
+                {p.status === "archived"
+                  ? myTransaction
+                    ? "Sprzedawca zdjął to ogłoszenie z portalu. Twój dostęp do zakupionego pliku i licencji pozostaje bez zmian."
+                    : "To ogłoszenie zostało zdjęte przez sprzedawcę i nie jest już dostępne do zakupu."
+                  : "Ten produkt czeka na weryfikację i nie można go jeszcze kupić."}
               </div>
             )}
+
 
             {(myTransaction || isOwner) && (
               <SecureStreamPlayer
