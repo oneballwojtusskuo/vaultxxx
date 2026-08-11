@@ -168,6 +168,8 @@ function Sell() {
   const [description, setDescription] = useState("");
   const [price, setPrice] = useState("0");
   const [categoryId, setCategoryId] = useState<string>("");
+  const [customCategory, setCustomCategory] = useState<string>("");
+
   const [tags, setTags] = useState("");
   const [tradable, setTradable] = useState(true);
   const [previewFile, setPreviewFile] = useState<File | null>(null);
@@ -199,6 +201,9 @@ function Sell() {
     queryKey: ["cats-sell"],
     queryFn: async () => (await supabase.from("categories").select("*").order("name")).data ?? [],
   });
+
+  const isOtherCategory = (cats ?? []).some((c: any) => c.id === categoryId && c.slug === "other");
+
 
   const { data: sellerProfile } = useQuery({
     queryKey: ["seller-profile", user?.id],
@@ -271,6 +276,10 @@ function Sell() {
     if (!categoryId) {
       return toast.error("Wybierz kategorię produktu — to pole jest wymagane.");
     }
+    if (isOtherCategory && customCategory.trim().length < 3) {
+      return toast.error('Wybrałeś kategorię „Inne" — wpisz własną nazwę kategorii (min. 3 znaki).');
+    }
+
 
     const accountNormalized = payoutAccount.replace(/\s+/g, "").toUpperCase();
     if (!/^(PL)?\d{26}$/.test(accountNormalized)) {
@@ -352,6 +361,8 @@ function Sell() {
         description,
         price: parseFloat(price) || 0,
         category_id: categoryId || null,
+        custom_category: isOtherCategory ? customCategory.trim() : null,
+
         tags: tags.split(",").map((t) => t.trim()).filter(Boolean),
         is_tradable: tradable,
         affiliate_commission_pct: Math.max(0, Math.min(50, parseInt(affiliatePct || "0", 10) || 0)),
@@ -411,7 +422,22 @@ function Sell() {
                   {cats?.map((c) => <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>)}
                 </SelectContent>
               </Select>
+              {isOtherCategory && (
+                <div className="space-y-1 pt-1">
+                  <Label>Własna kategoria <span className="text-destructive">*</span></Label>
+                  <Input
+                    value={customCategory}
+                    onChange={(e) => setCustomCategory(e.target.value)}
+                    placeholder="np. presety Lightroom, sample pack, plansze do druku"
+                    maxLength={60}
+                  />
+                  <p className="text-xs text-muted-foreground">
+                    Wybrałeś „Inne" — wpisz własną nazwę kategorii. Pomaga to kupującym znaleźć Twój produkt w wyszukiwarce.
+                  </p>
+                </div>
+              )}
             </div>
+
           </div>
           <div className="space-y-2">
             <Label>Tagi (oddzielone przecinkami)</Label>

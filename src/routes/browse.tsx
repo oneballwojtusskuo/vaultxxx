@@ -47,18 +47,26 @@ function Browse() {
   const { data: products, isLoading } = useQuery({
     queryKey: ["browse", sp.category, sp.q],
     queryFn: async () => {
-      let query = supabase
-        .from("products")
-        .select("id,title,price,currency,preview_url,is_tradable,downloads_count, category:categories(name,icon,slug)")
-        .eq("status", "published")
-        .order("created_at", { ascending: false });
-      if (sp.q) query = query.ilike("title", `%${sp.q}%`);
-      const { data } = await query;
-      let arr = data ?? [];
-      if (sp.category) arr = arr.filter((p: any) => p.category?.slug === sp.category);
-      return arr;
+      const { data, error } = await (supabase as any).rpc("search_products", {
+        q: sp.q ?? null,
+        cat: sp.category ?? null,
+      });
+      if (error) throw error;
+      return (data ?? []).map((r: any) => ({
+        id: r.id,
+        title: r.title,
+        price: r.price,
+        currency: r.currency,
+        preview_url: r.preview_url,
+        is_tradable: r.is_tradable,
+        downloads_count: r.downloads_count,
+        category: r.category_name
+          ? { name: r.custom_category ? `${r.category_name} · ${r.custom_category}` : r.category_name, icon: r.category_icon, slug: r.category_slug }
+          : null,
+      }));
     },
   });
+
 
   return (
     <div className="min-h-screen flex flex-col">

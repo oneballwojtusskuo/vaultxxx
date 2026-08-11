@@ -9,7 +9,7 @@ import { useAuth } from "@/hooks/use-auth";
 import { supabase } from "@/lib/supabase-browser";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
-import { Plus, PlayCircle, Trash2, FileText, AlertTriangle, X, Repeat2 } from "lucide-react";
+import { Plus, PlayCircle, Trash2, FileText, AlertTriangle, X, Repeat2, Eye, EyeOff } from "lucide-react";
 import { toast } from "sonner";
 import { generateLicensePdf } from "@/lib/license-pdf";
 import { ProfileEditor } from "@/components/profile-editor";
@@ -68,13 +68,27 @@ function Dashboard() {
     refetchNotifications();
   };
 
-  const deleteProduct = async (id: string) => {
-    if (!confirm("Usunąć produkt?")) return;
-    const { error } = await supabase.from("products").delete().eq("id", id);
+  const setProductStatus = async (id: string, status: "published" | "archived") => {
+    const { error } = await supabase.from("products").update({ status }).eq("id", id);
     if (error) return toast.error(error.message);
+    toast.success(status === "archived" ? "Ogłoszenie zdjęte z portalu" : "Ogłoszenie ponownie opublikowane");
+    refetchProducts();
+  };
+
+  const deleteProduct = async (id: string) => {
+    if (!confirm('Usunąć produkt trwale? Jeśli ma już kupujących, użyj opcji „Zdejmij".')) return;
+    const { error } = await supabase.from("products").delete().eq("id", id);
+    if (error) {
+      return toast.error(
+        error.message.includes("cannot be deleted")
+          ? "Ten produkt ma już kupujących — możesz go tylko zdjąć z portalu, żeby nie stracili dostępu."
+          : error.message,
+      );
+    }
     toast.success("Usunięto");
     refetchProducts();
   };
+
 
   const downloadLicense = (t: any) => {
     if (!user || !t.product) return;
@@ -165,10 +179,34 @@ function Dashboard() {
                   {p.preview_url ? <img src={p.preview_url} alt="" className="w-full h-full object-cover"/> : <div className="w-full h-full bg-gradient-primary opacity-40"/>}
                 </div>
                 <div className="flex-1 min-w-0">
-                  <Link to="/product/$id" params={{ id: p.id }} className="font-semibold hover:text-primary line-clamp-1">{p.title}</Link>
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <Link to="/product/$id" params={{ id: p.id }} className="font-semibold hover:text-primary line-clamp-1">{p.title}</Link>
+                    {p.status === "archived" && (
+                      <span className="rounded-full border border-muted-foreground/40 px-2 py-0.5 text-[11px] text-muted-foreground">zdjęte z portalu</span>
+                    )}
+                    {p.status === "pending_review" && (
+                      <span className="rounded-full border border-accent/40 bg-accent/10 px-2 py-0.5 text-[11px] text-accent">oczekuje na weryfikację</span>
+                    )}
+                  </div>
                   <p className="text-sm text-muted-foreground">{Number(p.price).toFixed(2)} {p.currency} netto (kupujący widzi +10%) · {p.downloads_count} pobrań</p>
+                  {p.status === "archived" && (
+                    <p className="text-xs text-muted-foreground mt-1">Osoby, które już kupiły, zachowują pełny dostęp do pliku i licencji.</p>
+                  )}
                 </div>
-                <Button variant="ghost" size="icon" onClick={() => deleteProduct(p.id)}><Trash2 className="h-4 w-4 text-destructive"/></Button>
+                <div className="flex items-center gap-1 shrink-0">
+                  {p.status === "published" && (
+                    <Button variant="outline" size="sm" onClick={() => setProductStatus(p.id, "archived")}>
+                      <EyeOff className="h-4 w-4 mr-1" /> Zdejmij
+                    </Button>
+                  )}
+                  {p.status === "archived" && (
+                    <Button variant="outline" size="sm" onClick={() => setProductStatus(p.id, "published")}>
+                      <Eye className="h-4 w-4 mr-1" /> Przywróć
+                    </Button>
+                  )}
+                  <Button variant="ghost" size="icon" onClick={() => deleteProduct(p.id)} aria-label="Usuń trwale"><Trash2 className="h-4 w-4 text-destructive"/></Button>
+                </div>
+
               </div>
             ))}
           </TabsContent>
