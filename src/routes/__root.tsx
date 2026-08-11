@@ -126,6 +126,8 @@ function RootComponent() {
         <Outlet />
         <WelcomePopup />
         <OnboardingDialog />
+        <CookieBanner />
+
         <Toaster />
       </AuthProvider>
     </QueryClientProvider>
