@@ -158,9 +158,27 @@ function AuthPage() {
                   <Input type="password" required minLength={8} value={password} onChange={(e) => setPassword(e.target.value)} />
                   <p className="text-xs text-muted-foreground">Min. 8 znaków. Sprawdzamy bazę wyciekłych haseł.</p>
                 </div>
+                <div className="space-y-2">
+                  <Label>Data urodzenia <span className="text-destructive">*</span></Label>
+                  <Input type="date" required value={birthDate} onChange={(e) => setBirthDate(e.target.value)} max={new Date().toISOString().slice(0, 10)} />
+                  <p className="text-xs text-muted-foreground">Z vlnd mogą korzystać wyłącznie osoby, które ukończyły 16 lat.</p>
+                </div>
+                <label className="flex items-start gap-2 text-xs text-muted-foreground">
+                  <input
+                    type="checkbox"
+                    className="mt-0.5"
+                    checked={acceptDocs}
+                    onChange={(e) => setAcceptDocs(e.target.checked)}
+                  />
+                  <span>
+                    Akceptuję <Link to="/regulamin" className="text-accent hover:underline">Regulamin</Link> i zapoznałem/am się z{" "}
+                    <Link to="/polityka-prywatnosci" className="text-accent hover:underline">Polityką prywatności</Link>. Oświadczam, że mam ukończone 16 lat.
+                  </span>
+                </label>
                 <div className="rounded-lg border border-primary/20 bg-primary/5 p-3 text-xs text-muted-foreground">
                   📧 Po rejestracji otrzymasz email z linkiem aktywacyjnym. Musisz potwierdzić adres przed pierwszym logowaniem.
                 </div>
+
                 <Button disabled={loading} type="submit" className="w-full bg-gradient-primary text-primary-foreground shadow-glow">
                   Utwórz konto
                 </Button>
