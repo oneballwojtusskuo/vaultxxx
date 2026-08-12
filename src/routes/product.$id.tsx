@@ -1,7 +1,6 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
-import { BackLink } from "@/components/back-link";
 import { Download, Repeat2, ShoppingCart, ArrowLeft, Share2, Check, FileText, Lock, PlayCircle, MessageSquare } from "lucide-react";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
@@ -138,7 +137,9 @@ function ProductPage() {
       <main className="flex-1 container mx-auto px-4 py-20 text-center">
         <h1 className="font-display text-4xl font-bold mb-3">Produkt niedostępny</h1>
         <p className="text-muted-foreground mb-6">Ten produkt nie istnieje, został usunięty albo czeka jeszcze na weryfikację.</p>
-        <BackLink label="Wróć do poprzedniej strony" className="text-accent" />
+        <Link to="/browse" className="inline-flex items-center gap-2 text-accent hover:underline">
+          <ArrowLeft className="h-4 w-4" /> Wróć do przeglądania
+        </Link>
       </main>
       <SiteFooter />
     </div>
@@ -219,7 +220,9 @@ function ProductPage() {
     <div className="min-h-screen flex flex-col">
       <SiteHeader />
       <main className="container mx-auto px-4 py-8 flex-1">
-        <BackLink label="Wróć do poprzedniej strony" className="mb-6" />
+        <Link to="/browse" className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground mb-6">
+          <ArrowLeft className="h-4 w-4" /> Powrót do przeglądania
+        </Link>
 
         <div className="grid lg:grid-cols-2 gap-10">
           <div className="space-y-4">

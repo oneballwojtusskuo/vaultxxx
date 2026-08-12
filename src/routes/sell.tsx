@@ -24,11 +24,7 @@ import {
 } from "@/components/ui/tooltip";
 import {
   LICENSE_TYPE_LABELS,
-  LICENSE_TYPE_SUMMARY,
   LICENSE_DURATION_LABELS,
-  TERRITORY_OPTIONS,
-  validateLicenseTerms,
-  diffFromPreset,
   LICENSE_OPTION_HELP,
   DELIVERY_MODE_LABELS,
   presetForType,
@@ -183,7 +179,6 @@ function Sell() {
   const [licType, setLicType] = useState<LicenseType>("personal");
   const [licTerms, setLicTerms] = useState<LicenseTerms>(() => presetForType("personal"));
   const [licTerritory, setLicTerritory] = useState("worldwide");
-  const [licTerritoryCustom, setLicTerritoryCustom] = useState("");
   const [licCustom, setLicCustom] = useState("");
   const [licMaxStreams, setLicMaxStreams] = useState("");
 
@@ -196,22 +191,7 @@ function Sell() {
   const applyPreset = (type: LicenseType) => {
     setLicType(type);
     setLicTerms(presetForType(type));
-    setLicTerritory("worldwide");
-    setLicTerritoryCustom("");
   };
-
-  const licenseDraft: LicenseTerms = {
-    ...licTerms,
-    license_type: licType,
-    exclusive: licType === "exclusive" || !!licTerms.exclusive,
-    territory: licTerms.worldwide === false ? licTerritory : "worldwide",
-    territory_custom: licTerritoryCustom,
-    custom_terms: licCustom,
-    max_streams: licMaxStreams ? parseInt(licMaxStreams, 10) : null,
-  };
-  const licenseIssues = validateLicenseTerms(licenseDraft);
-  const licenseErrors = licenseIssues.filter((i) => i.level === "error");
-  const presetChanges = diffFromPreset(licType, licenseDraft);
 
   useEffect(() => {
     if (!loading && !user) navigate({ to: "/auth" });
@@ -336,9 +316,6 @@ function Sell() {
       );
     }
 
-    if (licenseErrors.length > 0) {
-      return toast.error(`Licencja zawiera sprzeczności: ${licenseErrors[0].message}`, { duration: 8000 });
-    }
 
     setSubmitting(true);
     try {
@@ -393,7 +370,14 @@ function Sell() {
         sample_url,
         file_path,
         status: "pending_review",
-        license_terms: licenseDraft,
+        license_terms: {
+          ...licTerms,
+          license_type: licType,
+          exclusive: licType === "exclusive" || !!licTerms.exclusive,
+          max_streams: licMaxStreams ? parseInt(licMaxStreams, 10) : null,
+          territory: licTerritory,
+          custom_terms: licCustom,
+        },
       } as any).select().single();
 
       if (error) throw error;
@@ -581,37 +565,19 @@ function Sell() {
                     key={k}
                     type="button"
                     onClick={() => applyPreset(k)}
-                    className={`rounded-lg border px-3 py-2 text-left text-sm font-medium transition-all ${
+                    className={`rounded-lg border px-3 py-2 text-sm font-medium transition-all ${
                       licType === k
                         ? "border-primary bg-primary/15 text-foreground shadow-glow"
                         : "border-border/40 bg-background/40 text-muted-foreground hover:border-primary/40"
                     }`}
                   >
-                    <span className="block">{LICENSE_TYPE_LABELS[k]}</span>
-                    <span className="mt-1 block text-[10px] font-normal leading-snug opacity-70">
-                      {LICENSE_TYPE_SUMMARY[k]}
-                    </span>
+                    {LICENSE_TYPE_LABELS[k]}
                   </button>
                 ))}
               </div>
               <p className="text-[11px] text-muted-foreground">
                 Wybór typu ustawi sensowne domyślne opcje — możesz je dowolnie zmienić poniżej.
               </p>
-              {presetChanges.length > 0 && (
-                <div className="rounded-md border border-accent/40 bg-accent/10 p-2 text-[11px] leading-relaxed">
-                  <span className="font-medium text-foreground">
-                    Licencja zmodyfikowana względem presetu „{LICENSE_TYPE_LABELS[licType]}"
-                  </span>{" "}
-                  <span className="text-muted-foreground">({presetChanges.join(", ")}).</span>{" "}
-                  <button
-                    type="button"
-                    onClick={() => applyPreset(licType)}
-                    className="underline hover:text-foreground"
-                  >
-                    Przywróć domyślne
-                  </button>
-                </div>
-              )}
             </div>
 
             <div className="space-y-1 pt-1">
@@ -728,7 +694,7 @@ function Sell() {
                   </SelectContent>
                 </Select>
               </div>
-              <div className={`space-y-1 ${licTerms.commercial_use ? "" : "hidden"}`}>
+              <div className="space-y-1">
                 <HelpLabel text="Maks. liczba sprzedanych produktów końcowych" help={LICENSE_OPTION_HELP.max_end_products} />
                 <Select value={licTerms.max_end_products ?? "unlimited"} onValueChange={(v) => setLic({ max_end_products: v as LicenseLimit })}>
                   <SelectTrigger><SelectValue /></SelectTrigger>
@@ -757,67 +723,19 @@ function Sell() {
               </div>
               <div className="space-y-1">
                 <HelpLabel text="Terytorium" help={LICENSE_OPTION_HELP.territory} />
-                <Select
-                  value={licTerms.worldwide === false ? licTerritory : "worldwide"}
-                  onValueChange={(v) => {
-                    setLicTerritory(v);
-                    setLic({ worldwide: v === "worldwide" });
-                  }}
-                >
-                  <SelectTrigger><SelectValue /></SelectTrigger>
-                  <SelectContent>
-                    {TERRITORY_OPTIONS.map((o) => (
-                      <SelectItem key={o.value} value={o.value}>{o.label}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                {licTerms.worldwide === false && licTerritory === "custom" && (
-                  <Input
-                    value={licTerritoryCustom}
-                    onChange={(e) => setLicTerritoryCustom(e.target.value)}
-                    placeholder="np. Polska i Czechy"
-                  />
-                )}
+                <Input value={licTerritory} onChange={(e) => setLicTerritory(e.target.value)} placeholder="worldwide" />
               </div>
-              {licTerms.attribution_required && (
-                <div className="space-y-1 sm:col-span-2">
-                  <HelpLabel text="Format oznaczenia autora" help={LICENSE_OPTION_HELP.attribution_format} />
-                  <Input
-                    value={licTerms.attribution_format ?? ""}
-                    onChange={(e) => setLic({ attribution_format: e.target.value })}
-                    placeholder={`np. prod. by ${sellerName || "TwojaNazwa"}`}
-                  />
-                </div>
-              )}
               <div className="space-y-1 sm:col-span-2">
                 <Label className="text-xs">Postanowienia dodatkowe (opcjonalne)</Label>
                 <Textarea rows={3} value={licCustom} onChange={(e) => setLicCustom(e.target.value)} />
               </div>
             </div>
 
-            {licenseIssues.length > 0 && (
-              <div className="space-y-2">
-                {licenseIssues.map((i, idx) => (
-                  <div
-                    key={idx}
-                    className={`rounded-md border p-2 text-[11px] leading-relaxed ${
-                      i.level === "error"
-                        ? "border-destructive/50 bg-destructive/10 text-destructive"
-                        : "border-primary/40 bg-primary/10 text-foreground/90"
-                    }`}
-                  >
-                    <span className="font-semibold">{i.level === "error" ? "Błąd: " : "Uwaga: "}</span>
-                    {i.message}
-                  </div>
-                ))}
-              </div>
-            )}
-
             <div className="rounded-lg border border-border/40 bg-background/50 p-3">
               <div className="text-[11px] uppercase tracking-wider text-muted-foreground mb-2">Podgląd wygenerowanej licencji</div>
               <pre className="text-[11px] leading-relaxed whitespace-pre-wrap font-mono max-h-56 overflow-auto text-foreground/80">
                 {generateLicenseText({
-                  terms: licenseDraft,
+                  terms: { ...licTerms, license_type: licType, territory: licTerritory, custom_terms: licCustom, max_streams: licMaxStreams ? parseInt(licMaxStreams, 10) : null },
                   productTitle: title || "[tytuł produktu]",
                   sellerName,
                 })}
@@ -855,12 +773,7 @@ function Sell() {
             <Label htmlFor="tradable" className="cursor-pointer">Pozwól na wymianę</Label>
           </div>
 
-          {licenseErrors.length > 0 && (
-            <p className="text-xs text-destructive">
-              Popraw błędy w sekcji „Licencja”, aby opublikować produkt.
-            </p>
-          )}
-          <Button type="submit" disabled={submitting || licenseErrors.length > 0} className="w-full h-12 bg-gradient-primary text-primary-foreground shadow-glow">
+          <Button type="submit" disabled={submitting} className="w-full h-12 bg-gradient-primary text-primary-foreground shadow-glow">
             {submitting ? "Publikuję..." : "Opublikuj produkt"}
           </Button>
         </form>

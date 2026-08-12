@@ -1,1 +1,0 @@
-ALTER FUNCTION public.pl_norm(text) SET search_path = public;

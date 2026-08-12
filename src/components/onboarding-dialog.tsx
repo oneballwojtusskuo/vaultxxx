@@ -17,6 +17,7 @@ export function OnboardingDialog() {
   const { user, loading } = useAuth();
   const [open, setOpen] = useState(false);
   const [username, setUsername] = useState("");
+  const [displayName, setDisplayName] = useState("");
   const [bio, setBio] = useState("");
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
   const [uploading, setUploading] = useState(false);
@@ -36,6 +37,7 @@ export function OnboardingDialog() {
       .then(({ data }: any) => {
         if (cancelled || !data) return;
         if (data.onboarding_completed) return;
+        setDisplayName(data.display_name ?? "");
         setBio(data.bio ?? "");
         setAvatarUrl(data.avatar_url ?? null);
         setOpen(true);
@@ -81,7 +83,7 @@ export function OnboardingDialog() {
       .from("profiles" as any)
       .update({
         username: uname,
-        display_name: uname,
+        display_name: displayName.trim() || uname,
         bio: bio.trim() || null,
         avatar_url: avatarUrl,
         onboarding_completed: true,
@@ -103,13 +105,13 @@ export function OnboardingDialog() {
             <Sparkles className="h-5 w-5 text-primary" /> Skonfiguruj swój profil
           </DialogTitle>
           <DialogDescription>
-            Wybierz jedną, niepowtarzalną nazwę użytkownika — będzie widoczna wszędzie na vlnd. Zdjęcie i opis możesz pominąć.
+            Nazwa użytkownika jest wymagana — pozostałe kroki możesz pominąć i uzupełnić później.
           </DialogDescription>
         </DialogHeader>
 
         <div className="space-y-4">
           <div>
-            <Label>Nazwa użytkownika (unikalna) *</Label>
+            <Label>Nazwa użytkownika *</Label>
             <Input
               value={username}
               onChange={(e) => setUsername(e.target.value.toLowerCase().replace(/[^a-z0-9_]/g, ""))}
@@ -125,7 +127,7 @@ export function OnboardingDialog() {
                 <img src={avatarUrl} alt="" className="w-full h-full object-cover" />
               ) : (
                 <span className="text-primary-foreground font-bold text-xl">
-                  {(username || "?").slice(0, 2).toUpperCase()}
+                  {(displayName || username || "?").slice(0, 2).toUpperCase()}
                 </span>
               )}
             </div>
@@ -144,6 +146,11 @@ export function OnboardingDialog() {
                 onChange={(e) => e.target.files?.[0] && uploadAvatar(e.target.files[0])}
               />
             </div>
+          </div>
+
+          <div>
+            <Label>Wyświetlana nazwa (opcjonalne)</Label>
+            <Input value={displayName} onChange={(e) => setDisplayName(e.target.value)} placeholder="Twoje imię lub pseudonim" />
           </div>
 
           <div>
