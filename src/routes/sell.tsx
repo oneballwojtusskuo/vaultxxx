@@ -340,7 +340,7 @@ function Sell() {
       return toast.error(`Licencja zawiera sprzeczności: ${licenseErrors[0].message}`, { duration: 8000 });
     }
 
-    setSubmitting(true)
+    setSubmitting(true);
     try {
       // Persist payout details for future payouts
       await (supabase as any)
