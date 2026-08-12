@@ -728,6 +728,7 @@ export type Database = {
         Returns: boolean
       }
       is_current_user_admin: { Args: never; Returns: boolean }
+      pl_norm: { Args: { t: string }; Returns: string }
       search_products: {
         Args: { cat?: string; q?: string }
         Returns: {

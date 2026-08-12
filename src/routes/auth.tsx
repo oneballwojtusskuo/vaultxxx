@@ -41,7 +41,6 @@ function AuthPage() {
   const [loading, setLoading] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [displayName, setDisplayName] = useState("");
   const [birthDate, setBirthDate] = useState("");
   const [acceptDocs, setAcceptDocs] = useState(false);
 
@@ -82,7 +81,7 @@ function AuthPage() {
       password,
       options: {
         emailRedirectTo: redirectTo,
-        data: { display_name: displayName, date_of_birth: birthDate, age_confirmed_16: true },
+        data: { date_of_birth: birthDate, age_confirmed_16: true },
       },
     });
     setLoading(false);
@@ -145,10 +144,6 @@ function AuthPage() {
 
             <TabsContent value="signup" className="space-y-4 mt-6">
               <form onSubmit={signUp} className="space-y-4">
-                <div className="space-y-2">
-                  <Label>Nazwa wyświetlana</Label>
-                  <Input value={displayName} onChange={(e) => setDisplayName(e.target.value)} />
-                </div>
                 <div className="space-y-2">
                   <Label>Email</Label>
                   <Input type="email" required value={email} onChange={(e) => setEmail(e.target.value)} />
