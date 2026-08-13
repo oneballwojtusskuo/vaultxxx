@@ -527,8 +527,28 @@ function Sell() {
               onChange={(e) => setAffiliatePct(e.target.value)}
               placeholder="np. 15"
             />
+            {(() => {
+              const net = parseFloat(price) || 0;
+              const pct = Math.max(0, Math.min(50, parseInt(affiliatePct || "0", 10) || 0));
+              const buyerPrice = buyerPriceOf(net);
+              const commission = +(net * (pct / 100)).toFixed(2);
+              const sellerGets = +(net - commission).toFixed(2);
+              return (
+                <div className="rounded-md border border-border/40 bg-background/40 p-2 text-[11px] leading-relaxed">
+                  <p className="text-foreground">
+                    Cena dla kupującego: <span className="font-medium">{buyerPrice.toFixed(2)} PLN</span> · Prowizja partnera:{" "}
+                    <span className="font-medium">{commission.toFixed(2)} PLN</span> · Otrzymasz:{" "}
+                    <span className="font-medium">{sellerGets.toFixed(2)} PLN</span>
+                  </p>
+                  <p className="text-muted-foreground mt-1">
+                    Doliczana przez platformę marża 10% jest dodawana do Twojej ceny netto (płaci ją kupujący) — prowizja partnerska jest
+                    natomiast potrącana z Twojej kwoty netto.
+                  </p>
+                </div>
+              );
+            })()}
             <p className="text-[11px] text-muted-foreground">
-              Przykład dla ceny 100 PLN i prowizji 15%: partner dostaje 15 PLN, platforma 10 PLN, Ty otrzymujesz 75 PLN.
+              0% oznacza brak zachęty dla partnerów — takie produkty są dużo trudniej promować. Polecamy 10–20%.
             </p>
           </div>
           <div className="grid md:grid-cols-2 gap-4">
