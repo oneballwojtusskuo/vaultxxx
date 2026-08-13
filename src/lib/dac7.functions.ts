@@ -27,7 +27,7 @@ export const getMyDac7Status = createServerFn({ method: "GET" })
       .from("transactions")
       .select("id, seller_amount, status, created_at")
       .eq("seller_id", userId)
-      .in("status", SELLER_TX_STATUSES as unknown as string[])
+      .in("status", SELLER_TX_STATUSES as unknown as any)
       .gte("created_at", start)
       .lt("created_at", end);
     if (error) throw new Response(error.message, { status: 500 });
