@@ -10,6 +10,7 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as SellRouteImport } from './routes/sell'
+import { Route as ResetHaslaRouteImport } from './routes/reset-hasla'
 import { Route as ReportInfringementRouteImport } from './routes/report-infringement'
 import { Route as RegulaminRouteImport } from './routes/regulamin'
 import { Route as PolitykaPrywatnosciRouteImport } from './routes/polityka-prywatnosci'
@@ -33,6 +34,11 @@ import { Route as ApiPublicPaymentsWebhookRouteImport } from './routes/api/publi
 const SellRoute = SellRouteImport.update({
   id: '/sell',
   path: '/sell',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ResetHaslaRoute = ResetHaslaRouteImport.update({
+  id: '/reset-hasla',
+  path: '/reset-hasla',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ReportInfringementRoute = ReportInfringementRouteImport.update({
@@ -147,6 +153,7 @@ export interface FileRoutesByFullPath {
   '/polityka-prywatnosci': typeof PolitykaPrywatnosciRoute
   '/regulamin': typeof RegulaminRoute
   '/report-infringement': typeof ReportInfringementRoute
+  '/reset-hasla': typeof ResetHaslaRoute
   '/sell': typeof SellRoute
   '/messages/$userId': typeof MessagesUserIdRoute
   '/product/$id': typeof ProductIdRoute
@@ -169,6 +176,7 @@ export interface FileRoutesByTo {
   '/polityka-prywatnosci': typeof PolitykaPrywatnosciRoute
   '/regulamin': typeof RegulaminRoute
   '/report-infringement': typeof ReportInfringementRoute
+  '/reset-hasla': typeof ResetHaslaRoute
   '/sell': typeof SellRoute
   '/messages/$userId': typeof MessagesUserIdRoute
   '/product/$id': typeof ProductIdRoute
@@ -192,6 +200,7 @@ export interface FileRoutesById {
   '/polityka-prywatnosci': typeof PolitykaPrywatnosciRoute
   '/regulamin': typeof RegulaminRoute
   '/report-infringement': typeof ReportInfringementRoute
+  '/reset-hasla': typeof ResetHaslaRoute
   '/sell': typeof SellRoute
   '/messages/$userId': typeof MessagesUserIdRoute
   '/product/$id': typeof ProductIdRoute
@@ -216,6 +225,7 @@ export interface FileRouteTypes {
     | '/polityka-prywatnosci'
     | '/regulamin'
     | '/report-infringement'
+    | '/reset-hasla'
     | '/sell'
     | '/messages/$userId'
     | '/product/$id'
@@ -238,6 +248,7 @@ export interface FileRouteTypes {
     | '/polityka-prywatnosci'
     | '/regulamin'
     | '/report-infringement'
+    | '/reset-hasla'
     | '/sell'
     | '/messages/$userId'
     | '/product/$id'
@@ -260,6 +271,7 @@ export interface FileRouteTypes {
     | '/polityka-prywatnosci'
     | '/regulamin'
     | '/report-infringement'
+    | '/reset-hasla'
     | '/sell'
     | '/messages/$userId'
     | '/product/$id'
@@ -283,6 +295,7 @@ export interface RootRouteChildren {
   PolitykaPrywatnosciRoute: typeof PolitykaPrywatnosciRoute
   RegulaminRoute: typeof RegulaminRoute
   ReportInfringementRoute: typeof ReportInfringementRoute
+  ResetHaslaRoute: typeof ResetHaslaRoute
   SellRoute: typeof SellRoute
   MessagesUserIdRoute: typeof MessagesUserIdRoute
   ProductIdRoute: typeof ProductIdRoute
@@ -298,6 +311,13 @@ declare module '@tanstack/react-router' {
       path: '/sell'
       fullPath: '/sell'
       preLoaderRoute: typeof SellRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/reset-hasla': {
+      id: '/reset-hasla'
+      path: '/reset-hasla'
+      fullPath: '/reset-hasla'
+      preLoaderRoute: typeof ResetHaslaRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/report-infringement': {
@@ -451,6 +471,7 @@ const rootRouteChildren: RootRouteChildren = {
   PolitykaPrywatnosciRoute: PolitykaPrywatnosciRoute,
   RegulaminRoute: RegulaminRoute,
   ReportInfringementRoute: ReportInfringementRoute,
+  ResetHaslaRoute: ResetHaslaRoute,
   SellRoute: SellRoute,
   MessagesUserIdRoute: MessagesUserIdRoute,
   ProductIdRoute: ProductIdRoute,
