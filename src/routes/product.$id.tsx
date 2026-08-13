@@ -98,6 +98,7 @@ function ProductPage() {
   const [message, setMessage] = useState("");
   const [checkoutSecret, setCheckoutSecret] = useState<string | null>(null);
   const [checkoutOpen, setCheckoutOpen] = useState(false);
+  const [exchangeOpen, setExchangeOpen] = useState(false);
   const [acceptTerms, setAcceptTerms] = useState(false);
   const [acceptWithdrawal, setAcceptWithdrawal] = useState(false);
 
@@ -230,6 +231,7 @@ function ProductPage() {
 
     toast.success("Propozycja wymiany wysłana!");
     setOfferedIds([]); setMessage("");
+    setExchangeOpen(false);
   };
 
 
@@ -412,7 +414,7 @@ function ProductPage() {
               )}
 
               {!isOwner && isPublished && p.is_tradable && user && !myTransaction && (
-                <Dialog>
+                <Dialog open={exchangeOpen} onOpenChange={setExchangeOpen}>
                   <DialogTrigger asChild>
                     <Button size="lg" variant="outline" className="h-12">
                       <Repeat2 className="h-4 w-4 mr-2" /> Zaproponuj wymianę
