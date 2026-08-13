@@ -22,11 +22,14 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { buyerPriceOf } from "@/lib/pricing";
 import {
   LICENSE_TYPE_LABELS,
   LICENSE_DURATION_LABELS,
   LICENSE_OPTION_HELP,
   DELIVERY_MODE_LABELS,
+  TERRITORY_PRESET_LABELS,
   presetForType,
   generateLicenseText,
   type LicenseType,
@@ -34,6 +37,7 @@ import {
   type LicenseDuration,
   type LicenseTerms,
   type DeliveryMode,
+  type TerritoryPreset,
 } from "@/lib/license";
 
 const SAFE_IMAGE_MIME = ["image/jpeg", "image/png", "image/webp", "image/gif"];

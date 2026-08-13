@@ -149,9 +149,7 @@ export function OnboardingDialog() {
           </div>
 
           <div>
-            <Label>Wyświetlana nazwa (opcjonalne)</Label>
-            <Input value={displayName} onChange={(e) => setDisplayName(e.target.value)} placeholder="Twoje imię lub pseudonim" />
-          </div>
+
 
           <div>
             <Label>Opis konta (opcjonalne)</Label>
