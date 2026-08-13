@@ -10,9 +10,10 @@ import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { useAuth } from "@/hooks/use-auth";
 import { toast } from "sonner";
-import { ShieldCheck, Check, X, ExternalLink, FileText, Download, Flag, Ban, Trash2, UserCheck } from "lucide-react";
+import { ShieldCheck, Check, X, ExternalLink, FileText, Download, Flag, Ban, Trash2, UserCheck, Wallet } from "lucide-react";
 import { getAdminProductFileUrl, listAdminProducts, moderateProduct } from "@/lib/admin.functions";
 import { listReports, updateReportStatus, takedownProduct, setUserBan } from "@/lib/reports.functions";
+import { getOwnerRevenueStats } from "@/lib/dac7.functions";
 
 
 export const Route = createFileRoute("/admin")({
@@ -103,6 +104,7 @@ function AdminPage() {
             <TabsList>
               <TabsTrigger value="products"><ShieldCheck className="h-4 w-4 mr-1.5" /> Produkty</TabsTrigger>
               <TabsTrigger value="reports"><Flag className="h-4 w-4 mr-1.5" /> Zgłoszenia</TabsTrigger>
+              <TabsTrigger value="tax"><Wallet className="h-4 w-4 mr-1.5" /> Przychody i progi podatkowe</TabsTrigger>
             </TabsList>
 
             <TabsContent value="products">
@@ -195,6 +197,10 @@ function AdminPage() {
 
             <TabsContent value="reports">
               <ReportsPanel />
+            </TabsContent>
+
+            <TabsContent value="tax">
+              <TaxRevenuePanel />
             </TabsContent>
           </Tabs>
         )}
