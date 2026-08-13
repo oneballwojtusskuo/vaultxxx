@@ -371,6 +371,36 @@ function AuthPage() {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      <AlertDialog open={resetOpen} onOpenChange={setResetOpen}>
+        <AlertDialogContent className="glass border-primary/30">
+          <AlertDialogHeader>
+            <AlertDialogTitle>Zresetuj hasło</AlertDialogTitle>
+            <AlertDialogDescription asChild>
+              <div className="space-y-3 text-sm">
+                <p>Podaj adres e-mail konta. Wyślemy na niego link do ustawienia nowego hasła.</p>
+                <Input
+                  type="email"
+                  value={resetEmail}
+                  onChange={(e) => setResetEmail(e.target.value)}
+                  placeholder="twoj@email.pl"
+                />
+                <div className="rounded-lg border border-amber-500/30 bg-amber-500/10 p-3 text-left text-xs">
+                  Jeśli to nie Ty prosisz o zmianę hasła — <span className="font-semibold text-foreground">nie klikaj w link</span> z wiadomości.
+                  Twoje hasło pozostanie wtedy bez zmian.
+                </div>
+              </div>
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <Button variant="outline" onClick={() => setResetOpen(false)}>Anuluj</Button>
+            <Button disabled={loading} onClick={sendReset} className="bg-gradient-primary text-primary-foreground shadow-glow">
+              Wyślij link
+            </Button>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }
+
