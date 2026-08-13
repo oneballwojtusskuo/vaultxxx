@@ -2,6 +2,8 @@ import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
 import { MailCheck, ShieldAlert } from "lucide-react";
 import { supabase } from "@/lib/supabase-browser";
+import { emailAlreadyRegistered } from "@/lib/account.functions";
+
 import { createLovableAuth } from "@lovable.dev/cloud-auth-js";
 import { VlndLogo } from "@/components/vlnd-logo";
 import { Button } from "@/components/ui/button";
