@@ -112,6 +112,39 @@ export type Database = {
         }
         Relationships: []
       }
+      dac7_reports: {
+        Row: {
+          created_at: string
+          currency: string
+          gross_amount: number
+          id: string
+          reported: boolean
+          tx_count: number
+          user_id: string
+          year: number
+        }
+        Insert: {
+          created_at?: string
+          currency?: string
+          gross_amount?: number
+          id?: string
+          reported?: boolean
+          tx_count?: number
+          user_id: string
+          year: number
+        }
+        Update: {
+          created_at?: string
+          currency?: string
+          gross_amount?: number
+          id?: string
+          reported?: boolean
+          tx_count?: number
+          user_id?: string
+          year?: number
+        }
+        Relationships: []
+      }
       exchange_items: {
         Row: {
           created_at: string
@@ -614,6 +647,60 @@ export type Database = {
           payout_holder?: string
           updated_at?: string
           user_id?: string
+        }
+        Relationships: []
+      }
+      seller_tax_profiles: {
+        Row: {
+          address_line: string
+          birth_place: string | null
+          business_reg_no: string | null
+          city: string
+          country: string
+          created_at: string
+          date_of_birth: string | null
+          full_name: string
+          postal_code: string
+          seller_kind: string
+          tin: string
+          updated_at: string
+          user_id: string
+          vat_id: string | null
+          verified: boolean
+        }
+        Insert: {
+          address_line: string
+          birth_place?: string | null
+          business_reg_no?: string | null
+          city: string
+          country?: string
+          created_at?: string
+          date_of_birth?: string | null
+          full_name: string
+          postal_code: string
+          seller_kind: string
+          tin: string
+          updated_at?: string
+          user_id: string
+          vat_id?: string | null
+          verified?: boolean
+        }
+        Update: {
+          address_line?: string
+          birth_place?: string | null
+          business_reg_no?: string | null
+          city?: string
+          country?: string
+          created_at?: string
+          date_of_birth?: string | null
+          full_name?: string
+          postal_code?: string
+          seller_kind?: string
+          tin?: string
+          updated_at?: string
+          user_id?: string
+          vat_id?: string | null
+          verified?: boolean
         }
         Relationships: []
       }
