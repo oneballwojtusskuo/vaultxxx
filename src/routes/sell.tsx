@@ -22,11 +22,14 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { buyerPriceOf } from "@/lib/pricing";
 import {
   LICENSE_TYPE_LABELS,
   LICENSE_DURATION_LABELS,
   LICENSE_OPTION_HELP,
   DELIVERY_MODE_LABELS,
+  TERRITORY_PRESET_LABELS,
   presetForType,
   generateLicenseText,
   type LicenseType,
@@ -34,6 +37,7 @@ import {
   type LicenseDuration,
   type LicenseTerms,
   type DeliveryMode,
+  type TerritoryPreset,
 } from "@/lib/license";
 
 const SAFE_IMAGE_MIME = ["image/jpeg", "image/png", "image/webp", "image/gif"];
@@ -138,21 +142,77 @@ async function generateWatermarkedImage(source: File, watermarkText: string): Pr
   return new File([blob], `${base}-watermark.jpg`, { type: "image/jpeg" });
 }
 
+/** Info icon that shows help both on hover (desktop, Tooltip) and on click/tap (mobile, Popover). */
+function HelpIcon({ help, className }: { help?: string; className?: string }) {
+  const [open, setOpen] = useState(false);
+  if (!help) return null;
+  return (
+    <Popover open={open} onOpenChange={setOpen}>
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <PopoverTrigger asChild>
+            <button
+              type="button"
+              onClick={(e) => {
+                e.preventDefault();
+                setOpen((o) => !o);
+              }}
+              className="inline-flex shrink-0"
+              aria-label="Więcej informacji"
+            >
+              <Info className={className ?? "h-3.5 w-3.5 text-muted-foreground hover:text-primary"} />
+            </button>
+          </PopoverTrigger>
+        </TooltipTrigger>
+        <TooltipContent side="top" className="max-w-xs text-xs leading-relaxed">
+          {help}
+        </TooltipContent>
+      </Tooltip>
+      <PopoverContent side="top" className="max-w-xs text-xs leading-relaxed w-auto">
+        {help}
+      </PopoverContent>
+    </Popover>
+  );
+}
+
 function HelpLabel({ text, help }: { text: string; help?: string }) {
   return (
     <div className="flex items-center gap-1.5">
       <Label className="text-xs">{text}</Label>
-      {help && (
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <Info className="h-3.5 w-3.5 text-muted-foreground hover:text-primary" />
-          </TooltipTrigger>
-          <TooltipContent side="top" className="max-w-xs text-xs leading-relaxed">
-            {help}
-          </TooltipContent>
-        </Tooltip>
-      )}
+      <HelpIcon help={help} />
     </div>
+  );
+}
+
+/** Inline, non-blocking contradiction warnings shown near license option fields. */
+function contradictionWarning(key: string, terms: LicenseTerms, licType: LicenseType): string | undefined {
+  if (key === "create_nft" && terms.create_nft && !terms.redistribution) {
+    return "Zezwalasz na tworzenie NFT, ale zabraniasz redystrybucji — mintowanie NFT zwykle wymaga też możliwości rozpowszechniania pliku.";
+  }
+  if (key === "resale" && terms.resale && !terms.redistribution) {
+    return "Zezwalasz na odsprzedaż, ale zabraniasz redystrybucji — bez redystrybucji odsprzedany plik trudno legalnie przekazać dalej.";
+  }
+  if (key === "train_ai" && terms.train_ai && !terms.commercial_use) {
+    return "Zgoda na trenowanie AI zwykle idzie w parze z użytkiem komercyjnym — sprawdź, czy na pewno chcesz to rozdzielić.";
+  }
+  if (key === "attribution_required" && terms.attribution_required === false && licType === "personal") {
+    return 'Licencja "Personal" zwykle wymaga podania autora — rozważ włączenie tej opcji.';
+  }
+  return undefined;
+}
+
+/** Diff against the last applied preset — used for a subtle "deviates from standard" note. */
+function deviatesFromPreset(key: keyof LicenseTerms, terms: LicenseTerms, preset: LicenseTerms | null): boolean {
+  if (!preset) return false;
+  return JSON.stringify(terms[key] ?? null) !== JSON.stringify(preset[key] ?? null);
+}
+
+function DeviationNote({ show, licType }: { show: boolean; licType: LicenseType }) {
+  if (!show) return null;
+  return (
+    <p className="text-[11px] text-amber-500">
+      Ta zmiana odbiega od standardowej licencji {LICENSE_TYPE_LABELS[licType]} — upewnij się, że to zamierzone.
+    </p>
   );
 }
 
@@ -178,11 +238,11 @@ function Sell() {
   const [generatingWatermark, setGeneratingWatermark] = useState(false);
   const [licType, setLicType] = useState<LicenseType>("personal");
   const [licTerms, setLicTerms] = useState<LicenseTerms>(() => presetForType("personal"));
-  const [licTerritory, setLicTerritory] = useState("worldwide");
+  const [presetSnapshot, setPresetSnapshot] = useState<LicenseTerms | null>(() => presetForType("personal"));
   const [licCustom, setLicCustom] = useState("");
   const [licMaxStreams, setLicMaxStreams] = useState("");
 
-  const [affiliatePct, setAffiliatePct] = useState<string>("0");
+  const [affiliatePct, setAffiliatePct] = useState<string>("10");
   const [payoutAccount, setPayoutAccount] = useState("");
   const [payoutHolder, setPayoutHolder] = useState("");
 
@@ -190,7 +250,10 @@ function Sell() {
   const setLic = (patch: Partial<LicenseTerms>) => setLicTerms((prev) => ({ ...prev, ...patch }));
   const applyPreset = (type: LicenseType) => {
     setLicType(type);
-    setLicTerms(presetForType(type));
+    const preset = presetForType(type);
+    setLicTerms(preset);
+    setPresetSnapshot(preset);
+    setLicMaxStreams("");
   };
 
   useEffect(() => {
@@ -375,7 +438,7 @@ function Sell() {
           license_type: licType,
           exclusive: licType === "exclusive" || !!licTerms.exclusive,
           max_streams: licMaxStreams ? parseInt(licMaxStreams, 10) : null,
-          territory: licTerritory,
+          max_end_products: licTerms.commercial_use === false ? undefined : licTerms.max_end_products,
           custom_terms: licCustom,
         },
       } as any).select().single();
@@ -451,7 +514,7 @@ function Sell() {
                   <Info className="h-3.5 w-3.5 text-muted-foreground hover:text-primary" />
                 </TooltipTrigger>
                 <TooltipContent side="top" className="max-w-xs text-xs leading-relaxed">
-                  Ustaw ile procent (0–50) od ceny sprzedaży dostanie użytkownik, który poleci Twój produkt swoim linkiem afiliacyjnym. 0% = brak programu partnerskiego dla tego produktu. Platforma i tak pobiera stałą opłatę 10%.
+                  Ustaw ile procent (0–50) od ceny sprzedaży dostanie użytkownik, który poleci Twój produkt swoim linkiem afiliacyjnym. 0% = brak programu partnerskiego — trudniej wtedy o promocję produktu. Platforma dolicza swoją marżę 10% do ceny niezależnie od prowizji partnera.
                 </TooltipContent>
               </Tooltip>
             </Label>
@@ -464,8 +527,28 @@ function Sell() {
               onChange={(e) => setAffiliatePct(e.target.value)}
               placeholder="np. 15"
             />
+            {(() => {
+              const net = parseFloat(price) || 0;
+              const pct = Math.max(0, Math.min(50, parseInt(affiliatePct || "0", 10) || 0));
+              const buyerPrice = buyerPriceOf(net);
+              const commission = +(net * (pct / 100)).toFixed(2);
+              const sellerGets = +(net - commission).toFixed(2);
+              return (
+                <div className="rounded-md border border-border/40 bg-background/40 p-2 text-[11px] leading-relaxed">
+                  <p className="text-foreground">
+                    Cena dla kupującego: <span className="font-medium">{buyerPrice.toFixed(2)} PLN</span> · Prowizja partnera:{" "}
+                    <span className="font-medium">{commission.toFixed(2)} PLN</span> · Otrzymasz:{" "}
+                    <span className="font-medium">{sellerGets.toFixed(2)} PLN</span>
+                  </p>
+                  <p className="text-muted-foreground mt-1">
+                    Doliczana przez platformę marża 10% jest dodawana do Twojej ceny netto (płaci ją kupujący) — prowizja partnerska jest
+                    natomiast potrącana z Twojej kwoty netto.
+                  </p>
+                </div>
+              );
+            })()}
             <p className="text-[11px] text-muted-foreground">
-              Przykład dla ceny 100 PLN i prowizji 15%: partner dostaje 15 PLN, platforma 10 PLN, Ty otrzymujesz 75 PLN.
+              0% oznacza brak zachęty dla partnerów — takie produkty są dużo trudniej promować. Polecamy 10–20%.
             </p>
           </div>
           <div className="grid md:grid-cols-2 gap-4">
@@ -647,26 +730,48 @@ function Sell() {
                 ["attribution_required", "Wymagane podanie autora"],
                 ["redistribution", "Dozwolona redystrybucja"],
                 ["resale", "Dozwolona odsprzedaż"],
-                ["worldwide", "Licencja na cały świat"],
-              ] as [keyof LicenseTerms, string][]).map(([key, label]) => (
-                <label key={key as string} className="flex items-center gap-2 cursor-pointer rounded-md px-2 py-1.5 hover:bg-background/40">
-                  <Checkbox
-                    checked={!!licTerms[key]}
-                    onCheckedChange={(v) => setLic({ [key]: !!v } as any)}
-                  />
-                  <span className="text-sm flex-1">{label}</span>
-                  {LICENSE_OPTION_HELP[key as string] && (
-                    <Tooltip>
-                      <TooltipTrigger asChild>
-                        <Info className="h-3.5 w-3.5 text-muted-foreground hover:text-primary shrink-0" />
-                      </TooltipTrigger>
-                      <TooltipContent side="top" className="max-w-xs text-xs leading-relaxed">
-                        {LICENSE_OPTION_HELP[key as string]}
-                      </TooltipContent>
-                    </Tooltip>
-                  )}
-                </label>
-              ))}
+              ] as [keyof LicenseTerms, string][]).map(([key, label]) => {
+                const warning = contradictionWarning(key as string, licTerms, licType);
+                const deviates = deviatesFromPreset(key, licTerms, presetSnapshot);
+                return (
+                  <div key={key as string} className="space-y-0.5">
+                    <label className="flex items-center gap-2 cursor-pointer rounded-md px-2 py-1.5 hover:bg-background/40">
+                      <Checkbox
+                        checked={!!licTerms[key]}
+                        onCheckedChange={(v) => setLic({ [key]: !!v } as any)}
+                      />
+                      <span className="text-sm flex-1">{label}</span>
+                      <HelpIcon help={LICENSE_OPTION_HELP[key as string]} />
+                    </label>
+                    {key === "attribution_required" && licTerms.attribution_required && (
+                      <div className="pl-8 pr-2 space-y-1">
+                        <div className="flex items-center gap-1.5">
+                          <Label className="text-[11px] text-muted-foreground">Oczekiwana forma podpisu</Label>
+                          <HelpIcon help={LICENSE_OPTION_HELP.attribution_format} />
+                        </div>
+                        <Input
+                          value={licTerms.attribution_format ?? ""}
+                          onChange={(e) => setLic({ attribution_format: e.target.value })}
+                          placeholder='np. „Zdjęcie: nazwa/link”'
+                          className="h-8 text-xs"
+                        />
+                      </div>
+                    )}
+                    {warning && <p className="pl-8 pr-2 text-[11px] text-amber-500">{warning}</p>}
+                    {!warning && <div className="pl-8 pr-2"><DeviationNote show={deviates} licType={licType} /></div>}
+                  </div>
+                );
+              })}
+              <label className="flex items-center gap-2 cursor-pointer rounded-md px-2 py-1.5 hover:bg-background/40">
+                <Checkbox
+                  checked={(licTerms.territory_preset ?? "worldwide") === "worldwide"}
+                  onCheckedChange={(v) =>
+                    setLic(v ? { territory_preset: "worldwide", territory: undefined } : { territory_preset: "other" })
+                  }
+                />
+                <span className="text-sm flex-1">Licencja na cały świat</span>
+                <HelpIcon help={LICENSE_OPTION_HELP.worldwide} />
+              </label>
             </div>
 
             <div className="grid sm:grid-cols-2 gap-3 pt-2">
@@ -694,18 +799,20 @@ function Sell() {
                   </SelectContent>
                 </Select>
               </div>
-              <div className="space-y-1">
-                <HelpLabel text="Maks. liczba sprzedanych produktów końcowych" help={LICENSE_OPTION_HELP.max_end_products} />
-                <Select value={licTerms.max_end_products ?? "unlimited"} onValueChange={(v) => setLic({ max_end_products: v as LicenseLimit })}>
-                  <SelectTrigger><SelectValue /></SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="500">500</SelectItem>
-                    <SelectItem value="5000">5 000</SelectItem>
-                    <SelectItem value="50000">50 000</SelectItem>
-                    <SelectItem value="unlimited">Bez limitu</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
+              {licTerms.commercial_use !== false && (
+                <div className="space-y-1">
+                  <HelpLabel text="Maks. liczba sprzedanych produktów końcowych" help={LICENSE_OPTION_HELP.max_end_products} />
+                  <Select value={licTerms.max_end_products ?? "unlimited"} onValueChange={(v) => setLic({ max_end_products: v as LicenseLimit })}>
+                    <SelectTrigger><SelectValue /></SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="500">500</SelectItem>
+                      <SelectItem value="5000">5 000</SelectItem>
+                      <SelectItem value="50000">50 000</SelectItem>
+                      <SelectItem value="unlimited">Bez limitu</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              )}
               <div className="space-y-1">
                 <HelpLabel text="Czas obowiązywania licencji" help={LICENSE_OPTION_HELP.duration} />
                 <Select value={licTerms.duration ?? "perpetual"} onValueChange={(v) => setLic({ duration: v as LicenseDuration })}>
@@ -723,7 +830,24 @@ function Sell() {
               </div>
               <div className="space-y-1">
                 <HelpLabel text="Terytorium" help={LICENSE_OPTION_HELP.territory} />
-                <Input value={licTerritory} onChange={(e) => setLicTerritory(e.target.value)} placeholder="worldwide" />
+                <Select
+                  value={licTerms.territory_preset ?? "worldwide"}
+                  onValueChange={(v) => setLic({ territory_preset: v as TerritoryPreset, territory: v === "other" ? licTerms.territory : undefined })}
+                >
+                  <SelectTrigger><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    {(Object.keys(TERRITORY_PRESET_LABELS) as TerritoryPreset[]).map((k) => (
+                      <SelectItem key={k} value={k}>{TERRITORY_PRESET_LABELS[k]}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                {licTerms.territory_preset === "other" && (
+                  <Input
+                    value={licTerms.territory ?? ""}
+                    onChange={(e) => setLic({ territory: e.target.value })}
+                    placeholder="np. Polska, Niemcy, Czechy"
+                  />
+                )}
               </div>
               <div className="space-y-1 sm:col-span-2">
                 <Label className="text-xs">Postanowienia dodatkowe (opcjonalne)</Label>
@@ -735,7 +859,7 @@ function Sell() {
               <div className="text-[11px] uppercase tracking-wider text-muted-foreground mb-2">Podgląd wygenerowanej licencji</div>
               <pre className="text-[11px] leading-relaxed whitespace-pre-wrap font-mono max-h-56 overflow-auto text-foreground/80">
                 {generateLicenseText({
-                  terms: { ...licTerms, license_type: licType, territory: licTerritory, custom_terms: licCustom, max_streams: licMaxStreams ? parseInt(licMaxStreams, 10) : null },
+                  terms: { ...licTerms, license_type: licType, custom_terms: licCustom, max_streams: licMaxStreams ? parseInt(licMaxStreams, 10) : null },
                   productTitle: title || "[tytuł produktu]",
                   sellerName,
                 })}

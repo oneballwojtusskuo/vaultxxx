@@ -80,8 +80,8 @@ function Profile() {
     );
   }
 
-  const name = profile.display_name ?? profile.username ?? "Twórca";
-  const initials = name.slice(0, 2).toUpperCase();
+  const name = profile.username ?? profile.display_name ?? "Twórca";
+  const initials = name.slice(0, 1).toUpperCase();
 
   return (
     <div className="min-h-screen flex flex-col">

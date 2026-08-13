@@ -10,6 +10,7 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as SellRouteImport } from './routes/sell'
+import { Route as ResetHaslaRouteImport } from './routes/reset-hasla'
 import { Route as ReportInfringementRouteImport } from './routes/report-infringement'
 import { Route as RegulaminRouteImport } from './routes/regulamin'
 import { Route as PolitykaPrywatnosciRouteImport } from './routes/polityka-prywatnosci'
@@ -19,6 +20,7 @@ import { Route as LikesRouteImport } from './routes/likes'
 import { Route as HelpRouteImport } from './routes/help'
 import { Route as ExchangesRouteImport } from './routes/exchanges'
 import { Route as DashboardRouteImport } from './routes/dashboard'
+import { Route as DanePodatkoweRouteImport } from './routes/dane-podatkowe'
 import { Route as BrowseRouteImport } from './routes/browse'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AdminRouteImport } from './routes/admin'
@@ -32,6 +34,11 @@ import { Route as ApiPublicPaymentsWebhookRouteImport } from './routes/api/publi
 const SellRoute = SellRouteImport.update({
   id: '/sell',
   path: '/sell',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ResetHaslaRoute = ResetHaslaRouteImport.update({
+  id: '/reset-hasla',
+  path: '/reset-hasla',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ReportInfringementRoute = ReportInfringementRouteImport.update({
@@ -77,6 +84,11 @@ const ExchangesRoute = ExchangesRouteImport.update({
 const DashboardRoute = DashboardRouteImport.update({
   id: '/dashboard',
   path: '/dashboard',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DanePodatkoweRoute = DanePodatkoweRouteImport.update({
+  id: '/dane-podatkowe',
+  path: '/dane-podatkowe',
   getParentRoute: () => rootRouteImport,
 } as any)
 const BrowseRoute = BrowseRouteImport.update({
@@ -131,6 +143,7 @@ export interface FileRoutesByFullPath {
   '/admin': typeof AdminRoute
   '/auth': typeof AuthRoute
   '/browse': typeof BrowseRoute
+  '/dane-podatkowe': typeof DanePodatkoweRoute
   '/dashboard': typeof DashboardRoute
   '/exchanges': typeof ExchangesRoute
   '/help': typeof HelpRoute
@@ -140,6 +153,7 @@ export interface FileRoutesByFullPath {
   '/polityka-prywatnosci': typeof PolitykaPrywatnosciRoute
   '/regulamin': typeof RegulaminRoute
   '/report-infringement': typeof ReportInfringementRoute
+  '/reset-hasla': typeof ResetHaslaRoute
   '/sell': typeof SellRoute
   '/messages/$userId': typeof MessagesUserIdRoute
   '/product/$id': typeof ProductIdRoute
@@ -152,6 +166,7 @@ export interface FileRoutesByTo {
   '/admin': typeof AdminRoute
   '/auth': typeof AuthRoute
   '/browse': typeof BrowseRoute
+  '/dane-podatkowe': typeof DanePodatkoweRoute
   '/dashboard': typeof DashboardRoute
   '/exchanges': typeof ExchangesRoute
   '/help': typeof HelpRoute
@@ -161,6 +176,7 @@ export interface FileRoutesByTo {
   '/polityka-prywatnosci': typeof PolitykaPrywatnosciRoute
   '/regulamin': typeof RegulaminRoute
   '/report-infringement': typeof ReportInfringementRoute
+  '/reset-hasla': typeof ResetHaslaRoute
   '/sell': typeof SellRoute
   '/messages/$userId': typeof MessagesUserIdRoute
   '/product/$id': typeof ProductIdRoute
@@ -174,6 +190,7 @@ export interface FileRoutesById {
   '/admin': typeof AdminRoute
   '/auth': typeof AuthRoute
   '/browse': typeof BrowseRoute
+  '/dane-podatkowe': typeof DanePodatkoweRoute
   '/dashboard': typeof DashboardRoute
   '/exchanges': typeof ExchangesRoute
   '/help': typeof HelpRoute
@@ -183,6 +200,7 @@ export interface FileRoutesById {
   '/polityka-prywatnosci': typeof PolitykaPrywatnosciRoute
   '/regulamin': typeof RegulaminRoute
   '/report-infringement': typeof ReportInfringementRoute
+  '/reset-hasla': typeof ResetHaslaRoute
   '/sell': typeof SellRoute
   '/messages/$userId': typeof MessagesUserIdRoute
   '/product/$id': typeof ProductIdRoute
@@ -197,6 +215,7 @@ export interface FileRouteTypes {
     | '/admin'
     | '/auth'
     | '/browse'
+    | '/dane-podatkowe'
     | '/dashboard'
     | '/exchanges'
     | '/help'
@@ -206,6 +225,7 @@ export interface FileRouteTypes {
     | '/polityka-prywatnosci'
     | '/regulamin'
     | '/report-infringement'
+    | '/reset-hasla'
     | '/sell'
     | '/messages/$userId'
     | '/product/$id'
@@ -218,6 +238,7 @@ export interface FileRouteTypes {
     | '/admin'
     | '/auth'
     | '/browse'
+    | '/dane-podatkowe'
     | '/dashboard'
     | '/exchanges'
     | '/help'
@@ -227,6 +248,7 @@ export interface FileRouteTypes {
     | '/polityka-prywatnosci'
     | '/regulamin'
     | '/report-infringement'
+    | '/reset-hasla'
     | '/sell'
     | '/messages/$userId'
     | '/product/$id'
@@ -239,6 +261,7 @@ export interface FileRouteTypes {
     | '/admin'
     | '/auth'
     | '/browse'
+    | '/dane-podatkowe'
     | '/dashboard'
     | '/exchanges'
     | '/help'
@@ -248,6 +271,7 @@ export interface FileRouteTypes {
     | '/polityka-prywatnosci'
     | '/regulamin'
     | '/report-infringement'
+    | '/reset-hasla'
     | '/sell'
     | '/messages/$userId'
     | '/product/$id'
@@ -261,6 +285,7 @@ export interface RootRouteChildren {
   AdminRoute: typeof AdminRoute
   AuthRoute: typeof AuthRoute
   BrowseRoute: typeof BrowseRoute
+  DanePodatkoweRoute: typeof DanePodatkoweRoute
   DashboardRoute: typeof DashboardRoute
   ExchangesRoute: typeof ExchangesRoute
   HelpRoute: typeof HelpRoute
@@ -270,6 +295,7 @@ export interface RootRouteChildren {
   PolitykaPrywatnosciRoute: typeof PolitykaPrywatnosciRoute
   RegulaminRoute: typeof RegulaminRoute
   ReportInfringementRoute: typeof ReportInfringementRoute
+  ResetHaslaRoute: typeof ResetHaslaRoute
   SellRoute: typeof SellRoute
   MessagesUserIdRoute: typeof MessagesUserIdRoute
   ProductIdRoute: typeof ProductIdRoute
@@ -285,6 +311,13 @@ declare module '@tanstack/react-router' {
       path: '/sell'
       fullPath: '/sell'
       preLoaderRoute: typeof SellRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/reset-hasla': {
+      id: '/reset-hasla'
+      path: '/reset-hasla'
+      fullPath: '/reset-hasla'
+      preLoaderRoute: typeof ResetHaslaRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/report-infringement': {
@@ -348,6 +381,13 @@ declare module '@tanstack/react-router' {
       path: '/dashboard'
       fullPath: '/dashboard'
       preLoaderRoute: typeof DashboardRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/dane-podatkowe': {
+      id: '/dane-podatkowe'
+      path: '/dane-podatkowe'
+      fullPath: '/dane-podatkowe'
+      preLoaderRoute: typeof DanePodatkoweRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/browse': {
@@ -421,6 +461,7 @@ const rootRouteChildren: RootRouteChildren = {
   AdminRoute: AdminRoute,
   AuthRoute: AuthRoute,
   BrowseRoute: BrowseRoute,
+  DanePodatkoweRoute: DanePodatkoweRoute,
   DashboardRoute: DashboardRoute,
   ExchangesRoute: ExchangesRoute,
   HelpRoute: HelpRoute,
@@ -430,6 +471,7 @@ const rootRouteChildren: RootRouteChildren = {
   PolitykaPrywatnosciRoute: PolitykaPrywatnosciRoute,
   RegulaminRoute: RegulaminRoute,
   ReportInfringementRoute: ReportInfringementRoute,
+  ResetHaslaRoute: ResetHaslaRoute,
   SellRoute: SellRoute,
   MessagesUserIdRoute: MessagesUserIdRoute,
   ProductIdRoute: ProductIdRoute,
@@ -440,3 +482,13 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}

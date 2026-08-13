@@ -127,7 +127,7 @@ export function OnboardingDialog() {
                 <img src={avatarUrl} alt="" className="w-full h-full object-cover" />
               ) : (
                 <span className="text-primary-foreground font-bold text-xl">
-                  {(displayName || username || "?").slice(0, 2).toUpperCase()}
+                  {(displayName || username || "?").slice(0, 1).toUpperCase()}
                 </span>
               )}
             </div>
@@ -149,11 +149,7 @@ export function OnboardingDialog() {
           </div>
 
           <div>
-            <Label>Wyświetlana nazwa (opcjonalne)</Label>
-            <Input value={displayName} onChange={(e) => setDisplayName(e.target.value)} placeholder="Twoje imię lub pseudonim" />
-          </div>
 
-          <div>
             <Label>Opis konta (opcjonalne)</Label>
             <Textarea value={bio} onChange={(e) => setBio(e.target.value)} rows={3} placeholder="Krótko o sobie i o tym, co sprzedajesz..." />
           </div>

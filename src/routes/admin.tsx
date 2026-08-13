@@ -10,9 +10,10 @@ import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { useAuth } from "@/hooks/use-auth";
 import { toast } from "sonner";
-import { ShieldCheck, Check, X, ExternalLink, FileText, Download, Flag, Ban, Trash2, UserCheck } from "lucide-react";
+import { ShieldCheck, Check, X, ExternalLink, FileText, Download, Flag, Ban, Trash2, UserCheck, Wallet } from "lucide-react";
 import { getAdminProductFileUrl, listAdminProducts, moderateProduct } from "@/lib/admin.functions";
 import { listReports, updateReportStatus, takedownProduct, setUserBan } from "@/lib/reports.functions";
+import { getOwnerRevenueStats } from "@/lib/dac7.functions";
 
 
 export const Route = createFileRoute("/admin")({
@@ -103,6 +104,7 @@ function AdminPage() {
             <TabsList>
               <TabsTrigger value="products"><ShieldCheck className="h-4 w-4 mr-1.5" /> Produkty</TabsTrigger>
               <TabsTrigger value="reports"><Flag className="h-4 w-4 mr-1.5" /> Zgłoszenia</TabsTrigger>
+              <TabsTrigger value="tax"><Wallet className="h-4 w-4 mr-1.5" /> Przychody i progi podatkowe</TabsTrigger>
             </TabsList>
 
             <TabsContent value="products">
@@ -195,6 +197,10 @@ function AdminPage() {
 
             <TabsContent value="reports">
               <ReportsPanel />
+            </TabsContent>
+
+            <TabsContent value="tax">
+              <TaxRevenuePanel />
             </TabsContent>
           </Tabs>
         )}
@@ -389,6 +395,85 @@ function ReportsPanel() {
             </div>
           ))
         )}
+      </div>
+    </div>
+  );
+}
+
+function TaxRevenuePanel() {
+  const fetchStats = useServerFn(getOwnerRevenueStats);
+  const { data: stats, isLoading } = useQuery({
+    queryKey: ["admin-owner-revenue-stats"],
+    queryFn: () => fetchStats({ data: undefined as any }),
+  });
+
+  if (isLoading || !stats) {
+    return <div className="mt-6 text-muted-foreground">Ładowanie...</div>;
+  }
+
+  const { threshold } = stats;
+  const barColor =
+    threshold.level === "exceeded"
+      ? "bg-destructive"
+      : threshold.level === "high"
+        ? "bg-amber-600"
+        : threshold.level === "warn"
+          ? "bg-amber-500"
+          : "bg-primary";
+
+  return (
+    <div className="mt-6 space-y-8">
+      <div className="rounded-2xl border border-border/40 bg-gradient-surface p-5 space-y-3">
+        <h2 className="font-semibold">
+          Przychód z prowizji — {stats.quarter}. kwartał {stats.quarterYear}
+        </h2>
+        <div className="flex justify-between text-sm">
+          <span>{stats.quarterRevenuePln.toFixed(2)} zł</span>
+          <span className="text-muted-foreground">limit: {threshold.limitPln.toFixed(2)} zł ({threshold.pct}%)</span>
+        </div>
+        <div className="h-3 w-full overflow-hidden rounded-full bg-muted">
+          <div className={`h-full ${barColor} transition-all`} style={{ width: `${Math.min(100, threshold.pct)}%` }} />
+        </div>
+        {threshold.level !== "ok" && (
+          <p className={`text-sm ${threshold.level === "exceeded" ? "text-destructive" : "text-amber-600"}`}>
+            {threshold.level === "exceeded"
+              ? "Limit działalności nierejestrowanej został przekroczony w tym kwartale."
+              : threshold.level === "high"
+                ? "Zbliżasz się do limitu (ponad 90%)."
+                : "Przekroczono 75% limitu w tym kwartale."}
+          </p>
+        )}
+        <p className="text-xs text-muted-foreground">
+          Uwaga: przekroczenie kwoty 10 813,50 zł przychodu z prowizji w kwartale kalendarzowym oznacza konieczność
+          zarejestrowania działalności gospodarczej (limit „działalności nierejestrowanej" na 2026 r.).
+        </p>
+      </div>
+
+      <div className="rounded-2xl border border-border/40 bg-gradient-surface p-5">
+        <h2 className="font-semibold mb-3">Przychód z prowizji — ostatnie 12 miesięcy</h2>
+        <div className="overflow-x-auto">
+          <table className="w-full text-sm">
+            <thead>
+              <tr className="text-left text-muted-foreground border-b border-border/40">
+                <th className="py-2 pr-4">Miesiąc</th>
+                <th className="py-2">Przychód</th>
+              </tr>
+            </thead>
+            <tbody>
+              {stats.months.map((m) => (
+                <tr key={m.month} className="border-b border-border/20 last:border-0">
+                  <td className="py-1.5 pr-4">{m.month}</td>
+                  <td className="py-1.5">{m.revenuePln.toFixed(2)} zł</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div className="rounded-2xl border border-border/40 bg-gradient-surface p-5">
+        <h2 className="font-semibold">Przychód z prowizji — bieżący rok</h2>
+        <p className="font-display text-3xl font-bold mt-1 text-gradient">{stats.yearRevenuePln.toFixed(2)} zł</p>
       </div>
     </div>
   );

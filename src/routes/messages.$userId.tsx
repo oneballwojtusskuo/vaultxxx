@@ -102,8 +102,8 @@ function Conversation() {
     refetch();
   };
 
-  const name = other?.display_name ?? other?.username ?? "Użytkownik";
-  const initials = name.slice(0, 2).toUpperCase();
+  const name = other?.username ?? other?.display_name ?? "Użytkownik";
+  const initials = name.slice(0, 1).toUpperCase();
 
   return (
     <div className="min-h-screen flex flex-col">

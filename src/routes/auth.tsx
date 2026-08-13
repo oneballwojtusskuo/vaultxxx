@@ -2,6 +2,8 @@ import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
 import { MailCheck, ShieldAlert } from "lucide-react";
 import { supabase } from "@/lib/supabase-browser";
+import { emailAlreadyRegistered } from "@/lib/account.functions";
+
 import { createLovableAuth } from "@lovable.dev/cloud-auth-js";
 import { VlndLogo } from "@/components/vlnd-logo";
 import { Button } from "@/components/ui/button";
@@ -33,20 +35,43 @@ function safeNext(next: string | undefined): string | null {
   return next;
 }
 
+const MONTHS = [
+  "stycznia", "lutego", "marca", "kwietnia", "maja", "czerwca",
+  "lipca", "sierpnia", "września", "października", "listopada", "grudnia",
+];
+
 function AuthPage() {
   const navigate = useNavigate();
   const { next } = Route.useSearch();
   const nextPath = safeNext(next);
   const lovableAuth = createLovableAuth();
+  const [tab, setTab] = useState<"signin" | "signup">("signin");
   const [loading, setLoading] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [displayName, setDisplayName] = useState("");
-  const [birthDate, setBirthDate] = useState("");
+  const [password2, setPassword2] = useState("");
+  const [birthDay, setBirthDay] = useState("");
+  const [birthMonth, setBirthMonth] = useState("");
+  const [birthYear, setBirthYear] = useState("");
   const [acceptDocs, setAcceptDocs] = useState(false);
+  const [emailTaken, setEmailTaken] = useState(false);
 
   const [showSpamNotice, setShowSpamNotice] = useState(false);
   const [pendingEmail, setPendingEmail] = useState("");
+  const [resetOpen, setResetOpen] = useState(false);
+  const [resetEmail, setResetEmail] = useState("");
+
+  const currentYear = new Date().getFullYear();
+  const years = Array.from({ length: 100 }, (_, i) => currentYear - i);
+  const daysInMonth =
+    birthMonth && birthYear
+      ? new Date(Number(birthYear), Number(birthMonth), 0).getDate()
+      : 31;
+
+  const birthDate =
+    birthDay && birthMonth && birthYear
+      ? `${birthYear}-${String(birthMonth).padStart(2, "0")}-${String(birthDay).padStart(2, "0")}`
+      : "";
 
   const goNext = () => {
     if (nextPath) {
@@ -66,14 +91,56 @@ function AuthPage() {
     goNext();
   };
 
+  const checkEmail = async (value: string) => {
+    const v = value.trim();
+    setEmailTaken(false);
+    if (!v || !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(v)) return;
+    try {
+      const res = await emailAlreadyRegistered({ data: { email: v } });
+      if (res.exists) {
+        setEmailTaken(true);
+        toast.info("Konto z tym adresem e-mail już istnieje — zaloguj się.");
+        setTab("signin");
+      }
+    } catch {
+      /* niekrytyczne — walidacja i tak nastąpi przy rejestracji */
+    }
+  };
+
+  const sendReset = async () => {
+    const v = resetEmail.trim();
+    if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(v)) return toast.error("Podaj poprawny adres e-mail.");
+    setLoading(true);
+    const { error } = await supabase.auth.resetPasswordForEmail(v, {
+      redirectTo: `${window.location.origin}/reset-hasla`,
+    });
+    setLoading(false);
+    if (error) return toast.error(error.message);
+    setResetOpen(false);
+    toast.success("Wysłaliśmy link do zmiany hasła. Sprawdź skrzynkę (także SPAM).");
+  };
+
   const signUp = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!birthDate) return toast.error("Podaj datę urodzenia.");
-    const age = (Date.now() - new Date(birthDate).getTime()) / (365.2425 * 24 * 3600 * 1000);
-    if (Number.isNaN(age)) return toast.error("Nieprawidłowa data urodzenia.");
+    if (!birthDate) return toast.error("Wybierz pełną datę urodzenia (dzień, miesiąc i rok).");
+    const dob = new Date(`${birthDate}T00:00:00`);
+    if (Number.isNaN(dob.getTime())) return toast.error("Nieprawidłowa data urodzenia.");
+    const age = (Date.now() - dob.getTime()) / (365.2425 * 24 * 3600 * 1000);
     if (age < 16) return toast.error("Z vlnd mogą korzystać wyłącznie osoby, które ukończyły 16 lat.");
+    if (password !== password2) return toast.error("Hasła nie są takie same — wpisz je ponownie.");
     if (!acceptDocs) return toast.error("Zaakceptuj regulamin i politykę prywatności.");
     setLoading(true);
+    try {
+      const res = await emailAlreadyRegistered({ data: { email: email.trim() } });
+      if (res.exists) {
+        setLoading(false);
+        setEmailTaken(true);
+        setTab("signin");
+        return toast.error("Konto z tym adresem e-mail już istnieje — zaloguj się lub zresetuj hasło.");
+      }
+    } catch {
+      /* ignore */
+    }
     const redirectTo = nextPath
       ? `${window.location.origin}${nextPath}`
       : window.location.origin;
@@ -82,7 +149,7 @@ function AuthPage() {
       password,
       options: {
         emailRedirectTo: redirectTo,
-        data: { display_name: displayName, date_of_birth: birthDate, age_confirmed_16: true },
+        data: { date_of_birth: birthDate, age_confirmed_16: true },
       },
     });
     setLoading(false);
@@ -104,6 +171,7 @@ function AuthPage() {
       return;
     }
     if (r.redirected) return;
+
     if (r.tokens) await supabase.auth.setSession(r.tokens);
     goNext();
   };
@@ -121,7 +189,7 @@ function AuthPage() {
         </Link>
 
         <div className="rounded-2xl glass border border-border/40 p-6 shadow-elevated">
-          <Tabs defaultValue="signin">
+          <Tabs value={tab} onValueChange={(v) => setTab(v as "signin" | "signup")}>
             <TabsList className="w-full grid grid-cols-2">
               <TabsTrigger value="signin">Zaloguj</TabsTrigger>
               <TabsTrigger value="signup">Rejestracja</TabsTrigger>
@@ -137,6 +205,16 @@ function AuthPage() {
                   <Label>Hasło</Label>
                   <Input type="password" required value={password} onChange={(e) => setPassword(e.target.value)} />
                 </div>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setResetEmail(email);
+                    setResetOpen(true);
+                  }}
+                  className="text-xs text-accent hover:underline"
+                >
+                  Nie pamiętam hasła
+                </button>
                 <Button disabled={loading} type="submit" className="w-full bg-gradient-primary text-primary-foreground shadow-glow">
                   Zaloguj się
                 </Button>
@@ -146,12 +224,25 @@ function AuthPage() {
             <TabsContent value="signup" className="space-y-4 mt-6">
               <form onSubmit={signUp} className="space-y-4">
                 <div className="space-y-2">
-                  <Label>Nazwa wyświetlana</Label>
-                  <Input value={displayName} onChange={(e) => setDisplayName(e.target.value)} />
-                </div>
-                <div className="space-y-2">
                   <Label>Email</Label>
-                  <Input type="email" required value={email} onChange={(e) => setEmail(e.target.value)} />
+                  <Input
+                    type="email"
+                    required
+                    value={email}
+                    onChange={(e) => {
+                      setEmail(e.target.value);
+                      setEmailTaken(false);
+                    }}
+                    onBlur={(e) => checkEmail(e.target.value)}
+                  />
+                  {emailTaken && (
+                    <p className="text-xs text-destructive">
+                      Konto z tym adresem już istnieje — przejdź do zakładki „Zaloguj”.
+                    </p>
+                  )}
+                  <p className="text-xs text-muted-foreground">
+                    Nazwę użytkownika wybierzesz zaraz po potwierdzeniu adresu e-mail.
+                  </p>
                 </div>
                 <div className="space-y-2">
                   <Label>Hasło</Label>
@@ -159,10 +250,52 @@ function AuthPage() {
                   <p className="text-xs text-muted-foreground">Min. 8 znaków. Sprawdzamy bazę wyciekłych haseł.</p>
                 </div>
                 <div className="space-y-2">
+                  <Label>Powtórz hasło</Label>
+                  <Input type="password" required minLength={8} value={password2} onChange={(e) => setPassword2(e.target.value)} />
+                  {password2.length > 0 && password2 !== password && (
+                    <p className="text-xs text-destructive">Hasła nie są takie same.</p>
+                  )}
+                </div>
+                <div className="space-y-2">
                   <Label>Data urodzenia <span className="text-destructive">*</span></Label>
-                  <Input type="date" required value={birthDate} onChange={(e) => setBirthDate(e.target.value)} max={new Date().toISOString().slice(0, 10)} />
+                  <div className="grid grid-cols-3 gap-2">
+                    <select
+                      required
+                      value={birthDay}
+                      onChange={(e) => setBirthDay(e.target.value)}
+                      className="h-10 rounded-md border border-input bg-background px-2 text-sm"
+                    >
+                      <option value="">Dzień</option>
+                      {Array.from({ length: daysInMonth }, (_, i) => i + 1).map((d) => (
+                        <option key={d} value={d}>{d}</option>
+                      ))}
+                    </select>
+                    <select
+                      required
+                      value={birthMonth}
+                      onChange={(e) => setBirthMonth(e.target.value)}
+                      className="h-10 rounded-md border border-input bg-background px-2 text-sm"
+                    >
+                      <option value="">Miesiąc</option>
+                      {MONTHS.map((m, i) => (
+                        <option key={m} value={i + 1}>{m}</option>
+                      ))}
+                    </select>
+                    <select
+                      required
+                      value={birthYear}
+                      onChange={(e) => setBirthYear(e.target.value)}
+                      className="h-10 rounded-md border border-input bg-background px-2 text-sm"
+                    >
+                      <option value="">Rok</option>
+                      {years.map((y) => (
+                        <option key={y} value={y}>{y}</option>
+                      ))}
+                    </select>
+                  </div>
                   <p className="text-xs text-muted-foreground">Z vlnd mogą korzystać wyłącznie osoby, które ukończyły 16 lat.</p>
                 </div>
+
                 <label className="flex items-start gap-2 text-xs text-muted-foreground">
                   <input
                     type="checkbox"
@@ -238,6 +371,36 @@ function AuthPage() {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      <AlertDialog open={resetOpen} onOpenChange={setResetOpen}>
+        <AlertDialogContent className="glass border-primary/30">
+          <AlertDialogHeader>
+            <AlertDialogTitle>Zresetuj hasło</AlertDialogTitle>
+            <AlertDialogDescription asChild>
+              <div className="space-y-3 text-sm">
+                <p>Podaj adres e-mail konta. Wyślemy na niego link do ustawienia nowego hasła.</p>
+                <Input
+                  type="email"
+                  value={resetEmail}
+                  onChange={(e) => setResetEmail(e.target.value)}
+                  placeholder="twoj@email.pl"
+                />
+                <div className="rounded-lg border border-amber-500/30 bg-amber-500/10 p-3 text-left text-xs">
+                  Jeśli to nie Ty prosisz o zmianę hasła — <span className="font-semibold text-foreground">nie klikaj w link</span> z wiadomości.
+                  Twoje hasło pozostanie wtedy bez zmian.
+                </div>
+              </div>
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <Button variant="outline" onClick={() => setResetOpen(false)}>Anuluj</Button>
+            <Button disabled={loading} onClick={sendReset} className="bg-gradient-primary text-primary-foreground shadow-glow">
+              Wyślij link
+            </Button>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }
+

@@ -31,6 +31,7 @@ import { CheckoutDialog } from "@/components/checkout-dialog";
 import { getStripeEnvironment } from "@/lib/stripe";
 import { buyerPriceOf } from "@/lib/pricing";
 import { EscrowActions } from "@/components/escrow-actions";
+import { BackLink } from "@/components/back-link";
 
 export const Route = createFileRoute("/product/$id")({
   component: ProductPage,
@@ -97,6 +98,7 @@ function ProductPage() {
   const [message, setMessage] = useState("");
   const [checkoutSecret, setCheckoutSecret] = useState<string | null>(null);
   const [checkoutOpen, setCheckoutOpen] = useState(false);
+  const [exchangeOpen, setExchangeOpen] = useState(false);
   const [acceptTerms, setAcceptTerms] = useState(false);
   const [acceptWithdrawal, setAcceptWithdrawal] = useState(false);
 
@@ -122,6 +124,22 @@ function ProductPage() {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  // Visitor came from an affiliate link, clicked "Kup teraz", signed in and came back:
+  // land them straight on the purchase panel instead of losing the referral.
+  useEffect(() => {
+    if (typeof window === "undefined" || !user) return;
+    const params = new URLSearchParams(window.location.search);
+    if (params.get("buy") !== "1") return;
+    params.delete("buy");
+    const clean = window.location.pathname + (params.toString() ? `?${params.toString()}` : "");
+    window.history.replaceState({}, "", clean);
+    setTimeout(() => {
+      document.getElementById("panel-zakupu")?.scrollIntoView({ behavior: "smooth", block: "center" });
+      toast.info("Potwierdź obie zgody i dokończ zakup.");
+    }, 400);
+  }, [user]);
+
 
   if (isLoading || (authLoading && !p)) return (
     <div className="min-h-screen flex flex-col">
@@ -149,7 +167,10 @@ function ProductPage() {
   const isPublished = p.status === "published";
 
   const buy = async () => {
-    if (!user) { navigate({ to: "/auth" }); return; }
+    if (!user) {
+      navigate({ to: "/auth", search: { next: `${window.location.pathname}?buy=1` } });
+      return;
+    }
     if (isOwner) return toast.error("To Twój produkt");
     if (!acceptTerms || !acceptWithdrawal) {
       return toast.error("Zaznacz oba wymagane zgody przed dokonaniem zakupu.");
@@ -210,6 +231,7 @@ function ProductPage() {
 
     toast.success("Propozycja wymiany wysłana!");
     setOfferedIds([]); setMessage("");
+    setExchangeOpen(false);
   };
 
 
@@ -220,9 +242,7 @@ function ProductPage() {
     <div className="min-h-screen flex flex-col">
       <SiteHeader />
       <main className="container mx-auto px-4 py-8 flex-1">
-        <Link to="/browse" className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground mb-6">
-          <ArrowLeft className="h-4 w-4" /> Powrót do przeglądania
-        </Link>
+        <BackLink />
 
         <div className="grid lg:grid-cols-2 gap-10">
           <div className="space-y-4">
@@ -257,10 +277,10 @@ function ProductPage() {
               <span>od </span>
               {seller?.username ? (
                 <Link to="/u/$username" params={{ username: seller.username }} className="text-foreground hover:text-primary font-medium">
-                  {seller?.display_name ?? seller.username}
+                  {seller?.username ?? seller.display_name}
                 </Link>
               ) : (
-                <span>{seller?.display_name ?? "Twórca"}</span>
+                <span>{seller?.username ?? "Twórca"}</span>
               )}
               {seller?.is_verified_seller && <VerifiedBadge />}
               {!isOwner && user && (
@@ -310,7 +330,7 @@ function ProductPage() {
             )}
 
             {(p as any).license_terms && (
-              <LicenseSummary terms={(p as any).license_terms} productTitle={p.title} sellerName={seller?.display_name ?? undefined} />
+              <LicenseSummary terms={(p as any).license_terms} productTitle={p.title} sellerName={seller?.username ?? undefined} />
             )}
 
             {!isPublished && (
@@ -354,7 +374,7 @@ function ProductPage() {
                       currency: myTransaction.currency,
                       buyerName: user?.user_metadata?.display_name ?? user?.email ?? "Licencjobiorca",
                       buyerEmail: user?.email ?? "",
-                      sellerName: seller?.display_name ?? "Sprzedawca",
+                      sellerName: seller?.username ?? "Sprzedawca",
                       terms: (p as any).license_terms ?? {},
                     })
                   }
@@ -365,13 +385,16 @@ function ProductPage() {
             )}
 
             {!isOwner && isPublished && !myTransaction && (
-              <PurchaseConsents
-                acceptTerms={acceptTerms}
-                setAcceptTerms={setAcceptTerms}
-                acceptWithdrawal={acceptWithdrawal}
-                setAcceptWithdrawal={setAcceptWithdrawal}
-              />
+              <div id="panel-zakupu">
+                <PurchaseConsents
+                  acceptTerms={acceptTerms}
+                  setAcceptTerms={setAcceptTerms}
+                  acceptWithdrawal={acceptWithdrawal}
+                  setAcceptWithdrawal={setAcceptWithdrawal}
+                />
+              </div>
             )}
+
 
             <div className="mt-6 flex flex-wrap gap-3">
               <LikeButton productId={p.id} sellerId={p.seller_id} />
@@ -391,7 +414,7 @@ function ProductPage() {
               )}
 
               {!isOwner && isPublished && p.is_tradable && user && !myTransaction && (
-                <Dialog>
+                <Dialog open={exchangeOpen} onOpenChange={setExchangeOpen}>
                   <DialogTrigger asChild>
                     <Button size="lg" variant="outline" className="h-12">
                       <Repeat2 className="h-4 w-4 mr-2" /> Zaproponuj wymianę

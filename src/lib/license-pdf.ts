@@ -14,6 +14,13 @@ export type LicenseInput = {
   buyerEmail: string;
   sellerName: string;
   terms: LicenseTerms;
+  /** Optional legal/order metadata — purely additive, safe to omit. */
+  orderId?: string;
+  fileName?: string;
+  purchaseDate?: string;
+  /** Legal (real) name/company of the licensor & licensee, if collected. */
+  licensorLegalName?: string;
+  licenseeLegalName?: string;
 };
 
 export function generateLicensePdf(input: LicenseInput) {
@@ -66,6 +73,11 @@ export function generateLicensePdf(input: LicenseInput) {
     productTitle: input.productTitle,
     sellerName: input.sellerName,
     buyerName: `${input.buyerName} <${input.buyerEmail}>`,
+    orderId: input.orderId ?? input.transactionId,
+    fileName: input.fileName,
+    purchaseDate: input.purchaseDate ?? new Date(input.createdAt).toLocaleString("pl-PL"),
+    licensorLegalName: input.licensorLegalName,
+    licenseeLegalName: input.licenseeLegalName,
   });
 
   doc.setFontSize(10);
