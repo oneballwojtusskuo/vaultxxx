@@ -238,11 +238,11 @@ function Sell() {
   const [generatingWatermark, setGeneratingWatermark] = useState(false);
   const [licType, setLicType] = useState<LicenseType>("personal");
   const [licTerms, setLicTerms] = useState<LicenseTerms>(() => presetForType("personal"));
-  const [licTerritory, setLicTerritory] = useState("worldwide");
+  const [presetSnapshot, setPresetSnapshot] = useState<LicenseTerms | null>(() => presetForType("personal"));
   const [licCustom, setLicCustom] = useState("");
   const [licMaxStreams, setLicMaxStreams] = useState("");
 
-  const [affiliatePct, setAffiliatePct] = useState<string>("0");
+  const [affiliatePct, setAffiliatePct] = useState<string>("10");
   const [payoutAccount, setPayoutAccount] = useState("");
   const [payoutHolder, setPayoutHolder] = useState("");
 
@@ -250,7 +250,10 @@ function Sell() {
   const setLic = (patch: Partial<LicenseTerms>) => setLicTerms((prev) => ({ ...prev, ...patch }));
   const applyPreset = (type: LicenseType) => {
     setLicType(type);
-    setLicTerms(presetForType(type));
+    const preset = presetForType(type);
+    setLicTerms(preset);
+    setPresetSnapshot(preset);
+    setLicMaxStreams("");
   };
 
   useEffect(() => {
