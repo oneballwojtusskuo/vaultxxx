@@ -123,6 +123,22 @@ function ProductPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  // Visitor came from an affiliate link, clicked "Kup teraz", signed in and came back:
+  // land them straight on the purchase panel instead of losing the referral.
+  useEffect(() => {
+    if (typeof window === "undefined" || !user) return;
+    const params = new URLSearchParams(window.location.search);
+    if (params.get("buy") !== "1") return;
+    params.delete("buy");
+    const clean = window.location.pathname + (params.toString() ? `?${params.toString()}` : "");
+    window.history.replaceState({}, "", clean);
+    setTimeout(() => {
+      document.getElementById("panel-zakupu")?.scrollIntoView({ behavior: "smooth", block: "center" });
+      toast.info("Potwierdź obie zgody i dokończ zakup.");
+    }, 400);
+  }, [user]);
+
+
   if (isLoading || (authLoading && !p)) return (
     <div className="min-h-screen flex flex-col">
       <SiteHeader />
