@@ -110,8 +110,8 @@
     letter-spacing: -0.02em;
   }
   ::selection {
-    background: oklch(0.82 0.12 85 / 0.35);
-    color: oklch(0.08 0.005 270);
+    background: oklch(0.72 0.088 82 / 0.28);
+    color: oklch(0.16 0.004 90);
   }
 }
 
@@ -129,12 +129,13 @@
   .shadow-elevated { box-shadow: var(--shadow-elevated); }
   .shadow-soft { box-shadow: var(--shadow-soft); }
   .glass {
-    background: oklch(0.10 0.005 270 / 0.65);
+    background: oklch(1 0 0 / 0.72);
     backdrop-filter: blur(18px);
     -webkit-backdrop-filter: blur(14px);
-    border: 1px solid oklch(1 0 0 / 0.06);
+    border: 1px solid oklch(0.20 0.004 90 / 0.10);
   }
   .glow-ring {
-    box-shadow: 0 0 0 1px oklch(0.82 0.12 85 / 0.4), 0 0 30px oklch(0.82 0.12 85 / 0.25);
+    box-shadow: 0 0 0 1px oklch(0.72 0.088 82 / 0.45), 0 0 26px oklch(0.72 0.088 82 / 0.18);
   }
 }
+
