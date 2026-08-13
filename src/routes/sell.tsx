@@ -438,7 +438,7 @@ function Sell() {
           license_type: licType,
           exclusive: licType === "exclusive" || !!licTerms.exclusive,
           max_streams: licMaxStreams ? parseInt(licMaxStreams, 10) : null,
-          territory: licTerritory,
+          max_end_products: licTerms.commercial_use === false ? undefined : licTerms.max_end_products,
           custom_terms: licCustom,
         },
       } as any).select().single();
@@ -710,26 +710,48 @@ function Sell() {
                 ["attribution_required", "Wymagane podanie autora"],
                 ["redistribution", "Dozwolona redystrybucja"],
                 ["resale", "Dozwolona odsprzedaż"],
-                ["worldwide", "Licencja na cały świat"],
-              ] as [keyof LicenseTerms, string][]).map(([key, label]) => (
-                <label key={key as string} className="flex items-center gap-2 cursor-pointer rounded-md px-2 py-1.5 hover:bg-background/40">
-                  <Checkbox
-                    checked={!!licTerms[key]}
-                    onCheckedChange={(v) => setLic({ [key]: !!v } as any)}
-                  />
-                  <span className="text-sm flex-1">{label}</span>
-                  {LICENSE_OPTION_HELP[key as string] && (
-                    <Tooltip>
-                      <TooltipTrigger asChild>
-                        <Info className="h-3.5 w-3.5 text-muted-foreground hover:text-primary shrink-0" />
-                      </TooltipTrigger>
-                      <TooltipContent side="top" className="max-w-xs text-xs leading-relaxed">
-                        {LICENSE_OPTION_HELP[key as string]}
-                      </TooltipContent>
-                    </Tooltip>
-                  )}
-                </label>
-              ))}
+              ] as [keyof LicenseTerms, string][]).map(([key, label]) => {
+                const warning = contradictionWarning(key as string, licTerms, licType);
+                const deviates = deviatesFromPreset(key, licTerms, presetSnapshot);
+                return (
+                  <div key={key as string} className="space-y-0.5">
+                    <label className="flex items-center gap-2 cursor-pointer rounded-md px-2 py-1.5 hover:bg-background/40">
+                      <Checkbox
+                        checked={!!licTerms[key]}
+                        onCheckedChange={(v) => setLic({ [key]: !!v } as any)}
+                      />
+                      <span className="text-sm flex-1">{label}</span>
+                      <HelpIcon help={LICENSE_OPTION_HELP[key as string]} />
+                    </label>
+                    {key === "attribution_required" && licTerms.attribution_required && (
+                      <div className="pl-8 pr-2 space-y-1">
+                        <div className="flex items-center gap-1.5">
+                          <Label className="text-[11px] text-muted-foreground">Oczekiwana forma podpisu</Label>
+                          <HelpIcon help={LICENSE_OPTION_HELP.attribution_format} />
+                        </div>
+                        <Input
+                          value={licTerms.attribution_format ?? ""}
+                          onChange={(e) => setLic({ attribution_format: e.target.value })}
+                          placeholder='np. „Zdjęcie: nazwa/link”'
+                          className="h-8 text-xs"
+                        />
+                      </div>
+                    )}
+                    {warning && <p className="pl-8 pr-2 text-[11px] text-amber-500">{warning}</p>}
+                    {!warning && <div className="pl-8 pr-2"><DeviationNote show={deviates} licType={licType} /></div>}
+                  </div>
+                );
+              })}
+              <label className="flex items-center gap-2 cursor-pointer rounded-md px-2 py-1.5 hover:bg-background/40">
+                <Checkbox
+                  checked={(licTerms.territory_preset ?? "worldwide") === "worldwide"}
+                  onCheckedChange={(v) =>
+                    setLic(v ? { territory_preset: "worldwide", territory: undefined } : { territory_preset: "other" })
+                  }
+                />
+                <span className="text-sm flex-1">Licencja na cały świat</span>
+                <HelpIcon help={LICENSE_OPTION_HELP.worldwide} />
+              </label>
             </div>
 
             <div className="grid sm:grid-cols-2 gap-3 pt-2">
@@ -757,18 +779,20 @@ function Sell() {
                   </SelectContent>
                 </Select>
               </div>
-              <div className="space-y-1">
-                <HelpLabel text="Maks. liczba sprzedanych produktów końcowych" help={LICENSE_OPTION_HELP.max_end_products} />
-                <Select value={licTerms.max_end_products ?? "unlimited"} onValueChange={(v) => setLic({ max_end_products: v as LicenseLimit })}>
-                  <SelectTrigger><SelectValue /></SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="500">500</SelectItem>
-                    <SelectItem value="5000">5 000</SelectItem>
-                    <SelectItem value="50000">50 000</SelectItem>
-                    <SelectItem value="unlimited">Bez limitu</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
+              {licTerms.commercial_use !== false && (
+                <div className="space-y-1">
+                  <HelpLabel text="Maks. liczba sprzedanych produktów końcowych" help={LICENSE_OPTION_HELP.max_end_products} />
+                  <Select value={licTerms.max_end_products ?? "unlimited"} onValueChange={(v) => setLic({ max_end_products: v as LicenseLimit })}>
+                    <SelectTrigger><SelectValue /></SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="500">500</SelectItem>
+                      <SelectItem value="5000">5 000</SelectItem>
+                      <SelectItem value="50000">50 000</SelectItem>
+                      <SelectItem value="unlimited">Bez limitu</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              )}
               <div className="space-y-1">
                 <HelpLabel text="Czas obowiązywania licencji" help={LICENSE_OPTION_HELP.duration} />
                 <Select value={licTerms.duration ?? "perpetual"} onValueChange={(v) => setLic({ duration: v as LicenseDuration })}>
@@ -786,7 +810,24 @@ function Sell() {
               </div>
               <div className="space-y-1">
                 <HelpLabel text="Terytorium" help={LICENSE_OPTION_HELP.territory} />
-                <Input value={licTerritory} onChange={(e) => setLicTerritory(e.target.value)} placeholder="worldwide" />
+                <Select
+                  value={licTerms.territory_preset ?? "worldwide"}
+                  onValueChange={(v) => setLic({ territory_preset: v as TerritoryPreset, territory: v === "other" ? licTerms.territory : undefined })}
+                >
+                  <SelectTrigger><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    {(Object.keys(TERRITORY_PRESET_LABELS) as TerritoryPreset[]).map((k) => (
+                      <SelectItem key={k} value={k}>{TERRITORY_PRESET_LABELS[k]}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                {licTerms.territory_preset === "other" && (
+                  <Input
+                    value={licTerms.territory ?? ""}
+                    onChange={(e) => setLic({ territory: e.target.value })}
+                    placeholder="np. Polska, Niemcy, Czechy"
+                  />
+                )}
               </div>
               <div className="space-y-1 sm:col-span-2">
                 <Label className="text-xs">Postanowienia dodatkowe (opcjonalne)</Label>
@@ -798,7 +839,7 @@ function Sell() {
               <div className="text-[11px] uppercase tracking-wider text-muted-foreground mb-2">Podgląd wygenerowanej licencji</div>
               <pre className="text-[11px] leading-relaxed whitespace-pre-wrap font-mono max-h-56 overflow-auto text-foreground/80">
                 {generateLicenseText({
-                  terms: { ...licTerms, license_type: licType, territory: licTerritory, custom_terms: licCustom, max_streams: licMaxStreams ? parseInt(licMaxStreams, 10) : null },
+                  terms: { ...licTerms, license_type: licType, custom_terms: licCustom, max_streams: licMaxStreams ? parseInt(licMaxStreams, 10) : null },
                   productTitle: title || "[tytuł produktu]",
                   sellerName,
                 })}

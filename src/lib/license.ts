@@ -38,7 +38,7 @@ export const LICENSE_OPTION_HELP: Record<string, string> = {
   create_nft:
     "Kupujący może wykorzystać produkt jako podstawę tokena niewymiennego (NFT). Przykład: włącz tylko w licencji exclusive, gdy świadomie sprzedajesz prawo do zmintowania NFT.",
   attribution_required:
-    'Kupujący musi wskazać autora przy każdym publicznym wykorzystaniu, np. „Beat by X" w opisie. Przykład: włącz w licencji personal/commercial, żeby budować rozpoznawalność; wyłącz w licencji extended/exclusive, gdzie kupujący chce, by produkt wyglądał jak w pełni jego.',
+    'Kupujący musi wskazać autora przy każdym publicznym wykorzystaniu, np. „Beat by X” w opisie. Przykład: włącz w licencji personal/commercial, żeby budować rozpoznawalność; wyłącz w licencji extended/exclusive, gdzie kupujący chce, by produkt wyglądał jak w pełni jego.',
   redistribution:
     "Kupujący może rozpowszechniać oryginalny plik dalej, np. wrzucić na inną platformę do pobrania. Zwykle WYŁĄCZONE — włączaj tylko przy licencji exclusive, gdy oddajesz pełną kontrolę nad plikiem.",
   resale:
@@ -46,15 +46,15 @@ export const LICENSE_OPTION_HELP: Record<string, string> = {
   worldwide:
     "Licencja obowiązuje na całym świecie. Przykład: zostaw włączone dla produktów cyfrowych sprzedawanych globalnie; wybierz konkretne terytorium, jeśli masz umowy wyłączności regionalnej (np. tylko Polska).",
   territory:
-    'Geograficzny zasięg licencji. Przykład: wybierz „Polska", jeśli masz już wyłączność na inne kraje z innym partnerem, albo „Inne" i wpisz konkretne kraje.',
+    'Geograficzny zasięg licencji. Przykład: wybierz „Polska”, jeśli masz już wyłączność na inne kraje z innym partnerem, albo „Inne” i wpisz konkretne kraje.',
   max_users:
-    "Maksymalna liczba osób w organizacji kupującego, które mogą korzystać z pliku. Przykład: ustaw „1" dla licencji personal, „5" gdy sprzedajesz małej agencji.",
+    "Maksymalna liczba osób w organizacji kupującego, które mogą korzystać z pliku. Przykład: ustaw „1” dla licencji personal, „5” gdy sprzedajesz małej agencji.",
   max_projects:
-    "Maksymalna liczba oddzielnych projektów, w których kupujący może wykorzystać plik. Przykład: „1" dla jednorazowego użycia w konkretnym teledysku; „bez limitu” dla licencji extended.",
+    "Maksymalna liczba oddzielnych projektów, w których kupujący może wykorzystać plik. Przykład: „1” dla jednorazowego użycia w konkretnym teledysku; „bez limitu” dla licencji extended.",
   max_end_products:
     "Maksymalna liczba egzemplarzy produktu końcowego zawierającego ten plik, które kupujący może sprzedać (np. sztuk merchu, kopii albumu). Przykład: ustaw limit, gdy chcesz ograniczyć skalę komercyjnego wykorzystania taniej licencji.",
   duration:
-    'Jak długo licencja obowiązuje. Przykład: wybierz „Bezterminowa" dla standardowej sprzedaży; ogranicz do „1 rok", jeśli sprzedajesz dostęp czasowy (np. do kampanii).',
+    'Jak długo licencja obowiązuje. Przykład: wybierz „Bezterminowa” dla standardowej sprzedaży; ogranicz do „1 rok”, jeśli sprzedajesz dostęp czasowy (np. do kampanii).',
   max_streams:
     "Maksymalna łączna liczba odtworzeń / dystrybucji strumieniowych utworu zawierającego plik. Przykład: ustaw limit przy tańszej licencji na beat (np. 100 000 odtworzeń), potem kupujący musi dokupić wyższą licencję.",
   delivery_mode:
@@ -235,11 +235,11 @@ export function generateLicenseText(params: {
   lines.push(`UMOWA LICENCYJNA — ${typeLabel.toUpperCase()}`);
   lines.push("");
   lines.push(
-    `Niniejsza umowa licencyjna („Licencja") określa warunki, na jakich Licencjodawca${
+    `Niniejsza umowa licencyjna („Licencja”) określa warunki, na jakich Licencjodawca${
       params.sellerName ? ` (${params.sellerName})` : ""
     } udziela Licencjobiorcy${params.buyerName ? ` (${params.buyerName})` : ""} prawa do korzystania z produktu cyfrowego${
-      params.productTitle ? ` „${params.productTitle}"` : ""
-    } („Produkt").`,
+      params.productTitle ? ` „${params.productTitle}”` : ""
+    } („Produkt”).`,
   );
   lines.push("");
 
@@ -256,7 +256,7 @@ export function generateLicenseText(params: {
       : `Licencjobiorca: ${params.buyerName ?? "nazwa użytkownika na platformie"} (dane rejestrowe/tożsamościowe nie zostały podane — identyfikacja na podstawie konta na platformie vlnd).`;
     lines.push(`${n++}. ${licenseeLine}`);
     lines.push(
-      `${n++}. Przedmiot umowy: produkt cyfrowy${params.productTitle ? ` „${params.productTitle}"` : ""}${
+      `${n++}. Przedmiot umowy: produkt cyfrowy${params.productTitle ? ` „${params.productTitle}”` : ""}${
         params.fileName ? ` (plik: ${params.fileName})` : ""
       }.`,
     );
@@ -334,7 +334,7 @@ export function generateLicenseText(params: {
       const format = t.attribution_format?.trim();
       lines.push(
         `${n++}. Licencjobiorca jest zobowiązany do wskazania autora Produktu (attribution) w każdym publicznym wykorzystaniu${
-          format ? `, w formie: „${format}"` : ""
+          format ? `, w formie: „${format}”` : ""
         }.`,
       );
     } else {
