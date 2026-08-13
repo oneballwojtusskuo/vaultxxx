@@ -13,6 +13,8 @@ import { Plus, PlayCircle, Trash2, FileText, AlertTriangle, X, Repeat2, Eye, Eye
 import { toast } from "sonner";
 import { generateLicensePdf } from "@/lib/license-pdf";
 import { ProfileEditor } from "@/components/profile-editor";
+import { getMyDac7Status } from "@/lib/dac7.functions";
+import { AlertTriangle as AlertTriangleIcon } from "lucide-react";
 
 const TABS = ["products", "purchases", "sales", "affiliate"] as const;
 type DashboardTab = (typeof TABS)[number];
@@ -53,6 +55,13 @@ function Dashboard() {
   const purchases = txData?.purchases;
   const sales = txData?.sales?.filter((t: any) => t.source !== "exchange");
   const affiliateEarnings = txData?.affiliate;
+
+  const fetchDac7 = useServerFn(getMyDac7Status);
+  const { data: dac7 } = useQuery({
+    queryKey: ["dac7-status", user?.id],
+    enabled: !!user,
+    queryFn: () => fetchDac7({ data: undefined as any }),
+  });
 
 
   const { data: notifications, refetch: refetchNotifications } = useQuery({
@@ -158,6 +167,61 @@ function Dashboard() {
           </div>
         )}
 
+
+        {dac7 && dac7.level !== "ok" && (
+          <div
+            className={`mt-8 rounded-2xl border p-5 space-y-3 ${
+              dac7.level === "required" ? "border-destructive/40 bg-destructive/10" : "border-amber-500/40 bg-amber-500/10"
+            }`}
+          >
+            <div className="flex items-start gap-3">
+              <AlertTriangleIcon className={`h-5 w-5 shrink-0 mt-0.5 ${dac7.level === "required" ? "text-destructive" : "text-amber-600"}`} />
+              <div className="flex-1">
+                <p className="font-semibold">
+                  {dac7.level === "required"
+                    ? "Wymagane dane podatkowe (DAC7)"
+                    : "Zbliżasz się do progu — uzupełnij dane podatkowe"}
+                </p>
+                <p className="text-sm text-muted-foreground mt-1">
+                  {dac7.level === "required"
+                    ? "Przekroczono roczny próg DAC7. Uzupełnij dane podatkowe, aby móc kontynuować sprzedaż."
+                    : "Po przekroczeniu 30 transakcji lub 2 000 EUR w roku musimy zgłosić Twoją sprzedaż do urzędu skarbowego."}
+                </p>
+              </div>
+              <Link to="/dane-podatkowe">
+                <Button size="sm" variant={dac7.level === "required" ? "destructive" : "outline"}>
+                  Uzupełnij dane
+                </Button>
+              </Link>
+            </div>
+            <div className="grid sm:grid-cols-2 gap-4">
+              <div>
+                <div className="flex justify-between text-xs mb-1 text-muted-foreground">
+                  <span>Transakcje</span>
+                  <span>{dac7.txCount}</span>
+                </div>
+                <div className="h-2 w-full overflow-hidden rounded-full bg-muted">
+                  <div
+                    className={`h-full ${dac7.level === "required" ? "bg-destructive" : "bg-amber-500"}`}
+                    style={{ width: `${Math.min(100, dac7.pctTx)}%` }}
+                  />
+                </div>
+              </div>
+              <div>
+                <div className="flex justify-between text-xs mb-1 text-muted-foreground">
+                  <span>Kwota sprzedaży</span>
+                  <span>{dac7.grossPln.toFixed(0)} zł</span>
+                </div>
+                <div className="h-2 w-full overflow-hidden rounded-full bg-muted">
+                  <div
+                    className={`h-full ${dac7.level === "required" ? "bg-destructive" : "bg-amber-500"}`}
+                    style={{ width: `${Math.min(100, dac7.pctAmount)}%` }}
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
 
         <Tabs
           value={activeTab}
