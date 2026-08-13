@@ -113,7 +113,7 @@ function Browse() {
             <h2 className="font-display text-xl font-bold mb-3">Twórcy pasujący do „{sp.q}"</h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
               {users.map((u) => {
-                const name = u.display_name ?? u.username ?? "Twórca";
+                const name = u.username ?? u.display_name ?? "Twórca";
                 const initials = name.slice(0, 1).toUpperCase();
                 return (
                   <Link

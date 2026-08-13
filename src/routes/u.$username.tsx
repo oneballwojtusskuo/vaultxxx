@@ -80,7 +80,7 @@ function Profile() {
     );
   }
 
-  const name = profile.display_name ?? profile.username ?? "Twórca";
+  const name = profile.username ?? profile.display_name ?? "Twórca";
   const initials = name.slice(0, 1).toUpperCase();
 
   return (

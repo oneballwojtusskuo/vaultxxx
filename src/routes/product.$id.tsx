@@ -257,10 +257,10 @@ function ProductPage() {
               <span>od </span>
               {seller?.username ? (
                 <Link to="/u/$username" params={{ username: seller.username }} className="text-foreground hover:text-primary font-medium">
-                  {seller?.display_name ?? seller.username}
+                  {seller?.username ?? seller.display_name}
                 </Link>
               ) : (
-                <span>{seller?.display_name ?? "Twórca"}</span>
+                <span>{seller?.username ?? "Twórca"}</span>
               )}
               {seller?.is_verified_seller && <VerifiedBadge />}
               {!isOwner && user && (
@@ -310,7 +310,7 @@ function ProductPage() {
             )}
 
             {(p as any).license_terms && (
-              <LicenseSummary terms={(p as any).license_terms} productTitle={p.title} sellerName={seller?.display_name ?? undefined} />
+              <LicenseSummary terms={(p as any).license_terms} productTitle={p.title} sellerName={seller?.username ?? undefined} />
             )}
 
             {!isPublished && (
@@ -354,7 +354,7 @@ function ProductPage() {
                       currency: myTransaction.currency,
                       buyerName: user?.user_metadata?.display_name ?? user?.email ?? "Licencjobiorca",
                       buyerEmail: user?.email ?? "",
-                      sellerName: seller?.display_name ?? "Sprzedawca",
+                      sellerName: seller?.username ?? "Sprzedawca",
                       terms: (p as any).license_terms ?? {},
                     })
                   }

@@ -88,7 +88,7 @@ export function SellerReviews({ sellerId }: { sellerId: string }) {
   return (
     <div className="space-y-3">
       {reviews.map((r: any) => {
-        const name = r.buyer?.display_name ?? r.buyer?.username ?? "Kupujący";
+        const name = r.buyer?.username ?? r.buyer?.display_name ?? "Kupujący";
         const initials = name.slice(0, 1).toUpperCase();
         return (
           <div key={r.id} className="rounded-xl bg-gradient-surface border border-border/40 p-4">
@@ -221,7 +221,7 @@ export function ProductReviews({
       ) : (
         <div className="space-y-3">
           {reviews.map((r: any) => {
-            const name = r.buyer?.display_name ?? r.buyer?.username ?? "Kupujący";
+            const name = r.buyer?.username ?? r.buyer?.display_name ?? "Kupujący";
             const initials = name.slice(0, 1).toUpperCase();
             const mine = user?.id === r.buyer_id;
             return (

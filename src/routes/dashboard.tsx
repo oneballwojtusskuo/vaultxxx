@@ -101,7 +101,7 @@ function Dashboard() {
       currency: t.currency,
       buyerName: user.user_metadata?.display_name ?? user.email ?? "Licencjobiorca",
       buyerEmail: user.email ?? "",
-      sellerName: t.product.seller?.display_name ?? "Sprzedawca",
+      sellerName: t.product.seller?.username ?? "Sprzedawca",
       terms: t.product.license_terms ?? {},
     });
     toast.success("Licencja wygenerowana");
