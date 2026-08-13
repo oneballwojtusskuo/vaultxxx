@@ -16,7 +16,6 @@ export function ProfileEditor() {
   const { user } = useAuth();
   const [open, setOpen] = useState(false);
   const [profile, setProfile] = useState<any>(null);
-  const [displayName, setDisplayName] = useState("");
   const [username, setUsername] = useState("");
   const [bio, setBio] = useState("");
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
@@ -33,7 +32,6 @@ export function ProfileEditor() {
       .then(({ data }) => {
         if (!data) return;
         setProfile(data);
-        setDisplayName(data.display_name ?? "");
         setUsername(data.username ?? "");
         setBio(data.bio ?? "");
         setAvatarUrl(data.avatar_url ?? null);
@@ -45,6 +43,10 @@ export function ProfileEditor() {
     setUploading(true);
     const ext = file.name.split(".").pop();
     const path = `${user.id}/${Date.now()}.${ext}`;
+    if (!username.trim()) {
+      setSaving(false);
+      return toast.error("Nazwa użytkownika jest wymagana.");
+    }
     const { error } = await supabase.storage.from("avatars").upload(path, file, { upsert: true });
     if (error) {
       setUploading(false);
@@ -58,11 +60,15 @@ export function ProfileEditor() {
   const save = async () => {
     if (!user) return;
     setSaving(true);
+    if (!username.trim()) {
+      setSaving(false);
+      return toast.error("Nazwa użytkownika jest wymagana.");
+    }
     const { error } = await supabase
       .from("profiles")
       .update({
-        display_name: displayName.trim() || null,
-        username: username.trim() || null,
+        username: username.trim().toLowerCase() || null,
+        display_name: username.trim().toLowerCase() || null,
         bio: bio.trim() || null,
         avatar_url: avatarUrl,
       })
@@ -96,7 +102,7 @@ export function ProfileEditor() {
                 {avatarUrl ? (
                   <img src={avatarUrl} alt="" className="w-full h-full object-cover"/>
                 ) : (
-                  <span className="text-primary-foreground font-bold text-2xl">{(displayName || username || "?").slice(0, 1).toUpperCase()}</span>
+                  <span className="text-primary-foreground font-bold text-2xl">{(username || "?").slice(0, 1).toUpperCase()}</span>
                 )}
               </div>
               <div>
@@ -113,11 +119,7 @@ export function ProfileEditor() {
               </div>
             </div>
             <div>
-              <Label>Wyświetlana nazwa</Label>
-              <Input value={displayName} onChange={(e) => setDisplayName(e.target.value)} placeholder="Twoje imię lub pseudonim" />
-            </div>
-            <div>
-              <Label>Username (URL profilu)</Label>
+              <Label>Nazwa użytkownika (unikalna, widoczna publicznie)</Label>
               <Input value={username} onChange={(e) => setUsername(e.target.value.toLowerCase().replace(/[^a-z0-9_]/g, ""))} placeholder="np. john_doe" />
             </div>
             <div>
