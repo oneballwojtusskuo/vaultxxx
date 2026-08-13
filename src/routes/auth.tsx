@@ -33,20 +33,43 @@ function safeNext(next: string | undefined): string | null {
   return next;
 }
 
+const MONTHS = [
+  "stycznia", "lutego", "marca", "kwietnia", "maja", "czerwca",
+  "lipca", "sierpnia", "września", "października", "listopada", "grudnia",
+];
+
 function AuthPage() {
   const navigate = useNavigate();
   const { next } = Route.useSearch();
   const nextPath = safeNext(next);
   const lovableAuth = createLovableAuth();
+  const [tab, setTab] = useState<"signin" | "signup">("signin");
   const [loading, setLoading] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [displayName, setDisplayName] = useState("");
-  const [birthDate, setBirthDate] = useState("");
+  const [password2, setPassword2] = useState("");
+  const [birthDay, setBirthDay] = useState("");
+  const [birthMonth, setBirthMonth] = useState("");
+  const [birthYear, setBirthYear] = useState("");
   const [acceptDocs, setAcceptDocs] = useState(false);
+  const [emailTaken, setEmailTaken] = useState(false);
 
   const [showSpamNotice, setShowSpamNotice] = useState(false);
   const [pendingEmail, setPendingEmail] = useState("");
+  const [resetOpen, setResetOpen] = useState(false);
+  const [resetEmail, setResetEmail] = useState("");
+
+  const currentYear = new Date().getFullYear();
+  const years = Array.from({ length: 100 }, (_, i) => currentYear - i);
+  const daysInMonth =
+    birthMonth && birthYear
+      ? new Date(Number(birthYear), Number(birthMonth), 0).getDate()
+      : 31;
+
+  const birthDate =
+    birthDay && birthMonth && birthYear
+      ? `${birthYear}-${String(birthMonth).padStart(2, "0")}-${String(birthDay).padStart(2, "0")}`
+      : "";
 
   const goNext = () => {
     if (nextPath) {
@@ -66,14 +89,56 @@ function AuthPage() {
     goNext();
   };
 
+  const checkEmail = async (value: string) => {
+    const v = value.trim();
+    setEmailTaken(false);
+    if (!v || !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(v)) return;
+    try {
+      const res = await emailAlreadyRegistered({ data: { email: v } });
+      if (res.exists) {
+        setEmailTaken(true);
+        toast.info("Konto z tym adresem e-mail już istnieje — zaloguj się.");
+        setTab("signin");
+      }
+    } catch {
+      /* niekrytyczne — walidacja i tak nastąpi przy rejestracji */
+    }
+  };
+
+  const sendReset = async () => {
+    const v = resetEmail.trim();
+    if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(v)) return toast.error("Podaj poprawny adres e-mail.");
+    setLoading(true);
+    const { error } = await supabase.auth.resetPasswordForEmail(v, {
+      redirectTo: `${window.location.origin}/reset-hasla`,
+    });
+    setLoading(false);
+    if (error) return toast.error(error.message);
+    setResetOpen(false);
+    toast.success("Wysłaliśmy link do zmiany hasła. Sprawdź skrzynkę (także SPAM).");
+  };
+
   const signUp = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!birthDate) return toast.error("Podaj datę urodzenia.");
-    const age = (Date.now() - new Date(birthDate).getTime()) / (365.2425 * 24 * 3600 * 1000);
-    if (Number.isNaN(age)) return toast.error("Nieprawidłowa data urodzenia.");
+    if (!birthDate) return toast.error("Wybierz pełną datę urodzenia (dzień, miesiąc i rok).");
+    const dob = new Date(`${birthDate}T00:00:00`);
+    if (Number.isNaN(dob.getTime())) return toast.error("Nieprawidłowa data urodzenia.");
+    const age = (Date.now() - dob.getTime()) / (365.2425 * 24 * 3600 * 1000);
     if (age < 16) return toast.error("Z vlnd mogą korzystać wyłącznie osoby, które ukończyły 16 lat.");
+    if (password !== password2) return toast.error("Hasła nie są takie same — wpisz je ponownie.");
     if (!acceptDocs) return toast.error("Zaakceptuj regulamin i politykę prywatności.");
     setLoading(true);
+    try {
+      const res = await emailAlreadyRegistered({ data: { email: email.trim() } });
+      if (res.exists) {
+        setLoading(false);
+        setEmailTaken(true);
+        setTab("signin");
+        return toast.error("Konto z tym adresem e-mail już istnieje — zaloguj się lub zresetuj hasło.");
+      }
+    } catch {
+      /* ignore */
+    }
     const redirectTo = nextPath
       ? `${window.location.origin}${nextPath}`
       : window.location.origin;
@@ -82,7 +147,7 @@ function AuthPage() {
       password,
       options: {
         emailRedirectTo: redirectTo,
-        data: { display_name: displayName, date_of_birth: birthDate, age_confirmed_16: true },
+        data: { date_of_birth: birthDate, age_confirmed_16: true },
       },
     });
     setLoading(false);
@@ -104,6 +169,7 @@ function AuthPage() {
       return;
     }
     if (r.redirected) return;
+
     if (r.tokens) await supabase.auth.setSession(r.tokens);
     goNext();
   };

@@ -514,7 +514,7 @@ function Sell() {
                   <Info className="h-3.5 w-3.5 text-muted-foreground hover:text-primary" />
                 </TooltipTrigger>
                 <TooltipContent side="top" className="max-w-xs text-xs leading-relaxed">
-                  Ustaw ile procent (0–50) od ceny sprzedaży dostanie użytkownik, który poleci Twój produkt swoim linkiem afiliacyjnym. 0% = brak programu partnerskiego dla tego produktu. Platforma i tak pobiera stałą opłatę 10%.
+                  Ustaw ile procent (0–50) od ceny sprzedaży dostanie użytkownik, który poleci Twój produkt swoim linkiem afiliacyjnym. 0% = brak programu partnerskiego — trudniej wtedy o promocję produktu. Platforma dolicza swoją marżę 10% do ceny niezależnie od prowizji partnera.
                 </TooltipContent>
               </Tooltip>
             </Label>
