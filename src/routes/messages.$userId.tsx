@@ -103,7 +103,7 @@ function Conversation() {
   };
 
   const name = other?.display_name ?? other?.username ?? "Użytkownik";
-  const initials = name.slice(0, 2).toUpperCase();
+  const initials = name.slice(0, 1).toUpperCase();
 
   return (
     <div className="min-h-screen flex flex-col">

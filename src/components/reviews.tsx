@@ -89,7 +89,7 @@ export function SellerReviews({ sellerId }: { sellerId: string }) {
     <div className="space-y-3">
       {reviews.map((r: any) => {
         const name = r.buyer?.display_name ?? r.buyer?.username ?? "Kupujący";
-        const initials = name.slice(0, 2).toUpperCase();
+        const initials = name.slice(0, 1).toUpperCase();
         return (
           <div key={r.id} className="rounded-xl bg-gradient-surface border border-border/40 p-4">
             <div className="flex items-start gap-3">
@@ -222,7 +222,7 @@ export function ProductReviews({
         <div className="space-y-3">
           {reviews.map((r: any) => {
             const name = r.buyer?.display_name ?? r.buyer?.username ?? "Kupujący";
-            const initials = name.slice(0, 2).toUpperCase();
+            const initials = name.slice(0, 1).toUpperCase();
             const mine = user?.id === r.buyer_id;
             return (
               <div key={r.id} className="rounded-xl bg-gradient-surface border border-border/40 p-4">

@@ -96,7 +96,7 @@ export function ProfileEditor() {
                 {avatarUrl ? (
                   <img src={avatarUrl} alt="" className="w-full h-full object-cover"/>
                 ) : (
-                  <span className="text-primary-foreground font-bold text-2xl">{(displayName || username || "?").slice(0,2).toUpperCase()}</span>
+                  <span className="text-primary-foreground font-bold text-2xl">{(displayName || username || "?").slice(0, 1).toUpperCase()}</span>
                 )}
               </div>
               <div>

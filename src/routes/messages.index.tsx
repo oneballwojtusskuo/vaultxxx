@@ -66,7 +66,7 @@ function Inbox() {
           )}
           {conversations?.map((c: any) => {
             const name = c.profile?.display_name ?? c.profile?.username ?? "Użytkownik";
-            const initials = name.slice(0, 2).toUpperCase();
+            const initials = name.slice(0, 1).toUpperCase();
             return (
               <Link
                 key={c.otherId}
