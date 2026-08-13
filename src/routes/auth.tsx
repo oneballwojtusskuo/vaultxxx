@@ -187,7 +187,7 @@ function AuthPage() {
         </Link>
 
         <div className="rounded-2xl glass border border-border/40 p-6 shadow-elevated">
-          <Tabs defaultValue="signin">
+          <Tabs value={tab} onValueChange={(v) => setTab(v as "signin" | "signup")}>
             <TabsList className="w-full grid grid-cols-2">
               <TabsTrigger value="signin">Zaloguj</TabsTrigger>
               <TabsTrigger value="signup">Rejestracja</TabsTrigger>
@@ -203,6 +203,16 @@ function AuthPage() {
                   <Label>Hasło</Label>
                   <Input type="password" required value={password} onChange={(e) => setPassword(e.target.value)} />
                 </div>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setResetEmail(email);
+                    setResetOpen(true);
+                  }}
+                  className="text-xs text-accent hover:underline"
+                >
+                  Nie pamiętam hasła
+                </button>
                 <Button disabled={loading} type="submit" className="w-full bg-gradient-primary text-primary-foreground shadow-glow">
                   Zaloguj się
                 </Button>
@@ -212,12 +222,25 @@ function AuthPage() {
             <TabsContent value="signup" className="space-y-4 mt-6">
               <form onSubmit={signUp} className="space-y-4">
                 <div className="space-y-2">
-                  <Label>Nazwa wyświetlana</Label>
-                  <Input value={displayName} onChange={(e) => setDisplayName(e.target.value)} />
-                </div>
-                <div className="space-y-2">
                   <Label>Email</Label>
-                  <Input type="email" required value={email} onChange={(e) => setEmail(e.target.value)} />
+                  <Input
+                    type="email"
+                    required
+                    value={email}
+                    onChange={(e) => {
+                      setEmail(e.target.value);
+                      setEmailTaken(false);
+                    }}
+                    onBlur={(e) => checkEmail(e.target.value)}
+                  />
+                  {emailTaken && (
+                    <p className="text-xs text-destructive">
+                      Konto z tym adresem już istnieje — przejdź do zakładki „Zaloguj”.
+                    </p>
+                  )}
+                  <p className="text-xs text-muted-foreground">
+                    Nazwę użytkownika wybierzesz zaraz po potwierdzeniu adresu e-mail.
+                  </p>
                 </div>
                 <div className="space-y-2">
                   <Label>Hasło</Label>
@@ -225,10 +248,52 @@ function AuthPage() {
                   <p className="text-xs text-muted-foreground">Min. 8 znaków. Sprawdzamy bazę wyciekłych haseł.</p>
                 </div>
                 <div className="space-y-2">
+                  <Label>Powtórz hasło</Label>
+                  <Input type="password" required minLength={8} value={password2} onChange={(e) => setPassword2(e.target.value)} />
+                  {password2.length > 0 && password2 !== password && (
+                    <p className="text-xs text-destructive">Hasła nie są takie same.</p>
+                  )}
+                </div>
+                <div className="space-y-2">
                   <Label>Data urodzenia <span className="text-destructive">*</span></Label>
-                  <Input type="date" required value={birthDate} onChange={(e) => setBirthDate(e.target.value)} max={new Date().toISOString().slice(0, 10)} />
+                  <div className="grid grid-cols-3 gap-2">
+                    <select
+                      required
+                      value={birthDay}
+                      onChange={(e) => setBirthDay(e.target.value)}
+                      className="h-10 rounded-md border border-input bg-background px-2 text-sm"
+                    >
+                      <option value="">Dzień</option>
+                      {Array.from({ length: daysInMonth }, (_, i) => i + 1).map((d) => (
+                        <option key={d} value={d}>{d}</option>
+                      ))}
+                    </select>
+                    <select
+                      required
+                      value={birthMonth}
+                      onChange={(e) => setBirthMonth(e.target.value)}
+                      className="h-10 rounded-md border border-input bg-background px-2 text-sm"
+                    >
+                      <option value="">Miesiąc</option>
+                      {MONTHS.map((m, i) => (
+                        <option key={m} value={i + 1}>{m}</option>
+                      ))}
+                    </select>
+                    <select
+                      required
+                      value={birthYear}
+                      onChange={(e) => setBirthYear(e.target.value)}
+                      className="h-10 rounded-md border border-input bg-background px-2 text-sm"
+                    >
+                      <option value="">Rok</option>
+                      {years.map((y) => (
+                        <option key={y} value={y}>{y}</option>
+                      ))}
+                    </select>
+                  </div>
                   <p className="text-xs text-muted-foreground">Z vlnd mogą korzystać wyłącznie osoby, które ukończyły 16 lat.</p>
                 </div>
+
                 <label className="flex items-start gap-2 text-xs text-muted-foreground">
                   <input
                     type="checkbox"
