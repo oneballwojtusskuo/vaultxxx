@@ -31,6 +31,7 @@ import { CheckoutDialog } from "@/components/checkout-dialog";
 import { getStripeEnvironment } from "@/lib/stripe";
 import { buyerPriceOf } from "@/lib/pricing";
 import { EscrowActions } from "@/components/escrow-actions";
+import { BackLink } from "@/components/back-link";
 
 export const Route = createFileRoute("/product/$id")({
   component: ProductPage,
