@@ -165,7 +165,10 @@ function ProductPage() {
   const isPublished = p.status === "published";
 
   const buy = async () => {
-    if (!user) { navigate({ to: "/auth" }); return; }
+    if (!user) {
+      navigate({ to: "/auth", search: { next: `${window.location.pathname}?buy=1` } });
+      return;
+    }
     if (isOwner) return toast.error("To Twój produkt");
     if (!acceptTerms || !acceptWithdrawal) {
       return toast.error("Zaznacz oba wymagane zgody przed dokonaniem zakupu.");
@@ -236,9 +239,7 @@ function ProductPage() {
     <div className="min-h-screen flex flex-col">
       <SiteHeader />
       <main className="container mx-auto px-4 py-8 flex-1">
-        <Link to="/browse" className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground mb-6">
-          <ArrowLeft className="h-4 w-4" /> Powrót do przeglądania
-        </Link>
+        <BackLink />
 
         <div className="grid lg:grid-cols-2 gap-10">
           <div className="space-y-4">
