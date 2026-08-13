@@ -142,21 +142,77 @@ async function generateWatermarkedImage(source: File, watermarkText: string): Pr
   return new File([blob], `${base}-watermark.jpg`, { type: "image/jpeg" });
 }
 
+/** Info icon that shows help both on hover (desktop, Tooltip) and on click/tap (mobile, Popover). */
+function HelpIcon({ help, className }: { help?: string; className?: string }) {
+  const [open, setOpen] = useState(false);
+  if (!help) return null;
+  return (
+    <Popover open={open} onOpenChange={setOpen}>
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <PopoverTrigger asChild>
+            <button
+              type="button"
+              onClick={(e) => {
+                e.preventDefault();
+                setOpen((o) => !o);
+              }}
+              className="inline-flex shrink-0"
+              aria-label="Więcej informacji"
+            >
+              <Info className={className ?? "h-3.5 w-3.5 text-muted-foreground hover:text-primary"} />
+            </button>
+          </PopoverTrigger>
+        </TooltipTrigger>
+        <TooltipContent side="top" className="max-w-xs text-xs leading-relaxed">
+          {help}
+        </TooltipContent>
+      </Tooltip>
+      <PopoverContent side="top" className="max-w-xs text-xs leading-relaxed w-auto">
+        {help}
+      </PopoverContent>
+    </Popover>
+  );
+}
+
 function HelpLabel({ text, help }: { text: string; help?: string }) {
   return (
     <div className="flex items-center gap-1.5">
       <Label className="text-xs">{text}</Label>
-      {help && (
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <Info className="h-3.5 w-3.5 text-muted-foreground hover:text-primary" />
-          </TooltipTrigger>
-          <TooltipContent side="top" className="max-w-xs text-xs leading-relaxed">
-            {help}
-          </TooltipContent>
-        </Tooltip>
-      )}
+      <HelpIcon help={help} />
     </div>
+  );
+}
+
+/** Inline, non-blocking contradiction warnings shown near license option fields. */
+function contradictionWarning(key: string, terms: LicenseTerms, licType: LicenseType): string | undefined {
+  if (key === "create_nft" && terms.create_nft && !terms.redistribution) {
+    return "Zezwalasz na tworzenie NFT, ale zabraniasz redystrybucji — mintowanie NFT zwykle wymaga też możliwości rozpowszechniania pliku.";
+  }
+  if (key === "resale" && terms.resale && !terms.redistribution) {
+    return "Zezwalasz na odsprzedaż, ale zabraniasz redystrybucji — bez redystrybucji odsprzedany plik trudno legalnie przekazać dalej.";
+  }
+  if (key === "train_ai" && terms.train_ai && !terms.commercial_use) {
+    return "Zgoda na trenowanie AI zwykle idzie w parze z użytkiem komercyjnym — sprawdź, czy na pewno chcesz to rozdzielić.";
+  }
+  if (key === "attribution_required" && terms.attribution_required === false && licType === "personal") {
+    return 'Licencja "Personal" zwykle wymaga podania autora — rozważ włączenie tej opcji.';
+  }
+  return undefined;
+}
+
+/** Diff against the last applied preset — used for a subtle "deviates from standard" note. */
+function deviatesFromPreset(key: keyof LicenseTerms, terms: LicenseTerms, preset: LicenseTerms | null): boolean {
+  if (!preset) return false;
+  return JSON.stringify(terms[key] ?? null) !== JSON.stringify(preset[key] ?? null);
+}
+
+function DeviationNote({ show, licType }: { show: boolean; licType: LicenseType }) {
+  if (!show) return null;
+  return (
+    <p className="text-[11px] text-amber-500">
+      Ta zmiana odbiega od standardowej licencji {LICENSE_TYPE_LABELS[licType]} — upewnij się, że to zamierzone.
+    </p>
   );
 }
 

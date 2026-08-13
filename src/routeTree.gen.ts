@@ -19,6 +19,7 @@ import { Route as LikesRouteImport } from './routes/likes'
 import { Route as HelpRouteImport } from './routes/help'
 import { Route as ExchangesRouteImport } from './routes/exchanges'
 import { Route as DashboardRouteImport } from './routes/dashboard'
+import { Route as DanePodatkoweRouteImport } from './routes/dane-podatkowe'
 import { Route as BrowseRouteImport } from './routes/browse'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AdminRouteImport } from './routes/admin'
@@ -79,6 +80,11 @@ const DashboardRoute = DashboardRouteImport.update({
   path: '/dashboard',
   getParentRoute: () => rootRouteImport,
 } as any)
+const DanePodatkoweRoute = DanePodatkoweRouteImport.update({
+  id: '/dane-podatkowe',
+  path: '/dane-podatkowe',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const BrowseRoute = BrowseRouteImport.update({
   id: '/browse',
   path: '/browse',
@@ -131,6 +137,7 @@ export interface FileRoutesByFullPath {
   '/admin': typeof AdminRoute
   '/auth': typeof AuthRoute
   '/browse': typeof BrowseRoute
+  '/dane-podatkowe': typeof DanePodatkoweRoute
   '/dashboard': typeof DashboardRoute
   '/exchanges': typeof ExchangesRoute
   '/help': typeof HelpRoute
@@ -152,6 +159,7 @@ export interface FileRoutesByTo {
   '/admin': typeof AdminRoute
   '/auth': typeof AuthRoute
   '/browse': typeof BrowseRoute
+  '/dane-podatkowe': typeof DanePodatkoweRoute
   '/dashboard': typeof DashboardRoute
   '/exchanges': typeof ExchangesRoute
   '/help': typeof HelpRoute
@@ -174,6 +182,7 @@ export interface FileRoutesById {
   '/admin': typeof AdminRoute
   '/auth': typeof AuthRoute
   '/browse': typeof BrowseRoute
+  '/dane-podatkowe': typeof DanePodatkoweRoute
   '/dashboard': typeof DashboardRoute
   '/exchanges': typeof ExchangesRoute
   '/help': typeof HelpRoute
@@ -197,6 +206,7 @@ export interface FileRouteTypes {
     | '/admin'
     | '/auth'
     | '/browse'
+    | '/dane-podatkowe'
     | '/dashboard'
     | '/exchanges'
     | '/help'
@@ -218,6 +228,7 @@ export interface FileRouteTypes {
     | '/admin'
     | '/auth'
     | '/browse'
+    | '/dane-podatkowe'
     | '/dashboard'
     | '/exchanges'
     | '/help'
@@ -239,6 +250,7 @@ export interface FileRouteTypes {
     | '/admin'
     | '/auth'
     | '/browse'
+    | '/dane-podatkowe'
     | '/dashboard'
     | '/exchanges'
     | '/help'
@@ -261,6 +273,7 @@ export interface RootRouteChildren {
   AdminRoute: typeof AdminRoute
   AuthRoute: typeof AuthRoute
   BrowseRoute: typeof BrowseRoute
+  DanePodatkoweRoute: typeof DanePodatkoweRoute
   DashboardRoute: typeof DashboardRoute
   ExchangesRoute: typeof ExchangesRoute
   HelpRoute: typeof HelpRoute
@@ -350,6 +363,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DashboardRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/dane-podatkowe': {
+      id: '/dane-podatkowe'
+      path: '/dane-podatkowe'
+      fullPath: '/dane-podatkowe'
+      preLoaderRoute: typeof DanePodatkoweRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/browse': {
       id: '/browse'
       path: '/browse'
@@ -421,6 +441,7 @@ const rootRouteChildren: RootRouteChildren = {
   AdminRoute: AdminRoute,
   AuthRoute: AuthRoute,
   BrowseRoute: BrowseRoute,
+  DanePodatkoweRoute: DanePodatkoweRoute,
   DashboardRoute: DashboardRoute,
   ExchangesRoute: ExchangesRoute,
   HelpRoute: HelpRoute,

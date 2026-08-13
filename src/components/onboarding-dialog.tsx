@@ -150,8 +150,6 @@ export function OnboardingDialog() {
 
           <div>
 
-
-          <div>
             <Label>Opis konta (opcjonalne)</Label>
             <Textarea value={bio} onChange={(e) => setBio(e.target.value)} rows={3} placeholder="Krótko o sobie i o tym, co sprzedajesz..." />
           </div>
