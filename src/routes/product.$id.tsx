@@ -383,13 +383,16 @@ function ProductPage() {
             )}
 
             {!isOwner && isPublished && !myTransaction && (
-              <PurchaseConsents
-                acceptTerms={acceptTerms}
-                setAcceptTerms={setAcceptTerms}
-                acceptWithdrawal={acceptWithdrawal}
-                setAcceptWithdrawal={setAcceptWithdrawal}
-              />
+              <div id="panel-zakupu">
+                <PurchaseConsents
+                  acceptTerms={acceptTerms}
+                  setAcceptTerms={setAcceptTerms}
+                  acceptWithdrawal={acceptWithdrawal}
+                  setAcceptWithdrawal={setAcceptWithdrawal}
+                />
+              </div>
             )}
+
 
             <div className="mt-6 flex flex-wrap gap-3">
               <LikeButton productId={p.id} sellerId={p.seller_id} />
