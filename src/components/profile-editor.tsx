@@ -26,7 +26,7 @@ export function ProfileEditor() {
     if (!user) return;
     supabase
       .from("profiles")
-      .select("*")
+      .select("id, username, display_name, avatar_url, bio, created_at, updated_at, is_verified_seller, is_banned, onboarding_completed")
       .eq("id", user.id)
       .maybeSingle()
       .then(({ data }) => {

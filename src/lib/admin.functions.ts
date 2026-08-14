@@ -13,49 +13,8 @@ const ModerateProductInputSchema = z.object({
 });
 
 const ProductFileInputSchema = z.object({ productId: z.string().uuid() });
-const OWNER_ADMIN_EMAIL = "chujcinaryjsuko@gmail.com";
 
-function getClaimEmail(claims: unknown) {
-  const c = claims as { email?: unknown; user_metadata?: { email?: unknown } };
-  const email = typeof c.email === "string" ? c.email : c.user_metadata?.email;
-  return typeof email === "string" ? email.toLowerCase() : "";
-}
 
-function isOwnerEmail(claims: unknown) {
-  return getClaimEmail(claims) === OWNER_ADMIN_EMAIL;
-}
-
-function assertOwnerEmail(claims: unknown) {
-  if (!isOwnerEmail(claims)) {
-    throw new Response("Forbidden", { status: 403 });
-  }
-}
-
-/**
- * Bootstrap: if there is no admin yet, promote the current user to admin.
- * After the first admin exists, this becomes a no-op.
- */
-export const claimAdminIfNone = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
-  .handler(async ({ context }) => {
-    assertOwnerEmail(context.claims);
-    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    const { userId } = context;
-
-    const { count, error: cErr } = await supabaseAdmin
-      .from("user_roles")
-      .select("id", { count: "exact", head: true })
-      .eq("role", "admin");
-    if (cErr) throw cErr;
-
-    if ((count ?? 0) > 0) return { claimed: false, alreadyHasAdmin: true };
-
-    const { error } = await supabaseAdmin
-      .from("user_roles")
-      .insert({ user_id: userId, role: "admin" });
-    if (error) throw error;
-    return { claimed: true };
-  });
 
 /** Check whether the calling user is an admin. */
 export const isCurrentUserAdmin = createServerFn({ method: "GET" })
