@@ -12,10 +12,12 @@ export const exportMyData = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
     const { supabase, userId, claims } = context;
+    // Own profile row (incl. date_of_birth, which is not readable via the public column grants)
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
 
     const [profile, products, purchases, sales, reviews, consents, cookies, privacyRequests, payout] =
       await Promise.all([
-        supabase.from("profiles").select("*").eq("id", userId).maybeSingle(),
+        supabaseAdmin.from("profiles").select("*").eq("id", userId).maybeSingle(),
         supabase.from("products").select("*").eq("seller_id", userId),
         supabase.from("transactions").select("*").eq("buyer_id", userId),
         supabase.from("transactions").select("*").eq("seller_id", userId),
