@@ -2,13 +2,13 @@ import { loadStripe, type Stripe } from "@stripe/stripe-js";
 
 export type StripeEnv = "sandbox" | "live";
 
-const clientToken = import.meta.env.VITE_PAYMENTS_CLIENT_TOKEN as string | undefined;
+const publishableKey = import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY as string | undefined;
 
 function paymentsEnvironment(): StripeEnv {
-  if (clientToken?.startsWith("pk_test_")) return "sandbox";
-  if (clientToken?.startsWith("pk_live_")) return "live";
+  if (publishableKey?.startsWith("pk_test_")) return "sandbox";
+  if (publishableKey?.startsWith("pk_live_")) return "live";
   throw new Error(
-    "Płatności nie są skonfigurowane dla tej wersji aplikacji. Ukończ proces go-live w panelu Płatności.",
+    "Brak klucza VITE_STRIPE_PUBLISHABLE_KEY. Dodaj swój klucz publiczny Stripe do zmiennych środowiskowych.",
   );
 }
 
@@ -17,7 +17,7 @@ let stripePromise: Promise<Stripe | null> | null = null;
 export function getStripe(): Promise<Stripe | null> {
   if (!stripePromise) {
     paymentsEnvironment();
-    stripePromise = loadStripe(clientToken as string);
+    stripePromise = loadStripe(publishableKey as string);
   }
   return stripePromise;
 }
