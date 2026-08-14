@@ -13,23 +13,7 @@ const ModerateProductInputSchema = z.object({
 });
 
 const ProductFileInputSchema = z.object({ productId: z.string().uuid() });
-const OWNER_ADMIN_EMAIL = "chujcinaryjsuko@gmail.com";
 
-function getClaimEmail(claims: unknown) {
-  const c = claims as { email?: unknown; user_metadata?: { email?: unknown } };
-  const email = typeof c.email === "string" ? c.email : c.user_metadata?.email;
-  return typeof email === "string" ? email.toLowerCase() : "";
-}
-
-function isOwnerEmail(claims: unknown) {
-  return getClaimEmail(claims) === OWNER_ADMIN_EMAIL;
-}
-
-function assertOwnerEmail(claims: unknown) {
-  if (!isOwnerEmail(claims)) {
-    throw new Response("Forbidden", { status: 403 });
-  }
-}
 
 
 /** Check whether the calling user is an admin. */
