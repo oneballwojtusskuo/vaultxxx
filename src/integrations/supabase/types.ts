@@ -466,9 +466,11 @@ export type Database = {
           date_of_birth: string | null
           display_name: string | null
           id: string
+          is_admin: boolean | null
           is_banned: boolean
           is_verified_seller: boolean
           onboarding_completed: boolean
+          role: string | null
           updated_at: string
           username: string | null
         }
@@ -479,9 +481,11 @@ export type Database = {
           date_of_birth?: string | null
           display_name?: string | null
           id: string
+          is_admin?: boolean | null
           is_banned?: boolean
           is_verified_seller?: boolean
           onboarding_completed?: boolean
+          role?: string | null
           updated_at?: string
           username?: string | null
         }
@@ -492,9 +496,11 @@ export type Database = {
           date_of_birth?: string | null
           display_name?: string | null
           id?: string
+          is_admin?: boolean | null
           is_banned?: boolean
           is_verified_seller?: boolean
           onboarding_completed?: boolean
+          role?: string | null
           updated_at?: string
           username?: string | null
         }
