@@ -807,7 +807,6 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      get_my_date_of_birth: { Args: never; Returns: string }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
