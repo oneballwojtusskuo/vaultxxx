@@ -31,31 +31,6 @@ function assertOwnerEmail(claims: unknown) {
   }
 }
 
-/**
- * Bootstrap: if there is no admin yet, promote the current user to admin.
- * After the first admin exists, this becomes a no-op.
- */
-export const claimAdminIfNone = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
-  .handler(async ({ context }) => {
-    assertOwnerEmail(context.claims);
-    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    const { userId } = context;
-
-    const { count, error: cErr } = await supabaseAdmin
-      .from("user_roles")
-      .select("id", { count: "exact", head: true })
-      .eq("role", "admin");
-    if (cErr) throw cErr;
-
-    if ((count ?? 0) > 0) return { claimed: false, alreadyHasAdmin: true };
-
-    const { error } = await supabaseAdmin
-      .from("user_roles")
-      .insert({ user_id: userId, role: "admin" });
-    if (error) throw error;
-    return { claimed: true };
-  });
 
 /** Check whether the calling user is an admin. */
 export const isCurrentUserAdmin = createServerFn({ method: "GET" })
