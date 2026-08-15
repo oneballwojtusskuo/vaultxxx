@@ -92,11 +92,9 @@ async function handleWebhook(req: Request, env: StripeEnv) {
 export const Route = createFileRoute("/api/public/payments/webhook")({
   server: {
     handlers: {
-      POST: async ({ request }) => {
-        const rawEnv = new URL(request.url).searchParams.get("env");
-        if (rawEnv !== "sandbox" && rawEnv !== "live") {
-          return Response.json({ received: true, ignored: "invalid env" });
-        }
+     POST: async ({ request }) => {
+        const queryEnv = new URL(request.url).searchParams.get("env");
+        const rawEnv: StripeEnv = queryEnv === "sandbox" ? "sandbox" : "live";
         try {
           await handleWebhook(request, rawEnv);
           return Response.json({ received: true });
@@ -104,6 +102,7 @@ export const Route = createFileRoute("/api/public/payments/webhook")({
           console.error("Webhook error:", e);
           return new Response("Webhook error", { status: 400 });
         }
+      },
       },
     },
   },
