@@ -61,9 +61,15 @@ export function ProfileEditor() {
   const save = async () => {
     if (!user) return;
     setSaving(true);
-    if (!username.trim()) {
+    const unameError = validateUsername(username);
+    if (unameError) {
       setSaving(false);
-      return toast.error("Nazwa użytkownika jest wymagana.");
+      return toast.error(unameError);
+    }
+    const bioError = validateCleanText(bio, "Opis profilu");
+    if (bioError) {
+      setSaving(false);
+      return toast.error(bioError);
     }
     const { error } = await supabase
       .from("profiles")
