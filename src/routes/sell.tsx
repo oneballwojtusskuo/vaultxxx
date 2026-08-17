@@ -352,6 +352,8 @@ function Sell() {
     if (payoutHolder.trim().length < 3) {
       return toast.error("Podaj imię i nazwisko (lub nazwę firmy) właściciela konta.");
     }
+    const holderError = validateCleanText(payoutHolder, "Właściciel konta");
+    if (holderError) return toast.error(holderError);
 
 
 
