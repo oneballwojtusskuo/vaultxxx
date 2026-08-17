@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { validateUsername, validateCleanText } from "@/lib/profanity";
 import { supabase } from "@/lib/supabase-browser";
 import { useAuth } from "@/hooks/use-auth";
 import { Button } from "@/components/ui/button";
@@ -65,7 +66,12 @@ export function OnboardingDialog() {
   const finish = async () => {
     if (!user) return;
     const uname = username.trim().toLowerCase();
-    if (uname.length < 3) return toast.error("Nazwa użytkownika musi mieć min. 3 znaki");
+    const unameError = validateUsername(uname);
+    if (unameError) return toast.error(unameError);
+    const bioError = validateCleanText(bio, "Opis profilu");
+    if (bioError) return toast.error(bioError);
+    const nameError = validateCleanText(displayName, "Nazwa wyświetlana");
+    if (nameError) return toast.error(nameError);
 
     setSaving(true);
     const { data: taken } = await supabase

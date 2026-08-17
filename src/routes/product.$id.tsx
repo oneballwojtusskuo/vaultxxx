@@ -7,6 +7,7 @@ import { SiteFooter } from "@/components/site-footer";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/lib/supabase-browser";
 import { useAuth } from "@/hooks/use-auth";
+import { Link2 as LinkIcon } from "lucide-react";
 import { toast } from "sonner";
 import { useEffect, useState } from "react";
 import { setReferralCookie, getReferralCookie, buildReferralLink, clearReferralCookie } from "@/lib/affiliate";
@@ -507,15 +508,7 @@ function ShareButton({ title }: { title: string }) {
   const [copied, setCopied] = useState(false);
   const url = typeof window !== "undefined" ? window.location.href : "";
 
-  const handleShare = async () => {
-    try {
-      if (typeof navigator !== "undefined" && (navigator as any).share) {
-        await (navigator as any).share({ title, url });
-        return;
-      }
-    } catch {
-      // fall through to copy
-    }
+  const copyLink = async () => {
     try {
       await navigator.clipboard.writeText(url);
       setCopied(true);
@@ -526,11 +519,28 @@ function ShareButton({ title }: { title: string }) {
     }
   };
 
+  const share = async () => {
+    if (typeof navigator !== "undefined" && (navigator as any).share) {
+      try {
+        await (navigator as any).share({ title, url });
+        return;
+      } catch {
+        // użytkownik anulował lub brak wsparcia — kopiujemy link
+      }
+    }
+    await copyLink();
+  };
+
   return (
-    <Button onClick={handleShare} size="lg" variant="outline" className="h-12">
-      {copied ? <Check className="h-4 w-4 mr-2" /> : <Share2 className="h-4 w-4 mr-2" />}
-      {copied ? "Skopiowano" : "Udostępnij / Skopiuj link"}
-    </Button>
+    <div className="flex gap-2">
+      <Button onClick={share} size="lg" variant="outline" className="h-12 flex-1">
+        <Share2 className="h-4 w-4 mr-2" /> Udostępnij
+      </Button>
+      <Button onClick={copyLink} size="lg" variant="outline" className="h-12 flex-1">
+        {copied ? <Check className="h-4 w-4 mr-2" /> : <LinkIcon className="h-4 w-4 mr-2" />}
+        {copied ? "Skopiowano" : "Skopiuj link"}
+      </Button>
+    </div>
   );
 }
 

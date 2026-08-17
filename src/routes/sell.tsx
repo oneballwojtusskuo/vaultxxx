@@ -1,4 +1,5 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { validateCleanText } from "@/lib/profanity";
 import { useEffect, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { SiteHeader } from "@/components/site-header";
@@ -351,6 +352,8 @@ function Sell() {
     if (payoutHolder.trim().length < 3) {
       return toast.error("Podaj imię i nazwisko (lub nazwę firmy) właściciela konta.");
     }
+    const holderError = validateCleanText(payoutHolder, "Właściciel konta");
+    if (holderError) return toast.error(holderError);
 
 
 
@@ -548,7 +551,7 @@ function Sell() {
               );
             })()}
             <p className="text-[11px] text-muted-foreground">
-              0% oznacza brak zachęty dla partnerów — takie produkty są dużo trudniej promować. Polecamy 10–20%.
+              0% oznacza brak zachęty dla partnerów — taki produkt jest dużo trudniej wypromować. Polecamy 10–20%.
             </p>
           </div>
           <div className="grid md:grid-cols-2 gap-4">
