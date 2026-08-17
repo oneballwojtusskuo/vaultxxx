@@ -103,7 +103,6 @@ export const Route = createFileRoute("/api/public/payments/webhook")({
           return new Response("Webhook error", { status: 400 });
         }
       },
-      },
     },
   },
 });
