@@ -385,10 +385,6 @@ function AuthPage() {
                   onChange={(e) => setResetEmail(e.target.value)}
                   placeholder="twoj@email.pl"
                 />
-                <div className="rounded-lg border border-amber-500/30 bg-amber-500/10 p-3 text-left text-xs">
-                  Jeśli to nie Ty prosisz o zmianę hasła — <span className="font-semibold text-foreground">nie klikaj w link</span> z wiadomości.
-                  Twoje hasło pozostanie wtedy bez zmian.
-                </div>
               </div>
             </AlertDialogDescription>
           </AlertDialogHeader>
