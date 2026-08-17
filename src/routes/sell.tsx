@@ -1,5 +1,5 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { validateUsername, validateCleanText } from "@/lib/profanity";
+import { validateCleanText } from "@/lib/profanity";
 import { useEffect, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { SiteHeader } from "@/components/site-header";
