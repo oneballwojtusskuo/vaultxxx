@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { validateUsername, validateCleanText } from "@/lib/profanity";
 import { supabase } from "@/lib/supabase-browser";
 import { useAuth } from "@/hooks/use-auth";
 import { Button } from "@/components/ui/button";
