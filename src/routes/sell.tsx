@@ -551,7 +551,7 @@ function Sell() {
               );
             })()}
             <p className="text-[11px] text-muted-foreground">
-              0% oznacza brak zachęty dla partnerów — takie produkty są dużo trudniej promować. Polecamy 10–20%.
+              0% oznacza brak zachęty dla partnerów — taki produkt jest dużo trudniej wypromować. Polecamy 10–20%.
             </p>
           </div>
           <div className="grid md:grid-cols-2 gap-4">
