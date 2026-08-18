@@ -6,22 +6,20 @@ const getEnv = (key: string): string => {
   return value;
 };
 
-// Zachowane dla zgodności z istniejącymi wywołaniami (sandbox = klucz testowy,
-// live = klucz produkcyjny). Środowisko wynika teraz wprost z Twojego
-// STRIPE_SECRET_KEY (sk_test_... vs sk_live_...).
 export type StripeEnv = "sandbox" | "live";
 
-export function getSecretKey(): string {
-  return getEnv("STRIPE_SECRET_KEY");
+/** Klucze pochodzą z integracji płatności Lovable (sandbox/live). */
+export function getSecretKey(env: StripeEnv = "sandbox"): string {
+  const managed = env === "live" ? process.env["STRIPE_LIVE_API_KEY"] : process.env["STRIPE_SANDBOX_API_KEY"];
+  return managed || getEnv("STRIPE_SECRET_KEY");
 }
 
 export function getServerStripeEnv(): StripeEnv {
-  return getSecretKey().startsWith("sk_live_") ? "live" : "sandbox";
+  return process.env["STRIPE_LIVE_API_KEY"] ? "live" : "sandbox";
 }
 
-/** Bezpośredni klient Stripe API — bez gatewaya Lovable. */
-export function createStripeClient(_env?: StripeEnv): Stripe {
-  return new Stripe(getSecretKey(), {
+export function createStripeClient(env: StripeEnv = "sandbox"): Stripe {
+  return new Stripe(getSecretKey(env), {
     apiVersion: "2026-03-25.dahlia",
     httpClient: Stripe.createFetchHttpClient(),
   });
