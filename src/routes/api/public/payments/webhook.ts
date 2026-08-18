@@ -94,7 +94,7 @@ export const Route = createFileRoute("/api/public/payments/webhook")({
     handlers: {
      POST: async ({ request }) => {
         const queryEnv = new URL(request.url).searchParams.get("env");
-        const rawEnv: StripeEnv = queryEnv === "sandbox" ? "sandbox" : "live";
+        const rawEnv: StripeEnv = queryEnv === "live" ? "live" : "sandbox";
         try {
           await handleWebhook(request, rawEnv);
           return Response.json({ received: true });
