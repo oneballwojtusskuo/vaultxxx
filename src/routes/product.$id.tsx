@@ -4,6 +4,12 @@ import { useServerFn } from "@tanstack/react-start";
 import { Download, Repeat2, ShoppingCart, ArrowLeft, Share2, Check, FileText, Lock, PlayCircle, MessageSquare } from "lucide-react";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
+import {
+  OPERATOR_NAME,
+  OPERATOR_LEGAL_FORM,
+  OPERATOR_ADDRESS,
+  OPERATOR_CONTACT,
+} from "@/lib/operator";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/lib/supabase-browser";
 import { useAuth } from "@/hooks/use-auth";
