@@ -786,7 +786,11 @@ function PurchaseConsents({
           <Link to="/regulamin" target="_blank" className="text-accent underline hover:text-accent/80">
             Regulamin Serwisu
           </Link>{" "}
-          oraz Politykę Prywatności.
+          oraz{" "}
+          <Link to="/polityka-prywatnosci" target="_blank" className="text-accent underline hover:text-accent/80">
+            Politykę Prywatności
+          </Link>{" "}
+          Operatora Platformy VLND ({OPERATOR_NAME}, {OPERATOR_LEGAL_FORM}, {OPERATOR_ADDRESS}, {OPERATOR_CONTACT}).
         </span>
       </label>
       <label className="flex items-start gap-3 cursor-pointer">
