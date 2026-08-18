@@ -3,8 +3,13 @@ import { ScrollText } from "lucide-react";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 
-const OPERATOR_NAME = "vlnd";
-const OPERATOR_CONTACT = "vlndmarketplace@gmail.com";
+import {
+  OPERATOR_NAME,
+  OPERATOR_LEGAL_FORM,
+  OPERATOR_ADDRESS,
+  OPERATOR_CONTACT,
+} from "@/lib/operator";
+
 const EFFECTIVE_DATE = "1 stycznia 2026 r.";
 
 export const Route = createFileRoute("/regulamin")({
