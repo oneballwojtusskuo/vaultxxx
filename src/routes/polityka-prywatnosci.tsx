@@ -59,9 +59,14 @@ function PrivacyPage() {
           <article className="prose prose-invert prose-sm sm:prose-base max-w-none space-y-8 leading-relaxed">
             <Section title="§ 1. Administrator danych osobowych">
               <p>
-                Administratorem danych osobowych Użytkowników platformy internetowej dostępnej pod
-                domeną vlnd (dalej: <b>„Platforma”</b>) jest operator Platformy — <b>{OPERATOR_NAME}</b>{" "}
-                (dalej: <b>„Administrator”</b> lub <b>„Operator”</b>).
+                Operator Platformy VLND oraz Administrator Danych Osobowych: <b>{OPERATOR_NAME}</b>,{" "}
+                {OPERATOR_LEGAL_FORM} (dalej: <b>„Administrator”</b> lub <b>„Operator”</b>).<br />
+                Adres do korespondencji: {OPERATOR_ADDRESS}.<br />
+                Kontakt e-mail:{" "}
+                <a className="underline" href={`mailto:${OPERATOR_CONTACT}`}>
+                  {OPERATOR_CONTACT}
+                </a>
+                .
               </p>
               <p>
                 We wszystkich sprawach dotyczących przetwarzania danych osobowych oraz wykonywania
