@@ -3,8 +3,13 @@ import { ScrollText } from "lucide-react";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 
-const OPERATOR_NAME = "vlnd";
-const OPERATOR_CONTACT = "vlndmarketplace@gmail.com";
+import {
+  OPERATOR_NAME,
+  OPERATOR_LEGAL_FORM,
+  OPERATOR_ADDRESS,
+  OPERATOR_CONTACT,
+} from "@/lib/operator";
+
 const EFFECTIVE_DATE = "1 stycznia 2026 r.";
 
 export const Route = createFileRoute("/regulamin")({
@@ -41,14 +46,25 @@ function RegulaminPage() {
             <Section title="§ 1. Postanowienia ogólne i definicje">
               <p>
                 Niniejszy Regulamin (dalej: <b>„Regulamin”</b>) określa zasady świadczenia usług drogą elektroniczną
-                przez operatora platformy internetowej dostępnej pod domeną vlnd (dalej: <b>„Platforma”</b> lub <b>„Serwis”</b>),
+                przez operatora platformy internetowej VLND dostępnej pod domeną vlnd.pl (dalej: <b>„Platforma”</b> lub <b>„Serwis”</b>),
                 w szczególności zasady zawierania i wykonywania umów pomiędzy jej Użytkownikami oraz warunki obsługi
                 płatności w modelu powierniczym (escrow).
               </p>
+              <p>
+                <b>Operator Platformy VLND oraz Administrator Danych Osobowych:</b> {OPERATOR_NAME},{" "}
+                {OPERATOR_LEGAL_FORM}.<br />
+                Adres do korespondencji: {OPERATOR_ADDRESS}.<br />
+                Kontakt e-mail:{" "}
+                <a className="underline" href={`mailto:${OPERATOR_CONTACT}`}>
+                  {OPERATOR_CONTACT}
+                </a>
+                .
+              </p>
               <p>Na potrzeby Regulaminu przyjmuje się następujące definicje:</p>
               <ul>
-                <li><b>Operator</b> – podmiot prowadzący Platformę {OPERATOR_NAME}, świadczący usługi pośrednictwa
-                  w rozumieniu Rozporządzenia (UE) 2022/2065 (Digital Services Act, „DSA”).</li>
+                <li><b>Operator</b> – {OPERATOR_NAME}, {OPERATOR_LEGAL_FORM}, adres do korespondencji:{" "}
+                  {OPERATOR_ADDRESS}, e-mail: {OPERATOR_CONTACT} – podmiot prowadzący Platformę VLND,
+                  świadczący usługi pośrednictwa w rozumieniu Rozporządzenia (UE) 2022/2065 (Digital Services Act, „DSA”).</li>
                 <li><b>Użytkownik</b> – każda osoba fizyczna, prawna lub jednostka organizacyjna korzystająca z Platformy.</li>
                 <li><b>Konsument</b> – Użytkownik będący konsumentem w rozumieniu art. 22¹ Kodeksu cywilnego.</li>
                 <li><b>Sprzedawca</b> – Użytkownik oferujący do sprzedaży Produkty Cyfrowe za pośrednictwem Platformy.</li>

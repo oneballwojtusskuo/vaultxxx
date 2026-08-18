@@ -1,6 +1,13 @@
 import { Link } from "@tanstack/react-router";
 import { VlndLogo } from "@/components/vlnd-logo";
 import { openCookieSettings } from "@/components/cookie-banner";
+import {
+  OPERATOR_NAME,
+  OPERATOR_LEGAL_FORM,
+  OPERATOR_ADDRESS,
+  OPERATOR_CONTACT,
+  OPERATOR_FOOTER_LINE,
+} from "@/lib/operator";
 
 export function SiteFooter() {
   return (
@@ -40,14 +47,15 @@ export function SiteFooter() {
         </div>
 
         <div className="rounded-xl border border-border/40 bg-background/40 p-4 text-xs text-muted-foreground space-y-1">
-          <p className="font-semibold text-foreground">Operator serwisu</p>
+          <p className="font-semibold text-foreground">Operator serwisu i Administrator Danych Osobowych</p>
           <p>
-            vlnd — marketplace treści cyfrowych. Kontakt i obsługa zgłoszeń:{" "}
-            <a href="mailto:vlndmarketplace@gmail.com" className="text-accent hover:underline">
-              vlndmarketplace@gmail.com
+            {OPERATOR_NAME}, {OPERATOR_LEGAL_FORM}. Adres do korespondencji: {OPERATOR_ADDRESS}. Kontakt e-mail:{" "}
+            <a href={`mailto:${OPERATOR_CONTACT}`} className="text-accent hover:underline">
+              {OPERATOR_CONTACT}
             </a>
-            . Punkt kontaktowy w rozumieniu aktu o usługach cyfrowych (DSA) oraz inspektor ds. danych: ten sam adres e-mail.
+            . Punkt kontaktowy w rozumieniu aktu o usługach cyfrowych (DSA) oraz sprawy danych osobowych: ten sam adres e-mail.
           </p>
+          <p>{OPERATOR_FOOTER_LINE}</p>
           <p>
             Serwis jest platformą pośredniczącą — sprzedawcą treści cyfrowej jest użytkownik wystawiający produkt.
             Płatności obsługuje Stripe. Serwis przeznaczony dla osób, które ukończyły 16 lat.
