@@ -1,6 +1,13 @@
 import { Link } from "@tanstack/react-router";
 import { VlndLogo } from "@/components/vlnd-logo";
 import { openCookieSettings } from "@/components/cookie-banner";
+import {
+  OPERATOR_NAME,
+  OPERATOR_LEGAL_FORM,
+  OPERATOR_ADDRESS,
+  OPERATOR_CONTACT,
+  OPERATOR_FOOTER_LINE,
+} from "@/lib/operator";
 
 export function SiteFooter() {
   return (
