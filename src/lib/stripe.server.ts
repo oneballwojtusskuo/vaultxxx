@@ -45,11 +45,15 @@ export function getStripeErrorMessage(error: unknown): string {
 
 export async function verifyWebhook(
   req: Request,
-  _env?: StripeEnv,
+  env: StripeEnv = "sandbox",
 ): Promise<{ type: string; data: { object: any } }> {
   const signature = req.headers.get("stripe-signature");
   const body = await req.text();
-  const secret = getEnv("STRIPE_WEBHOOK_SECRET");
+  const managedSecret =
+    env === "live"
+      ? process.env["PAYMENTS_LIVE_WEBHOOK_SECRET"]
+      : process.env["PAYMENTS_SANDBOX_WEBHOOK_SECRET"];
+  const secret = managedSecret || getEnv("STRIPE_WEBHOOK_SECRET");
 
   if (!signature || !body) throw new Error("Missing signature or body");
 
