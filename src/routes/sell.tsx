@@ -659,6 +659,9 @@ function Sell() {
                   <Upload className="h-4 w-4" /> Plik produktu{" "}
                   <span className="text-destructive">*</span>
                 </Label>
+                <p className="text-xs text-muted-foreground">
+                  Możesz wybrać kilka plików naraz. Pierwszy będzie plikiem głównym.
+                </p>
                 <Input
                   type="file"
                   multiple

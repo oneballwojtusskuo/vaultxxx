@@ -23,9 +23,16 @@ export const Route = createFileRoute("/help")({
   head: () => ({
     meta: [
       { title: "Centrum pomocy — vlnd" },
-      { name: "description", content: "Skontaktuj się z zespołem vlnd. Odpowiedzi na pytania o zakupy, sprzedaż, wymiany, afiliację i bezpieczeństwo." },
+      {
+        name: "description",
+        content:
+          "Skontaktuj się z zespołem vlnd. Odpowiedzi na pytania o zakupy, sprzedaż, wymiany, afiliację i bezpieczeństwo.",
+      },
       { property: "og:title", content: "Centrum pomocy — vlnd" },
-      { property: "og:description", content: "Skontaktuj się z zespołem vlnd. FAQ i formularz kontaktowy." },
+      {
+        property: "og:description",
+        content: "Skontaktuj się z zespołem vlnd. FAQ i formularz kontaktowy.",
+      },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
     ],
@@ -82,21 +89,26 @@ function HelpPage() {
             <h1 className="font-display text-3xl font-bold">Centrum pomocy</h1>
           </div>
           <p className="text-muted-foreground mb-8">
-            Masz pytanie, zgłoszenie lub potrzebujesz pomocy? Napisz do nas — odpowiadamy najszybciej jak to możliwe.
+            Masz pytanie, zgłoszenie lub potrzebujesz pomocy? Napisz do nas — odpowiadamy
+            najszybciej jak to możliwe.
           </p>
 
           <section className="grid sm:grid-cols-2 gap-4 mb-10">
             <FaqCard icon={<Shield className="h-4 w-4" />} title="Bezpieczeństwo (Escrow)">
-              Środki kupującego trafiają do depozytu i są zwalniane sprzedawcy dopiero po potwierdzeniu odbioru pliku.
+              Środki kupującego trafiają do depozytu. Kupujący ma 24 godziny na potwierdzenie
+              odbioru lub zgłoszenie problemu; po tym czasie środki są automatycznie zwalniane.
             </FaqCard>
             <FaqCard icon={<Repeat className="h-4 w-4" />} title="Wymiany">
-              Możesz zaproponować wymianę pliku za plik. Dostęp odblokowuje się po obustronnym potwierdzeniu.
+              Możesz zaproponować wymianę pliku za plik. Dostęp odblokowuje się po obustronnym
+              potwierdzeniu.
             </FaqCard>
             <FaqCard icon={<Users className="h-4 w-4" />} title="Afiliacja">
-              Udostępniaj linki polecające produktów — dostajesz % prowizji od każdej sprzedaży z Twojego linku.
+              Udostępniaj linki polecające produktów — dostajesz % prowizji od każdej sprzedaży z
+              Twojego linku.
             </FaqCard>
             <FaqCard icon={<Percent className="h-4 w-4" />} title="Prowizja platformy">
-              vlnd dolicza 10% do ceny sprzedawcy — to jedyna prowizja platformy, całą resztę otrzymuje twórca.
+              vlnd dolicza 10% do ceny sprzedawcy — to jedyna prowizja platformy, całą resztę
+              otrzymuje twórca.
             </FaqCard>
           </section>
 
@@ -113,26 +125,59 @@ function HelpPage() {
               <div className="grid sm:grid-cols-2 gap-4">
                 <div>
                   <Label htmlFor="name">Imię</Label>
-                  <Input id="name" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} maxLength={100} required />
+                  <Input
+                    id="name"
+                    value={form.name}
+                    onChange={(e) => setForm({ ...form, name: e.target.value })}
+                    maxLength={100}
+                    required
+                  />
                 </div>
                 <div>
                   <Label htmlFor="email">Twój e-mail</Label>
-                  <Input id="email" type="email" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} maxLength={255} required />
+                  <Input
+                    id="email"
+                    type="email"
+                    value={form.email}
+                    onChange={(e) => setForm({ ...form, email: e.target.value })}
+                    maxLength={255}
+                    required
+                  />
                 </div>
               </div>
               <div>
                 <Label htmlFor="subject">Temat</Label>
-                <Input id="subject" value={form.subject} onChange={(e) => setForm({ ...form, subject: e.target.value })} maxLength={200} required />
+                <Input
+                  id="subject"
+                  value={form.subject}
+                  onChange={(e) => setForm({ ...form, subject: e.target.value })}
+                  maxLength={200}
+                  required
+                />
               </div>
               <div>
                 <Label htmlFor="message">Wiadomość</Label>
-                <Textarea id="message" rows={7} value={form.message} onChange={(e) => setForm({ ...form, message: e.target.value })} maxLength={4000} required />
+                <Textarea
+                  id="message"
+                  rows={7}
+                  value={form.message}
+                  onChange={(e) => setForm({ ...form, message: e.target.value })}
+                  maxLength={4000}
+                  required
+                />
               </div>
               <div className="flex items-center justify-between gap-4 flex-wrap">
-                <a href={`mailto:${SUPPORT_EMAIL}`} className="text-xs text-muted-foreground hover:text-foreground">
+                <a
+                  href={`mailto:${SUPPORT_EMAIL}`}
+                  className="text-xs text-muted-foreground hover:text-foreground"
+                >
                   albo napisz bezpośrednio: {SUPPORT_EMAIL}
                 </a>
-                <Button type="submit" disabled={loading} className="bg-gradient-primary text-primary-foreground">
+                <Button
+                  type="submit"
+                  disabled={loading}
+                  className="bg-gradient-primary text-primary-foreground"
+                >
                   <Send className="h-4 w-4 mr-1.5" />
                   {loading ? "Wysyłanie…" : "Wyślij wiadomość"}
                 </Button>
@@ -146,7 +191,15 @@ function HelpPage() {
   );
 }
 
-function FaqCard({ icon, title, children }: { icon: React.ReactNode; title: string; children: React.ReactNode }) {
+function FaqCard({
+  icon,
+  title,
+  children,
+}: {
+  icon: React.ReactNode;
+  title: string;
+  children: React.ReactNode;
+}) {
   return (
     <div className="rounded-xl border border-border/60 bg-card/40 p-4">
       <div className="flex items-center gap-2 mb-1.5 text-sm font-semibold">

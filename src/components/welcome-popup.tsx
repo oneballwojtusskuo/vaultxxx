@@ -36,12 +36,30 @@ const TRANSLATIONS = {
     intro:
       "vlnd to marketplace dla twórców cyfrowych. Kupuj, sprzedawaj i wymieniaj się plikami — grafikami, muzyką, kodem, kursami, e-bookami i modelami 3D — prosto od autorów, bez korporacyjnych pośredników.",
     rows: {
-      buy: { title: "Kupuj cyfrowe pliki", text: "Grafika, muzyka, e‑booki, kod, kursy, modele 3D — od twórców, nie od korporacji." },
-      sell: { title: "Sprzedawaj w kilka minut", text: "Wgraj plik, okładkę i próbkę ze znakiem wodnym, ustaw cenę i licencję — gotowe." },
-      swap: { title: "Wymieniaj się bez pieniędzy", text: "Zaproponuj wymianę plik‑za‑plik. Dostęp odblokowuje się po obustronnym potwierdzeniu." },
-      affiliate: { title: "Zarabiaj na afiliacji", text: "Udostępniaj linki polecające i zgarniaj % od każdej sprzedaży z Twojego linku." },
-      escrow: { title: "Bezpieczeństwo (Escrow)", text: "Pieniądze trafiają do depozytu — sprzedawca dostaje wypłatę dopiero po Twoim potwierdzeniu odbioru pliku." },
-      fee: { title: "Uczciwa prowizja", text: "vlnd dolicza tylko 10% do ceny sprzedawcy — reszta trafia w całości do twórcy." },
+      buy: {
+        title: "Kupuj cyfrowe pliki",
+        text: "Grafika, muzyka, e‑booki, kod, kursy, modele 3D — od twórców, nie od korporacji.",
+      },
+      sell: {
+        title: "Sprzedawaj w kilka minut",
+        text: "Wgraj plik, okładkę i próbkę ze znakiem wodnym, ustaw cenę i licencję — gotowe.",
+      },
+      swap: {
+        title: "Wymieniaj się bez pieniędzy",
+        text: "Zaproponuj wymianę plik‑za‑plik. Dostęp odblokowuje się po obustronnym potwierdzeniu.",
+      },
+      affiliate: {
+        title: "Zarabiaj na afiliacji",
+        text: "Udostępniaj linki polecające i zgarniaj % od każdej sprzedaży z Twojego linku.",
+      },
+      escrow: {
+        title: "Bezpieczeństwo (Escrow)",
+        text: "Pieniądze trafiają do depozytu. Masz 24 godziny na potwierdzenie odbioru lub zgłoszenie problemu; później środki są automatycznie zwalniane.",
+      },
+      fee: {
+        title: "Uczciwa prowizja",
+        text: "vlnd dolicza tylko 10% do ceny sprzedawcy — reszta trafia w całości do twórcy.",
+      },
     },
     learnMore: "Dowiedz się więcej",
     showLess: "Zwiń",
@@ -54,38 +72,32 @@ const TRANSLATIONS = {
         {
           icon: "shield",
           title: "Depozyt (Escrow) chroni obie strony",
-          text:
-            "Kupując płacisz razem z niewielką prowizją, ale środki nie trafiają od razu do sprzedawcy. Zostają zamrożone do czasu, aż potwierdzisz, że plik spełnia opis. Dopiero wtedy twórca otrzymuje wypłatę. Jeśli coś jest nie tak — masz procedurę reklamaccyjną.",
+          text: "Kupując płacisz razem z niewielką prowizją, ale środki nie trafiają od razu do sprzedawcy. Masz 24 godziny na sprawdzenie, czy plik spełnia opis. Jeśli nic nie zgłosisz, środki zostaną automatycznie zwolnione. Jeśli coś jest nie tak — masz procedurę reklamacyjną.",
         },
         {
           icon: "repeat",
           title: "Wymiany plików bez płatności",
-          text:
-            "Masz coś wartościowego, ale wolisz zamienić się na inny asset? Wyślij propozycję wymiany. Gdy obie strony się zgodzą, dostęp do plików zostaje odblokowany dla obu użytkowników jednocześnie — fair deal.",
+          text: "Masz coś wartościowego, ale wolisz zamienić się na inny asset? Wyślij propozycję wymiany. Gdy obie strony się zgodzą, dostęp do plików zostaje odblokowany dla obu użytkowników jednocześnie — fair deal.",
         },
         {
           icon: "users",
           title: "Afiliacja dla influencerów i twórców",
-          text:
-            "Każdy produkt może mieć własny program partnerski. Sprzedawca ustala % prowizji dla polecających, a Ty generujesz unikalny link i zarabiasz na każdym zakupie z Twojego kanału.",
+          text: "Każdy produkt może mieć własny program partnerski. Sprzedawca ustala % prowizji dla polecających, a Ty generujesz unikalny link i zarabiasz na każdym zakupie z Twojego kanału.",
         },
         {
           icon: "lock",
           title: "Anti-piracy i licencje",
-          text:
-            "Pliki są chronione znakiem wodnym, próbki są automatycznie zabezpieczane, a po zakupie otrzymujesz wygenerowaną licencję PDF z hashem transakcji. To jasny dowód na legalność użytkowania.",
+          text: "Pliki są chronione znakiem wodnym, próbki są automatycznie zabezpieczane, a po zakupie otrzymujesz wygenerowaną licencję PDF z hashem transakcji. To jasny dowód na legalność użytkowania.",
         },
         {
           icon: "zap",
           title: "Szybka weryfikacja produktów",
-          text:
-            "Każdy nowy produkt przechodzi przez weryfikację zespołu vlnd, zanim trafi do kupujących. Dzięki temu znikają oszustwa, spam i niskiej jakości treści.",
+          text: "Każdy nowy produkt przechodzi przez weryfikację zespołu vlnd, zanim trafi do kupujących. Dzięki temu znikają oszustwa, spam i niskiej jakości treści.",
         },
         {
           icon: "file-check",
           title: "Przejrzyste prowizje",
-          text:
-            "Sprzedawca ustala swoją cenę netto. Cena dla kupującego to cena netto + 10%. Po zatwierdzeniu transakcji sprzedawca otrzymuje dokładnie swoją cenę, a 10% trafia na utrzymanie platformy, moderację i rozwój bezpieczeństwa.",
+          text: "Sprzedawca ustala swoją cenę netto. Cena dla kupującego to cena netto + 10%. Po zatwierdzeniu transakcji sprzedawca otrzymuje dokładnie swoją cenę, a 10% trafia na utrzymanie platformy, moderację i rozwój bezpieczeństwa.",
         },
       ],
       cta: "Przeglądaj ofertę",
@@ -99,12 +111,30 @@ const TRANSLATIONS = {
     intro:
       "vlnd is a marketplace for digital creators. Buy, sell, and swap digital files — graphics, music, code, courses, e-books, and 3D models — directly from authors, without corporate middlemen.",
     rows: {
-      buy: { title: "Buy digital files", text: "Graphics, music, e-books, code, courses, 3D models — from creators, not corporations." },
-      sell: { title: "Sell in minutes", text: "Upload your file, cover, and watermarked sample, set a price and license — you're done." },
-      swap: { title: "Swap without cash", text: "Propose a file-for-file trade. Access is unlocked only after both sides confirm." },
-      affiliate: { title: "Earn from referrals", text: "Share affiliate links and earn a percentage from every sale through your link." },
-      escrow: { title: "Secure escrow", text: "Funds are held in escrow — the seller is paid only after you confirm the file is as described." },
-      fee: { title: "Fair 10% fee", text: "vlnd adds only 10% to the seller's price — the rest goes directly to the creator." },
+      buy: {
+        title: "Buy digital files",
+        text: "Graphics, music, e-books, code, courses, 3D models — from creators, not corporations.",
+      },
+      sell: {
+        title: "Sell in minutes",
+        text: "Upload your file, cover, and watermarked sample, set a price and license — you're done.",
+      },
+      swap: {
+        title: "Swap without cash",
+        text: "Propose a file-for-file trade. Access is unlocked only after both sides confirm.",
+      },
+      affiliate: {
+        title: "Earn from referrals",
+        text: "Share affiliate links and earn a percentage from every sale through your link.",
+      },
+      escrow: {
+        title: "Secure escrow",
+        text: "Funds are held in escrow — the seller is paid only after you confirm the file is as described.",
+      },
+      fee: {
+        title: "Fair 10% fee",
+        text: "vlnd adds only 10% to the seller's price — the rest goes directly to the creator.",
+      },
     },
     learnMore: "Learn more",
     showLess: "Show less",
@@ -117,38 +147,32 @@ const TRANSLATIONS = {
         {
           icon: "shield",
           title: "Escrow protects both sides",
-          text:
-            "When you buy, you pay a small fee on top, but the funds are not released immediately. They are held until you confirm the file matches the description. Only then does the creator receive payment. If something is wrong, there is a dispute process.",
+          text: "When you buy, you pay a small fee on top, but the funds are not released immediately. They are held until you confirm the file matches the description. Only then does the creator receive payment. If something is wrong, there is a dispute process.",
         },
         {
           icon: "repeat",
           title: "File swaps without payments",
-          text:
-            "Have something valuable but prefer to trade it for another asset? Send a swap proposal. Once both sides agree, file access is unlocked for both users at the same time — a fair deal.",
+          text: "Have something valuable but prefer to trade it for another asset? Send a swap proposal. Once both sides agree, file access is unlocked for both users at the same time — a fair deal.",
         },
         {
           icon: "users",
           title: "Affiliation for influencers and creators",
-          text:
-            "Every product can have its own affiliate program. The seller sets the referral percentage, and you generate a unique link to earn on every purchase from your channel.",
+          text: "Every product can have its own affiliate program. The seller sets the referral percentage, and you generate a unique link to earn on every purchase from your channel.",
         },
         {
           icon: "lock",
           title: "Anti-piracy and licenses",
-          text:
-            "Files are protected by watermarks, samples are automatically secured, and after purchase you receive a generated PDF license with a transaction hash. This is clear proof of legal usage.",
+          text: "Files are protected by watermarks, samples are automatically secured, and after purchase you receive a generated PDF license with a transaction hash. This is clear proof of legal usage.",
         },
         {
           icon: "zap",
           title: "Fast product verification",
-          text:
-            "Every new product is reviewed by the vlnd team before it reaches buyers. This removes scams, spam, and low-quality content.",
+          text: "Every new product is reviewed by the vlnd team before it reaches buyers. This removes scams, spam, and low-quality content.",
         },
         {
           icon: "file-check",
           title: "Transparent fees",
-          text:
-            "The seller sets their net price. The buyer sees the net price plus 10%. After the transaction is confirmed, the seller receives exactly their net price, and the 10% goes toward platform maintenance, moderation, and security development.",
+          text: "The seller sets their net price. The buyer sees the net price plus 10%. After the transaction is confirmed, the seller receives exactly their net price, and the 10% goes toward platform maintenance, moderation, and security development.",
         },
       ],
       cta: "Browse the marketplace",
@@ -283,7 +307,11 @@ export function WelcomePopup() {
             className="flex items-center gap-1 text-xs text-accent hover:text-accent/80 transition-colors pt-1"
           >
             {expanded ? t.showLess : t.learnMore}
-            {expanded ? <ChevronUp className="h-3.5 w-3.5" /> : <ChevronDown className="h-3.5 w-3.5" />}
+            {expanded ? (
+              <ChevronUp className="h-3.5 w-3.5" />
+            ) : (
+              <ChevronDown className="h-3.5 w-3.5" />
+            )}
           </button>
 
           {expanded && (
@@ -299,11 +327,17 @@ export function WelcomePopup() {
                   </div>
                   <div className="min-w-0">
                     <div className="text-xs font-semibold leading-tight">{section.title}</div>
-                    <div className="text-[11px] text-muted-foreground leading-snug">{section.text}</div>
+                    <div className="text-[11px] text-muted-foreground leading-snug">
+                      {section.text}
+                    </div>
                   </div>
                 </div>
               ))}
-              <Button asChild size="sm" className="w-full bg-gradient-primary text-primary-foreground mt-1">
+              <Button
+                asChild
+                size="sm"
+                className="w-full bg-gradient-primary text-primary-foreground mt-1"
+              >
                 <Link to="/browse" onClick={close}>
                   {t.expanded.cta}
                   <ArrowRight className="h-3.5 w-3.5 ml-1.5" />
@@ -314,19 +348,36 @@ export function WelcomePopup() {
         </div>
 
         <div className="grid grid-cols-2 gap-2 p-3 border-t border-border/60 shrink-0">
-          <Button asChild size="sm" variant="ghost" className="flex items-center gap-1.5" onClick={close}>
+          <Button
+            asChild
+            size="sm"
+            variant="ghost"
+            className="flex items-center gap-1.5"
+            onClick={close}
+          >
             <Link to="/help">
               <Headphones className="h-3.5 w-3.5" />
               {t.help}
             </Link>
           </Button>
-          <Button asChild size="sm" variant="ghost" className="flex items-center gap-1.5" onClick={close}>
+          <Button
+            asChild
+            size="sm"
+            variant="ghost"
+            className="flex items-center gap-1.5"
+            onClick={close}
+          >
             <Link to="/browse">
               <Compass className="h-3.5 w-3.5" />
               {t.browse}
             </Link>
           </Button>
-          <Button asChild size="sm" className="col-span-2 bg-gradient-primary text-primary-foreground" onClick={close}>
+          <Button
+            asChild
+            size="sm"
+            className="col-span-2 bg-gradient-primary text-primary-foreground"
+            onClick={close}
+          >
             <Link to="/auth">{t.signup}</Link>
           </Button>
         </div>
@@ -335,7 +386,15 @@ export function WelcomePopup() {
   );
 }
 
-function Row({ icon, title, children }: { icon: React.ReactNode; title: string; children: React.ReactNode }) {
+function Row({
+  icon,
+  title,
+  children,
+}: {
+  icon: React.ReactNode;
+  title: string;
+  children: React.ReactNode;
+}) {
   return (
     <div className="flex gap-2.5">
       <div className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-md bg-accent/10 text-accent">

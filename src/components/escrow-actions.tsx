@@ -2,7 +2,12 @@ import { useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { Button } from "@/components/ui/button";
 import {
-  Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogTrigger,
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+  DialogTrigger,
 } from "@/components/ui/dialog";
 import { Textarea } from "@/components/ui/textarea";
 import { CheckCircle2, ShieldAlert, Clock } from "lucide-react";
@@ -81,10 +86,16 @@ export function EscrowActions({ transactionId, status, onChanged }: Props) {
         Środki w depozycie
       </div>
       <p className="mt-1 text-xs text-muted-foreground">
-        Sprawdź plik. Kiedy wszystko będzie w porządku, potwierdź odbiór — dopiero wtedy sprzedawca dostanie pieniądze.
+        Masz 24 godziny na sprawdzenie pliku. Potwierdź odbiór albo zgłoś problem. Brak reakcji
+        oznacza automatyczną akceptację i zwolnienie środków.
       </p>
       <div className="mt-3 flex flex-wrap gap-2">
-        <Button size="sm" onClick={doConfirm} disabled={loading} className="bg-gradient-primary text-primary-foreground">
+        <Button
+          size="sm"
+          onClick={doConfirm}
+          disabled={loading}
+          className="bg-gradient-primary text-primary-foreground"
+        >
           <CheckCircle2 className="h-4 w-4 mr-1.5" />
           Potwierdź odbiór i zwolnij środki
         </Button>
@@ -106,8 +117,12 @@ export function EscrowActions({ transactionId, status, onChanged }: Props) {
               rows={5}
             />
             <DialogFooter>
-              <Button variant="ghost" onClick={() => setDisputeOpen(false)} disabled={loading}>Anuluj</Button>
-              <Button onClick={doDispute} disabled={loading}>Wyślij zgłoszenie</Button>
+              <Button variant="ghost" onClick={() => setDisputeOpen(false)} disabled={loading}>
+                Anuluj
+              </Button>
+              <Button onClick={doDispute} disabled={loading}>
+                Wyślij zgłoszenie
+              </Button>
             </DialogFooter>
           </DialogContent>
         </Dialog>

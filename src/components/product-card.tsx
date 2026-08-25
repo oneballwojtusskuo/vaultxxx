@@ -42,12 +42,14 @@ export function ProductCard({ p }: { p: ProductCardData }) {
       </div>
       <div className="p-4">
         {p.category && (
-          <span className="text-xs uppercase tracking-wider text-muted-foreground">{p.category.name}</span>
+          <span className="text-xs uppercase tracking-wider text-muted-foreground">
+            {p.category.name}
+          </span>
         )}
         <h3 className="mt-1 font-display text-base font-semibold line-clamp-1">{p.title}</h3>
         <div className="mt-3 flex items-center justify-between">
           <span className="text-lg font-bold text-gradient">
-            {p.price === 0 ? "Free" : `${p.price.toFixed(2)} ${p.currency}`}
+            {p.price === 0 ? "Bezpłatny" : `${p.price.toFixed(2)} ${p.currency}`}
           </span>
           <span className="inline-flex items-center gap-1 text-xs text-muted-foreground">
             <Download className="h-3 w-3" /> {p.downloads_count}
