@@ -1,6 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { z } from "zod";
+import { openDisputeThread } from "@/lib/dispute.functions";
 
 /**
  * Buyer confirms delivery — funds are released from escrow to the seller.
@@ -37,6 +38,8 @@ export const confirmDelivery = createServerFn({ method: "POST" })
       link: `/dashboard`,
     } as any);
 
+    await openDisputeThread(supabaseAdmin, tx, data.reason);
+
     return { ok: true };
   });
 
@@ -65,7 +68,8 @@ export const disputeDelivery = createServerFn({ method: "POST" })
       .maybeSingle();
     if (error || !tx) throw new Response("Transaction not found", { status: 404 });
     if (tx.buyer_id !== userId) throw new Response("Forbidden", { status: 403 });
-    if (tx.status !== "held") throw new Response("Only held transactions can be disputed", { status: 400 });
+    if (tx.status !== "held")
+      throw new Response("Only held transactions can be disputed", { status: 400 });
 
     const { error: uErr } = await supabaseAdmin
       .from("transactions")

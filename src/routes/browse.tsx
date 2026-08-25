@@ -1,7 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
-import { Search } from "lucide-react";
+import { Search, SlidersHorizontal } from "lucide-react";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 import { ProductCard } from "@/components/product-card";
@@ -13,6 +13,13 @@ import { z } from "zod";
 const searchSchema = z.object({
   category: z.string().optional(),
   q: z.string().optional(),
+  minPrice: z.coerce.number().nonnegative().optional(),
+  maxPrice: z.coerce.number().nonnegative().optional(),
+  minRating: z.coerce.number().min(0).max(5).optional(),
+  minDownloads: z.coerce.number().int().nonnegative().optional(),
+  sort: z.enum(["relevance", "newest", "price_asc", "price_desc", "popular", "rating"]).optional(),
+  freeOnly: z.boolean().optional(),
+  tradableOnly: z.boolean().optional(),
 });
 
 export const Route = createFileRoute("/browse")({
@@ -24,6 +31,7 @@ function Browse() {
   const sp = Route.useSearch();
   const navigate = Route.useNavigate();
   const [q, setQ] = useState(sp.q ?? "");
+  const [filtersOpen, setFiltersOpen] = useState(false);
 
   const { data: cats } = useQuery({
     queryKey: ["cats"],
@@ -45,11 +53,18 @@ function Browse() {
   });
 
   const { data: products, isLoading } = useQuery({
-    queryKey: ["browse", sp.category, sp.q],
+    queryKey: ["browse", sp],
     queryFn: async () => {
       const { data, error } = await (supabase as any).rpc("search_products", {
         q: sp.q ?? null,
         cat: sp.category ?? null,
+        min_price: sp.minPrice ?? null,
+        max_price: sp.maxPrice ?? null,
+        sort_by: sp.sort ?? "relevance",
+        min_seller_rating: sp.minRating ?? null,
+        free_only: sp.freeOnly ?? false,
+        tradable_only: sp.tradableOnly ?? false,
+        min_downloads: sp.minDownloads ?? null,
       });
       if (error) throw error;
       return (data ?? []).map((r: any) => ({
@@ -60,20 +75,28 @@ function Browse() {
         preview_url: r.preview_url,
         is_tradable: r.is_tradable,
         downloads_count: r.downloads_count,
+        seller_id: r.seller_id,
         category: r.category_name
-          ? { name: r.custom_category ? `${r.category_name} · ${r.custom_category}` : r.category_name, icon: r.category_icon, slug: r.category_slug }
+          ? {
+              name: r.custom_category
+                ? `${r.category_name} · ${r.custom_category}`
+                : r.category_name,
+              icon: r.category_icon,
+              slug: r.category_slug,
+            }
           : null,
       }));
     },
   });
-
 
   return (
     <div className="min-h-screen flex flex-col">
       <SiteHeader />
       <main className="container mx-auto px-4 py-10 flex-1">
         <h1 className="font-display text-4xl font-bold">Odkrywaj</h1>
-        <p className="text-muted-foreground mt-1">Przeglądaj wszystkie materiały cyfrowe od społeczności.</p>
+        <p className="text-muted-foreground mt-1">
+          Przeglądaj wszystkie materiały cyfrowe od społeczności.
+        </p>
 
         <form
           className="mt-6 flex gap-2"
@@ -84,10 +107,122 @@ function Browse() {
         >
           <div className="relative flex-1">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-            <Input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Szukaj produktów..." className="pl-9" />
+            <Input
+              value={q}
+              onChange={(e) => setQ(e.target.value)}
+              placeholder="Szukaj produktów..."
+              className="pl-9"
+            />
           </div>
-          <Button type="submit" className="bg-gradient-primary text-primary-foreground shadow-glow">Szukaj</Button>
+          <Button type="submit" className="bg-gradient-primary text-primary-foreground shadow-glow">
+            Szukaj
+          </Button>
         </form>
+
+        <div className="mt-4">
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            onClick={() => setFiltersOpen((value) => !value)}
+          >
+            <SlidersHorizontal className="h-4 w-4 mr-2" /> Filtry
+          </Button>
+          {filtersOpen && (
+            <div className="mt-3 grid gap-3 rounded-xl border border-border/40 bg-gradient-surface p-4 sm:grid-cols-2 lg:grid-cols-4">
+              <Input
+                type="number"
+                min="0"
+                placeholder="Cena od"
+                value={sp.minPrice ?? ""}
+                onChange={(e) =>
+                  navigate({
+                    search: {
+                      ...sp,
+                      minPrice: e.target.value ? Number(e.target.value) : undefined,
+                    },
+                  })
+                }
+              />
+              <Input
+                type="number"
+                min="0"
+                placeholder="Cena do"
+                value={sp.maxPrice ?? ""}
+                onChange={(e) =>
+                  navigate({
+                    search: {
+                      ...sp,
+                      maxPrice: e.target.value ? Number(e.target.value) : undefined,
+                    },
+                  })
+                }
+              />
+              <Input
+                type="number"
+                min="0"
+                max="5"
+                step="0.1"
+                placeholder="Ocena twórcy od"
+                value={sp.minRating ?? ""}
+                onChange={(e) =>
+                  navigate({
+                    search: {
+                      ...sp,
+                      minRating: e.target.value ? Number(e.target.value) : undefined,
+                    },
+                  })
+                }
+              />
+              <Input
+                type="number"
+                min="0"
+                placeholder="Pobrań od"
+                value={sp.minDownloads ?? ""}
+                onChange={(e) =>
+                  navigate({
+                    search: {
+                      ...sp,
+                      minDownloads: e.target.value ? Number(e.target.value) : undefined,
+                    },
+                  })
+                }
+              />
+              <select
+                className="h-10 rounded-md border border-input bg-background px-3 text-sm"
+                value={sp.sort ?? "relevance"}
+                onChange={(e) => navigate({ search: { ...sp, sort: e.target.value as any } })}
+              >
+                <option value="relevance">Najtrafniejsze</option>
+                <option value="newest">Najnowsze</option>
+                <option value="price_asc">Cena rosnąco</option>
+                <option value="price_desc">Cena malejąco</option>
+                <option value="popular">Najpopularniejsze</option>
+                <option value="rating">Najwyżej oceniani twórcy</option>
+              </select>
+              <label className="flex items-center gap-2 text-sm">
+                <input
+                  type="checkbox"
+                  checked={sp.freeOnly ?? false}
+                  onChange={(e) =>
+                    navigate({ search: { ...sp, freeOnly: e.target.checked || undefined } })
+                  }
+                />{" "}
+                Tylko darmowe
+              </label>
+              <label className="flex items-center gap-2 text-sm">
+                <input
+                  type="checkbox"
+                  checked={sp.tradableOnly ?? false}
+                  onChange={(e) =>
+                    navigate({ search: { ...sp, tradableOnly: e.target.checked || undefined } })
+                  }
+                />{" "}
+                Tylko na wymianę
+              </label>
+            </div>
+          )}
+        </div>
 
         <div className="mt-6 flex flex-wrap gap-2">
           <Link
@@ -126,7 +261,9 @@ function Browse() {
                       {u.avatar_url ? (
                         <img src={u.avatar_url} alt="" className="w-full h-full object-cover" />
                       ) : (
-                        <span className="text-primary-foreground font-semibold text-sm">{initials}</span>
+                        <span className="text-primary-foreground font-semibold text-sm">
+                          {initials}
+                        </span>
                       )}
                     </div>
                     <div className="min-w-0">
@@ -145,7 +282,9 @@ function Browse() {
             <div className="text-center text-muted-foreground py-20">Ładowanie...</div>
           ) : products && products.length > 0 ? (
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5">
-              {products.map((p: any) => <ProductCard key={p.id} p={p} />)}
+              {products.map((p: any) => (
+                <ProductCard key={p.id} p={p} />
+              ))}
             </div>
           ) : (
             <div className="text-center text-muted-foreground py-20">

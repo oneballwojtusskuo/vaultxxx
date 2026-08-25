@@ -36,7 +36,11 @@ export function LikeButton({
     queryKey: ["product-owner", productId],
     enabled: !!user && sellerId === undefined,
     queryFn: async () => {
-      const { data } = await supabase.from("products").select("seller_id").eq("id", productId).maybeSingle();
+      const { data } = await supabase
+        .from("products")
+        .select("seller_id")
+        .eq("id", productId)
+        .maybeSingle();
       return data?.seller_id ?? null;
     },
   });
@@ -57,7 +61,6 @@ export function LikeButton({
     },
   });
 
-
   const toggle = async () => {
     if (!user) {
       navigate({ to: "/auth" });
@@ -69,12 +72,18 @@ export function LikeButton({
         .delete()
         .eq("product_id", productId)
         .eq("user_id", user.id);
-      if (error) return toast.error(error.message);
+      if (error) return toast.error("Nie udało się usunąć polubienia.");
     } else {
       const { error } = await supabase
         .from("product_likes")
         .insert({ product_id: productId, user_id: user.id });
-      if (error) return toast.error(error.message);
+      if (error) {
+        if (error.code === "23505") {
+          qc.invalidateQueries({ queryKey: ["liked", productId] });
+          return;
+        }
+        return toast.error("Nie udało się zapisać polubienia.");
+      }
       toast.success("Zapisano do polubionych");
     }
     qc.invalidateQueries({ queryKey: ["liked", productId] });
@@ -86,7 +95,6 @@ export function LikeButton({
 
   if (variant === "icon") {
     return (
-
       <Button
         variant="ghost"
         size="icon"
@@ -106,7 +114,8 @@ export function LikeButton({
   return (
     <Button variant="outline" size="lg" className={`h-12 ${className}`} onClick={toggle}>
       <Heart className={`h-4 w-4 mr-2 ${liked ? "fill-destructive text-destructive" : ""}`} />
-      {liked ? "Polubione" : "Polub"} {count > 0 && <span className="ml-2 text-muted-foreground">{count}</span>}
+      {liked ? "Polubione" : "Polub"}{" "}
+      {count > 0 && <span className="ml-2 text-muted-foreground">{count}</span>}
     </Button>
   );
 }

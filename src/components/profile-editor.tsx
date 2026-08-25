@@ -7,11 +7,18 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import {
-  Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter,
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+  DialogFooter,
 } from "@/components/ui/dialog";
 import { toast } from "sonner";
 import { Pencil, Upload } from "lucide-react";
 import { Link } from "@tanstack/react-router";
+import { useServerFn } from "@tanstack/react-start";
+import { validateUploadedFile } from "@/lib/upload-validate.functions";
 
 export function ProfileEditor() {
   const { user } = useAuth();
@@ -22,12 +29,15 @@ export function ProfileEditor() {
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
   const [uploading, setUploading] = useState(false);
+  const validateFile = useServerFn(validateUploadedFile);
 
   useEffect(() => {
     if (!user) return;
     supabase
       .from("profiles")
-      .select("id, username, display_name, avatar_url, bio, created_at, updated_at, is_verified_seller, is_banned, onboarding_completed")
+      .select(
+        "id, username, display_name, avatar_url, bio, created_at, updated_at, is_verified_seller, is_banned, onboarding_completed",
+      )
       .eq("id", user.id)
       .maybeSingle()
       .then(({ data }) => {
@@ -52,6 +62,12 @@ export function ProfileEditor() {
     if (error) {
       setUploading(false);
       return toast.error(error.message);
+    }
+    try {
+      await validateFile({ data: { bucket: "avatars", path, kind: "image" } });
+    } catch (error: any) {
+      setUploading(false);
+      return toast.error(error?.message ?? "Niepoprawny plik zdjęcia.");
     }
     const { data } = supabase.storage.from("avatars").getPublicUrl(path);
     setAvatarUrl(data.publicUrl);
@@ -92,12 +108,16 @@ export function ProfileEditor() {
     <div className="flex items-center gap-3 flex-wrap">
       {profile?.username && (
         <Link to="/u/$username" params={{ username: profile.username }}>
-          <Button variant="outline" size="sm">Zobacz mój profil</Button>
+          <Button variant="outline" size="sm">
+            Zobacz mój profil
+          </Button>
         </Link>
       )}
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogTrigger asChild>
-          <Button variant="outline" size="sm"><Pencil className="h-4 w-4 mr-1"/> Edytuj profil</Button>
+          <Button variant="outline" size="sm">
+            <Pencil className="h-4 w-4 mr-1" /> Edytuj profil
+          </Button>
         </DialogTrigger>
         <DialogContent>
           <DialogHeader>
@@ -107,13 +127,18 @@ export function ProfileEditor() {
             <div className="flex items-center gap-4">
               <div className="h-20 w-20 rounded-full overflow-hidden bg-gradient-primary flex items-center justify-center shrink-0">
                 {avatarUrl ? (
-                  <img src={avatarUrl} alt="" className="w-full h-full object-cover"/>
+                  <img src={avatarUrl} alt="" className="w-full h-full object-cover" />
                 ) : (
-                  <span className="text-primary-foreground font-bold text-2xl">{(username || "?").slice(0, 1).toUpperCase()}</span>
+                  <span className="text-primary-foreground font-bold text-2xl">
+                    {(username || "?").slice(0, 1).toUpperCase()}
+                  </span>
                 )}
               </div>
               <div>
-                <Label htmlFor="avatar-upload" className="cursor-pointer inline-flex items-center gap-2 text-sm border border-border rounded-md px-3 py-2 hover:bg-accent/10">
+                <Label
+                  htmlFor="avatar-upload"
+                  className="cursor-pointer inline-flex items-center gap-2 text-sm border border-border rounded-md px-3 py-2 hover:bg-accent/10"
+                >
                   <Upload className="h-4 w-4" /> {uploading ? "Przesyłam..." : "Zmień zdjęcie"}
                 </Label>
                 <input
@@ -127,15 +152,32 @@ export function ProfileEditor() {
             </div>
             <div>
               <Label>Nazwa użytkownika (unikalna, widoczna publicznie)</Label>
-              <Input value={username} onChange={(e) => setUsername(e.target.value.toLowerCase().replace(/[^a-z0-9_]/g, ""))} placeholder="np. john_doe" />
+              <Input
+                value={username}
+                onChange={(e) =>
+                  setUsername(e.target.value.toLowerCase().replace(/[^a-z0-9_]/g, ""))
+                }
+                placeholder="np. john_doe"
+              />
             </div>
             <div>
               <Label>Bio</Label>
-              <Textarea value={bio} onChange={(e) => setBio(e.target.value)} placeholder="Krótko o sobie..." rows={4} />
+              <Textarea
+                value={bio}
+                onChange={(e) => setBio(e.target.value)}
+                placeholder="Krótko o sobie..."
+                rows={4}
+              />
             </div>
           </div>
           <DialogFooter>
-            <Button onClick={save} disabled={saving} className="bg-gradient-primary text-primary-foreground">Zapisz</Button>
+            <Button
+              onClick={save}
+              disabled={saving}
+              className="bg-gradient-primary text-primary-foreground"
+            >
+              Zapisz
+            </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>

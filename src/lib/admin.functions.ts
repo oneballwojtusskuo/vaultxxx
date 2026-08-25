@@ -3,18 +3,16 @@ import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { z } from "zod";
 
 const AdminProductsInputSchema = z.object({
-  filter: z.enum(["pending_review", "published", "rejected", "all"]),
+  filter: z.enum(["pending_review", "published", "archived", "rejected", "all"]),
 });
 
 const ModerateProductInputSchema = z.object({
   productId: z.string().uuid(),
-  status: z.enum(["published", "rejected"]),
+  status: z.enum(["published", "archived", "rejected"]),
   reviewNotes: z.string().max(2000).nullable().optional(),
 });
 
 const ProductFileInputSchema = z.object({ productId: z.string().uuid() });
-
-
 
 /** Check whether the calling user is an admin. */
 export const isCurrentUserAdmin = createServerFn({ method: "GET" })
@@ -38,7 +36,9 @@ export const listAdminProducts = createServerFn({ method: "GET" })
 
     let query = supabaseAdmin
       .from("products")
-      .select("id,title,description,price,currency,status,created_at,preview_url,sample_url,file_path,seller_id,tags,review_notes")
+      .select(
+        "id,title,description,price,currency,status,created_at,preview_url,sample_url,file_path,seller_id,tags,review_notes",
+      )
       .order("created_at", { ascending: false });
 
     if (data.filter !== "all") query = query.eq("status", data.filter);
@@ -70,6 +70,16 @@ export const moderateProduct = createServerFn({ method: "POST" })
     const { getAdminClientForContext } = await import("@/lib/admin-auth.server");
     const supabaseAdmin = await getAdminClientForContext(context);
 
+    if (data.status === "archived") {
+      const { error } = await supabaseAdmin
+        .from("products")
+        .update({ status: "archived", review_notes: data.reviewNotes ?? null } as any)
+        .eq("id", data.productId)
+        .eq("status", "published");
+      if (error) throw error;
+      return { ok: true, archived: true };
+    }
+
     if (data.status === "rejected") {
       // Permanent removal: fetch product to know owner + storage paths, delete files, delete row, notify seller.
       const { data: product, error: fetchErr } = await supabaseAdmin
@@ -82,7 +92,10 @@ export const moderateProduct = createServerFn({ method: "POST" })
 
       // Delete main product file (private bucket, stored as path).
       if (product.file_path) {
-        await supabaseAdmin.storage.from("product-files").remove([product.file_path]).catch(() => {});
+        await supabaseAdmin.storage
+          .from("product-files")
+          .remove([product.file_path])
+          .catch(() => {});
       }
       // Delete public preview/sample by extracting object path from public URL.
       const publicPaths: string[] = [];
@@ -95,10 +108,16 @@ export const moderateProduct = createServerFn({ method: "POST" })
       extract(product.preview_url);
       extract(product.sample_url);
       if (publicPaths.length) {
-        await supabaseAdmin.storage.from("product-previews").remove(publicPaths).catch(() => {});
+        await supabaseAdmin.storage
+          .from("product-previews")
+          .remove(publicPaths)
+          .catch(() => {});
       }
 
-      const { error: delErr } = await supabaseAdmin.from("products").delete().eq("id", data.productId);
+      const { error: delErr } = await supabaseAdmin
+        .from("products")
+        .delete()
+        .eq("id", data.productId);
       if (delErr) throw delErr;
 
       await supabaseAdmin.from("seller_notifications").insert({

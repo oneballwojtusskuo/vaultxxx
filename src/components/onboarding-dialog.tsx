@@ -6,9 +6,17 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+} from "@/components/ui/dialog";
 import { toast } from "sonner";
 import { Upload, Sparkles } from "lucide-react";
+import { useServerFn } from "@tanstack/react-start";
+import { validateUploadedFile } from "@/lib/upload-validate.functions";
 
 /**
  * Shown right after account creation: the user must pick a username,
@@ -23,6 +31,7 @@ export function OnboardingDialog() {
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
   const [uploading, setUploading] = useState(false);
   const [saving, setSaving] = useState(false);
+  const validateFile = useServerFn(validateUploadedFile);
 
   useEffect(() => {
     if (loading || !user) {
@@ -57,6 +66,12 @@ export function OnboardingDialog() {
     if (error) {
       setUploading(false);
       return toast.error(error.message);
+    }
+    try {
+      await validateFile({ data: { bucket: "avatars", path, kind: "image" } });
+    } catch (error: any) {
+      setUploading(false);
+      return toast.error(error?.message ?? "Niepoprawny plik zdjęcia.");
     }
     const { data } = supabase.storage.from("avatars").getPublicUrl(path);
     setAvatarUrl(data.publicUrl);
@@ -124,7 +139,9 @@ export function OnboardingDialog() {
               placeholder="np. john_doe"
               autoFocus
             />
-            <p className="text-xs text-muted-foreground mt-1">Twój profil: vlnd.lovable.app/u/{username || "twoja_nazwa"}</p>
+            <p className="text-xs text-muted-foreground mt-1">
+              Twój profil: vlnd.lovable.app/u/{username || "twoja_nazwa"}
+            </p>
           </div>
 
           <div className="flex items-center gap-4">
@@ -142,7 +159,8 @@ export function OnboardingDialog() {
                 htmlFor="onboarding-avatar"
                 className="cursor-pointer inline-flex items-center gap-2 text-sm border border-border rounded-md px-3 py-2 hover:bg-accent/10"
               >
-                <Upload className="h-4 w-4" /> {uploading ? "Przesyłam..." : "Dodaj zdjęcie (opcjonalne)"}
+                <Upload className="h-4 w-4" />{" "}
+                {uploading ? "Przesyłam..." : "Dodaj zdjęcie (opcjonalne)"}
               </Label>
               <input
                 id="onboarding-avatar"
@@ -155,9 +173,13 @@ export function OnboardingDialog() {
           </div>
 
           <div>
-
             <Label>Opis konta (opcjonalne)</Label>
-            <Textarea value={bio} onChange={(e) => setBio(e.target.value)} rows={3} placeholder="Krótko o sobie i o tym, co sprzedajesz..." />
+            <Textarea
+              value={bio}
+              onChange={(e) => setBio(e.target.value)}
+              rows={3}
+              placeholder="Krótko o sobie i o tym, co sprzedajesz..."
+            />
           </div>
 
           <Button
