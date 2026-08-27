@@ -38,8 +38,6 @@ export const confirmDelivery = createServerFn({ method: "POST" })
       link: `/dashboard`,
     } as any);
 
-    await openDisputeThread(supabaseAdmin, tx, data.reason);
-
     return { ok: true };
   });
 
@@ -88,6 +86,8 @@ export const disputeDelivery = createServerFn({ method: "POST" })
       body: data.reason.slice(0, 240),
       link: `/dashboard`,
     } as any);
+
+    await openDisputeThread(supabaseAdmin, tx, data.reason);
 
     return { ok: true };
   });
