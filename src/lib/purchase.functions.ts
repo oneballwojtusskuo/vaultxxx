@@ -27,15 +27,29 @@ export const purchaseProduct = createServerFn({ method: "POST" })
     const { userId } = context;
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
 
-    const { data: product, error: pErr } = await supabaseAdmin
+    let { data: product, error: pErr } = await supabaseAdmin
       .from("products")
-      .select("id, seller_id, price, currency, status, downloads_count, title, affiliate_commission_pct")
+      .select(
+        "id, seller_id, price, currency, status, downloads_count, title, affiliate_commission_pct",
+      )
       .eq("id", data.productId)
       .maybeSingle();
 
+    if (pErr) {
+      const fallback = await supabaseAdmin
+        .from("products")
+        .select("id, seller_id, price, currency, status, downloads_count, title")
+        .eq("id", data.productId)
+        .maybeSingle();
+      product = fallback.data as typeof product;
+      pErr = fallback.error;
+    }
+
     if (pErr || !product) throw new Response("Product not found", { status: 404 });
-    if (product.status !== "published") throw new Response("Product not available", { status: 400 });
-    if (product.seller_id === userId) throw new Response("Cannot purchase your own product", { status: 400 });
+    if (product.status !== "published")
+      throw new Response("Product not available", { status: 400 });
+    if (product.seller_id === userId)
+      throw new Response("Cannot purchase your own product", { status: 400 });
 
     // Reject duplicates — any successful state (paid, held, released, or legacy completed)
     const { data: existing } = await supabaseAdmin
@@ -46,7 +60,8 @@ export const purchaseProduct = createServerFn({ method: "POST" })
       .in("status", ["held", "released", "completed", "disputed"] as any)
       .limit(1)
       .maybeSingle();
-    if (existing) return { transactionId: existing.id, status: existing.status as string, alreadyOwned: true };
+    if (existing)
+      return { transactionId: existing.id, status: existing.status as string, alreadyOwned: true };
 
     // Validate affiliate
     let affiliateUserId: string | null = null;
@@ -77,16 +92,14 @@ export const purchaseProduct = createServerFn({ method: "POST" })
     const sellerAmount = sellerNet;
     // Affiliate commission is a % of the SELLER's net price (not the buyer's total).
     // It's paid out of the platform's 10% markup — never out of the seller's cut.
-    const affiliateAmount = affiliateUserId
-      ? +(sellerNet * (affiliatePct / 100)).toFixed(2)
-      : 0;
+    const affiliateAmount = affiliateUserId ? +(sellerNet * (affiliatePct / 100)).toFixed(2) : 0;
     const grossMarkup = +(buyerPrice - sellerNet).toFixed(2);
-    const platformAmount = +(Math.max(grossMarkup - affiliateAmount, 0)).toFixed(2);
+    const platformAmount = +Math.max(grossMarkup - affiliateAmount, 0).toFixed(2);
 
     // New rows start `pending`; webhook promotes to `held` after payment.
     const status = isFree ? "released" : "pending";
 
-    const { data: tx, error: tErr } = await supabaseAdmin
+    let { data: tx, error: tErr } = await supabaseAdmin
       .from("transactions")
       .insert({
         product_id: product.id,
@@ -105,7 +118,24 @@ export const purchaseProduct = createServerFn({ method: "POST" })
       } as any)
       .select("id, status")
       .single();
-    if (tErr || !tx) throw new Response(tErr?.message ?? "Could not create transaction", { status: 500 });
+    if (tErr) {
+      const legacy = await supabaseAdmin
+        .from("transactions")
+        .insert({
+          product_id: product.id,
+          buyer_id: userId,
+          seller_id: product.seller_id,
+          amount: buyerPrice,
+          currency: product.currency,
+          status: isFree ? "completed" : "pending",
+        } as any)
+        .select("id, status")
+        .single();
+      tx = legacy.data;
+      tErr = legacy.error;
+    }
+    if (tErr || !tx)
+      throw new Response(tErr?.message ?? "Could not create transaction", { status: 500 });
 
     if (isFree) {
       await supabaseAdmin
@@ -115,7 +145,6 @@ export const purchaseProduct = createServerFn({ method: "POST" })
       return { transactionId: tx.id, status: "released" as const, alreadyOwned: false };
     }
 
-
     // ---- Stripe Embedded Checkout ----
     const env = data.environment ?? "sandbox";
     const { createStripeClient, getStripeErrorMessage } = await import("@/lib/stripe.server");
@@ -124,9 +153,7 @@ export const purchaseProduct = createServerFn({ method: "POST" })
     const currency = String(product.currency ?? "PLN").toLowerCase();
     // BLIK requires PLN. Promote BLIK first for Polish currency; fall back to card + p24 otherwise.
     const paymentMethodTypes =
-      currency === "pln"
-        ? (["blik", "card", "p24"] as const)
-        : (["card"] as const);
+      currency === "pln" ? (["blik", "card", "p24"] as const) : (["card"] as const);
 
     try {
       const session = await stripe.checkout.sessions.create({

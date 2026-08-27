@@ -16,17 +16,25 @@ function getSupabase() {
 
 async function completeTransaction(transactionId: string) {
   const supabase = getSupabase();
-  const { data: tx } = await supabase
+  let { data: tx } = await supabase
     .from("transactions")
     .select(
       "id, product_id, seller_id, buyer_id, status, amount, seller_amount, currency, stripe_payment_intent_id",
     )
     .eq("id", transactionId)
     .maybeSingle();
+  if (!tx) {
+    const fallback = await supabase
+      .from("transactions")
+      .select("id, product_id, seller_id, buyer_id, status, amount, currency")
+      .eq("id", transactionId)
+      .maybeSingle();
+    tx = fallback.data as typeof tx;
+  }
   // Idempotent: only promote from `pending`. Any other state (held/released/disputed/failed) is a no-op.
   if (!tx || tx.status !== "pending") return;
 
-  await supabase
+  const escrowUpdate = await supabase
     .from("transactions")
     .update({
       status: "held" as any,
@@ -35,6 +43,13 @@ async function completeTransaction(transactionId: string) {
       payout_status: "held",
     } as any)
     .eq("id", transactionId);
+  if (escrowUpdate.error) {
+    await supabase
+      .from("transactions")
+      .update({ status: "completed" as any } as any)
+      .eq("id", transactionId)
+      .eq("status", "pending");
+  }
 
   if (tx.product_id) {
     const { data: p } = await supabase

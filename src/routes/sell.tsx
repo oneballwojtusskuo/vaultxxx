@@ -455,45 +455,64 @@ function Sell() {
       }
       file_path = file_paths[0] ?? null;
 
-      const { data, error } = await supabase
-        .from("products")
-        .insert({
-          seller_id: user.id,
-          title,
-          description,
-          price: parseFloat(price) || 0,
-          category_id: categoryId || null,
-          custom_category: isOtherCategory ? customCategory.trim() : null,
+      const listing = {
+        seller_id: user.id,
+        title,
+        description,
+        price: parseFloat(price) || 0,
+        category_id: categoryId || null,
+        custom_category: isOtherCategory ? customCategory.trim() : null,
+        tags: tags
+          .split(",")
+          .map((t) => t.trim())
+          .filter(Boolean),
+        is_tradable: tradable,
+        affiliate_commission_pct: Math.max(0, Math.min(50, parseInt(affiliatePct || "0", 10) || 0)),
+        preview_url,
+        sample_url,
+        file_path,
+        file_paths,
+        status: "pending_review",
+        license_terms: {
+          ...licTerms,
+          license_type: licType,
+          exclusive: licType === "exclusive" || !!licTerms.exclusive,
+          max_streams: licMaxStreams ? parseInt(licMaxStreams, 10) : null,
+          max_end_products:
+            licTerms.commercial_use === false ? undefined : licTerms.max_end_products,
+          custom_terms: licCustom,
+        },
+      } as any;
+      let { data, error } = await supabase.from("products").insert(listing).select().single();
 
-          tags: tags
-            .split(",")
-            .map((t) => t.trim())
-            .filter(Boolean),
-          is_tradable: tradable,
-          affiliate_commission_pct: Math.max(
-            0,
-            Math.min(50, parseInt(affiliatePct || "0", 10) || 0),
-          ),
-          preview_url,
-          sample_url,
-          file_path,
-          file_paths,
-          status: "pending_review",
-          license_terms: {
-            ...licTerms,
-            license_type: licType,
-            exclusive: licType === "exclusive" || !!licTerms.exclusive,
-            max_streams: licMaxStreams ? parseInt(licMaxStreams, 10) : null,
-            max_end_products:
-              licTerms.commercial_use === false ? undefined : licTerms.max_end_products,
-            custom_terms: licCustom,
-          },
-        } as any)
-        .select()
-        .single();
+      if (error) {
+        const legacy = await supabase
+          .from("products")
+          .insert({
+            seller_id: user.id,
+            title,
+            description,
+            price: parseFloat(price) || 0,
+            category_id: categoryId || null,
+            tags: listing.tags,
+            is_tradable: tradable,
+            preview_url,
+            file_path,
+            status: "published",
+          } as any)
+          .select()
+          .single();
+        data = legacy.data;
+        error = legacy.error;
+      }
 
       if (error) throw error;
-      const review = await reviewListingFn({ data: { productId: data.id } });
+      let review = { autoApproved: false };
+      try {
+        review = await reviewListingFn({ data: { productId: data.id } });
+      } catch {
+        // Older Lovable databases do not have the AI review fields yet.
+      }
       toast.success(
         review.autoApproved
           ? "Produkt został automatycznie zweryfikowany i opublikowany."

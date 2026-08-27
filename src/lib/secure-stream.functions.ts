@@ -31,7 +31,7 @@ export const getSecureStreamUrl = createServerFn({ method: "POST" })
     const isOwner = product.seller_id === userId;
 
     if (!isOwner) {
-      const { data: tx, error: txErr } = await supabaseAdmin
+      let { data: tx, error: txErr } = await supabaseAdmin
         .from("transactions")
         .select("id")
         .eq("product_id", product.id)
@@ -39,6 +39,18 @@ export const getSecureStreamUrl = createServerFn({ method: "POST" })
         .in("status", ["held", "released", "completed", "disputed"])
         .limit(1)
         .maybeSingle();
+      if (txErr) {
+        const legacy = await supabaseAdmin
+          .from("transactions")
+          .select("id")
+          .eq("product_id", product.id)
+          .eq("buyer_id", userId)
+          .eq("status", "completed")
+          .limit(1)
+          .maybeSingle();
+        tx = legacy.data;
+        txErr = legacy.error;
+      }
 
       if (txErr || !tx) {
         throw new Response("Forbidden — purchase required", { status: 403 });
@@ -52,10 +64,13 @@ export const getSecureStreamUrl = createServerFn({ method: "POST" })
     const safeTitle = (product.title || "plik").replace(/[^\w\-. ]+/g, "_").slice(0, 80) || "plik";
     const downloadName = safeTitle + rawExt;
 
-    const [{ data: streamSigned, error: sErr }, { data: dlSigned, error: dErr }] = await Promise.all([
-      supabaseAdmin.storage.from("product-files").createSignedUrl(product.file_path, 60 * 60),
-      supabaseAdmin.storage.from("product-files").createSignedUrl(product.file_path, 60 * 60, { download: downloadName }),
-    ]);
+    const [{ data: streamSigned, error: sErr }, { data: dlSigned, error: dErr }] =
+      await Promise.all([
+        supabaseAdmin.storage.from("product-files").createSignedUrl(product.file_path, 60 * 60),
+        supabaseAdmin.storage
+          .from("product-files")
+          .createSignedUrl(product.file_path, 60 * 60, { download: downloadName }),
+      ]);
 
     if (sErr || !streamSigned || dErr || !dlSigned) {
       throw new Response("Could not sign URL", { status: 500 });
@@ -69,4 +84,3 @@ export const getSecureStreamUrl = createServerFn({ method: "POST" })
       title: product.title,
     };
   });
-

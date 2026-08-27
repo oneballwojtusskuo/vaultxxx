@@ -107,7 +107,7 @@ function ProductPage() {
     queryKey: ["myTx", id, user?.id],
     enabled: !!user,
     queryFn: async () => {
-      const { data } = await supabase
+      let { data, error } = await supabase
         .from("transactions")
         .select("*")
         .eq("product_id", id)
@@ -115,6 +115,17 @@ function ProductPage() {
         .in("status", ["held", "released", "completed", "disputed"])
         .limit(1)
         .maybeSingle();
+      if (error) {
+        const legacy = await supabase
+          .from("transactions")
+          .select("*")
+          .eq("product_id", id)
+          .eq("buyer_id", user!.id)
+          .eq("status", "completed")
+          .limit(1)
+          .maybeSingle();
+        data = legacy.data;
+      }
       return data;
     },
   });

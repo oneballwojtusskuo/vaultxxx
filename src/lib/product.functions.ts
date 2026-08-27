@@ -32,11 +32,25 @@ export const getProductDetails = createServerFn({ method: "GET" })
   .handler(async ({ data }) => {
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
 
-    const { data: product, error } = await supabaseAdmin
+    let { data: product, error } = await supabaseAdmin
       .from("products")
-      .select("id, seller_id, category_id, title, description, price, currency, preview_url, sample_url, tags, status, is_tradable, license_terms, downloads_count, affiliate_commission_pct, created_at, updated_at, custom_category")
+      .select(
+        "id, seller_id, category_id, title, description, price, currency, preview_url, sample_url, tags, status, is_tradable, license_terms, downloads_count, affiliate_commission_pct, created_at, updated_at, custom_category",
+      )
       .eq("id", data.productId)
       .maybeSingle();
+
+    if (error) {
+      const fallback = await supabaseAdmin
+        .from("products")
+        .select(
+          "id, seller_id, category_id, title, description, price, currency, preview_url, tags, status, is_tradable, downloads_count, created_at, updated_at",
+        )
+        .eq("id", data.productId)
+        .maybeSingle();
+      product = fallback.data as typeof product;
+      error = fallback.error;
+    }
 
     if (error) throw error;
     if (!product) return null;
@@ -65,10 +79,13 @@ export const getProductDetails = createServerFn({ method: "GET" })
 
     if (!allowed) return null;
 
-
     const [{ data: category }, { data: seller }] = await Promise.all([
       product.category_id
-        ? supabaseAdmin.from("categories").select("name").eq("id", product.category_id).maybeSingle()
+        ? supabaseAdmin
+            .from("categories")
+            .select("name")
+            .eq("id", product.category_id)
+            .maybeSingle()
         : Promise.resolve({ data: null }),
       supabaseAdmin
         .from("profiles")

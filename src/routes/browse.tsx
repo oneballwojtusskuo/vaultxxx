@@ -66,8 +66,32 @@ function Browse() {
         tradable_only: sp.tradableOnly ?? false,
         min_downloads: sp.minDownloads ?? null,
       });
-      if (error) throw error;
-      return (data ?? []).map((r: any) => ({
+      let rows = data;
+      if (error) {
+        const fallback = await supabase
+          .from("products")
+          .select(
+            "id,title,price,currency,preview_url,is_tradable,downloads_count,seller_id,category_id,tags,description,created_at",
+          )
+          .eq("status", "published")
+          .order("created_at", { ascending: false })
+          .limit(240);
+        if (fallback.error) throw error;
+        const normalized = (sp.q ?? "")
+          .toLowerCase()
+          .normalize("NFD")
+          .replace(/[\u0300-\u036f]/g, "")
+          .replace(/ł/g, "l");
+        rows = (fallback.data ?? []).filter((row: any) => {
+          const haystack = `${row.title} ${row.description ?? ""} ${(row.tags ?? []).join(" ")}`
+            .toLowerCase()
+            .normalize("NFD")
+            .replace(/[\u0300-\u036f]/g, "")
+            .replace(/ł/g, "l");
+          return !normalized || normalized.split(/\s+/).every((token) => haystack.includes(token));
+        });
+      }
+      return (rows ?? []).map((r: any) => ({
         id: r.id,
         title: r.title,
         price: r.price,

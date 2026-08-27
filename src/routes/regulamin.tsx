@@ -440,6 +440,23 @@ function RegulaminPage() {
                   podatków (PIT, CIT, VAT) oraz składek z tytułu prowadzonej działalności lub
                   uzyskanych przychodów. Operator nie świadczy usług doradztwa podatkowego.
                 </li>
+                <li>
+                  Użytkownik uzyskujący przychody z programu partnerskiego (afiliacyjnego)
+                  samodzielnie odpowiada za ich prawidłowe rozliczenie w zeznaniu podatkowym i wobec
+                  właściwego urzędu skarbowego. Operator nie rozlicza za Użytkownika PIT, CIT, VAT
+                  ani innych należności publicznoprawnych.
+                </li>
+                <li>
+                  Partner korzystający z wygenerowanych linków afiliacyjnych ma obowiązek oznaczać
+                  treści promocyjne zgodnie z aktualnymi wytycznymi UOKiK, w szczególności jasno
+                  informować o komercyjnym charakterze rekomendacji i relacji afiliacyjnej.
+                </li>
+                <li>
+                  Operator gromadzi dane o wypłatach z programu partnerskiego i może raportować je
+                  zgodnie z DAC7. Raportowanie może dotyczyć Użytkownika, który w roku kalendarzowym
+                  otrzyma co najmniej 30 wypłat lub którego łączna kwota wypłat przekroczy
+                  równowartość 2 000 EUR, około 8 500–9 000 zł.
+                </li>
               </ol>
             </Section>
 
