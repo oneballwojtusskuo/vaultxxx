@@ -45,7 +45,7 @@ export const getMyTransactions = createServerFn({ method: "POST" })
           .from("transactions")
           .select(legacySelect)
           .eq("buyer_id", userId)
-          .in("status", OWNED_STATUSES as any),
+          .eq("status", "completed"),
         supabaseAdmin.from("transactions").select(legacySelect).eq("seller_id", userId),
         Promise.resolve({ data: [], error: null } as any),
       ]);
