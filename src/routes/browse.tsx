@@ -182,13 +182,9 @@ function Browse() {
                   })
                 }
               />
-              <Input
-                type="number"
-                min="0"
-                max="5"
-                step="0.1"
-                placeholder="Ocena twórcy od"
-                value={sp.minRating ?? ""}
+              <select
+                className="h-10 rounded-md border border-input bg-background px-3 text-sm"
+                value={sp.minRating?.toString() ?? ""}
                 onChange={(e) =>
                   navigate({
                     search: {
@@ -197,7 +193,14 @@ function Browse() {
                     },
                   })
                 }
-              />
+              >
+                <option value="">Ocena twórcy od</option>
+                {[1, 1.5, 2, 2.5, 3, 3.5, 4, 4.5, 5].map((rating) => (
+                  <option key={rating} value={rating}>
+                    {rating.toFixed(1).replace(".0", "")} lub więcej
+                  </option>
+                ))}
+              </select>
               <Input
                 type="number"
                 min="0"
