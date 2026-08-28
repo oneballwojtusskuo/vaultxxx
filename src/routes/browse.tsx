@@ -159,6 +159,7 @@ function Browse() {
                 min="0"
                 placeholder="Cena od"
                 value={sp.minPrice ?? ""}
+                disabled={sp.freeOnly === true}
                 onChange={(e) =>
                   navigate({
                     search: {
@@ -173,6 +174,7 @@ function Browse() {
                 min="0"
                 placeholder="Cena do"
                 value={sp.maxPrice ?? ""}
+                disabled={sp.freeOnly === true}
                 onChange={(e) =>
                   navigate({
                     search: {
@@ -232,7 +234,14 @@ function Browse() {
                   type="checkbox"
                   checked={sp.freeOnly ?? false}
                   onChange={(e) =>
-                    navigate({ search: { ...sp, freeOnly: e.target.checked || undefined } })
+                    navigate({
+                      search: {
+                        ...sp,
+                        freeOnly: e.target.checked || undefined,
+                        minPrice: e.target.checked ? undefined : sp.minPrice,
+                        maxPrice: e.target.checked ? undefined : sp.maxPrice,
+                      },
+                    })
                   }
                 />{" "}
                 Tylko darmowe
@@ -245,7 +254,7 @@ function Browse() {
                     navigate({ search: { ...sp, tradableOnly: e.target.checked || undefined } })
                   }
                 />{" "}
-                Tylko na wymianę
+                Możliwość wymiany
               </label>
             </div>
           )}

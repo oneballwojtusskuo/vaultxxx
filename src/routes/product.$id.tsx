@@ -261,10 +261,8 @@ function ProductPage() {
       } else if ("clientSecret" in res && res.clientSecret) {
         setCheckoutSecret(res.clientSecret);
         setCheckoutOpen(true);
-      } else if ("checkoutUrl" in res && res.checkoutUrl) {
-        window.location.assign(res.checkoutUrl);
       } else {
-        toast.error("Nie udało się otworzyć płatności. Spróbuj ponownie.");
+        toast.success("Zamówienie utworzone. Oczekuje na potwierdzenie płatności.");
       }
     } catch (e: any) {
       toast.error(e?.message ?? "Nie udało się sfinalizować zakupu");

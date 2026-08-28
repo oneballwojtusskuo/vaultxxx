@@ -200,7 +200,6 @@ export const purchaseProduct = createServerFn({ method: "POST" })
         status: "pending" as const,
         alreadyOwned: false,
         clientSecret: session.client_secret ?? "",
-        checkoutUrl: session.url ?? "",
       };
     } catch (error) {
       // Roll back the pending row so the buyer can retry cleanly
