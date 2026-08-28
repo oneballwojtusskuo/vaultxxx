@@ -128,15 +128,6 @@ export function SiteHeader() {
           >
             Sprzedawaj
           </Link>
-          {user && (
-            <Link
-              to="/dashboard"
-              search={{ tab: "affiliate" }}
-              className="inline-flex items-center gap-1.5 rounded-md border border-accent/40 bg-accent/10 px-3 py-2 text-sm font-medium text-accent hover:bg-accent/20 transition-colors"
-            >
-              <Link2 className="h-3.5 w-3.5" /> Afiliacja
-            </Link>
-          )}
         </nav>
 
         <div className="flex items-center gap-1">
