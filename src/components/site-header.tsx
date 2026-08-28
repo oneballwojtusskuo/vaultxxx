@@ -1,7 +1,21 @@
 import { Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useEffect } from "react";
-import { Search, ShoppingBag, Plus, LogOut, User as UserIcon, ShieldCheck, Bell, MessageSquare, Heart, HelpCircle, LayoutDashboard, Repeat2 } from "lucide-react";
+import {
+  Search,
+  ShoppingBag,
+  Plus,
+  LogOut,
+  User as UserIcon,
+  ShieldCheck,
+  Bell,
+  MessageSquare,
+  Heart,
+  HelpCircle,
+  LayoutDashboard,
+  Repeat2,
+  Link2,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/use-auth";
 import { VlndLogo } from "@/components/vlnd-logo";
@@ -43,7 +57,11 @@ export function SiteHeader() {
     queryKey: ["my-username", user?.id],
     enabled: !!user,
     queryFn: async () => {
-      const { data } = await supabase.from("profiles").select("username").eq("id", user!.id).maybeSingle();
+      const { data } = await supabase
+        .from("profiles")
+        .select("username")
+        .eq("id", user!.id)
+        .maybeSingle();
       return data?.username ?? null;
     },
   });
@@ -88,22 +106,37 @@ export function SiteHeader() {
           <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-gradient-primary shadow-glow transition-transform group-hover:scale-105 p-1">
             <VlndLogo className="h-full w-full" />
           </div>
-          <span className="font-display text-xl font-bold tracking-tight lowercase">
-            vlnd
-          </span>
+          <span className="font-display text-xl font-bold tracking-tight lowercase">vlnd</span>
         </Link>
 
-
         <nav className="hidden md:flex items-center gap-1">
-          <Link to="/browse" className="px-3 py-2 text-sm text-muted-foreground hover:text-foreground transition-colors">
+          <Link
+            to="/browse"
+            className="px-3 py-2 text-sm text-muted-foreground hover:text-foreground transition-colors"
+          >
             Odkrywaj
           </Link>
-          <Link to="/exchanges" className="px-3 py-2 text-sm text-muted-foreground hover:text-foreground transition-colors">
+          <Link
+            to="/exchanges"
+            className="px-3 py-2 text-sm text-muted-foreground hover:text-foreground transition-colors"
+          >
             Wymiany
           </Link>
-          <Link to="/sell" className="px-3 py-2 text-sm text-muted-foreground hover:text-foreground transition-colors">
+          <Link
+            to="/sell"
+            className="px-3 py-2 text-sm text-muted-foreground hover:text-foreground transition-colors"
+          >
             Sprzedawaj
           </Link>
+          {user && (
+            <Link
+              to="/dashboard"
+              search={{ tab: "affiliate" }}
+              className="inline-flex items-center gap-1.5 rounded-md border border-accent/40 bg-accent/10 px-3 py-2 text-sm font-medium text-accent hover:bg-accent/20 transition-colors"
+            >
+              <Link2 className="h-3.5 w-3.5" /> Afiliacja
+            </Link>
+          )}
         </nav>
 
         <div className="flex items-center gap-1">
@@ -132,7 +165,11 @@ export function SiteHeader() {
                 </Button>
               </Link>
               <Link to="/sell">
-                <Button variant="default" size="sm" className="bg-gradient-primary text-primary-foreground hover:opacity-90 shadow-glow ml-1">
+                <Button
+                  variant="default"
+                  size="sm"
+                  className="bg-gradient-primary text-primary-foreground hover:opacity-90 shadow-glow ml-1"
+                >
                   <Plus className="h-4 w-4 mr-1" /> Wystaw
                 </Button>
               </Link>
@@ -144,34 +181,80 @@ export function SiteHeader() {
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end" className="w-56">
                   <DropdownMenuItem asChild>
-                    <Link to="/dashboard" search={{ tab: "products" }}><LayoutDashboard className="h-4 w-4 mr-2"/>Mój panel</Link>
-                  </DropdownMenuItem>
-                  <DropdownMenuItem asChild>
-                    <Link to="/u/$username" params={{ username: myUsername ?? "" }} disabled={!myUsername}>
-                      <UserIcon className="h-4 w-4 mr-2"/>Mój profil
+                    <Link to="/dashboard" search={{ tab: "products" }}>
+                      <LayoutDashboard className="h-4 w-4 mr-2" />
+                      Mój panel
                     </Link>
                   </DropdownMenuItem>
-                  <DropdownMenuItem asChild><Link to="/likes"><Heart className="h-4 w-4 mr-2"/>Polubione</Link></DropdownMenuItem>
                   <DropdownMenuItem asChild>
-                    <Link to="/dashboard" search={{ tab: "purchases" }}><ShoppingBag className="h-4 w-4 mr-2"/>Zakupy</Link>
+                    <Link
+                      to="/u/$username"
+                      params={{ username: myUsername ?? "" }}
+                      disabled={!myUsername}
+                    >
+                      <UserIcon className="h-4 w-4 mr-2" />
+                      Mój profil
+                    </Link>
                   </DropdownMenuItem>
-                  <DropdownMenuItem asChild><Link to="/exchanges"><Repeat2 className="h-4 w-4 mr-2"/>Moje wymiany</Link></DropdownMenuItem>
-                  <DropdownMenuItem asChild><Link to="/messages"><MessageSquare className="h-4 w-4 mr-2"/>Wiadomości</Link></DropdownMenuItem>
-                  <DropdownMenuItem asChild><Link to="/notifications"><Bell className="h-4 w-4 mr-2"/>Powiadomienia</Link></DropdownMenuItem>
+                  <DropdownMenuItem asChild>
+                    <Link to="/likes">
+                      <Heart className="h-4 w-4 mr-2" />
+                      Polubione
+                    </Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem asChild>
+                    <Link to="/dashboard" search={{ tab: "purchases" }}>
+                      <ShoppingBag className="h-4 w-4 mr-2" />
+                      Zakupy
+                    </Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem asChild>
+                    <Link to="/dashboard" search={{ tab: "affiliate" }}>
+                      <Link2 className="h-4 w-4 mr-2" />
+                      Afiliacja
+                    </Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem asChild>
+                    <Link to="/exchanges">
+                      <Repeat2 className="h-4 w-4 mr-2" />
+                      Moje wymiany
+                    </Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem asChild>
+                    <Link to="/messages">
+                      <MessageSquare className="h-4 w-4 mr-2" />
+                      Wiadomości
+                    </Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem asChild>
+                    <Link to="/notifications">
+                      <Bell className="h-4 w-4 mr-2" />
+                      Powiadomienia
+                    </Link>
+                  </DropdownMenuItem>
                   {isAdmin && (
-                    <DropdownMenuItem asChild><Link to="/admin"><ShieldCheck className="h-4 w-4 mr-2"/>Panel admina</Link></DropdownMenuItem>
+                    <DropdownMenuItem asChild>
+                      <Link to="/admin">
+                        <ShieldCheck className="h-4 w-4 mr-2" />
+                        Panel admina
+                      </Link>
+                    </DropdownMenuItem>
                   )}
 
                   <DropdownMenuSeparator />
                   <DropdownMenuItem onClick={() => signOut()}>
-                    <LogOut className="h-4 w-4 mr-2"/>Wyloguj
+                    <LogOut className="h-4 w-4 mr-2" />
+                    Wyloguj
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
             </>
           ) : (
             <Link to="/auth">
-              <Button size="sm" className="bg-gradient-primary text-primary-foreground hover:opacity-90 shadow-glow">
+              <Button
+                size="sm"
+                className="bg-gradient-primary text-primary-foreground hover:opacity-90 shadow-glow"
+              >
                 Zaloguj
               </Button>
             </Link>
