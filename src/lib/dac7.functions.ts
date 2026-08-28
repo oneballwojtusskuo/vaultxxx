@@ -44,7 +44,11 @@ export const getMyDac7Status = createServerFn({ method: "GET" })
 
     const hasProfile = Boolean(profile);
     const complete = Boolean(
-      profile?.full_name && profile?.address_line && profile?.city && profile?.postal_code && profile?.tin,
+      profile?.full_name &&
+      profile?.address_line &&
+      profile?.city &&
+      profile?.postal_code &&
+      profile?.tin,
     );
 
     return { ...status, hasProfile, complete };
@@ -80,25 +84,23 @@ export const saveTaxProfile = createServerFn({ method: "POST" })
     const { userId } = context;
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
 
-    const { error } = await supabaseAdmin
-      .from("seller_tax_profiles")
-      .upsert(
-        {
-          user_id: userId,
-          seller_kind: data.sellerKind,
-          full_name: data.fullName,
-          address_line: data.addressLine,
-          city: data.city,
-          postal_code: data.postalCode,
-          country: data.country || "PL",
-          tin: data.tin,
-          date_of_birth: data.dateOfBirth || null,
-          birth_place: data.birthPlace || null,
-          vat_id: data.vatId || null,
-          business_reg_no: data.businessRegNo || null,
-        } as any,
-        { onConflict: "user_id" },
-      );
+    const { error } = await supabaseAdmin.from("seller_tax_profiles").upsert(
+      {
+        user_id: userId,
+        seller_kind: data.sellerKind,
+        full_name: data.fullName,
+        address_line: data.addressLine,
+        city: data.city,
+        postal_code: data.postalCode,
+        country: data.country || "PL",
+        tin: data.tin,
+        date_of_birth: data.dateOfBirth || null,
+        birth_place: data.birthPlace || null,
+        vat_id: data.vatId || null,
+        business_reg_no: data.businessRegNo || null,
+      } as any,
+      { onConflict: "user_id" },
+    );
     if (error) throw new Response(error.message, { status: 500 });
 
     return { ok: true };
@@ -157,7 +159,10 @@ export const getOwnerRevenueStats = createServerFn({ method: "GET" })
       .select("platform_amount, status, created_at")
       .in("status", ["held", "released", "completed"])
       .gte("created_at", yearStart.toISOString());
-    const yearRevenue = (yearTxs ?? []).reduce((s: number, t: any) => s + Number(t.platform_amount ?? 0), 0);
+    const yearRevenue = (yearTxs ?? []).reduce(
+      (s: number, t: any) => s + Number(t.platform_amount ?? 0),
+      0,
+    );
 
     return {
       quarter,
@@ -166,5 +171,112 @@ export const getOwnerRevenueStats = createServerFn({ method: "GET" })
       months,
       yearRevenuePln: yearRevenue,
       threshold: ownerThresholdStatus(quarterRevenue),
+    };
+  });
+
+/** Admin-only overview of seller and affiliate DAC7 activity for the current calendar year. */
+export const getDac7Participants = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    const { getAdminClientForContext } = await import("@/lib/admin-auth.server");
+    const supabaseAdmin = await getAdminClientForContext(context);
+    const { year, start, end } = currentYearRange();
+
+    const detailed = await supabaseAdmin
+      .from("transactions")
+      .select("seller_id, affiliate_user_id, seller_amount, affiliate_amount, status, created_at")
+      .gte("created_at", start)
+      .lt("created_at", end);
+    let rows: any[] = detailed.data ?? [];
+    if (detailed.error) {
+      const legacy = await supabaseAdmin
+        .from("transactions")
+        .select("seller_id, amount, status, created_at")
+        .gte("created_at", start)
+        .lt("created_at", end);
+      if (legacy.error) throw new Response(legacy.error.message, { status: 500 });
+      rows = (legacy.data ?? []).map((row: any) => ({
+        ...row,
+        seller_amount: row.amount,
+        affiliate_user_id: null,
+        affiliate_amount: 0,
+      }));
+    }
+
+    const completed = new Set(["held", "released", "completed"]);
+    const participants = new Map<
+      string,
+      { sellerCount: number; sellerAmount: number; affiliateCount: number; affiliateAmount: number }
+    >();
+    for (const row of rows) {
+      if (!completed.has(row.status)) continue;
+      if (row.seller_id) {
+        const current = participants.get(row.seller_id) ?? {
+          sellerCount: 0,
+          sellerAmount: 0,
+          affiliateCount: 0,
+          affiliateAmount: 0,
+        };
+        current.sellerCount += 1;
+        current.sellerAmount += Number(row.seller_amount ?? row.amount ?? 0);
+        participants.set(row.seller_id, current);
+      }
+      if (row.affiliate_user_id && Number(row.affiliate_amount ?? 0) > 0) {
+        const current = participants.get(row.affiliate_user_id) ?? {
+          sellerCount: 0,
+          sellerAmount: 0,
+          affiliateCount: 0,
+          affiliateAmount: 0,
+        };
+        current.affiliateCount += 1;
+        current.affiliateAmount += Number(row.affiliate_amount);
+        participants.set(row.affiliate_user_id, current);
+      }
+    }
+
+    const userIds = Array.from(participants.keys());
+    if (userIds.length === 0) return { year, participants: [] };
+    const [{ data: profiles }, { data: taxProfiles }] = await Promise.all([
+      supabaseAdmin.from("profiles").select("id, username, display_name").in("id", userIds),
+      supabaseAdmin
+        .from("seller_tax_profiles")
+        .select("user_id, full_name, tin, verified")
+        .in("user_id", userIds),
+    ]);
+    const profileById = new Map((profiles ?? []).map((profile: any) => [profile.id, profile]));
+    const taxById = new Map((taxProfiles ?? []).map((profile: any) => [profile.user_id, profile]));
+
+    return {
+      year,
+      participants: userIds
+        .map((userId) => {
+          const totals = participants.get(userId)!;
+          const taxProfile = taxById.get(userId);
+          const sellerDac7 = dac7Status(totals.sellerCount, totals.sellerAmount);
+          const affiliateDac7 = dac7Status(totals.affiliateCount, totals.affiliateAmount);
+          const totalCount = totals.sellerCount + totals.affiliateCount;
+          const totalAmount = totals.sellerAmount + totals.affiliateAmount;
+          const dac7 =
+            sellerDac7.level === "required" || affiliateDac7.level === "required"
+              ? { ...sellerDac7, level: "required" as const }
+              : sellerDac7.level === "warn" || affiliateDac7.level === "warn"
+                ? { ...sellerDac7, level: "warn" as const }
+                : { ...sellerDac7, level: "ok" as const };
+          return {
+            userId,
+            profile: profileById.get(userId) ?? null,
+            sellerCount: totals.sellerCount,
+            sellerAmount: totals.sellerAmount,
+            affiliateCount: totals.affiliateCount,
+            affiliateAmount: totals.affiliateAmount,
+            totalCount,
+            totalAmount,
+            sellerDac7,
+            affiliateDac7,
+            dac7,
+            taxProfile: taxProfile ?? null,
+          };
+        })
+        .sort((a, b) => b.totalAmount - a.totalAmount),
     };
   });

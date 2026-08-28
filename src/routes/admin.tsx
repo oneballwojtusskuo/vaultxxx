@@ -30,7 +30,7 @@ import {
   takedownProduct,
   setUserBan,
 } from "@/lib/reports.functions";
-import { getOwnerRevenueStats } from "@/lib/dac7.functions";
+import { getDac7Participants, getOwnerRevenueStats } from "@/lib/dac7.functions";
 
 export const Route = createFileRoute("/admin")({
   component: AdminPage,
@@ -575,9 +575,14 @@ function ReportsPanel() {
 
 function TaxRevenuePanel() {
   const fetchStats = useServerFn(getOwnerRevenueStats);
+  const fetchParticipants = useServerFn(getDac7Participants);
   const { data: stats, isLoading } = useQuery({
     queryKey: ["admin-owner-revenue-stats"],
     queryFn: () => fetchStats({ data: undefined as any }),
+  });
+  const { data: participants, isLoading: isLoadingParticipants } = useQuery({
+    queryKey: ["admin-dac7-participants"],
+    queryFn: () => fetchParticipants({ data: undefined as any }),
   });
 
   if (isLoading || !stats) {
@@ -650,6 +655,87 @@ function TaxRevenuePanel() {
             </tbody>
           </table>
         </div>
+      </div>
+
+      <div className="rounded-2xl border border-border/40 bg-gradient-surface p-5">
+        <div className="flex items-start justify-between gap-3 flex-wrap">
+          <div>
+            <h2 className="font-semibold">
+              Sprzedawcy i afilianci — DAC7 ({participants?.year ?? new Date().getFullYear()})
+            </h2>
+            <p className="text-xs text-muted-foreground mt-1">
+              Dane obejmują zakończone lub zwolnione wypłaty. Próg: 30 wypłat lub 2 000 EUR.
+            </p>
+          </div>
+          <Badge variant="secondary">{participants?.participants.length ?? 0} użytkowników</Badge>
+        </div>
+        {isLoadingParticipants ? (
+          <p className="mt-5 text-sm text-muted-foreground">Ładowanie danych...</p>
+        ) : participants?.participants.length ? (
+          <div className="mt-5 overflow-x-auto">
+            <table className="w-full min-w-[760px] text-sm">
+              <thead>
+                <tr className="border-b border-border/40 text-left text-xs text-muted-foreground">
+                  <th className="py-2 pr-3">Użytkownik</th>
+                  <th className="py-2 pr-3">Sprzedaż</th>
+                  <th className="py-2 pr-3">Afiliacja</th>
+                  <th className="py-2 pr-3">Razem</th>
+                  <th className="py-2 pr-3">Status DAC7</th>
+                  <th className="py-2">Dane</th>
+                </tr>
+              </thead>
+              <tbody>
+                {participants.participants.map((row: any) => (
+                  <tr key={row.userId} className="border-b border-border/20 last:border-0">
+                    <td className="py-3 pr-3">
+                      <div className="font-medium">
+                        {row.profile?.display_name ?? row.profile?.username ?? "Użytkownik"}
+                      </div>
+                      <div className="text-xs text-muted-foreground">
+                        @{row.profile?.username ?? row.userId.slice(0, 8)}
+                      </div>
+                    </td>
+                    <td className="py-3 pr-3">
+                      {row.sellerCount} / {row.sellerAmount.toFixed(2)} zł
+                      <span className="block text-[11px] text-muted-foreground">
+                        {row.sellerDac7.level === "required"
+                          ? "raportuj"
+                          : row.sellerDac7.level === "warn"
+                            ? "zbliża się"
+                            : "poniżej"}
+                      </span>
+                    </td>
+                    <td className="py-3 pr-3">
+                      {row.affiliateCount} / {row.affiliateAmount.toFixed(2)} zł
+                      <span className="block text-[11px] text-muted-foreground">
+                        {row.affiliateDac7.level === "required"
+                          ? "raportuj"
+                          : row.affiliateDac7.level === "warn"
+                            ? "zbliża się"
+                            : "poniżej"}
+                      </span>
+                    </td>
+                    <td className="py-3 pr-3 font-medium">
+                      {row.totalCount} / {row.totalAmount.toFixed(2)} zł
+                    </td>
+                    <td
+                      className={`py-3 pr-3 font-medium ${row.dac7.level === "required" ? "text-destructive" : row.dac7.level === "warn" ? "text-amber-500" : "text-emerald-500"}`}
+                    >
+                      {row.dac7.level === "required"
+                        ? "WYMAGA RAPORTOWANIA"
+                        : row.dac7.level === "warn"
+                          ? "Zbliża się do progu"
+                          : "Poniżej progu"}
+                    </td>
+                    <td className="py-3">{row.taxProfile?.tin ? "uzupełnione" : "brak danych"}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        ) : (
+          <p className="mt-5 text-sm text-muted-foreground">Brak wypłat w bieżącym roku.</p>
+        )}
       </div>
 
       <div className="rounded-2xl border border-border/40 bg-gradient-surface p-5">
