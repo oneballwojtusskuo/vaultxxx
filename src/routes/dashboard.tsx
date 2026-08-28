@@ -20,6 +20,9 @@ import {
   Eye,
   EyeOff,
   Banknote,
+  Link2,
+  Clock3,
+  WalletCards,
 } from "lucide-react";
 import { toast } from "sonner";
 import { generateLicensePdf } from "@/lib/license-pdf";
@@ -81,6 +84,7 @@ function Dashboard() {
     affiliateEarnings
       ?.filter((tx: any) => tx.status === "released" || tx.status === "completed")
       .reduce((sum: number, tx: any) => sum + Number(tx.affiliate_amount ?? 0), 0) ?? 0;
+  const affiliatePending = Math.max(0, affiliateTotal - affiliateReleased);
 
   const requestAffiliatePayout = () => {
     if (affiliateReleased < 100) return;
@@ -451,32 +455,61 @@ function Dashboard() {
           </TabsContent>
 
           <TabsContent value="affiliate" className="mt-6 space-y-3">
-            <div className="rounded-xl border border-accent/30 bg-accent/5 p-4 text-sm text-muted-foreground space-y-2">
-              <p>
-                <strong className="text-foreground">Jak działa afiliacja?</strong> Otwórz produkt z
-                aktywną prowizją, wygeneruj link polecający i udostępnij go w swoich kanałach. Jeśli
-                ktoś kupi produkt z Twojego linku, otrzymasz ustalony procent.
-              </p>
-              <p>
-                Link działa przez 30 dni. Prowizja jest naliczana po opłaceniu transakcji i staje
-                się dostępna po zwolnieniu środków z escrow.
-              </p>
-              <p>
-                Przychody z afiliacji rozliczasz samodzielnie w zeznaniu podatkowym. Platforma nie
-                rozlicza za Ciebie PIT ani innych podatków.
-              </p>
-              <p>
-                Platforma może raportować dane afiliantów zgodnie z DAC7, gdy w roku kalendarzowym
-                osiągniesz co najmniej 30 wypłat lub równowartość 2 000 EUR.
+            <div className="rounded-2xl border border-accent/30 bg-accent/5 p-5 space-y-4">
+              <div className="flex items-start gap-3">
+                <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-accent/15 text-accent">
+                  <Link2 className="h-5 w-5" />
+                </div>
+                <div>
+                  <h2 className="font-display text-lg font-semibold">Program partnerski</h2>
+                  <p className="text-sm text-muted-foreground mt-1">
+                    Polecaj produkty z aktywną prowizją. Na stronie produktu wybierz „Generuj link
+                    polecający”, a następnie udostępnij go w swoich kanałach.
+                  </p>
+                </div>
+              </div>
+              <div className="grid gap-3 sm:grid-cols-3 text-sm">
+                <AffiliateStep number="1" title="Wygeneruj link">
+                  Link przypisuje sprzedaż do Ciebie przez 30 dni.
+                </AffiliateStep>
+                <AffiliateStep number="2" title="Polecaj produkt">
+                  Po zakupie prowizja pojawi się w historii.
+                </AffiliateStep>
+                <AffiliateStep number="3" title="Odbierz środki">
+                  Po zwolnieniu escrow środki liczą się do wypłaty.
+                </AffiliateStep>
+              </div>
+              <p className="text-xs text-muted-foreground">
+                Przychody afiliacyjne rozliczasz samodzielnie w PIT. Platforma nie rozlicza za
+                Ciebie podatków. Przy osiągnięciu co najmniej 30 wypłat lub równowartości 2 000 EUR
+                dane mogą podlegać raportowaniu DAC7.
               </p>
             </div>
+            <div className="grid gap-3 sm:grid-cols-3">
+              <AffiliateStat
+                icon={<WalletCards className="h-4 w-4" />}
+                label="Łącznie naliczone"
+                value={`${affiliateTotal.toFixed(2)} PLN`}
+              />
+              <AffiliateStat
+                icon={<Clock3 className="h-4 w-4" />}
+                label="W depozycie"
+                value={`${affiliatePending.toFixed(2)} PLN`}
+              />
+              <AffiliateStat
+                icon={<Banknote className="h-4 w-4" />}
+                label="Dostępne"
+                value={`${affiliateReleased.toFixed(2)} PLN`}
+              />
+            </div>
             <div className="flex flex-wrap items-center justify-between gap-4 rounded-xl border border-border/40 bg-gradient-surface p-4">
-              <div>
-                <p className="text-sm text-muted-foreground">Dostępne do wypłaty</p>
-                <p className="font-display text-2xl font-bold">
-                  {affiliateReleased.toFixed(2)} PLN
+              <div className="text-sm text-muted-foreground">
+                <p>
+                  Minimalny próg wypłaty: <strong className="text-foreground">100,00 PLN</strong>
                 </p>
-                <p className="text-xs text-muted-foreground">Minimalny próg wypłaty: 100,00 PLN</p>
+                <p className="text-xs mt-1">
+                  Numer rachunku podasz dopiero przy składaniu wniosku.
+                </p>
               </div>
               <Button onClick={requestAffiliatePayout} disabled={affiliateReleased < 100}>
                 <Banknote className="h-4 w-4 mr-2" /> Wypłać środki
@@ -508,6 +541,48 @@ function Dashboard() {
         </Tabs>
       </main>
       <SiteFooter />
+    </div>
+  );
+}
+
+function AffiliateStep({
+  number,
+  title,
+  children,
+}: {
+  number: string;
+  title: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <div className="rounded-lg border border-border/40 bg-background/40 p-3">
+      <div className="flex items-center gap-2">
+        <span className="flex h-5 w-5 items-center justify-center rounded-full bg-primary text-[11px] font-bold text-primary-foreground">
+          {number}
+        </span>
+        <span className="font-medium">{title}</span>
+      </div>
+      <p className="mt-2 text-xs text-muted-foreground leading-relaxed">{children}</p>
+    </div>
+  );
+}
+
+function AffiliateStat({
+  icon,
+  label,
+  value,
+}: {
+  icon: React.ReactNode;
+  label: string;
+  value: string;
+}) {
+  return (
+    <div className="rounded-xl border border-border/40 bg-gradient-surface p-4">
+      <div className="flex items-center gap-2 text-xs text-muted-foreground">
+        {icon}
+        {label}
+      </div>
+      <p className="mt-2 font-display text-2xl font-bold">{value}</p>
     </div>
   );
 }
