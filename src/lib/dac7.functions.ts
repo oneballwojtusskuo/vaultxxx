@@ -184,7 +184,9 @@ export const getDac7Participants = createServerFn({ method: "GET" })
 
     const detailed = await supabaseAdmin
       .from("transactions")
-      .select("seller_id, affiliate_user_id, seller_amount, affiliate_amount, status, created_at")
+      .select(
+        "seller_id, affiliate_user_id, seller_amount, affiliate_amount, status, payout_status, created_at",
+      )
       .gte("created_at", start)
       .lt("created_at", end);
     let rows: any[] = detailed.data ?? [];
@@ -210,7 +212,7 @@ export const getDac7Participants = createServerFn({ method: "GET" })
     >();
     for (const row of rows) {
       if (!completed.has(row.status)) continue;
-      if (row.seller_id) {
+      if (row.seller_id && row.payout_status === "paid") {
         const current = participants.get(row.seller_id) ?? {
           sellerCount: 0,
           sellerAmount: 0,
@@ -221,16 +223,27 @@ export const getDac7Participants = createServerFn({ method: "GET" })
         current.sellerAmount += Number(row.seller_amount ?? row.amount ?? 0);
         participants.set(row.seller_id, current);
       }
-      if (row.affiliate_user_id && Number(row.affiliate_amount ?? 0) > 0) {
-        const current = participants.get(row.affiliate_user_id) ?? {
+    }
+
+    // Affiliate payouts need their own payout records. Never treat a referral
+    // sale or a held transaction as money already paid to the affiliate.
+    const affiliatePayouts = await supabaseAdmin
+      .from("affiliate_payouts")
+      .select("user_id, amount, status, paid_at")
+      .eq("status", "paid")
+      .gte("paid_at", start)
+      .lt("paid_at", end);
+    if (!affiliatePayouts.error) {
+      for (const payout of affiliatePayouts.data ?? []) {
+        const current = participants.get(payout.user_id) ?? {
           sellerCount: 0,
           sellerAmount: 0,
           affiliateCount: 0,
           affiliateAmount: 0,
         };
         current.affiliateCount += 1;
-        current.affiliateAmount += Number(row.affiliate_amount);
-        participants.set(row.affiliate_user_id, current);
+        current.affiliateAmount += Number(payout.amount ?? 0);
+        participants.set(payout.user_id, current);
       }
     }
 

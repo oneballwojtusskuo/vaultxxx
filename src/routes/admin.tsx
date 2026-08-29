@@ -664,7 +664,8 @@ function TaxRevenuePanel() {
               Sprzedawcy i afilianci — DAC7 ({participants?.year ?? new Date().getFullYear()})
             </h2>
             <p className="text-xs text-muted-foreground mt-1">
-              Dane obejmują zakończone lub zwolnione wypłaty. Próg: 30 wypłat lub 2 000 EUR.
+              Liczone są wyłącznie faktycznie opłacone wypłaty, nie sprzedaże ani środki w
+              depozycie. Próg: 30 wypłat lub 2 000 EUR.
             </p>
           </div>
           <Badge variant="secondary">{participants?.participants.length ?? 0} użytkowników</Badge>
@@ -677,9 +678,9 @@ function TaxRevenuePanel() {
               <thead>
                 <tr className="border-b border-border/40 text-left text-xs text-muted-foreground">
                   <th className="py-2 pr-3">Użytkownik</th>
-                  <th className="py-2 pr-3">Sprzedaż</th>
-                  <th className="py-2 pr-3">Afiliacja</th>
-                  <th className="py-2 pr-3">Razem</th>
+                  <th className="py-2 pr-3">Wypłaty sprzedawcy</th>
+                  <th className="py-2 pr-3">Wypłaty afilianta</th>
+                  <th className="py-2 pr-3">Łącznie wypłacone</th>
                   <th className="py-2 pr-3">Status DAC7</th>
                   <th className="py-2">Dane</th>
                 </tr>
