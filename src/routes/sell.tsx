@@ -209,24 +209,19 @@ function contradictionWarning(
   terms: LicenseTerms,
   licType: LicenseType,
 ): string | undefined {
-  if (key === "create_nft" && terms.create_nft && !terms.redistribution) {
-    return "Zezwalasz na tworzenie NFT, ale zabraniasz redystrybucji — mintowanie NFT zwykle wymaga też możliwości rozpowszechniania pliku.";
-  }
-  if (key === "resale" && terms.resale && !terms.redistribution) {
-    return "Zezwalasz na odsprzedaż, ale zabraniasz redystrybucji — bez redystrybucji odsprzedany plik trudno legalnie przekazać dalej.";
-  }
-  if (key === "train_ai" && terms.train_ai && !terms.commercial_use) {
-    return "Zgoda na trenowanie AI zwykle idzie w parze z użytkiem komercyjnym — sprawdź, czy na pewno chcesz to rozdzielić.";
-  }
-  if (
-    key === "attribution_required" &&
-    terms.attribution_required === false &&
-    licType === "personal"
-  ) {
-    return 'Licencja "Personal" zwykle wymaga podania autora — rozważ włączenie tej opcji.';
-  }
   return undefined;
 }
+
+const LICENSE_TYPE_HELP: Record<LicenseType, string> = {
+  personal:
+    "Dla osób prywatnych. Kupujący używa pliku tylko na własne potrzeby. Brak zgody na komercję i zarabianie.",
+  commercial:
+    "Dla freelancerów i małych firm. Pozwala używać pliku komercyjnie i w pracach dla klientów, do 5 000 sprzedanych egzemplarzy.",
+  extended_commercial:
+    "Dla większych agencji i projektów na dużą skalę. Pełna komercja, projekty dla klientów, NFT i brak obowiązku podawania autora, do 50 000 egzemplarzy.",
+  exclusive:
+    "Wyłączność na plik. Kupujący otrzymuje szerokie prawa, w tym odsprzedaż i redystrybucję, a produkt powinien zostać wycofany dla innych kupujących.",
+};
 
 /** Diff against the last applied preset — used for a subtle "deviates from standard" note. */
 function deviatesFromPreset(
@@ -478,8 +473,7 @@ function Sell() {
           license_type: licType,
           exclusive: licType === "exclusive" || !!licTerms.exclusive,
           max_streams: licMaxStreams ? parseInt(licMaxStreams, 10) : null,
-          max_end_products:
-            licTerms.commercial_use === false ? undefined : licTerms.max_end_products,
+          max_end_products: licTerms.max_end_products,
           custom_terms: licCustom,
         },
       } as any;
@@ -770,18 +764,24 @@ function Sell() {
                 <Label className="text-xs uppercase tracking-wider">Typ licencji</Label>
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
                   {(Object.keys(LICENSE_TYPE_LABELS) as LicenseType[]).map((k) => (
-                    <button
-                      key={k}
-                      type="button"
-                      onClick={() => applyPreset(k)}
-                      className={`rounded-lg border px-3 py-2 text-sm font-medium transition-all ${
-                        licType === k
-                          ? "border-primary bg-primary/15 text-foreground shadow-glow"
-                          : "border-border/40 bg-background/40 text-muted-foreground hover:border-primary/40"
-                      }`}
-                    >
-                      {LICENSE_TYPE_LABELS[k]}
-                    </button>
+                    <Tooltip key={k}>
+                      <TooltipTrigger asChild>
+                        <button
+                          type="button"
+                          onClick={() => applyPreset(k)}
+                          className={`rounded-lg border px-3 py-2 text-sm font-medium transition-all ${
+                            licType === k
+                              ? "border-primary bg-primary/15 text-foreground shadow-glow"
+                              : "border-border/40 bg-background/40 text-muted-foreground hover:border-primary/40"
+                          }`}
+                        >
+                          {LICENSE_TYPE_LABELS[k]}
+                        </button>
+                      </TooltipTrigger>
+                      <TooltipContent side="top" className="max-w-xs text-xs leading-relaxed">
+                        {LICENSE_TYPE_HELP[k]}
+                      </TooltipContent>
+                    </Tooltip>
                   ))}
                 </div>
                 <p className="text-[11px] text-muted-foreground">
@@ -878,7 +878,11 @@ function Sell() {
                       <label className="flex items-center gap-2 cursor-pointer rounded-md px-2 py-1.5 hover:bg-background/40">
                         <Checkbox
                           checked={!!licTerms[key]}
-                          onCheckedChange={(v) => setLic({ [key]: !!v } as any)}
+                          onCheckedChange={(v) => {
+                            const enabled = !!v;
+                            setLic({ [key]: enabled } as any);
+                            if (key === "create_nft" && enabled) setLic({ redistribution: true });
+                          }}
                         />
                         <span className="text-sm flex-1">{label}</span>
                         <HelpIcon help={LICENSE_OPTION_HELP[key as string]} />

@@ -3,14 +3,24 @@
 
 export type LicenseType = "personal" | "commercial" | "extended_commercial" | "exclusive";
 
-export type LicenseLimit = "1" | "5" | "10" | "50" | "100" | "500" | "5000" | "50000" | "unlimited";
+export type LicenseLimit =
+  | "0"
+  | "1"
+  | "5"
+  | "10"
+  | "50"
+  | "100"
+  | "500"
+  | "5000"
+  | "50000"
+  | "unlimited";
 export type LicenseDuration = "perpetual" | "1y" | "3y" | "5y";
 export type DeliveryMode = "stream" | "download" | "both";
 export type TerritoryPreset = "worldwide" | "pl" | "eu" | "other";
 
 export const DELIVERY_MODE_LABELS: Record<DeliveryMode, string> = {
   stream: "Tylko streaming na stronie",
-  download: "Tylko pobieranie pliku",
+  download: "Dostarczenie w formie cyfrowej poprzez pobranie z serwisu VLND",
   both: "Streaming + pobieranie",
 };
 
@@ -38,7 +48,7 @@ export const LICENSE_OPTION_HELP: Record<string, string> = {
   create_nft:
     "Kupujący może wykorzystać produkt jako podstawę tokena niewymiennego (NFT). Przykład: włącz tylko w licencji exclusive, gdy świadomie sprzedajesz prawo do zmintowania NFT.",
   attribution_required:
-    'Kupujący musi wskazać autora przy każdym publicznym wykorzystaniu, np. „Beat by X” w opisie. Przykład: włącz w licencji personal/commercial, żeby budować rozpoznawalność; wyłącz w licencji extended/exclusive, gdzie kupujący chce, by produkt wyglądał jak w pełni jego.',
+    "Kupujący musi wskazać autora przy każdym publicznym wykorzystaniu, np. „Beat by X” w opisie. Przykład: włącz w licencji personal/commercial, żeby budować rozpoznawalność; wyłącz w licencji extended/exclusive, gdzie kupujący chce, by produkt wyglądał jak w pełni jego.",
   redistribution:
     "Kupujący może rozpowszechniać oryginalny plik dalej, np. wrzucić na inną platformę do pobrania. Zwykle WYŁĄCZONE — włączaj tylko przy licencji exclusive, gdy oddajesz pełną kontrolę nad plikiem.",
   resale:
@@ -46,7 +56,7 @@ export const LICENSE_OPTION_HELP: Record<string, string> = {
   worldwide:
     "Licencja obowiązuje na całym świecie. Przykład: zostaw włączone dla produktów cyfrowych sprzedawanych globalnie; wybierz konkretne terytorium, jeśli masz umowy wyłączności regionalnej (np. tylko Polska).",
   territory:
-    'Geograficzny zasięg licencji. Przykład: wybierz „Polska”, jeśli masz już wyłączność na inne kraje z innym partnerem, albo „Inne” i wpisz konkretne kraje.',
+    "Geograficzny zasięg licencji. Przykład: wybierz „Polska”, jeśli masz już wyłączność na inne kraje z innym partnerem, albo „Inne” i wpisz konkretne kraje.",
   max_users:
     "Maksymalna liczba osób w organizacji kupującego, które mogą korzystać z pliku. Przykład: ustaw „1” dla licencji personal, „5” gdy sprzedajesz małej agencji.",
   max_projects:
@@ -54,7 +64,7 @@ export const LICENSE_OPTION_HELP: Record<string, string> = {
   max_end_products:
     "Maksymalna liczba egzemplarzy produktu końcowego zawierającego ten plik, które kupujący może sprzedać (np. sztuk merchu, kopii albumu). Przykład: ustaw limit, gdy chcesz ograniczyć skalę komercyjnego wykorzystania taniej licencji.",
   duration:
-    'Jak długo licencja obowiązuje. Przykład: wybierz „Bezterminowa” dla standardowej sprzedaży; ogranicz do „1 rok”, jeśli sprzedajesz dostęp czasowy (np. do kampanii).',
+    "Jak długo licencja obowiązuje. Przykład: wybierz „Bezterminowa” dla standardowej sprzedaży; ogranicz do „1 rok”, jeśli sprzedajesz dostęp czasowy (np. do kampanii).",
   max_streams:
     "Maksymalna łączna liczba odtworzeń / dystrybucji strumieniowych utworu zawierającego plik. Przykład: ustaw limit przy tańszej licencji na beat (np. 100 000 odtworzeń), potem kupujący musi dokupić wyższą licencję.",
   delivery_mode:
@@ -62,7 +72,7 @@ export const LICENSE_OPTION_HELP: Record<string, string> = {
   custom_terms:
     "Twoje dodatkowe zapisy, które trafią do umowy — np. wyjątki, specjalne wymagania, dane kontaktowe. Przykład: „Wymagane oznaczenie linku do profilu w opisie wideo”.",
   attribution_format:
-    'Dokładna forma podpisu, jakiej oczekujesz od kupującego. Przykład: „Zdjęcie: Jan Kowalski / instagram.com/jankowalski”.',
+    "Dokładna forma podpisu, jakiej oczekujesz od kupującego. Przykład: „Zdjęcie: Jan Kowalski / instagram.com/jankowalski”.",
 };
 
 export type LicenseTerms = {
@@ -83,9 +93,9 @@ export type LicenseTerms = {
   worldwide?: boolean;
 
   // Limits
-  max_users?: LicenseLimit;         // 1 / 5 / 50 / unlimited
-  max_projects?: LicenseLimit;      // 1 / 10 / 100 / unlimited
-  max_end_products?: LicenseLimit;  // 500 / 5000 / 50000 / unlimited
+  max_users?: LicenseLimit; // 1 / 5 / 50 / unlimited
+  max_projects?: LicenseLimit; // 1 / 10 / 100 / unlimited
+  max_end_products?: LicenseLimit; // 500 / 5000 / 50000 / unlimited
   duration?: LicenseDuration;
 
   // Delivery
@@ -123,7 +133,8 @@ export function limitLabel(v?: LicenseLimit): string {
 /** Human-readable territory description, never emits the English word "worldwide". */
 export function territoryLabel(t: Pick<LicenseTerms, "territory_preset" | "territory">): string {
   const preset = t.territory_preset ?? (t.territory ? "other" : "worldwide");
-  if (preset === "other") return t.territory?.trim() || "Terytorium określone odrębnie przez Licencjodawcę";
+  if (preset === "other")
+    return t.territory?.trim() || "Terytorium określone odrębnie przez Licencjodawcę";
   return TERRITORY_PRESET_LABELS[preset];
 }
 
@@ -154,7 +165,7 @@ export function presetForType(type: LicenseType): LicenseTerms {
       resale: false,
       max_users: "1",
       max_projects: "1",
-      max_end_products: undefined,
+      max_end_products: "0",
     };
   }
   if (type === "commercial") {
@@ -162,11 +173,11 @@ export function presetForType(type: LicenseType): LicenseTerms {
       ...base,
       commercial_use: true,
       can_modify: true,
-      use_in_client_projects: false,
+      use_in_client_projects: true,
       use_for_ai: false,
       train_ai: false,
       create_nft: false,
-      attribution_required: true,
+      attribution_required: false,
       redistribution: false,
       resale: false,
       max_users: "5",
@@ -184,7 +195,7 @@ export function presetForType(type: LicenseType): LicenseTerms {
       train_ai: false,
       create_nft: true,
       attribution_required: false,
-      redistribution: false,
+      redistribution: true,
       resale: false,
       max_users: "50",
       max_projects: "100",
@@ -247,13 +258,9 @@ export function generateLicenseText(params: {
   lines.push("§1. Strony i przedmiot umowy");
   {
     let n = 1;
-    const licensorLine = params.licensorLegalName?.trim()
-      ? `Licencjodawca: ${params.licensorLegalName.trim()}.`
-      : `Licencjodawca: ${params.sellerName ?? "nazwa użytkownika na platformie"} (dane rejestrowe/tożsamościowe nie zostały podane — identyfikacja na podstawie konta na platformie vlnd).`;
+    const licensorLine = `Licencjodawca: Użytkownik ${params.licensorLegalName?.trim() || params.sellerName || "VLND"}, identyfikowany na podstawie konta w serwisie VLND.`;
     lines.push(`${n++}. ${licensorLine}`);
-    const licenseeLine = params.licenseeLegalName?.trim()
-      ? `Licencjobiorca: ${params.licenseeLegalName.trim()}.`
-      : `Licencjobiorca: ${params.buyerName ?? "nazwa użytkownika na platformie"} (dane rejestrowe/tożsamościowe nie zostały podane — identyfikacja na podstawie konta na platformie vlnd).`;
+    const licenseeLine = `Licencjobiorca: Użytkownik ${params.licenseeLegalName?.trim() || params.buyerName || "VLND"}, identyfikowany na podstawie konta w serwisie VLND.`;
     lines.push(`${n++}. ${licenseeLine}`);
     lines.push(
       `${n++}. Przedmiot umowy: produkt cyfrowy${params.productTitle ? ` „${params.productTitle}”` : ""}${
@@ -282,11 +289,19 @@ export function generateLicenseText(params: {
     let n = 1;
     lines.push(`${n++}. Użytek prywatny: ${yn(t.private_use)}.`);
     lines.push(`${n++}. Użytek komercyjny: ${yn(t.commercial_use)}.`);
-    lines.push(`${n++}. Modyfikacja pliku Produktu i tworzenie utworów zależnych: ${yn(t.can_modify)}.`);
-    lines.push(`${n++}. Wykorzystanie w projektach klientów Licencjobiorcy: ${yn(t.use_in_client_projects)}.`);
-    lines.push(`${n++}. Wykorzystanie w rozwiązaniach opartych o sztuczną inteligencję (AI): ${yn(t.use_for_ai)}.`);
+    lines.push(
+      `${n++}. Modyfikacja pliku Produktu i tworzenie utworów zależnych: ${yn(t.can_modify)}.`,
+    );
+    lines.push(
+      `${n++}. Wykorzystanie w projektach klientów Licencjobiorcy: ${yn(t.use_in_client_projects)}.`,
+    );
+    lines.push(
+      `${n++}. Wykorzystanie w rozwiązaniach opartych o sztuczną inteligencję (AI): ${yn(t.use_for_ai)}.`,
+    );
     lines.push(`${n++}. Trenowanie modeli AI z użyciem Produktu: ${yn(t.train_ai)}.`);
-    lines.push(`${n++}. Wykorzystanie do tworzenia tokenów niewymiennych (NFT): ${yn(t.create_nft)}.`);
+    lines.push(
+      `${n++}. Wykorzystanie do tworzenia tokenów niewymiennych (NFT): ${yn(t.create_nft)}.`,
+    );
     lines.push(`${n++}. Redystrybucja Produktu w oryginalnej formie: ${yn(t.redistribution)}.`);
     lines.push(`${n++}. Odsprzedaż licencji lub Produktu osobom trzecim: ${yn(t.resale)}.`);
   }
@@ -296,14 +311,16 @@ export function generateLicenseText(params: {
   {
     let n = 1;
     lines.push(`${n++}. Maksymalna liczba użytkowników końcowych: ${limitLabel(t.max_users)}.`);
-    lines.push(`${n++}. Maksymalna liczba projektów, w których może być użyty Produkt: ${limitLabel(t.max_projects)}.`);
     lines.push(
-      `${n++}. Maksymalna liczba sprzedanych produktów końcowych zawierających Produkt: ${
-        t.commercial_use === false ? "nie dotyczy" : limitLabel(t.max_end_products)
-      }.`,
+      `${n++}. Maksymalna liczba projektów, w których może być użyty Produkt: ${limitLabel(t.max_projects)}.`,
+    );
+    lines.push(
+      `${n++}. Maksymalna liczba sprzedanych produktów końcowych zawierających Produkt: ${limitLabel(t.max_end_products)}.`,
     );
     if (t.max_streams && t.max_streams > 0) {
-      lines.push(`${n++}. Maksymalna liczba odtworzeń / dystrybucji strumieniowych: ${Number(t.max_streams).toLocaleString()}.`);
+      lines.push(
+        `${n++}. Maksymalna liczba odtworzeń / dystrybucji strumieniowych: ${Number(t.max_streams).toLocaleString()}.`,
+      );
     }
     const dm = (t.delivery_mode ?? "both") as DeliveryMode;
     lines.push(`${n++}. Sposób dostarczenia Produktu: ${DELIVERY_MODE_LABELS[dm]}.`);
@@ -324,11 +341,15 @@ export function generateLicenseText(params: {
         `${n++}. Autorskie prawa majątkowe do Produktu pozostają przy Licencjodawcy, chyba że strony zawarły odrębną pisemną umowę o przeniesieniu praw.`,
       );
     } else {
-      lines.push(`${n++}. Autorskie prawa majątkowe i osobiste do Produktu pozostają w całości przy Licencjodawcy.`);
+      lines.push(
+        `${n++}. Autorskie prawa majątkowe i osobiste do Produktu pozostają w całości przy Licencjodawcy.`,
+      );
       lines.push(
         `${n++}. Licencja nie stanowi przeniesienia praw autorskich — jest wyłącznie zgodą na korzystanie z Produktu w zakresie określonym powyżej.`,
       );
-      lines.push(`${n++}. Licencjodawca zachowuje prawo do udzielania analogicznych licencji dowolnej liczbie innych podmiotów.`);
+      lines.push(
+        `${n++}. Licencjodawca zachowuje prawo do udzielania analogicznych licencji dowolnej liczbie innych podmiotów.`,
+      );
     }
     if (t.attribution_required) {
       const format = t.attribution_format?.trim();
@@ -350,10 +371,15 @@ export function generateLicenseText(params: {
       `${n++}. Zabrania się wykorzystywania Produktu w sposób niezgodny z prawem, w treściach dyskryminujących, oszczerczych, nawołujących do przemocy lub o charakterze bezprawnym.`,
     );
     if (!t.redistribution)
-      lines.push(`${n++}. Zabrania się redystrybucji Produktu w formie oryginalnej lub minimalnie zmodyfikowanej.`);
-    if (!t.resale) lines.push(`${n++}. Zabrania się odsprzedaży licencji lub Produktu osobom trzecim.`);
+      lines.push(
+        `${n++}. Zabrania się redystrybucji Produktu w formie oryginalnej lub minimalnie zmodyfikowanej.`,
+      );
+    if (!t.resale)
+      lines.push(`${n++}. Zabrania się odsprzedaży licencji lub Produktu osobom trzecim.`);
     if (!t.train_ai)
-      lines.push(`${n++}. Zabrania się wykorzystywania Produktu do trenowania modeli sztucznej inteligencji.`);
+      lines.push(
+        `${n++}. Zabrania się wykorzystywania Produktu do trenowania modeli sztucznej inteligencji.`,
+      );
   }
   lines.push("");
 
