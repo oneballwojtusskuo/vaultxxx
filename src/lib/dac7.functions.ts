@@ -212,7 +212,7 @@ export const getDac7Participants = createServerFn({ method: "GET" })
     >();
     for (const row of rows) {
       if (!completed.has(row.status)) continue;
-      if (row.seller_id && row.payout_status === "paid") {
+      if (row.seller_id) {
         const current = participants.get(row.seller_id) ?? {
           sellerCount: 0,
           sellerAmount: 0,
