@@ -14,6 +14,50 @@ export type Database = {
   }
   public: {
     Tables: {
+      affiliate_payouts: {
+        Row: {
+          amount: number
+          created_at: string
+          currency: string
+          id: string
+          paid_at: string | null
+          status: string
+          transaction_id: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          amount?: number
+          created_at?: string
+          currency?: string
+          id?: string
+          paid_at?: string | null
+          status?: string
+          transaction_id?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          currency?: string
+          id?: string
+          paid_at?: string | null
+          status?: string
+          transaction_id?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "affiliate_payouts_transaction_id_fkey"
+            columns: ["transaction_id"]
+            isOneToOne: false
+            referencedRelation: "transactions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       categories: {
         Row: {
           created_at: string
@@ -144,6 +188,76 @@ export type Database = {
           year?: number
         }
         Relationships: []
+      }
+      dispute_messages: {
+        Row: {
+          content: string
+          created_at: string
+          id: string
+          sender_id: string
+          thread_id: string
+        }
+        Insert: {
+          content: string
+          created_at?: string
+          id?: string
+          sender_id: string
+          thread_id: string
+        }
+        Update: {
+          content?: string
+          created_at?: string
+          id?: string
+          sender_id?: string
+          thread_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "dispute_messages_thread_id_fkey"
+            columns: ["thread_id"]
+            isOneToOne: false
+            referencedRelation: "dispute_threads"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      dispute_threads: {
+        Row: {
+          buyer_id: string
+          created_at: string
+          id: string
+          seller_id: string
+          status: string
+          transaction_id: string
+          updated_at: string
+        }
+        Insert: {
+          buyer_id: string
+          created_at?: string
+          id?: string
+          seller_id: string
+          status?: string
+          transaction_id: string
+          updated_at?: string
+        }
+        Update: {
+          buyer_id?: string
+          created_at?: string
+          id?: string
+          seller_id?: string
+          status?: string
+          transaction_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "dispute_threads_transaction_id_fkey"
+            columns: ["transaction_id"]
+            isOneToOne: true
+            referencedRelation: "transactions"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       exchange_items: {
         Row: {
@@ -385,6 +499,7 @@ export type Database = {
           description: string | null
           downloads_count: number
           file_path: string | null
+          file_paths: string[]
           id: string
           is_tradable: boolean
           license_terms: Json
@@ -409,6 +524,7 @@ export type Database = {
           description?: string | null
           downloads_count?: number
           file_path?: string | null
+          file_paths?: string[]
           id?: string
           is_tradable?: boolean
           license_terms?: Json
@@ -433,6 +549,7 @@ export type Database = {
           description?: string | null
           downloads_count?: number
           file_path?: string | null
+          file_paths?: string[]
           id?: string
           is_tradable?: boolean
           license_terms?: Json
@@ -716,13 +833,16 @@ export type Database = {
           affiliate_commission_pct: number
           affiliate_user_id: string | null
           amount: number
+          auto_release_at: string | null
           buyer_id: string
           buyer_price: number | null
           created_at: string
           currency: string
           dispute_reason: string | null
           disputed_at: string | null
+          held_at: string | null
           id: string
+          payout_status: string
           platform_amount: number
           platform_fee_pct: number
           product_id: string | null
@@ -731,6 +851,7 @@ export type Database = {
           seller_id: string
           source: string
           status: Database["public"]["Enums"]["transaction_status"]
+          stripe_payment_intent_id: string | null
           stripe_session_id: string | null
         }
         Insert: {
@@ -738,13 +859,16 @@ export type Database = {
           affiliate_commission_pct?: number
           affiliate_user_id?: string | null
           amount: number
+          auto_release_at?: string | null
           buyer_id: string
           buyer_price?: number | null
           created_at?: string
           currency?: string
           dispute_reason?: string | null
           disputed_at?: string | null
+          held_at?: string | null
           id?: string
+          payout_status?: string
           platform_amount?: number
           platform_fee_pct?: number
           product_id?: string | null
@@ -753,6 +877,7 @@ export type Database = {
           seller_id: string
           source?: string
           status?: Database["public"]["Enums"]["transaction_status"]
+          stripe_payment_intent_id?: string | null
           stripe_session_id?: string | null
         }
         Update: {
@@ -760,13 +885,16 @@ export type Database = {
           affiliate_commission_pct?: number
           affiliate_user_id?: string | null
           amount?: number
+          auto_release_at?: string | null
           buyer_id?: string
           buyer_price?: number | null
           created_at?: string
           currency?: string
           dispute_reason?: string | null
           disputed_at?: string | null
+          held_at?: string | null
           id?: string
+          payout_status?: string
           platform_amount?: number
           platform_fee_pct?: number
           product_id?: string | null
@@ -775,6 +903,7 @@ export type Database = {
           seller_id?: string
           source?: string
           status?: Database["public"]["Enums"]["transaction_status"]
+          stripe_payment_intent_id?: string | null
           stripe_session_id?: string | null
         }
         Relationships: [
@@ -822,6 +951,7 @@ export type Database = {
       }
       is_current_user_admin: { Args: never; Returns: boolean }
       pl_norm: { Args: { t: string }; Returns: string }
+      release_expired_escrow: { Args: never; Returns: number }
       search_products: {
         Args: { cat?: string; q?: string }
         Returns: {
