@@ -18,7 +18,7 @@ export const getMyTransactions = createServerFn({ method: "POST" })
     const select =
       "id, product_id, amount, buyer_price, seller_amount, affiliate_amount, affiliate_commission_pct, currency, status, source, created_at, released_at, buyer_id, seller_id";
 
-    let [purchasesRes, salesRes, affiliateRes] = await Promise.all([
+    let [purchasesRes, salesRes, affiliateRes] = (await Promise.all([
       supabaseAdmin
         .from("transactions")
         .select(select)
@@ -35,12 +35,12 @@ export const getMyTransactions = createServerFn({ method: "POST" })
         .select(select)
         .eq("affiliate_user_id", userId)
         .order("created_at", { ascending: false }),
-    ]);
+    ])) as any[];
 
     if (purchasesRes.error || salesRes.error || affiliateRes.error) {
       const legacySelect =
         "id, product_id, amount, currency, status, created_at, buyer_id, seller_id";
-      [purchasesRes, salesRes, affiliateRes] = await Promise.all([
+      [purchasesRes, salesRes, affiliateRes] = (await Promise.all([
         supabaseAdmin
           .from("transactions")
           .select(legacySelect)
@@ -48,8 +48,9 @@ export const getMyTransactions = createServerFn({ method: "POST" })
           .eq("status", "completed"),
         supabaseAdmin.from("transactions").select(legacySelect).eq("seller_id", userId),
         Promise.resolve({ data: [], error: null } as any),
-      ]);
+      ])) as any[];
     }
+
 
     const rows = [
       ...(purchasesRes.data ?? []),
