@@ -20,7 +20,7 @@ export type TerritoryPreset = "worldwide" | "pl" | "eu" | "other";
 
 export const DELIVERY_MODE_LABELS: Record<DeliveryMode, string> = {
   stream: "Tylko streaming na stronie",
-  download: "Dostarczenie w formie cyfrowej poprzez pobranie z serwisu VLND",
+  download: "Tylko pobieranie pliku",
   both: "Streaming + pobieranie",
 };
 

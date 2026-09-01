@@ -736,9 +736,20 @@ function Sell() {
                   )}
                 </Button>
                 {sampleFile && (
-                  <p className="text-xs text-muted-foreground truncate">
-                    Aktualna próbka: <span className="text-foreground">{sampleFile.name}</span>
-                  </p>
+                  <div className="space-y-2">
+                    <p className="text-xs text-muted-foreground truncate">
+                      Aktualna próbka: <span className="text-foreground">{sampleFile.name}</span>
+                    </p>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setPreviewFile(sampleFile)}
+                      className="w-full"
+                    >
+                      Użyj próbki jako okładkę
+                    </Button>
+                  </div>
                 )}
                 {!sampleFile && (
                   <p className="text-[11px] text-muted-foreground">
@@ -938,7 +949,7 @@ function Sell() {
                     value={licTerms.max_users ?? "unlimited"}
                     onValueChange={(v) => setLic({ max_users: v as LicenseLimit })}
                   >
-                    <SelectTrigger>
+                    <SelectTrigger className="bg-input border-input text-foreground">
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
@@ -979,7 +990,7 @@ function Sell() {
                       value={licTerms.max_end_products ?? "unlimited"}
                       onValueChange={(v) => setLic({ max_end_products: v as LicenseLimit })}
                     >
-                      <SelectTrigger>
+                      <SelectTrigger className="bg-input border-input text-foreground">
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
@@ -1000,7 +1011,7 @@ function Sell() {
                     value={licTerms.duration ?? "perpetual"}
                     onValueChange={(v) => setLic({ duration: v as LicenseDuration })}
                   >
-                    <SelectTrigger>
+                    <SelectTrigger className="bg-input border-input text-foreground">
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>

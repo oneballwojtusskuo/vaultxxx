@@ -9,7 +9,13 @@ import { SiteFooter } from "@/components/site-footer";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { openCookieSettings } from "@/components/cookie-banner";
 import { useAuth } from "@/hooks/use-auth";
 import { exportMyData, createPrivacyRequest, getMyPrivacyRequests } from "@/lib/privacy.functions";
@@ -75,7 +81,8 @@ function MyDataPage() {
   });
 
   const requestMutation = useMutation({
-    mutationFn: () => runRequest({ data: { kind: kind as never, details: details.trim() || undefined } }),
+    mutationFn: () =>
+      runRequest({ data: { kind: kind as never, details: details.trim() || undefined } }),
     onSuccess: () => {
       setDetails("");
       toast.success("Wniosek został zarejestrowany. Odpowiemy w ciągu 30 dni.");
@@ -91,8 +98,8 @@ function MyDataPage() {
         <header className="space-y-2">
           <h1 className="font-display text-3xl font-bold">Moje dane i prywatność</h1>
           <p className="text-muted-foreground text-sm">
-            Realizujemy prawa z RODO. Tutaj pobierzesz kopię swoich danych, złożysz wniosek o ich sprostowanie
-            lub usunięcie oraz zmienisz zgody na cookies. Szczegóły znajdziesz w{" "}
+            Realizujemy prawa z RODO. Tutaj pobierzesz kopię swoich danych, złożysz wniosek o ich
+            sprostowanie lub usunięcie oraz zmienisz zgody na cookies. Szczegóły znajdziesz w{" "}
             <Link to="/polityka-prywatnosci" className="text-accent hover:underline">
               polityce prywatności
             </Link>
@@ -120,7 +127,8 @@ function MyDataPage() {
                 <h2 className="font-semibold">Pobierz kopię swoich danych</h2>
               </div>
               <p className="text-sm text-muted-foreground">
-                Plik JSON zawiera profil, produkty, zakupy i sprzedaże, opinie, historię zgód oraz wnioski RODO.
+                Plik JSON zawiera profil, produkty, zakupy i sprzedaże, opinie, historię zgód oraz
+                wnioski RODO.
               </p>
               <Button
                 onClick={() => exportMutation.mutate()}
@@ -139,10 +147,14 @@ function MyDataPage() {
               <div className="space-y-2">
                 <Label>Rodzaj wniosku</Label>
                 <Select value={kind} onValueChange={setKind}>
-                  <SelectTrigger><SelectValue /></SelectTrigger>
+                  <SelectTrigger className="bg-input border-input text-foreground">
+                    <SelectValue />
+                  </SelectTrigger>
                   <SelectContent>
                     {Object.entries(KIND_LABELS).map(([k, label]) => (
-                      <SelectItem key={k} value={k}>{label}</SelectItem>
+                      <SelectItem key={k} value={k}>
+                        {label}
+                      </SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
@@ -157,10 +169,14 @@ function MyDataPage() {
                 />
               </div>
               <p className="text-xs text-muted-foreground">
-                Uwaga: dane rozliczeniowe transakcji przechowujemy przez okres wymagany przepisami podatkowymi,
-                nawet po usunięciu konta.
+                Uwaga: dane rozliczeniowe transakcji przechowujemy przez okres wymagany przepisami
+                podatkowymi, nawet po usunięciu konta.
               </p>
-              <Button onClick={() => requestMutation.mutate()} disabled={requestMutation.isPending} variant="outline">
+              <Button
+                onClick={() => requestMutation.mutate()}
+                disabled={requestMutation.isPending}
+                variant="outline"
+              >
                 Wyślij wniosek
               </Button>
 
@@ -191,9 +207,12 @@ function MyDataPage() {
             <h2 className="font-semibold">Zgody na cookies</h2>
           </div>
           <p className="text-sm text-muted-foreground">
-            W każdej chwili możesz zmienić lub wycofać zgody na cookies funkcjonalne, analityczne, afiliacyjne i marketingowe.
+            W każdej chwili możesz zmienić lub wycofać zgody na cookies funkcjonalne, analityczne,
+            afiliacyjne i marketingowe.
           </p>
-          <Button variant="outline" onClick={openCookieSettings}>Zmień ustawienia cookies</Button>
+          <Button variant="outline" onClick={openCookieSettings}>
+            Zmień ustawienia cookies
+          </Button>
         </section>
       </main>
       <SiteFooter />
