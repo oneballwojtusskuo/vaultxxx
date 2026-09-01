@@ -385,6 +385,7 @@ export type Database = {
           description: string | null
           downloads_count: number
           file_path: string | null
+          file_paths: string[]
           id: string
           is_tradable: boolean
           license_terms: Json
@@ -409,6 +410,7 @@ export type Database = {
           description?: string | null
           downloads_count?: number
           file_path?: string | null
+          file_paths?: string[]
           id?: string
           is_tradable?: boolean
           license_terms?: Json
@@ -433,6 +435,7 @@ export type Database = {
           description?: string | null
           downloads_count?: number
           file_path?: string | null
+          file_paths?: string[]
           id?: string
           is_tradable?: boolean
           license_terms?: Json
