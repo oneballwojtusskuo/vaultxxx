@@ -477,33 +477,17 @@ function Sell() {
           custom_terms: licCustom,
         },
       } as any;
-      let { data, error } = await supabase.from("products").insert(listing).select().single();
-
-      if (error) {
-        const legacy = await supabase
-          .from("products")
-          .insert({
-            seller_id: user.id,
-            title,
-            description,
-            price: parseFloat(price) || 0,
-            category_id: categoryId || null,
-            tags: listing.tags,
-            is_tradable: tradable,
-            preview_url,
-            file_path,
-            status: "published",
-          } as any)
-          .select()
-          .single();
-        data = legacy.data;
-        error = legacy.error;
-      }
+      const { data, error } = await supabase.from("products").insert(listing).select().single();
 
       if (error) throw error;
+      if (!data) throw new Error("Nie udało się zapisać produktu. Spróbuj ponownie.");
       let review = { autoApproved: false };
       try {
-        review = await reviewListingFn({ data: { productId: data.id } });
+        review = await reviewListingFn({ data: { productId: (data as any).id } });
+      } catch {
+        // Older Lovable databases do not have the AI review fields yet.
+      }
+
       } catch {
         // Older Lovable databases do not have the AI review fields yet.
       }
