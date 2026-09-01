@@ -487,10 +487,6 @@ function Sell() {
       } catch {
         // Older Lovable databases do not have the AI review fields yet.
       }
-
-      } catch {
-        // Older Lovable databases do not have the AI review fields yet.
-      }
       toast.success(
         review.autoApproved
           ? "Produkt został automatycznie zweryfikowany i opublikowany."
