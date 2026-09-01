@@ -358,8 +358,11 @@ function Sell() {
     e.preventDefault();
     if (!user) return;
 
-    if (!previewFile) {
-      return toast.error("Wgraj okładkę produktu — to pole jest wymagane.");
+    const coverFile = previewFile ?? (sampleFile && checkImageFile(sampleFile) === null ? sampleFile : null);
+    if (!coverFile) {
+      return toast.error(
+        "Wgraj okładkę produktu albo wybierz próbkę jako okładkę — to pole jest wymagane.",
+      );
     }
     if (productFiles.length === 0) {
       return toast.error("Wgraj plik produktu — to pole jest wymagane.");
@@ -386,8 +389,9 @@ function Sell() {
     if (holderError) return toast.error(holderError);
 
     // Client-side guard (defense-in-depth; server re-validates)
-    if (previewFile) {
-      const err = checkImageFile(previewFile);
+    const effectivePreview = previewFile ?? (sampleFile && checkImageFile(sampleFile) === null ? sampleFile : null);
+    if (effectivePreview) {
+      const err = checkImageFile(effectivePreview);
       if (err) return toast.error(`Preview: ${err}`);
     }
     if (sampleFile) {
@@ -426,9 +430,10 @@ function Sell() {
       const file_paths: string[] = [];
       let sample_url: string | null = null;
 
-      if (previewFile) {
-        const path = `${user.id}/${Date.now()}-${previewFile.name}`;
-        const { error } = await supabase.storage.from("product-previews").upload(path, previewFile);
+      const effectivePreview = coverFile ?? (sampleFile && checkImageFile(sampleFile) === null ? sampleFile : null);
+      if (effectivePreview) {
+        const path = `${user.id}/${Date.now()}-${effectivePreview.name}`;
+        const { error } = await supabase.storage.from("product-previews").upload(path, effectivePreview);
         if (error) throw error;
         // Server-side magic-byte validation; deletes the file if it's not a real image.
         await validateFile({ data: { bucket: "product-previews", path, kind: "image" } });
@@ -640,7 +645,6 @@ function Sell() {
                 <Input
                   type="file"
                   accept="image/*"
-                  required
                   onChange={(e) => setPreviewFile(e.target.files?.[0] ?? null)}
                 />
                 {previewFile && (

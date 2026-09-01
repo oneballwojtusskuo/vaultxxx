@@ -158,7 +158,7 @@ export const purchaseProduct = createServerFn({ method: "POST" })
     try {
       const session = await stripe.checkout.sessions.create({
         mode: "payment",
-        ui_mode: "embedded_page",
+        ui_mode: "embedded",
         return_url: `${data.returnUrl ?? ""}?checkout=success&session_id={CHECKOUT_SESSION_ID}`,
         payment_method_types: paymentMethodTypes as any,
         line_items: [
@@ -189,6 +189,11 @@ export const purchaseProduct = createServerFn({ method: "POST" })
         },
       });
 
+      if (!session.client_secret) {
+        await supabaseAdmin.from("transactions").delete().eq("id", tx.id);
+        throw new Error("Stripe checkout session did not return a client secret.");
+      }
+
       // Persist Stripe session id for reconciliation
       await supabaseAdmin
         .from("transactions")
@@ -199,7 +204,7 @@ export const purchaseProduct = createServerFn({ method: "POST" })
         transactionId: tx.id,
         status: "pending" as const,
         alreadyOwned: false,
-        clientSecret: session.client_secret ?? "",
+        clientSecret: session.client_secret,
       };
     } catch (error) {
       // Roll back the pending row so the buyer can retry cleanly

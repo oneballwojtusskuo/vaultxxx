@@ -261,6 +261,10 @@ function ProductPage() {
       } else if ("clientSecret" in res && res.clientSecret) {
         setCheckoutSecret(res.clientSecret);
         setCheckoutOpen(true);
+      } else if (res && typeof res === "object" && "status" in res && res.status === "pending") {
+        toast.error(
+          "Nie udało się otworzyć okna płatności. Sprawdź konfigurację Stripe lub spróbuj ponownie.",
+        );
       } else {
         toast.success("Zamówienie utworzone. Oczekuje na potwierdzenie płatności.");
       }
