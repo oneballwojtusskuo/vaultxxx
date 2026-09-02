@@ -15,18 +15,31 @@ export const exportMyData = createServerFn({ method: "POST" })
     // Own profile row (incl. date_of_birth, which is not readable via the public column grants)
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
 
-    const [profile, products, purchases, sales, reviews, consents, cookies, privacyRequests, payout] =
-      await Promise.all([
-        supabaseAdmin.from("profiles").select("*").eq("id", userId).maybeSingle(),
-        supabase.from("products").select("*").eq("seller_id", userId),
-        supabase.from("transactions").select("*").eq("buyer_id", userId),
-        supabase.from("transactions").select("*").eq("seller_id", userId),
-        supabase.from("reviews").select("*").eq("buyer_id", userId),
-        supabase.from("consents").select("*").eq("user_id", userId),
-        supabase.from("cookie_consents").select("*").eq("user_id", userId),
-        supabase.from("privacy_requests").select("*").eq("user_id", userId),
-        supabase.from("seller_payouts").select("payout_holder, created_at, updated_at").eq("user_id", userId).maybeSingle(),
-      ]);
+    const [
+      profile,
+      products,
+      purchases,
+      sales,
+      reviews,
+      consents,
+      cookies,
+      privacyRequests,
+      payout,
+    ] = await Promise.all([
+      supabaseAdmin.from("profiles").select("*").eq("id", userId).maybeSingle(),
+      supabase.from("products").select("*").eq("seller_id", userId),
+      supabase.from("transactions").select("*").eq("buyer_id", userId),
+      supabase.from("transactions").select("*").eq("seller_id", userId),
+      supabase.from("reviews").select("*").eq("buyer_id", userId),
+      supabase.from("consents").select("*").eq("user_id", userId),
+      supabase.from("cookie_consents").select("*").eq("user_id", userId),
+      supabase.from("privacy_requests").select("*").eq("user_id", userId),
+      supabase
+        .from("seller_payouts")
+        .select("payout_holder, created_at, updated_at")
+        .eq("user_id", userId)
+        .maybeSingle(),
+    ]);
 
     return {
       exportedAt: new Date().toISOString(),

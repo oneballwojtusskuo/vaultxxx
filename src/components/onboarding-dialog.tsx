@@ -59,7 +59,8 @@ export function OnboardingDialog() {
 
   const uploadAvatar = async (file: File) => {
     if (!user) return;
-    if (!file.type.startsWith("image/")) return toast.error("Wybierz plik graficzny (JPG, PNG, WEBP).");
+    if (!file.type.startsWith("image/"))
+      return toast.error("Wybierz plik graficzny (JPG, PNG, WEBP).");
     if (file.size > 5 * 1024 * 1024) return toast.error("Zdjęcie może mieć maksymalnie 5 MB.");
     setUploading(true);
     const ext = (file.name.split(".").pop() || "jpg").toLowerCase();
@@ -67,7 +68,9 @@ export function OnboardingDialog() {
     const { error } = await supabase.storage.from("avatars").upload(path, file, { upsert: true });
     if (error) {
       setUploading(false);
-      return toast.error("Nie udało się wgrać zdjęcia. Zaloguj się ponownie i spróbuj jeszcze raz.");
+      return toast.error(
+        "Nie udało się wgrać zdjęcia. Zaloguj się ponownie i spróbuj jeszcze raz.",
+      );
     }
     try {
       await validateFile({ data: { bucket: "avatars", path, kind: "image" } });
@@ -79,7 +82,6 @@ export function OnboardingDialog() {
     setAvatarUrl(data.publicUrl);
     setUploading(false);
   };
-
 
   const finish = async () => {
     if (!user) return;

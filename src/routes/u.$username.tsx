@@ -37,8 +37,14 @@ function Profile() {
     enabled: !!profile,
     queryFn: async () => {
       const [followers, following] = await Promise.all([
-        supabase.from("follows").select("*", { count: "exact", head: true }).eq("following_id", profile!.id),
-        supabase.from("follows").select("*", { count: "exact", head: true }).eq("follower_id", profile!.id),
+        supabase
+          .from("follows")
+          .select("*", { count: "exact", head: true })
+          .eq("following_id", profile!.id),
+        supabase
+          .from("follows")
+          .select("*", { count: "exact", head: true })
+          .eq("follower_id", profile!.id),
       ]);
       return { followers: followers.count ?? 0, following: following.count ?? 0 };
     },
@@ -50,7 +56,9 @@ function Profile() {
     queryFn: async () => {
       const { data } = await supabase
         .from("products")
-        .select("id,title,price,currency,preview_url,is_tradable,downloads_count, category:categories(name,icon)")
+        .select(
+          "id,title,price,currency,preview_url,is_tradable,downloads_count, category:categories(name,icon)",
+        )
         .eq("seller_id", profile!.id)
         .eq("status", "published")
         .order("created_at", { ascending: false });
@@ -62,7 +70,9 @@ function Profile() {
     return (
       <div className="min-h-screen flex flex-col">
         <SiteHeader />
-        <div className="flex-1 flex items-center justify-center text-muted-foreground">Ładowanie profilu...</div>
+        <div className="flex-1 flex items-center justify-center text-muted-foreground">
+          Ładowanie profilu...
+        </div>
         <SiteFooter />
       </div>
     );
@@ -93,7 +103,9 @@ function Profile() {
               {profile.avatar_url ? (
                 <img src={profile.avatar_url} alt={name} className="h-full w-full object-cover" />
               ) : (
-                <span className="font-display text-3xl font-bold text-primary-foreground">{initials}</span>
+                <span className="font-display text-3xl font-bold text-primary-foreground">
+                  {initials}
+                </span>
               )}
             </div>
             <div className="flex-1 min-w-0">
@@ -102,9 +114,13 @@ function Profile() {
                 {profile.is_verified_seller && <VerifiedBadge />}
               </div>
               <p className="text-muted-foreground">@{profile.username}</p>
-              {profile.bio && <p className="mt-3 text-foreground/80 whitespace-pre-wrap">{profile.bio}</p>}
+              {profile.bio && (
+                <p className="mt-3 text-foreground/80 whitespace-pre-wrap">{profile.bio}</p>
+              )}
               <div className="mt-3 flex items-center gap-4 text-sm text-muted-foreground flex-wrap">
-                <span className="inline-flex items-center gap-1"><Users className="h-4 w-4" /> {stats?.followers ?? 0} obserwujących</span>
+                <span className="inline-flex items-center gap-1">
+                  <Users className="h-4 w-4" /> {stats?.followers ?? 0} obserwujących
+                </span>
                 <span>{stats?.following ?? 0} obserwowanych</span>
                 <span>{products?.length ?? 0} produktów</span>
                 <RatingSummary sellerId={profile.id} />
@@ -113,7 +129,12 @@ function Profile() {
             <div className="flex gap-2 flex-wrap">
               <FollowButton targetUserId={profile.id} />
               {user && user.id !== profile.id && (
-                <Button variant="outline" onClick={() => navigate({ to: "/messages/$userId", params: { userId: profile.id } })}>
+                <Button
+                  variant="outline"
+                  onClick={() =>
+                    navigate({ to: "/messages/$userId", params: { userId: profile.id } })
+                  }
+                >
                   <MessageSquare className="h-4 w-4 mr-2" /> Wiadomość
                 </Button>
               )}
@@ -124,7 +145,9 @@ function Profile() {
         <h2 className="font-display text-2xl font-bold mt-10 mb-4">Produkty</h2>
         {products && products.length > 0 ? (
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5">
-            {products.map((p: any) => <ProductCard key={p.id} p={p} />)}
+            {products.map((p: any) => (
+              <ProductCard key={p.id} p={p} />
+            ))}
           </div>
         ) : (
           <div className="text-center text-muted-foreground py-12 rounded-xl border border-dashed border-border/50">
@@ -135,9 +158,10 @@ function Profile() {
         <h2 className="font-display text-2xl font-bold mt-10 mb-4">Opinie o twórcy</h2>
         <SellerReviews sellerId={profile.id} />
 
-
         <div className="mt-8 text-center">
-          <Link to="/browse" className="text-sm text-muted-foreground hover:text-foreground">← Przeglądaj wszystkie produkty</Link>
+          <Link to="/browse" className="text-sm text-muted-foreground hover:text-foreground">
+            ← Przeglądaj wszystkie produkty
+          </Link>
         </div>
       </main>
       <SiteFooter />

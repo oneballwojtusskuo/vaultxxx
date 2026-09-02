@@ -51,7 +51,6 @@ export const getMyTransactions = createServerFn({ method: "POST" })
       ])) as any[];
     }
 
-
     const rows = [
       ...(purchasesRes.data ?? []),
       ...(salesRes.data ?? []),

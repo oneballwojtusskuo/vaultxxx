@@ -358,7 +358,8 @@ function Sell() {
     e.preventDefault();
     if (!user) return;
 
-    const coverFile = previewFile ?? (sampleFile && checkImageFile(sampleFile) === null ? sampleFile : null);
+    const coverFile =
+      previewFile ?? (sampleFile && checkImageFile(sampleFile) === null ? sampleFile : null);
     if (!coverFile) {
       return toast.error(
         "Wgraj okładkę produktu albo wybierz próbkę jako okładkę — to pole jest wymagane.",
@@ -389,7 +390,8 @@ function Sell() {
     if (holderError) return toast.error(holderError);
 
     // Client-side guard (defense-in-depth; server re-validates)
-    const effectivePreview = previewFile ?? (sampleFile && checkImageFile(sampleFile) === null ? sampleFile : null);
+    const effectivePreview =
+      previewFile ?? (sampleFile && checkImageFile(sampleFile) === null ? sampleFile : null);
     if (effectivePreview) {
       const err = checkImageFile(effectivePreview);
       if (err) return toast.error(`Preview: ${err}`);
@@ -430,10 +432,13 @@ function Sell() {
       const file_paths: string[] = [];
       let sample_url: string | null = null;
 
-      const effectivePreview = coverFile ?? (sampleFile && checkImageFile(sampleFile) === null ? sampleFile : null);
+      const effectivePreview =
+        coverFile ?? (sampleFile && checkImageFile(sampleFile) === null ? sampleFile : null);
       if (effectivePreview) {
         const path = `${user.id}/${Date.now()}-${effectivePreview.name}`;
-        const { error } = await supabase.storage.from("product-previews").upload(path, effectivePreview);
+        const { error } = await supabase.storage
+          .from("product-previews")
+          .upload(path, effectivePreview);
         if (error) throw error;
         // Server-side magic-byte validation; deletes the file if it's not a real image.
         await validateFile({ data: { bucket: "product-previews", path, kind: "image" } });

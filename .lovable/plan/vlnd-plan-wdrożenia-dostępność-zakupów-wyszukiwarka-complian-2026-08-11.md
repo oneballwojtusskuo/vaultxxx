@@ -6,12 +6,14 @@ Dzielę go na etapy — każdy etap kończy się działającą aplikacją. Zaczy
 ## Etap 1 — to, o co prosisz wprost (funkcje produktowe)
 
 **Zdjęcie ogłoszenia przez sprzedającego vs. usunięcie przez admina**
+
 - Sprzedający „zdejmuje” ofertę → status `archived`: znika z wyszukiwarki i profilu, ale każdy, kto ma
   transakcję (`held/released/completed` lub z wymiany), nadal widzi stronę produktu, pobiera plik i ma licencję.
 - Admin usuwa → jak dziś: trwałe usunięcie z plikami + notatka do sprzedającego (nikt nie ma dostępu).
 - Strona produktu i „Zakupy” pobierają archiwalne produkty osobną, autoryzowaną ścieżką (kupujący / właściciel / admin).
 
 **Wyszukiwarka z rankingiem słów kluczowych**
+
 - Indeks tekstowy po: tytule (waga najwyższa), tagach/hasztagach, opisie, nazwie kategorii oraz własnej
   kategorii wpisanej przez sprzedawcę.
 - Zapytanie dzielone na słowa, dopasowania częściowe, sortowanie po trafności (potem po popularności/dacie).
@@ -52,7 +54,7 @@ Dzielę go na etapy — każdy etap kończy się działającą aplikacją. Zaczy
 - **Compliance Center** w panelu admina z licznikami i filtrowaniem.
 - **Audit log** (append-only) dla zdarzeń konta, produktu, płatności, moderacji, zgód.
 - **KYC/DAC7**: formularz danych podatkowych wymagany **przed pierwszą wypłatą**, blokada wypłaty przy brakach,
-  statusy DAC7_*, licznik transakcji i wartości.
+  statusy DAC7\_\*, licznik transakcji i wartości.
 - Strona „Jak działają wyniki wyszukiwania?” z rzeczywistymi parametrami rankingu.
 
 ## Kwestie oznaczone do decyzji / przeglądu prawnego (LEGAL REVIEW REQUIRED)

@@ -107,7 +107,7 @@ function ProductPage() {
     queryKey: ["myTx", id, user?.id],
     enabled: !!user,
     queryFn: async () => {
-      let { data, error } = await supabase
+      const { data, error } = await supabase
         .from("transactions")
         .select("*")
         .eq("product_id", id)
@@ -115,6 +115,7 @@ function ProductPage() {
         .in("status", ["held", "released", "completed", "disputed"])
         .limit(1)
         .maybeSingle();
+
       if (error) {
         const legacy = await supabase
           .from("transactions")
@@ -124,8 +125,9 @@ function ProductPage() {
           .eq("status", "completed")
           .limit(1)
           .maybeSingle();
-        data = legacy.data;
+        return legacy.data;
       }
+
       return data;
     },
   });
@@ -620,7 +622,7 @@ function ReferralButton({
       onClick={handle}
       size="lg"
       variant="outline"
-      className="h-12 border-accent/50 text-accent hover:bg-accent/10"
+      className="h-12 border-primary/50 text-primary hover:bg-accent/10"
     >
       {copied ? <Check className="h-4 w-4 mr-2" /> : <Share2 className="h-4 w-4 mr-2" />}
       {copied ? "Link partnera skopiowany" : `Generuj link polecający (${pct}%)`}
@@ -697,7 +699,12 @@ function SamplePreview({ url, title }: { url: string; title: string }) {
       />
     );
   return (
-    <a href={url} target="_blank" rel="noreferrer" className="text-sm text-accent underline">
+    <a
+      href={url}
+      target="_blank"
+      rel="noreferrer"
+      className="text-sm font-medium text-primary underline"
+    >
       Otwórz próbkę w nowej karcie
     </a>
   );

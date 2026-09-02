@@ -13,7 +13,10 @@ export const Route = createFileRoute("/reset-hasla")({
   head: () => ({
     meta: [
       { title: "Ustaw nowe hasło — vlnd" },
-      { name: "description", content: "Ustaw nowe hasło do swojego konta na vlnd — marketplace materiałów cyfrowych." },
+      {
+        name: "description",
+        content: "Ustaw nowe hasło do swojego konta na vlnd — marketplace materiałów cyfrowych.",
+      },
       { property: "og:title", content: "Ustaw nowe hasło — vlnd" },
       { property: "og:description", content: "Bezpieczna zmiana hasła do konta vlnd." },
       { property: "og:type", content: "website" },
@@ -65,22 +68,39 @@ function ResetPasswordPage() {
 
         {!ready ? (
           <p className="mt-4 text-sm text-muted-foreground">
-            Otwórz tę stronę z linku wysłanego na Twój adres e-mail. Jeśli link wygasł, poproś o nowy na stronie logowania.
+            Otwórz tę stronę z linku wysłanego na Twój adres e-mail. Jeśli link wygasł, poproś o
+            nowy na stronie logowania.
           </p>
         ) : (
           <form onSubmit={save} className="mt-4 space-y-4">
             <div className="space-y-2">
               <Label>Nowe hasło</Label>
-              <Input type="password" minLength={8} required value={password} onChange={(e) => setPassword(e.target.value)} />
+              <Input
+                type="password"
+                minLength={8}
+                required
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+              />
             </div>
             <div className="space-y-2">
               <Label>Powtórz nowe hasło</Label>
-              <Input type="password" minLength={8} required value={password2} onChange={(e) => setPassword2(e.target.value)} />
+              <Input
+                type="password"
+                minLength={8}
+                required
+                value={password2}
+                onChange={(e) => setPassword2(e.target.value)}
+              />
               {password2.length > 0 && password2 !== password && (
                 <p className="text-xs text-destructive">Hasła nie są takie same.</p>
               )}
             </div>
-            <Button disabled={saving} type="submit" className="w-full bg-gradient-primary text-primary-foreground shadow-glow">
+            <Button
+              disabled={saving}
+              type="submit"
+              className="w-full bg-gradient-primary text-primary-foreground shadow-glow"
+            >
               Zapisz nowe hasło
             </Button>
           </form>

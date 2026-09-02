@@ -14,7 +14,6 @@ import { WelcomePopup } from "@/components/welcome-popup";
 import { OnboardingDialog } from "@/components/onboarding-dialog";
 import { CookieBanner } from "@/components/cookie-banner";
 
-
 import appCss from "../styles.css?url";
 
 function NotFoundComponent() {
@@ -80,21 +79,44 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
       { title: "vlnd — kupuj, sprzedawaj i wymieniaj materiały cyfrowe" },
-      { name: "description", content: "Premium marketplace cyfrowy. Grafiki, e-booki, muzyka, kod, kursy, modele 3D — kup, sprzedaj lub wymień z innymi twórcami." },
+      {
+        name: "description",
+        content:
+          "Premium marketplace cyfrowy. Grafiki, e-booki, muzyka, kod, kursy, modele 3D — kup, sprzedaj lub wymień z innymi twórcami.",
+      },
       { property: "og:title", content: "vlnd — kupuj, sprzedawaj i wymieniaj materiały cyfrowe" },
-      { property: "og:description", content: "Premium marketplace cyfrowy. Grafiki, e-booki, muzyka, kod, kursy, modele 3D — kup, sprzedaj lub wymień z innymi twórcami." },
+      {
+        property: "og:description",
+        content:
+          "Premium marketplace cyfrowy. Grafiki, e-booki, muzyka, kod, kursy, modele 3D — kup, sprzedaj lub wymień z innymi twórcami.",
+      },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
       { name: "twitter:title", content: "vlnd — kupuj, sprzedawaj i wymieniaj materiały cyfrowe" },
-      { name: "twitter:description", content: "Premium marketplace cyfrowy. Grafiki, e-booki, muzyka, kod, kursy, modele 3D — kup, sprzedaj lub wymień z innymi twórcami." },
+      {
+        name: "twitter:description",
+        content:
+          "Premium marketplace cyfrowy. Grafiki, e-booki, muzyka, kod, kursy, modele 3D — kup, sprzedaj lub wymień z innymi twórcami.",
+      },
 
-      { property: "og:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/0aa42a4d-9342-415a-b17f-3b27901e4395/id-preview-bdc3ebc5--09f54668-4a05-4338-8a7c-a20024e1c999.lovable.app-1780587597438.png" },
-      { name: "twitter:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/0aa42a4d-9342-415a-b17f-3b27901e4395/id-preview-bdc3ebc5--09f54668-4a05-4338-8a7c-a20024e1c999.lovable.app-1780587597438.png" },
+      {
+        property: "og:image",
+        content:
+          "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/0aa42a4d-9342-415a-b17f-3b27901e4395/id-preview-bdc3ebc5--09f54668-4a05-4338-8a7c-a20024e1c999.lovable.app-1780587597438.png",
+      },
+      {
+        name: "twitter:image",
+        content:
+          "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/0aa42a4d-9342-415a-b17f-3b27901e4395/id-preview-bdc3ebc5--09f54668-4a05-4338-8a7c-a20024e1c999.lovable.app-1780587597438.png",
+      },
     ],
     links: [
       { rel: "preconnect", href: "https://fonts.googleapis.com" },
       { rel: "preconnect", href: "https://fonts.gstatic.com", crossOrigin: "anonymous" },
-      { rel: "stylesheet", href: "https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" },
+      {
+        rel: "stylesheet",
+        href: "https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap",
+      },
       { rel: "stylesheet", href: appCss },
     ],
   }),

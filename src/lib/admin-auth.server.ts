@@ -9,9 +9,7 @@ export function getClaimEmail(claims: unknown) {
   };
 
   const email =
-    typeof claimData.email === "string"
-      ? claimData.email
-      : claimData.user_metadata?.email;
+    typeof claimData.email === "string" ? claimData.email : claimData.user_metadata?.email;
 
   return typeof email === "string" ? email.toLowerCase() : null;
 }
@@ -40,7 +38,9 @@ export async function getAdminClientForContext(context: { claims: unknown; userI
   if (roleRow) return supabaseAdmin;
 
   try {
-    const { data: userRecord, error: userError } = await supabaseAdmin.auth.admin.getUserById(context.userId);
+    const { data: userRecord, error: userError } = await supabaseAdmin.auth.admin.getUserById(
+      context.userId,
+    );
     const userEmail = userRecord?.user?.email?.toLowerCase();
 
     if (!userError && userEmail && userEmail === OWNER_ADMIN_EMAIL) {

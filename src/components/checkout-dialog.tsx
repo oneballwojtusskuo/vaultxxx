@@ -19,11 +19,16 @@ export function CheckoutDialog({
         </DialogHeader>
         <div className="p-4">
           {clientSecret ? (
-            <EmbeddedCheckoutProvider stripe={getStripe()} options={{ fetchClientSecret: async () => clientSecret }}>
+            <EmbeddedCheckoutProvider
+              stripe={getStripe()}
+              options={{ fetchClientSecret: async () => clientSecret }}
+            >
               <EmbeddedCheckout />
             </EmbeddedCheckoutProvider>
           ) : (
-            <div className="text-center text-sm text-muted-foreground py-10">Ładuję formularz płatności…</div>
+            <div className="text-center text-sm text-muted-foreground py-10">
+              Ładuję formularz płatności…
+            </div>
           )}
         </div>
       </DialogContent>

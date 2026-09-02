@@ -27,13 +27,22 @@ function Exchanges() {
     const { data: items } = await (supabase as any)
       .from("exchange_items")
       .select("exchange_id, side, product:products(id,title,preview_url)")
-      .in("exchange_id", rows.map((r) => r.id));
+      .in(
+        "exchange_id",
+        rows.map((r) => r.id),
+      );
     const byExchange: Record<string, any[]> = {};
     for (const it of items ?? []) (byExchange[it.exchange_id] ||= []).push(it);
     return rows.map((r) => {
       const list = byExchange[r.id] ?? [];
-      const offered = list.filter((i) => i.side === "offered").map((i) => i.product).filter(Boolean);
-      const requested = list.filter((i) => i.side === "requested").map((i) => i.product).filter(Boolean);
+      const offered = list
+        .filter((i) => i.side === "offered")
+        .map((i) => i.product)
+        .filter(Boolean);
+      const requested = list
+        .filter((i) => i.side === "requested")
+        .map((i) => i.product)
+        .filter(Boolean);
       return {
         ...r,
         offeredList: offered.length ? offered : [r.offered].filter(Boolean),
@@ -50,11 +59,13 @@ function Exchanges() {
     enabled: !!user,
     queryFn: async () =>
       withItems(
-        (await supabase
-          .from("exchanges")
-          .select(selectCols)
-          .eq("receiver_id", user!.id)
-          .order("created_at", { ascending: false })).data ?? [],
+        (
+          await supabase
+            .from("exchanges")
+            .select(selectCols)
+            .eq("receiver_id", user!.id)
+            .order("created_at", { ascending: false })
+        ).data ?? [],
       ),
   });
   const outgoingQ = useQuery({
@@ -62,20 +73,22 @@ function Exchanges() {
     enabled: !!user,
     queryFn: async () =>
       withItems(
-        (await supabase
-          .from("exchanges")
-          .select(selectCols)
-          .eq("proposer_id", user!.id)
-          .order("created_at", { ascending: false })).data ?? [],
+        (
+          await supabase
+            .from("exchanges")
+            .select(selectCols)
+            .eq("proposer_id", user!.id)
+            .order("created_at", { ascending: false })
+        ).data ?? [],
       ),
   });
-
 
   const updateStatus = async (id: string, status: "accepted" | "rejected" | "cancelled") => {
     const { error } = await supabase.from("exchanges").update({ status }).eq("id", id);
     if (error) return toast.error(error.message);
     toast.success("Zaktualizowano");
-    incomingQ.refetch(); outgoingQ.refetch();
+    incomingQ.refetch();
+    outgoingQ.refetch();
   };
 
   if (loading || !user) return null;
@@ -87,7 +100,9 @@ function Exchanges() {
         <h1 className="font-display text-4xl font-bold flex items-center gap-3">
           <Repeat2 className="h-8 w-8 text-accent" /> Wymiany
         </h1>
-        <p className="text-muted-foreground mt-1">Zarządzaj propozycjami wymian z innymi twórcami.</p>
+        <p className="text-muted-foreground mt-1">
+          Zarządzaj propozycjami wymian z innymi twórcami.
+        </p>
 
         <Tabs defaultValue="incoming" className="mt-8">
           <TabsList>
@@ -114,7 +129,15 @@ function Exchanges() {
   );
 }
 
-function ExchangeRow({ ex, kind, onAction }: { ex: any; kind: "incoming" | "outgoing"; onAction: (id: string, s: any) => void }) {
+function ExchangeRow({
+  ex,
+  kind,
+  onAction,
+}: {
+  ex: any;
+  kind: "incoming" | "outgoing";
+  onAction: (id: string, s: any) => void;
+}) {
   const statusColor: Record<string, string> = {
     pending: "text-accent",
     accepted: "text-success",
@@ -144,33 +167,54 @@ function ExchangeRow({ ex, kind, onAction }: { ex: any; kind: "incoming" | "outg
           <div className="flex gap-2 mt-2 justify-end flex-wrap">
             {counterpartId && (
               <Link to="/messages/$userId" params={{ userId: counterpartId }}>
-                <Button size="sm" variant="outline"><MessageSquare className="h-3 w-3 mr-1"/>Kontakt</Button>
+                <Button size="sm" variant="outline">
+                  <MessageSquare className="h-3 w-3 mr-1" />
+                  Kontakt
+                </Button>
               </Link>
             )}
-            {ex.status === "pending" && (
-              kind === "incoming" ? (
+            {ex.status === "pending" &&
+              (kind === "incoming" ? (
                 <>
-                  <Button size="sm" onClick={() => onAction(ex.id, "accepted")} className="bg-success text-success-foreground"><Check className="h-3 w-3 mr-1"/>Akceptuj</Button>
-                  <Button size="sm" variant="outline" onClick={() => onAction(ex.id, "rejected")}><X className="h-3 w-3 mr-1"/>Odrzuć</Button>
+                  <Button
+                    size="sm"
+                    onClick={() => onAction(ex.id, "accepted")}
+                    className="bg-success text-success-foreground"
+                  >
+                    <Check className="h-3 w-3 mr-1" />
+                    Akceptuj
+                  </Button>
+                  <Button size="sm" variant="outline" onClick={() => onAction(ex.id, "rejected")}>
+                    <X className="h-3 w-3 mr-1" />
+                    Odrzuć
+                  </Button>
                 </>
               ) : (
-                <Button size="sm" variant="outline" onClick={() => onAction(ex.id, "cancelled")}>Anuluj</Button>
-              )
-            )}
+                <Button size="sm" variant="outline" onClick={() => onAction(ex.id, "cancelled")}>
+                  Anuluj
+                </Button>
+              ))}
           </div>
         </div>
       </div>
       {ex.message && <p className="mt-3 text-sm text-muted-foreground italic">"{ex.message}"</p>}
-
     </div>
   );
 }
 
 function Mini({ p, label }: { p: any; label: string }) {
   return (
-    <Link to="/product/$id" params={{ id: p?.id ?? "" }} className="flex items-center gap-2 min-w-0">
+    <Link
+      to="/product/$id"
+      params={{ id: p?.id ?? "" }}
+      className="flex items-center gap-2 min-w-0"
+    >
       <div className="h-12 w-12 rounded-md overflow-hidden bg-muted shrink-0">
-        {p?.preview_url ? <img src={p.preview_url} alt="" className="w-full h-full object-cover"/> : <div className="w-full h-full bg-gradient-primary opacity-40"/>}
+        {p?.preview_url ? (
+          <img src={p.preview_url} alt="" className="w-full h-full object-cover" />
+        ) : (
+          <div className="w-full h-full bg-gradient-primary opacity-40" />
+        )}
       </div>
       <div className="min-w-0">
         <p className="text-xs text-muted-foreground">{label}</p>
@@ -180,5 +224,9 @@ function Mini({ p, label }: { p: any; label: string }) {
   );
 }
 function Empty({ msg }: { msg: string }) {
-  return <div className="text-center text-muted-foreground py-12 rounded-xl border border-dashed border-border/50">{msg}</div>;
+  return (
+    <div className="text-center text-muted-foreground py-12 rounded-xl border border-dashed border-border/50">
+      {msg}
+    </div>
+  );
 }

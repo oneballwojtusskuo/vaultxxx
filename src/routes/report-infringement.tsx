@@ -28,9 +28,15 @@ export const Route = createFileRoute("/report-infringement")({
   head: () => ({
     meta: [
       { title: "Zgłoś naruszenie praw autorskich — vlnd" },
-      { name: "description", content: "Formularz zgłaszania naruszeń praw autorskich w serwisie vlnd." },
+      {
+        name: "description",
+        content: "Formularz zgłaszania naruszeń praw autorskich w serwisie vlnd.",
+      },
       { property: "og:title", content: "Zgłoś naruszenie praw autorskich — vlnd" },
-      { property: "og:description", content: "Formularz zgłaszania naruszeń praw autorskich w serwisie vlnd." },
+      {
+        property: "og:description",
+        content: "Formularz zgłaszania naruszeń praw autorskich w serwisie vlnd.",
+      },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
     ],
@@ -104,7 +110,8 @@ function ReportInfringementPage() {
             <h1 className="font-display text-3xl font-bold">Zgłoś naruszenie praw autorskich</h1>
           </div>
           <p className="text-muted-foreground mb-8">
-            Jeśli znalazłeś ogłoszenie lub produkt, który narusza Twoje prawa autorskie, wypełnij poniższy formularz. Każde zgłoszenie weryfikujemy indywidualnie.
+            Jeśli znalazłeś ogłoszenie lub produkt, który narusza Twoje prawa autorskie, wypełnij
+            poniższy formularz. Każde zgłoszenie weryfikujemy indywidualnie.
           </p>
 
           <div className="rounded-2xl border border-border/60 bg-card/50 p-6">
@@ -113,7 +120,8 @@ function ReportInfringementPage() {
               <div className="text-sm">
                 <p className="font-semibold text-amber-500 mb-1">Ważne informacje</p>
                 <p className="text-muted-foreground">
-                  Złożenie fałszywego zgłoszenia może wiązać się z odpowiedzialnością cywilną lub karną. Podaj dokładne dane i upewnij się, że jesteś uprawnionym podmiotem.
+                  Złożenie fałszywego zgłoszenia może wiązać się z odpowiedzialnością cywilną lub
+                  karną. Podaj dokładne dane i upewnij się, że jesteś uprawnionym podmiotem.
                 </p>
               </div>
             </div>
@@ -122,24 +130,57 @@ function ReportInfringementPage() {
               <div className="grid sm:grid-cols-2 gap-4">
                 <div>
                   <Label htmlFor="name">Imię i nazwisko / podmiot uprawniony</Label>
-                  <Input id="name" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} maxLength={100} required />
+                  <Input
+                    id="name"
+                    value={form.name}
+                    onChange={(e) => setForm({ ...form, name: e.target.value })}
+                    maxLength={100}
+                    required
+                  />
                 </div>
                 <div>
                   <Label htmlFor="email">Twój e-mail kontaktowy</Label>
-                  <Input id="email" type="email" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} maxLength={255} required />
+                  <Input
+                    id="email"
+                    type="email"
+                    value={form.email}
+                    onChange={(e) => setForm({ ...form, email: e.target.value })}
+                    maxLength={255}
+                    required
+                  />
                 </div>
               </div>
               <div>
                 <Label htmlFor="productUrl">Link do ogłoszenia / produktu</Label>
-                <Input id="productUrl" type="url" value={form.productUrl} onChange={(e) => setForm({ ...form, productUrl: e.target.value })} maxLength={500} required />
+                <Input
+                  id="productUrl"
+                  type="url"
+                  value={form.productUrl}
+                  onChange={(e) => setForm({ ...form, productUrl: e.target.value })}
+                  maxLength={500}
+                  required
+                />
               </div>
               <div>
                 <Label htmlFor="rightsHolder">Tytuł / utwór, do którego przysługują prawa</Label>
-                <Input id="rightsHolder" value={form.rightsHolder} onChange={(e) => setForm({ ...form, rightsHolder: e.target.value })} maxLength={200} required />
+                <Input
+                  id="rightsHolder"
+                  value={form.rightsHolder}
+                  onChange={(e) => setForm({ ...form, rightsHolder: e.target.value })}
+                  maxLength={200}
+                  required
+                />
               </div>
               <div>
                 <Label htmlFor="description">Opis naruszenia i podstawa prawna</Label>
-                <Textarea id="description" rows={6} value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} maxLength={4000} required />
+                <Textarea
+                  id="description"
+                  rows={6}
+                  value={form.description}
+                  onChange={(e) => setForm({ ...form, description: e.target.value })}
+                  maxLength={4000}
+                  required
+                />
               </div>
               <div className="flex items-start gap-3">
                 <Checkbox
@@ -147,15 +188,27 @@ function ReportInfringementPage() {
                   checked={form.goodFaith}
                   onCheckedChange={(checked) => setForm({ ...form, goodFaith: checked === true })}
                 />
-                <Label htmlFor="goodFaith" className="font-normal text-sm leading-relaxed cursor-pointer">
-                  Oświadczam, że posiadam dobre przekonanie co do tego, że materiał wskazany powyżej jest wykorzystywany bez zgody właściciela praw autorskich lub jego przedstawiciela, oraz że informacje zawarte w zgłoszeniu są dokładne i rzetelne.
+                <Label
+                  htmlFor="goodFaith"
+                  className="font-normal text-sm leading-relaxed cursor-pointer"
+                >
+                  Oświadczam, że posiadam dobre przekonanie co do tego, że materiał wskazany powyżej
+                  jest wykorzystywany bez zgody właściciela praw autorskich lub jego
+                  przedstawiciela, oraz że informacje zawarte w zgłoszeniu są dokładne i rzetelne.
                 </Label>
               </div>
               <div className="flex items-center justify-between gap-4 flex-wrap pt-2">
-                <a href={`mailto:${ABUSE_EMAIL}`} className="text-xs text-muted-foreground hover:text-foreground">
+                <a
+                  href={`mailto:${ABUSE_EMAIL}`}
+                  className="text-xs text-muted-foreground hover:text-foreground"
+                >
                   albo napisz bezpośrednio: {ABUSE_EMAIL}
                 </a>
-                <Button type="submit" disabled={loading} className="bg-gradient-primary text-primary-foreground">
+                <Button
+                  type="submit"
+                  disabled={loading}
+                  className="bg-gradient-primary text-primary-foreground"
+                >
                   <Send className="h-4 w-4 mr-1.5" />
                   {loading ? "Wysyłanie…" : "Wyślij zgłoszenie"}
                 </Button>

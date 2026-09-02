@@ -65,14 +65,17 @@ export const reviewListing = createServerFn({ method: "POST" })
 
     const names: string[] = [];
     for (const path of paths) {
-      const { data: blob, error: dErr } = await supabaseAdmin.storage.from("product-files").download(path);
+      const { data: blob, error: dErr } = await supabaseAdmin.storage
+        .from("product-files")
+        .download(path);
       if (dErr || !blob) {
         doubts.push(`Nie udało się odczytać pliku (${path.split("/").pop()}).`);
         continue;
       }
       names.push(path.split("/").pop() ?? path);
       const buf = new Uint8Array(await blob.slice(0, 8).arrayBuffer());
-      if (looksLikeExecutable(buf)) doubts.push("Wykryto plik wykonywalny — wymaga ręcznej weryfikacji.");
+      if (looksLikeExecutable(buf))
+        doubts.push("Wykryto plik wykonywalny — wymaga ręcznej weryfikacji.");
       if (blob.size < 32) doubts.push("Plik wygląda na pusty lub uszkodzony.");
     }
 
@@ -80,9 +83,10 @@ export const reviewListing = createServerFn({ method: "POST" })
     const desc = product.description ?? "";
     const tags = ((product.tags as string[] | null) ?? []).join(" ");
     if (title.trim().length < 4) doubts.push("Tytuł jest zbyt krótki.");
-    if (desc.trim().length < 12) doubts.push("Opis jest zbyt krótki, żeby potwierdzić zgodność z plikiem.");
+    if (desc.trim().length < 12)
+      doubts.push("Opis jest zbyt krótki, żeby potwierdzić zgodność z plikiem.");
 
-    const spam = /(http:\/\/|https:\/\/).{0,40}(http:\/\/|https:\/\/)|(.)\1{8,}|crypto\s*airdrop|free\s*nft/i;
+    const spam = /(?:https?:\/\/).{0,40}(?:https?:\/\/)|(?:.)\1{8,}|crypto\s*airdrop|free\s*nft/i;
     if (spam.test(title) || spam.test(desc)) doubts.push("Treść wygląda na spam.");
 
     const nameTok = tokens(names.join(" "));
@@ -107,7 +111,7 @@ export const reviewListing = createServerFn({ method: "POST" })
               {
                 role: "system",
                 content:
-                  "Jesteś moderatorem marketplace'u plików cyfrowych. Odpowiadasz wyłącznie JSON: {\"ok\": boolean, \"reason\": string}. ok=true jeśli oferta wygląda na legalny produkt cyfrowy zgodny z opisem, nie spam i nie malware.",
+                  'Jesteś moderatorem marketplace\'u plików cyfrowych. Odpowiadasz wyłącznie JSON: {"ok": boolean, "reason": string}. ok=true jeśli oferta wygląda na legalny produkt cyfrowy zgodny z opisem, nie spam i nie malware.',
               },
               {
                 role: "user",
@@ -124,7 +128,8 @@ export const reviewListing = createServerFn({ method: "POST" })
         const json = await res.json();
         const text = json?.choices?.[0]?.message?.content ?? "";
         const parsed = JSON.parse(text.replace(/```json|```/g, "").trim());
-        if (parsed && parsed.ok === false) doubts.push(String(parsed.reason || "Model AI zgłosił wątpliwości."));
+        if (parsed && parsed.ok === false)
+          doubts.push(String(parsed.reason || "Model AI zgłosił wątpliwości."));
       } catch {
         doubts.push("Automatyczna ocena AI niedostępna — przekazano do moderatora.");
       }
@@ -138,7 +143,9 @@ export const reviewListing = createServerFn({ method: "POST" })
         status: autoApproved ? "published" : "pending_review",
         ai_review_status: autoApproved ? "auto_approved" : "needs_human",
         ai_review_notes: autoApproved ? "Zatwierdzone automatycznie." : doubts.join(" "),
-        review_notes: autoApproved ? "Zatwierdzone automatycznie (weryfikacja AI)." : doubts.join(" "),
+        review_notes: autoApproved
+          ? "Zatwierdzone automatycznie (weryfikacja AI)."
+          : doubts.join(" "),
         reviewed_at: autoApproved ? now : null,
       } as any)
       .eq("id", product.id);

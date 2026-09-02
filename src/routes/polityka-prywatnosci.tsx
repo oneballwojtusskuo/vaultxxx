@@ -60,7 +60,8 @@ function PrivacyPage() {
             <Section title="§ 1. Administrator danych osobowych">
               <p>
                 Operator Platformy VLND oraz Administrator Danych Osobowych: <b>{OPERATOR_NAME}</b>,{" "}
-                {OPERATOR_LEGAL_FORM} (dalej: <b>„Administrator”</b> lub <b>„Operator”</b>).<br />
+                {OPERATOR_LEGAL_FORM} (dalej: <b>„Administrator”</b> lub <b>„Operator”</b>).
+                <br />
                 Adres do korespondencji: {OPERATOR_ADDRESS}.<br />
                 Kontakt e-mail:{" "}
                 <a className="underline" href={`mailto:${OPERATOR_CONTACT}`}>
@@ -98,11 +99,11 @@ function PrivacyPage() {
               <h3 className="font-semibold text-foreground pt-2">A. Dane Kupujących</h3>
               <ul>
                 <li>
-                  <b>Zakres danych:</b> adres e-mail, hasło (w postaci zaszyfrowanego skrótu),
-                  nazwa użytkownika, adres IP, dane urządzenia i przeglądarki, historia zakupów,
-                  dane transakcji (kwota, produkt, data), dane rozliczeniowe (imię, nazwisko,
-                  adres, opcjonalnie NIP na potrzeby faktury), treść wiadomości wysyłanych do
-                  Sprzedawców, treść zgłoszeń reklamacyjnych i sporów escrow.
+                  <b>Zakres danych:</b> adres e-mail, hasło (w postaci zaszyfrowanego skrótu), nazwa
+                  użytkownika, adres IP, dane urządzenia i przeglądarki, historia zakupów, dane
+                  transakcji (kwota, produkt, data), dane rozliczeniowe (imię, nazwisko, adres,
+                  opcjonalnie NIP na potrzeby faktury), treść wiadomości wysyłanych do Sprzedawców,
+                  treść zgłoszeń reklamacyjnych i sporów escrow.
                 </li>
                 <li>
                   <b>Cele i podstawy prawne:</b>
@@ -117,21 +118,19 @@ function PrivacyPage() {
                       lit. c RODO;
                     </li>
                     <li>
-                      obsługa reklamacji, sporów oraz procedury Notice &amp; Takedown — art. 6
-                      ust. 1 lit. b, c i f RODO (prawnie uzasadniony interes Administratora
-                      polegający na obsłudze roszczeń);
+                      obsługa reklamacji, sporów oraz procedury Notice &amp; Takedown — art. 6 ust.
+                      1 lit. b, c i f RODO (prawnie uzasadniony interes Administratora polegający na
+                      obsłudze roszczeń);
                     </li>
                     <li>
-                      wypełnianie obowiązków podatkowych, księgowych i rachunkowych — art. 6 ust.
-                      1 lit. c RODO w związku z ustawą o rachunkowości oraz ustawami podatkowymi.
+                      wypełnianie obowiązków podatkowych, księgowych i rachunkowych — art. 6 ust. 1
+                      lit. c RODO w związku z ustawą o rachunkowości oraz ustawami podatkowymi.
                     </li>
                   </ul>
                 </li>
               </ul>
 
-              <h3 className="font-semibold text-foreground pt-2">
-                B. Dane Sprzedawców / Twórców
-              </h3>
+              <h3 className="font-semibold text-foreground pt-2">B. Dane Sprzedawców / Twórców</h3>
               <ul>
                 <li>
                   <b>Zakres danych:</b> wszystkie dane wskazane w punkcie A, a ponadto: imię i
@@ -153,16 +152,15 @@ function PrivacyPage() {
                       wypełnienie obowiązków raportowych wynikających z <b>Dyrektywy DAC7</b>{" "}
                       (Dyrektywa Rady (UE) 2021/514) i ustawy wdrażającej ją do polskiego porządku
                       prawnego, w tym coroczne przekazywanie Szefowi Krajowej Administracji
-                      Skarbowej informacji o Sprzedawcach podlegających raportowaniu — art. 6 ust.
-                      1 lit. c RODO;
+                      Skarbowej informacji o Sprzedawcach podlegających raportowaniu — art. 6 ust. 1
+                      lit. c RODO;
                     </li>
                     <li>
-                      przeciwdziałanie oszustwom, praniu pieniędzy i finansowaniu terroryzmu (AML)
-                      — art. 6 ust. 1 lit. c i f RODO;
+                      przeciwdziałanie oszustwom, praniu pieniędzy i finansowaniu terroryzmu (AML) —
+                      art. 6 ust. 1 lit. c i f RODO;
                     </li>
                     <li>
-                      obrona przed roszczeniami i dochodzenie roszczeń — art. 6 ust. 1 lit. f
-                      RODO.
+                      obrona przed roszczeniami i dochodzenie roszczeń — art. 6 ust. 1 lit. f RODO.
                     </li>
                   </ul>
                 </li>
@@ -171,11 +169,10 @@ function PrivacyPage() {
               <h3 className="font-semibold text-foreground pt-2">C. Marketing własny</h3>
               <p>
                 Za odrębną, dobrowolną zgodą Użytkownika (art. 6 ust. 1 lit. a RODO oraz art. 10
-                ustawy o świadczeniu usług drogą elektroniczną i art. 172 Prawa
-                telekomunikacyjnego) Administrator może przesyłać newsletter, powiadomienia o
-                nowościach oraz informacje handlowe dotyczące własnych usług. Zgoda może być
-                cofnięta w dowolnym momencie bez wpływu na zgodność z prawem przetwarzania
-                dokonanego przed jej cofnięciem.
+                ustawy o świadczeniu usług drogą elektroniczną i art. 172 Prawa telekomunikacyjnego)
+                Administrator może przesyłać newsletter, powiadomienia o nowościach oraz informacje
+                handlowe dotyczące własnych usług. Zgoda może być cofnięta w dowolnym momencie bez
+                wpływu na zgodność z prawem przetwarzania dokonanego przed jej cofnięciem.
               </p>
             </Section>
 
@@ -186,10 +183,10 @@ function PrivacyPage() {
               </p>
               <ul>
                 <li>
-                  <b>Dostawcy usług płatniczych i escrow:</b> Stripe Payments Europe Ltd.
-                  (Irlandia) — obsługa płatności kartowych, BLIK, Apple/Google Pay, mechanizmu
-                  escrow, procesu KYC i wypłat do Sprzedawców; w przyszłości możliwe: PayU S.A.,
-                  Przelewy24 (DialCom24 sp. z o.o.).
+                  <b>Dostawcy usług płatniczych i escrow:</b> Stripe Payments Europe Ltd. (Irlandia)
+                  — obsługa płatności kartowych, BLIK, Apple/Google Pay, mechanizmu escrow, procesu
+                  KYC i wypłat do Sprzedawców; w przyszłości możliwe: PayU S.A., Przelewy24
+                  (DialCom24 sp. z o.o.).
                 </li>
                 <li>
                   <b>Dostawca hostingu i infrastruktury chmurowej:</b> podmiot świadczący usługi
@@ -197,8 +194,8 @@ function PrivacyPage() {
                 </li>
                 <li>
                   <b>Dostawcy usług e-mail transakcyjnych i newslettera:</b> wysyłka powiadomień
-                  systemowych, potwierdzeń rejestracji, potwierdzeń zakupu, przypomnień
-                  dotyczących escrow.
+                  systemowych, potwierdzeń rejestracji, potwierdzeń zakupu, przypomnień dotyczących
+                  escrow.
                 </li>
                 <li>
                   <b>Dostawcy narzędzi analitycznych i antyfraudowych</b> — w zakresie
@@ -206,27 +203,26 @@ function PrivacyPage() {
                 </li>
                 <li>
                   <b>Organy podatkowe i inne organy publiczne</b> (Szef Krajowej Administracji
-                  Skarbowej, sądy, prokuratura, Policja, UODO) — wyłącznie w przypadkach
-                  wymaganych przepisami prawa, w tym raportowanie DAC7.
+                  Skarbowej, sądy, prokuratura, Policja, UODO) — wyłącznie w przypadkach wymaganych
+                  przepisami prawa, w tym raportowanie DAC7.
                 </li>
                 <li>
-                  <b>Kancelarie prawne, doradcy podatkowi, audytorzy</b> — w zakresie niezbędnym
-                  do świadczenia usług na rzecz Administratora.
+                  <b>Kancelarie prawne, doradcy podatkowi, audytorzy</b> — w zakresie niezbędnym do
+                  świadczenia usług na rzecz Administratora.
                 </li>
               </ul>
               <p>
-                Administrator zawiera z podmiotami przetwarzającymi umowy powierzenia
-                przetwarzania danych osobowych zgodne z art. 28 RODO. W przypadku przekazania
-                danych do państw trzecich (poza Europejski Obszar Gospodarczy) Administrator
-                stosuje odpowiednie zabezpieczenia, w szczególności standardowe klauzule umowne
-                zatwierdzone przez Komisję Europejską.
+                Administrator zawiera z podmiotami przetwarzającymi umowy powierzenia przetwarzania
+                danych osobowych zgodne z art. 28 RODO. W przypadku przekazania danych do państw
+                trzecich (poza Europejski Obszar Gospodarczy) Administrator stosuje odpowiednie
+                zabezpieczenia, w szczególności standardowe klauzule umowne zatwierdzone przez
+                Komisję Europejską.
               </p>
             </Section>
 
             <Section title="§ 4. Prawa Użytkownika zgodnie z RODO">
               <p>
-                Każdej osobie, której dane dotyczą, przysługują następujące prawa wynikające z
-                RODO:
+                Każdej osobie, której dane dotyczą, przysługują następujące prawa wynikające z RODO:
               </p>
               <ul>
                 <li>
@@ -238,10 +234,9 @@ function PrivacyPage() {
                   uzupełnienia niekompletnych danych.
                 </li>
                 <li>
-                  <b>Prawo do usunięcia danych („prawo do bycia zapomnianym”)</b> (art. 17 RODO)
-                  — z zastrzeżeniem sytuacji, w których dalsze przetwarzanie jest wymagane
-                  przepisami prawa (np. dokumentacja księgowa, obowiązki DAC7, obrona przed
-                  roszczeniami).
+                  <b>Prawo do usunięcia danych („prawo do bycia zapomnianym”)</b> (art. 17 RODO) — z
+                  zastrzeżeniem sytuacji, w których dalsze przetwarzanie jest wymagane przepisami
+                  prawa (np. dokumentacja księgowa, obowiązki DAC7, obrona przed roszczeniami).
                 </li>
                 <li>
                   <b>Prawo do ograniczenia przetwarzania</b> (art. 18 RODO).
@@ -260,8 +255,11 @@ function PrivacyPage() {
                   wpływu na zgodność z prawem przetwarzania dokonanego przed cofnięciem zgody.
                 </li>
                 <li>
-                  <b>Prawo do niepodlegania decyzjom opartym wyłącznie na zautomatyzowanym
-                  przetwarzaniu</b> (art. 22 RODO).
+                  <b>
+                    Prawo do niepodlegania decyzjom opartym wyłącznie na zautomatyzowanym
+                    przetwarzaniu
+                  </b>{" "}
+                  (art. 22 RODO).
                 </li>
               </ul>
               <p>
@@ -273,9 +271,9 @@ function PrivacyPage() {
                 jednego miesiąca od otrzymania żądania.
               </p>
               <p>
-                Użytkownikowi przysługuje ponadto <b>prawo wniesienia skargi do organu
-                nadzorczego</b> — Prezesa Urzędu Ochrony Danych Osobowych (PUODO), ul. Stawki 2,
-                00-193 Warszawa,{" "}
+                Użytkownikowi przysługuje ponadto{" "}
+                <b>prawo wniesienia skargi do organu nadzorczego</b> — Prezesa Urzędu Ochrony Danych
+                Osobowych (PUODO), ul. Stawki 2, 00-193 Warszawa,{" "}
                 <a
                   className="underline"
                   href="https://uodo.gov.pl"
@@ -291,8 +289,8 @@ function PrivacyPage() {
             <Section title="§ 5. Polityka Plików Cookies">
               <ol>
                 <li>
-                  Pliki <b>cookies</b> („ciasteczka”) to niewielkie pliki tekstowe zapisywane
-                  przez przeglądarkę internetową na urządzeniu końcowym Użytkownika, umożliwiające
+                  Pliki <b>cookies</b> („ciasteczka”) to niewielkie pliki tekstowe zapisywane przez
+                  przeglądarkę internetową na urządzeniu końcowym Użytkownika, umożliwiające
                   identyfikację przeglądarki podczas kolejnych odwiedzin Platformy.
                 </li>
                 <li>
@@ -307,13 +305,13 @@ function PrivacyPage() {
                     </li>
                     <li>
                       <b>Cookies analityczne / statystyczne</b> — służące do zliczania odwiedzin,
-                      analizy zachowań Użytkowników i doskonalenia Platformy. Zbierają dane w
-                      formie zagregowanej i spseudonimizowanej.
+                      analizy zachowań Użytkowników i doskonalenia Platformy. Zbierają dane w formie
+                      zagregowanej i spseudonimizowanej.
                     </li>
                     <li>
-                      <b>Cookies marketingowe i afiliacyjne</b> — umożliwiające prawidłowe
-                      działanie programu partnerskiego (afiliacji), w tym zapamiętanie linku
-                      polecającego przez okres do 30 dni oraz dopasowanie treści marketingowych.
+                      <b>Cookies marketingowe i afiliacyjne</b> — umożliwiające prawidłowe działanie
+                      programu partnerskiego (afiliacji), w tym zapamiętanie linku polecającego
+                      przez okres do 30 dni oraz dopasowanie treści marketingowych.
                     </li>
                     <li>
                       <b>Cookies funkcjonalne</b> — zapamiętujące preferencje Użytkownika, np.
@@ -329,8 +327,8 @@ function PrivacyPage() {
                 </li>
                 <li>
                   Użytkownik może samodzielnie zarządzać plikami cookies z poziomu swojej
-                  przeglądarki internetowej — blokować je w całości, ograniczyć do wybranych
-                  domen lub usuwać już zapisane pliki. Instrukcje dostępne są w dokumentacji
+                  przeglądarki internetowej — blokować je w całości, ograniczyć do wybranych domen
+                  lub usuwać już zapisane pliki. Instrukcje dostępne są w dokumentacji
                   najpopularniejszych przeglądarek (Chrome, Firefox, Safari, Edge, Opera).
                 </li>
                 <li>
@@ -351,12 +349,10 @@ function PrivacyPage() {
                       szyfrowanie transmisji danych przy użyciu protokołu <b>TLS/SSL (HTTPS)</b>;
                     </li>
                     <li>
-                      przechowywanie haseł Użytkowników wyłącznie w postaci kryptograficznego
-                      skrótu (hash), bez możliwości ich odczytania;
+                      przechowywanie haseł Użytkowników wyłącznie w postaci kryptograficznego skrótu
+                      (hash), bez możliwości ich odczytania;
                     </li>
-                    <li>
-                      kontrolę dostępu opartą o mechanizm Row-Level Security w bazie danych;
-                    </li>
+                    <li>kontrolę dostępu opartą o mechanizm Row-Level Security w bazie danych;</li>
                     <li>
                       pseudonimizację danych tam, gdzie jest to możliwe, oraz zasadę minimalizacji
                       danych;
@@ -400,16 +396,14 @@ function PrivacyPage() {
                     </li>
                   </ul>
                 </li>
-                <li>
-                  Po upływie okresu przechowywania dane są usuwane lub trwale anonimizowane.
-                </li>
+                <li>Po upływie okresu przechowywania dane są usuwane lub trwale anonimizowane.</li>
               </ol>
             </Section>
 
             <Section title="§ 7. Dobrowolność podania danych">
               <p>
-                Podanie danych osobowych jest dobrowolne, jednak niepodanie danych oznaczonych
-                jako niezbędne może uniemożliwić założenie Konta, zawarcie i wykonanie umowy lub
+                Podanie danych osobowych jest dobrowolne, jednak niepodanie danych oznaczonych jako
+                niezbędne może uniemożliwić założenie Konta, zawarcie i wykonanie umowy lub
                 skorzystanie z określonych funkcji Platformy (w szczególności wypłat środków ze
                 escrow, które wymagają danych identyfikacyjnych oraz weryfikacji KYC u dostawcy
                 płatności).
@@ -418,21 +412,28 @@ function PrivacyPage() {
 
             <Section title="§ 8. Zmiany Polityki Prywatności">
               <p>
-                Administrator zastrzega sobie prawo do zmiany niniejszej Polityki w przypadku
-                zmiany przepisów prawa, wdrożenia nowych funkcji Platformy lub zmiany dostawców
-                usług. O istotnych zmianach Użytkownicy zostaną poinformowani z co najmniej
-                14-dniowym wyprzedzeniem — poprzez komunikat na Platformie lub wiadomość e-mail.
+                Administrator zastrzega sobie prawo do zmiany niniejszej Polityki w przypadku zmiany
+                przepisów prawa, wdrożenia nowych funkcji Platformy lub zmiany dostawców usług. O
+                istotnych zmianach Użytkownicy zostaną poinformowani z co najmniej 14-dniowym
+                wyprzedzeniem — poprzez komunikat na Platformie lub wiadomość e-mail.
               </p>
             </Section>
 
             <p className="text-xs text-muted-foreground pt-6 border-t border-border/40">
-              Wszelkie pytania dotyczące ochrony danych osobowych i plików cookies prosimy
-              kierować na adres:{" "}
+              Wszelkie pytania dotyczące ochrony danych osobowych i plików cookies prosimy kierować
+              na adres:{" "}
               <a className="underline hover:text-foreground" href={`mailto:${OPERATOR_CONTACT}`}>
                 {OPERATOR_CONTACT}
               </a>
-              . Zobacz również <Link to="/regulamin" className="underline hover:text-foreground">Regulamin serwisu</Link>{" "}
-              oraz <Link to="/help" className="underline hover:text-foreground">Centrum pomocy</Link>.
+              . Zobacz również{" "}
+              <Link to="/regulamin" className="underline hover:text-foreground">
+                Regulamin serwisu
+              </Link>{" "}
+              oraz{" "}
+              <Link to="/help" className="underline hover:text-foreground">
+                Centrum pomocy
+              </Link>
+              .
             </p>
           </article>
         </div>

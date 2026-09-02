@@ -201,7 +201,9 @@ export function WelcomePopup() {
     if (typeof window === "undefined") return;
     try {
       if (localStorage.getItem(STORAGE_KEY)) return;
-    } catch {}
+    } catch {
+      // Ignore storage access issues and keep the welcome popup available.
+    }
     const t = setTimeout(() => setOpen(true), 800);
     return () => clearTimeout(t);
   }, [user, loading]);
@@ -210,7 +212,9 @@ export function WelcomePopup() {
     setOpen(false);
     try {
       localStorage.setItem(STORAGE_KEY, "1");
-    } catch {}
+    } catch {
+      // Ignore storage failures in restricted browser contexts.
+    }
   };
 
   const changeLang = (next: Lang) => {
@@ -218,7 +222,9 @@ export function WelcomePopup() {
     setExpanded(false);
     try {
       localStorage.setItem(LANG_KEY, next);
-    } catch {}
+    } catch {
+      // Ignore storage failures in restricted browser contexts.
+    }
   };
 
   if (!open) return null;

@@ -67,7 +67,14 @@ export function CookieBanner() {
   }, []);
 
   const persist = async (value: CookiePrefs) => {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify({ version: COOKIE_BANNER_VERSION, prefs: value, at: new Date().toISOString() }));
+    localStorage.setItem(
+      STORAGE_KEY,
+      JSON.stringify({
+        version: COOKIE_BANNER_VERSION,
+        prefs: value,
+        at: new Date().toISOString(),
+      }),
+    );
     setOpen(false);
     setDetails(false);
     const { data } = await supabase.auth.getUser();
@@ -87,10 +94,26 @@ export function CookieBanner() {
   if (!open) return null;
 
   const rows: { key: keyof Omit<CookiePrefs, "necessary">; label: string; desc: string }[] = [
-    { key: "functional", label: "Funkcjonalne", desc: "Zapamiętują język, zamknięte okna i preferencje odtwarzacza." },
-    { key: "analytics", label: "Analityczne", desc: "Statystyki odwiedzin i wydajności serwisu (dane zbiorcze)." },
-    { key: "affiliation", label: "Afiliacyjne", desc: "Przypisują sprzedaż osobie polecającej przez 30 dni." },
-    { key: "marketing", label: "Marketingowe", desc: "Dopasowanie treści promocyjnych i remarketing." },
+    {
+      key: "functional",
+      label: "Funkcjonalne",
+      desc: "Zapamiętują język, zamknięte okna i preferencje odtwarzacza.",
+    },
+    {
+      key: "analytics",
+      label: "Analityczne",
+      desc: "Statystyki odwiedzin i wydajności serwisu (dane zbiorcze).",
+    },
+    {
+      key: "affiliation",
+      label: "Afiliacyjne",
+      desc: "Przypisują sprzedaż osobie polecającej przez 30 dni.",
+    },
+    {
+      key: "marketing",
+      label: "Marketingowe",
+      desc: "Dopasowanie treści promocyjnych i remarketing.",
+    },
   ];
 
   return (
@@ -104,8 +127,9 @@ export function CookieBanner() {
             <div>
               <p className="font-semibold">Pliki cookies</p>
               <p className="text-sm text-muted-foreground">
-                Używamy plików cookies niezbędnych do działania vlnd oraz — za Twoją zgodą — funkcjonalnych,
-                analitycznych, afiliacyjnych i marketingowych. Zgodę możesz w każdej chwili wycofać.{" "}
+                Używamy plików cookies niezbędnych do działania vlnd oraz — za Twoją zgodą —
+                funkcjonalnych, analitycznych, afiliacyjnych i marketingowych. Zgodę możesz w każdej
+                chwili wycofać.{" "}
                 <Link to="/polityka-prywatnosci" className="text-accent hover:underline">
                   Polityka prywatności i cookies
                 </Link>
@@ -118,7 +142,9 @@ export function CookieBanner() {
                 <div className="flex items-center justify-between gap-4 opacity-70">
                   <div>
                     <Label className="text-sm">Niezbędne</Label>
-                    <p className="text-xs text-muted-foreground">Logowanie, bezpieczeństwo, koszyk i płatności. Zawsze aktywne.</p>
+                    <p className="text-xs text-muted-foreground">
+                      Logowanie, bezpieczeństwo, koszyk i płatności. Zawsze aktywne.
+                    </p>
                   </div>
                   <Switch checked disabled />
                 </div>
@@ -140,7 +166,15 @@ export function CookieBanner() {
             <div className="flex flex-wrap gap-2">
               <Button
                 className="bg-gradient-primary text-primary-foreground shadow-glow"
-                onClick={() => persist({ necessary: true, functional: true, analytics: true, marketing: true, affiliation: true })}
+                onClick={() =>
+                  persist({
+                    necessary: true,
+                    functional: true,
+                    analytics: true,
+                    marketing: true,
+                    affiliation: true,
+                  })
+                }
               >
                 Akceptuję wszystkie
               </Button>

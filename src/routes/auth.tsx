@@ -36,8 +36,18 @@ function safeNext(next: string | undefined): string | null {
 }
 
 const MONTHS = [
-  "stycznia", "lutego", "marca", "kwietnia", "maja", "czerwca",
-  "lipca", "sierpnia", "września", "października", "listopada", "grudnia",
+  "stycznia",
+  "lutego",
+  "marca",
+  "kwietnia",
+  "maja",
+  "czerwca",
+  "lipca",
+  "sierpnia",
+  "września",
+  "października",
+  "listopada",
+  "grudnia",
 ];
 
 function AuthPage() {
@@ -64,9 +74,7 @@ function AuthPage() {
   const currentYear = new Date().getFullYear();
   const years = Array.from({ length: 100 }, (_, i) => currentYear - i);
   const daysInMonth =
-    birthMonth && birthYear
-      ? new Date(Number(birthYear), Number(birthMonth), 0).getDate()
-      : 31;
+    birthMonth && birthYear ? new Date(Number(birthYear), Number(birthMonth), 0).getDate() : 31;
 
   const birthDate =
     birthDay && birthMonth && birthYear
@@ -126,7 +134,8 @@ function AuthPage() {
     const dob = new Date(`${birthDate}T00:00:00`);
     if (Number.isNaN(dob.getTime())) return toast.error("Nieprawidłowa data urodzenia.");
     const age = (Date.now() - dob.getTime()) / (365.2425 * 24 * 3600 * 1000);
-    if (age < 16) return toast.error("Z vlnd mogą korzystać wyłącznie osoby, które ukończyły 16 lat.");
+    if (age < 16)
+      return toast.error("Z vlnd mogą korzystać wyłącznie osoby, które ukończyły 16 lat.");
     if (password !== password2) return toast.error("Hasła nie są takie same — wpisz je ponownie.");
     if (!acceptDocs) return toast.error("Zaakceptuj regulamin i politykę prywatności.");
     setLoading(true);
@@ -136,14 +145,14 @@ function AuthPage() {
         setLoading(false);
         setEmailTaken(true);
         setTab("signin");
-        return toast.error("Konto z tym adresem e-mail już istnieje — zaloguj się lub zresetuj hasło.");
+        return toast.error(
+          "Konto z tym adresem e-mail już istnieje — zaloguj się lub zresetuj hasło.",
+        );
       }
     } catch {
       /* ignore */
     }
-    const redirectTo = nextPath
-      ? `${window.location.origin}${nextPath}`
-      : window.location.origin;
+    const redirectTo = nextPath ? `${window.location.origin}${nextPath}` : window.location.origin;
     const { error } = await supabase.auth.signUp({
       email,
       password,
@@ -158,12 +167,9 @@ function AuthPage() {
     setShowSpamNotice(true);
   };
 
-
   const google = async () => {
     setLoading(true);
-    const redirectUri = nextPath
-      ? `${window.location.origin}${nextPath}`
-      : window.location.origin;
+    const redirectUri = nextPath ? `${window.location.origin}${nextPath}` : window.location.origin;
     const r = await lovableAuth.signInWithOAuth("google", { redirect_uri: redirectUri });
     if (r.error) {
       setLoading(false);
@@ -176,7 +182,6 @@ function AuthPage() {
     goNext();
   };
 
-
   return (
     <div className="min-h-screen flex items-center justify-center px-4 bg-gradient-hero">
       <div className="w-full max-w-md">
@@ -185,7 +190,6 @@ function AuthPage() {
             <VlndLogo className="h-full w-full" />
           </div>
           <span className="font-display text-2xl font-bold lowercase">vlnd</span>
-
         </Link>
 
         <div className="rounded-2xl glass border border-border/40 p-6 shadow-elevated">
@@ -199,11 +203,21 @@ function AuthPage() {
               <form onSubmit={signIn} className="space-y-4">
                 <div className="space-y-2">
                   <Label>Email</Label>
-                  <Input type="email" required value={email} onChange={(e) => setEmail(e.target.value)} />
+                  <Input
+                    type="email"
+                    required
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                  />
                 </div>
                 <div className="space-y-2">
                   <Label>Hasło</Label>
-                  <Input type="password" required value={password} onChange={(e) => setPassword(e.target.value)} />
+                  <Input
+                    type="password"
+                    required
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                  />
                 </div>
                 <button
                   type="button"
@@ -215,7 +229,11 @@ function AuthPage() {
                 >
                   Nie pamiętam hasła
                 </button>
-                <Button disabled={loading} type="submit" className="w-full bg-gradient-primary text-primary-foreground shadow-glow">
+                <Button
+                  disabled={loading}
+                  type="submit"
+                  className="w-full bg-gradient-primary text-primary-foreground shadow-glow"
+                >
                   Zaloguj się
                 </Button>
               </form>
@@ -246,18 +264,34 @@ function AuthPage() {
                 </div>
                 <div className="space-y-2">
                   <Label>Hasło</Label>
-                  <Input type="password" required minLength={8} value={password} onChange={(e) => setPassword(e.target.value)} />
-                  <p className="text-xs text-muted-foreground">Min. 8 znaków. Sprawdzamy bazę wyciekłych haseł.</p>
+                  <Input
+                    type="password"
+                    required
+                    minLength={8}
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                  />
+                  <p className="text-xs text-muted-foreground">
+                    Min. 8 znaków. Sprawdzamy bazę wyciekłych haseł.
+                  </p>
                 </div>
                 <div className="space-y-2">
                   <Label>Powtórz hasło</Label>
-                  <Input type="password" required minLength={8} value={password2} onChange={(e) => setPassword2(e.target.value)} />
+                  <Input
+                    type="password"
+                    required
+                    minLength={8}
+                    value={password2}
+                    onChange={(e) => setPassword2(e.target.value)}
+                  />
                   {password2.length > 0 && password2 !== password && (
                     <p className="text-xs text-destructive">Hasła nie są takie same.</p>
                   )}
                 </div>
                 <div className="space-y-2">
-                  <Label>Data urodzenia <span className="text-destructive">*</span></Label>
+                  <Label>
+                    Data urodzenia <span className="text-destructive">*</span>
+                  </Label>
                   <div className="grid grid-cols-3 gap-2">
                     <select
                       required
@@ -267,7 +301,9 @@ function AuthPage() {
                     >
                       <option value="">Dzień</option>
                       {Array.from({ length: daysInMonth }, (_, i) => i + 1).map((d) => (
-                        <option key={d} value={d}>{d}</option>
+                        <option key={d} value={d}>
+                          {d}
+                        </option>
                       ))}
                     </select>
                     <select
@@ -278,7 +314,9 @@ function AuthPage() {
                     >
                       <option value="">Miesiąc</option>
                       {MONTHS.map((m, i) => (
-                        <option key={m} value={i + 1}>{m}</option>
+                        <option key={m} value={i + 1}>
+                          {m}
+                        </option>
                       ))}
                     </select>
                     <select
@@ -289,11 +327,15 @@ function AuthPage() {
                     >
                       <option value="">Rok</option>
                       {years.map((y) => (
-                        <option key={y} value={y}>{y}</option>
+                        <option key={y} value={y}>
+                          {y}
+                        </option>
                       ))}
                     </select>
                   </div>
-                  <p className="text-xs text-muted-foreground">Z vlnd mogą korzystać wyłącznie osoby, które ukończyły 16 lat.</p>
+                  <p className="text-xs text-muted-foreground">
+                    Z vlnd mogą korzystać wyłącznie osoby, które ukończyły 16 lat.
+                  </p>
                 </div>
 
                 <label className="flex items-start gap-2 text-xs text-muted-foreground">
@@ -304,15 +346,27 @@ function AuthPage() {
                     onChange={(e) => setAcceptDocs(e.target.checked)}
                   />
                   <span>
-                    Akceptuję <Link to="/regulamin" className="text-accent hover:underline">Regulamin</Link> i zapoznałem/am się z{" "}
-                    <Link to="/polityka-prywatnosci" className="text-accent hover:underline">Polityką prywatności</Link>. Oświadczam, że mam ukończone 16 lat.
+                    Akceptuję{" "}
+                    <Link to="/regulamin" className="text-accent hover:underline">
+                      Regulamin
+                    </Link>{" "}
+                    i zapoznałem/am się z{" "}
+                    <Link to="/polityka-prywatnosci" className="text-accent hover:underline">
+                      Polityką prywatności
+                    </Link>
+                    . Oświadczam, że mam ukończone 16 lat.
                   </span>
                 </label>
                 <div className="rounded-lg border border-primary/20 bg-primary/5 p-3 text-xs text-muted-foreground">
-                  📧 Po rejestracji otrzymasz email z linkiem aktywacyjnym. Musisz potwierdzić adres przed pierwszym logowaniem.
+                  📧 Po rejestracji otrzymasz email z linkiem aktywacyjnym. Musisz potwierdzić adres
+                  przed pierwszym logowaniem.
                 </div>
 
-                <Button disabled={loading} type="submit" className="w-full bg-gradient-primary text-primary-foreground shadow-glow">
+                <Button
+                  disabled={loading}
+                  type="submit"
+                  className="w-full bg-gradient-primary text-primary-foreground shadow-glow"
+                >
                   Utwórz konto
                 </Button>
               </form>
@@ -325,7 +379,24 @@ function AuthPage() {
             <div className="h-px flex-1 bg-border" />
           </div>
           <Button variant="outline" disabled={loading} onClick={google} className="w-full">
-            <svg className="h-4 w-4 mr-2" viewBox="0 0 48 48"><path fill="#FFC107" d="M43.6 20.5h-1.9V20H24v8h11.3c-1.6 4.7-6.1 8-11.3 8-6.6 0-12-5.4-12-12s5.4-12 12-12c3.1 0 5.8 1.2 7.9 3.1l5.7-5.7C34 6.5 29.3 4.5 24 4.5 13.2 4.5 4.5 13.2 4.5 24S13.2 43.5 24 43.5 43.5 34.8 43.5 24c0-1.2-.1-2.4-.4-3.5z"/><path fill="#FF3D00" d="M6.3 14.7l6.6 4.8C14.7 15.7 19 13 24 13c3.1 0 5.8 1.2 7.9 3.1l5.7-5.7C34 6.5 29.3 4.5 24 4.5 16.4 4.5 9.8 8.8 6.3 14.7z"/><path fill="#4CAF50" d="M24 43.5c5.2 0 9.9-2 13.4-5.2l-6.2-5.2c-2 1.4-4.5 2.4-7.2 2.4-5.2 0-9.6-3.3-11.2-7.9l-6.5 5C9.7 38.9 16.2 43.5 24 43.5z"/><path fill="#1976D2" d="M43.6 20.5H24v8h11.3c-.8 2.3-2.3 4.3-4.1 5.6l6.2 5.2c-.4.4 6.6-4.8 6.6-14.8 0-1.2-.1-2.4-.4-4z"/></svg>
+            <svg className="h-4 w-4 mr-2" viewBox="0 0 48 48">
+              <path
+                fill="#FFC107"
+                d="M43.6 20.5h-1.9V20H24v8h11.3c-1.6 4.7-6.1 8-11.3 8-6.6 0-12-5.4-12-12s5.4-12 12-12c3.1 0 5.8 1.2 7.9 3.1l5.7-5.7C34 6.5 29.3 4.5 24 4.5 13.2 4.5 4.5 13.2 4.5 24S13.2 43.5 24 43.5 43.5 34.8 43.5 24c0-1.2-.1-2.4-.4-3.5z"
+              />
+              <path
+                fill="#FF3D00"
+                d="M6.3 14.7l6.6 4.8C14.7 15.7 19 13 24 13c3.1 0 5.8 1.2 7.9 3.1l5.7-5.7C34 6.5 29.3 4.5 24 4.5 16.4 4.5 9.8 8.8 6.3 14.7z"
+              />
+              <path
+                fill="#4CAF50"
+                d="M24 43.5c5.2 0 9.9-2 13.4-5.2l-6.2-5.2c-2 1.4-4.5 2.4-7.2 2.4-5.2 0-9.6-3.3-11.2-7.9l-6.5 5C9.7 38.9 16.2 43.5 24 43.5z"
+              />
+              <path
+                fill="#1976D2"
+                d="M43.6 20.5H24v8h11.3c-.8 2.3-2.3 4.3-4.1 5.6l6.2 5.2c-.4.4 6.6-4.8 6.6-14.8 0-1.2-.1-2.4-.4-4z"
+              />
+            </svg>
             Kontynuuj z Google
           </Button>
         </div>
@@ -337,7 +408,9 @@ function AuthPage() {
             <div className="mx-auto mb-2 flex h-12 w-12 items-center justify-center rounded-full bg-gradient-primary shadow-glow">
               <MailCheck className="h-6 w-6 text-primary-foreground" />
             </div>
-            <AlertDialogTitle className="text-center">Sprawdź swoją skrzynkę email</AlertDialogTitle>
+            <AlertDialogTitle className="text-center">
+              Sprawdź swoją skrzynkę email
+            </AlertDialogTitle>
             <AlertDialogDescription asChild>
               <div className="space-y-3 text-sm">
                 <p className="text-center">
@@ -350,8 +423,12 @@ function AuthPage() {
                     <div className="space-y-1.5">
                       <p className="font-semibold text-foreground">Nie widzisz maila?</p>
                       <p>
-                        Sprawdź folder <span className="font-semibold text-foreground">SPAM</span> lub{" "}
-                        <span className="font-semibold text-foreground">Oferty / Powiadomienia</span>.
+                        Sprawdź folder <span className="font-semibold text-foreground">SPAM</span>{" "}
+                        lub{" "}
+                        <span className="font-semibold text-foreground">
+                          Oferty / Powiadomienia
+                        </span>
+                        .
                       </p>
                       <p>
                         Jeśli wiadomość tam jest — kliknij{" "}
@@ -389,8 +466,14 @@ function AuthPage() {
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <Button variant="outline" onClick={() => setResetOpen(false)}>Anuluj</Button>
-            <Button disabled={loading} onClick={sendReset} className="bg-gradient-primary text-primary-foreground shadow-glow">
+            <Button variant="outline" onClick={() => setResetOpen(false)}>
+              Anuluj
+            </Button>
+            <Button
+              disabled={loading}
+              onClick={sendReset}
+              className="bg-gradient-primary text-primary-foreground shadow-glow"
+            >
               Wyślij link
             </Button>
           </AlertDialogFooter>
@@ -399,4 +482,3 @@ function AuthPage() {
     </div>
   );
 }
-

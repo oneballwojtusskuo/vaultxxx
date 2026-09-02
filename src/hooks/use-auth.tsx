@@ -33,7 +33,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
       if (event === "SIGNED_IN" && typeof window !== "undefined") {
         // Clean OAuth/confirmation tokens from URL and land on home
-        if (window.location.hash.includes("access_token") || window.location.search.includes("code=")) {
+        if (
+          window.location.hash.includes("access_token") ||
+          window.location.search.includes("code=")
+        ) {
           toast.success("Zalogowano pomyślnie");
           window.history.replaceState({}, "", "/");
         }

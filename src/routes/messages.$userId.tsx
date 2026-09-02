@@ -46,7 +46,9 @@ function Conversation() {
       const { data } = await supabase
         .from("messages")
         .select("*")
-        .or(`and(sender_id.eq.${uid},recipient_id.eq.${otherId}),and(sender_id.eq.${otherId},recipient_id.eq.${uid})`)
+        .or(
+          `and(sender_id.eq.${uid},recipient_id.eq.${otherId}),and(sender_id.eq.${otherId},recipient_id.eq.${uid})`,
+        )
         .order("created_at", { ascending: true });
       return data ?? [];
     },
@@ -55,12 +57,18 @@ function Conversation() {
   // mark unread as read
   useEffect(() => {
     if (!user || !messages) return;
-    const unread = messages.filter((m) => m.recipient_id === user.id && !m.read_at).map((m) => m.id);
+    const unread = messages
+      .filter((m) => m.recipient_id === user.id && !m.read_at)
+      .map((m) => m.id);
     if (unread.length === 0) return;
-    supabase.from("messages").update({ read_at: new Date().toISOString() }).in("id", unread).then(() => {
-      qc.invalidateQueries({ queryKey: ["unread-messages"] });
-      qc.invalidateQueries({ queryKey: ["conversations"] });
-    });
+    supabase
+      .from("messages")
+      .update({ read_at: new Date().toISOString() })
+      .in("id", unread)
+      .then(() => {
+        qc.invalidateQueries({ queryKey: ["unread-messages"] });
+        qc.invalidateQueries({ queryKey: ["conversations"] });
+      });
   }, [messages, user, qc]);
 
   // realtime
@@ -70,7 +78,12 @@ function Conversation() {
       .channel(`conv-${user.id}-${otherId}`)
       .on(
         "postgres_changes",
-        { event: "INSERT", schema: "public", table: "messages", filter: `recipient_id=eq.${user.id}` },
+        {
+          event: "INSERT",
+          schema: "public",
+          table: "messages",
+          filter: `recipient_id=eq.${user.id}`,
+        },
         () => refetch(),
       )
       .subscribe();
@@ -109,7 +122,10 @@ function Conversation() {
     <div className="min-h-screen flex flex-col">
       <SiteHeader />
       <main className="container mx-auto px-4 py-6 flex-1 max-w-3xl w-full flex flex-col">
-        <Link to="/messages" className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground mb-4">
+        <Link
+          to="/messages"
+          className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground mb-4"
+        >
           <ArrowLeft className="h-4 w-4" /> Wszystkie rozmowy
         </Link>
 
@@ -147,7 +163,9 @@ function Conversation() {
                   }`}
                 >
                   <p className="whitespace-pre-wrap">{m.content}</p>
-                  <p className={`text-[10px] mt-1 ${mine ? "text-primary-foreground/70" : "text-muted-foreground"}`}>
+                  <p
+                    className={`text-[10px] mt-1 ${mine ? "text-primary-foreground/70" : "text-muted-foreground"}`}
+                  >
                     {new Date(m.created_at).toLocaleString("pl-PL")}
                   </p>
                 </div>
@@ -176,7 +194,10 @@ function Conversation() {
               }
             }}
           />
-          <Button type="submit" className="bg-gradient-primary text-primary-foreground shadow-glow self-end">
+          <Button
+            type="submit"
+            className="bg-gradient-primary text-primary-foreground shadow-glow self-end"
+          >
             <Send className="h-4 w-4" />
           </Button>
         </form>

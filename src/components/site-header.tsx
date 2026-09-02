@@ -106,7 +106,9 @@ export function SiteHeader() {
           <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-gradient-primary shadow-glow transition-transform group-hover:scale-105 p-1">
             <VlndLogo className="h-full w-full" />
           </div>
-          <span className="font-display text-xl font-bold tracking-tight lowercase text-foreground">vlnd</span>
+          <span className="font-display text-xl font-bold tracking-tight lowercase text-foreground">
+            vlnd
+          </span>
         </Link>
 
         <nav className="hidden md:flex items-center gap-1">
@@ -132,25 +134,42 @@ export function SiteHeader() {
 
         <div className="flex items-center gap-1">
           <Link to="/browse">
-            <Button variant="ghost" size="icon" className="hidden sm:inline-flex text-foreground hover:text-foreground">
+            <Button
+              variant="ghost"
+              size="icon"
+              className="hidden sm:inline-flex text-foreground hover:text-foreground"
+            >
               <Search className="h-4 w-4" />
             </Button>
           </Link>
           <Link to="/help">
-            <Button variant="ghost" size="icon" aria-label="Pomoc" className="text-foreground hover:text-foreground">
+            <Button
+              variant="ghost"
+              size="icon"
+              aria-label="Pomoc"
+              className="text-foreground hover:text-foreground"
+            >
               <HelpCircle className="h-4 w-4" />
             </Button>
           </Link>
           {user ? (
             <>
               <Link to="/messages" className="relative">
-                <Button variant="ghost" size="icon" className="text-foreground hover:text-foreground">
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="text-foreground hover:text-foreground"
+                >
                   <MessageSquare className="h-4 w-4" />
                   <UnreadBadge count={unreadMsg} />
                 </Button>
               </Link>
               <Link to="/notifications" className="relative">
-                <Button variant="ghost" size="icon" className="text-foreground hover:text-foreground">
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="text-foreground hover:text-foreground"
+                >
                   <Bell className="h-4 w-4" />
                   <UnreadBadge count={unreadNotif} />
                 </Button>
@@ -166,7 +185,11 @@ export function SiteHeader() {
               </Link>
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" size="icon" className="text-foreground hover:text-foreground">
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="text-foreground hover:text-foreground"
+                  >
                     <UserIcon className="h-4 w-4" />
                   </Button>
                 </DropdownMenuTrigger>

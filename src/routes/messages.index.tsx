@@ -89,7 +89,8 @@ function Inbox() {
                     </span>
                   </div>
                   <p className="text-sm text-muted-foreground line-clamp-1">
-                    {c.lastMessage.sender_id === user.id ? "Ty: " : ""}{c.lastMessage.content}
+                    {c.lastMessage.sender_id === user.id ? "Ty: " : ""}
+                    {c.lastMessage.content}
                   </p>
                 </div>
                 {c.unread > 0 && (

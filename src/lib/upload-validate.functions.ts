@@ -20,8 +20,7 @@ const IMAGE_SIGNATURES: Array<{ offset: number; bytes: number[] }> = [
 function matchesAny(buf: Uint8Array, sigs: typeof IMAGE_SIGNATURES) {
   return sigs.some(
     (s) =>
-      buf.length >= s.offset + s.bytes.length &&
-      s.bytes.every((b, i) => buf[s.offset + i] === b),
+      buf.length >= s.offset + s.bytes.length && s.bytes.every((b, i) => buf[s.offset + i] === b),
   );
 }
 
@@ -61,10 +60,7 @@ export const validateUploadedFile = createServerFn({ method: "POST" })
 
     // Always reject obviously dangerous payloads regardless of kind.
     // SVG starts with `<svg` or `<?xml`; HTML with `<!DOCTYPE` or `<html`.
-    const head = new TextDecoder("utf-8", { fatal: false })
-      .decode(buf)
-      .trim()
-      .toLowerCase();
+    const head = new TextDecoder("utf-8", { fatal: false }).decode(buf).trim().toLowerCase();
     const isMarkup =
       head.startsWith("<svg") ||
       head.startsWith("<?xml") ||

@@ -14,7 +14,13 @@ async function isAdmin(supabaseAdmin: any, userId: string, claims: unknown) {
   return Boolean(data);
 }
 
-async function notify(supabaseAdmin: any, userId: string, title: string, body: string, link: string) {
+async function notify(
+  supabaseAdmin: any,
+  userId: string,
+  title: string,
+  body: string,
+  link: string,
+) {
   await supabaseAdmin.from("notifications").insert({
     user_id: userId,
     type: "dispute",
@@ -52,12 +58,16 @@ export async function openDisputeThread(
   }
 
   const link = `/spory/${tx.id}`;
-  const body = "Otwarto spór po zakupie. Wejdź do czatu — uczestniczą kupujący, sprzedawca i administrator.";
+  const body =
+    "Otwarto spór po zakupie. Wejdź do czatu — uczestniczą kupujący, sprzedawca i administrator.";
 
   await notify(supabaseAdmin, tx.buyer_id, "Twój spór został otwarty", body, link);
   await notify(supabaseAdmin, tx.seller_id, "Kupujący zgłosił problem z transakcją", body, link);
 
-  const { data: admins } = await supabaseAdmin.from("user_roles").select("user_id").eq("role", "admin");
+  const { data: admins } = await supabaseAdmin
+    .from("user_roles")
+    .select("user_id")
+    .eq("role", "admin");
   for (const a of admins ?? []) {
     if (a.user_id !== tx.buyer_id && a.user_id !== tx.seller_id) {
       await notify(supabaseAdmin, a.user_id, "Nowy spór do rozstrzygnięcia", body, "/admin");
@@ -87,7 +97,9 @@ export const listDisputeThreads = createServerFn({ method: "GET" })
           .in("id", txIds)
       : { data: [] as any[] };
 
-    const productIds = Array.from(new Set((txs ?? []).map((t: any) => t.product_id).filter(Boolean)));
+    const productIds = Array.from(
+      new Set((txs ?? []).map((t: any) => t.product_id).filter(Boolean)),
+    );
     const { data: products } = productIds.length
       ? await supabaseAdmin.from("products").select("id, title").in("id", productIds)
       : { data: [] as any[] };
@@ -127,7 +139,9 @@ export const getDisputeChat = createServerFn({ method: "POST" })
 
     const { data: tx } = await supabaseAdmin
       .from("transactions")
-      .select("id, buyer_id, seller_id, product_id, status, dispute_reason, seller_amount, currency")
+      .select(
+        "id, buyer_id, seller_id, product_id, status, dispute_reason, seller_amount, currency",
+      )
       .eq("id", data.transactionId)
       .maybeSingle();
     if (!tx) throw new Response("Nie znaleziono transakcji", { status: 404 });
@@ -148,17 +162,26 @@ export const getDisputeChat = createServerFn({ method: "POST" })
       .eq("thread_id", thread.id)
       .order("created_at", { ascending: true });
 
-    const ids = Array.from(new Set([tx.buyer_id, tx.seller_id, ...((messages ?? []).map((m: any) => m.sender_id))]));
+    const ids = Array.from(
+      new Set([tx.buyer_id, tx.seller_id, ...(messages ?? []).map((m: any) => m.sender_id)]),
+    );
     const { data: profiles } = await supabaseAdmin
       .from("profiles")
       .select("id, username, display_name, avatar_url")
       .in("id", ids);
 
     const { data: product } = tx.product_id
-      ? await supabaseAdmin.from("products").select("id, title").eq("id", tx.product_id).maybeSingle()
+      ? await supabaseAdmin
+          .from("products")
+          .select("id, title")
+          .eq("id", tx.product_id)
+          .maybeSingle()
       : { data: null };
 
-    const { data: adminRows } = await supabaseAdmin.from("user_roles").select("user_id").eq("role", "admin");
+    const { data: adminRows } = await supabaseAdmin
+      .from("user_roles")
+      .select("user_id")
+      .eq("role", "admin");
     const adminIds = new Set((adminRows ?? []).map((r: any) => r.user_id));
 
     return {
@@ -170,14 +193,20 @@ export const getDisputeChat = createServerFn({ method: "POST" })
       adminIds: Array.from(adminIds),
       isAdmin: admin,
       role:
-        context.userId === tx.buyer_id ? "buyer" : context.userId === tx.seller_id ? "seller" : "admin",
+        context.userId === tx.buyer_id
+          ? "buyer"
+          : context.userId === tx.seller_id
+            ? "seller"
+            : "admin",
     };
   });
 
 export const sendDisputeMessage = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((input) =>
-    z.object({ transactionId: z.string().uuid(), content: z.string().trim().min(1).max(4000) }).parse(input),
+    z
+      .object({ transactionId: z.string().uuid(), content: z.string().trim().min(1).max(4000) })
+      .parse(input),
   )
   .handler(async ({ data, context }) => {
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
@@ -264,11 +293,35 @@ export const resolveDispute = createServerFn({ method: "POST" })
     const note = data.note ? ` Komentarz admina: ${data.note}` : "";
     const link = `/spory/${tx.id}`;
     if (data.outcome === "release") {
-      await notify(supabaseAdmin, tx.seller_id, "Spór rozstrzygnięty — środki dla sprzedawcy", `Administrator zwolnił depozyt.${note}`, link);
-      await notify(supabaseAdmin, tx.buyer_id, "Spór rozstrzygnięty", `Środki pozostają u sprzedawcy.${note}`, link);
+      await notify(
+        supabaseAdmin,
+        tx.seller_id,
+        "Spór rozstrzygnięty — środki dla sprzedawcy",
+        `Administrator zwolnił depozyt.${note}`,
+        link,
+      );
+      await notify(
+        supabaseAdmin,
+        tx.buyer_id,
+        "Spór rozstrzygnięty",
+        `Środki pozostają u sprzedawcy.${note}`,
+        link,
+      );
     } else {
-      await notify(supabaseAdmin, tx.buyer_id, "Spór rozstrzygnięty — zwrot", `Administrator zlecił zwrot środków.${note}`, link);
-      await notify(supabaseAdmin, tx.seller_id, "Spór rozstrzygnięty — zwrot dla kupującego", `Depozyt wraca do kupującego.${note}`, link);
+      await notify(
+        supabaseAdmin,
+        tx.buyer_id,
+        "Spór rozstrzygnięty — zwrot",
+        `Administrator zlecił zwrot środków.${note}`,
+        link,
+      );
+      await notify(
+        supabaseAdmin,
+        tx.seller_id,
+        "Spór rozstrzygnięty — zwrot dla kupującego",
+        `Depozyt wraca do kupującego.${note}`,
+        link,
+      );
     }
 
     return { ok: true };

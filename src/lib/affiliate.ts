@@ -18,7 +18,6 @@ export function setReferralCookie(productId: string, referrerId: string) {
   )}; path=/; max-age=${maxAge}; SameSite=Lax`;
 }
 
-
 export function getReferralCookie(productId: string): string | null {
   if (typeof document === "undefined") return null;
   const name = cookieName(productId) + "=";
@@ -40,7 +39,10 @@ export function buildReferralLink(productId: string, referrerId: string): string
     typeof window !== "undefined"
       ? `${window.location.origin}/product/${productId}`
       : `/product/${productId}`;
-  const url = new URL(base, typeof window !== "undefined" ? window.location.origin : "http://localhost");
+  const url = new URL(
+    base,
+    typeof window !== "undefined" ? window.location.origin : "http://localhost",
+  );
   url.searchParams.set("ref", referrerId);
   return url.toString();
 }

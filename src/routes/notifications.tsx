@@ -90,9 +90,13 @@ function Notifications() {
         <div className="flex items-center justify-between flex-wrap gap-3">
           <div>
             <h1 className="font-display text-3xl font-bold">Powiadomienia</h1>
-            <p className="text-muted-foreground mt-1">Wiadomości, nowe produkty od obserwowanych twórców i inne alerty.</p>
+            <p className="text-muted-foreground mt-1">
+              Wiadomości, nowe produkty od obserwowanych twórców i inne alerty.
+            </p>
           </div>
-          <Button variant="outline" onClick={markAllRead}><Check className="h-4 w-4 mr-2"/> Oznacz wszystkie jako przeczytane</Button>
+          <Button variant="outline" onClick={markAllRead}>
+            <Check className="h-4 w-4 mr-2" /> Oznacz wszystkie jako przeczytane
+          </Button>
         </div>
 
         <div className="mt-8 space-y-2">
@@ -110,7 +114,9 @@ function Notifications() {
             const actorId: string | null = meta.actor_id ?? null;
             const Wrapper = ({ children }: { children: React.ReactNode }) =>
               n.link ? (
-                <a href={n.link} className="flex-1 min-w-0">{children}</a>
+                <a href={n.link} className="flex-1 min-w-0">
+                  {children}
+                </a>
               ) : (
                 <div className="flex-1 min-w-0">{children}</div>
               );
@@ -125,12 +131,19 @@ function Notifications() {
                 <div className="flex-1 min-w-0">
                   <Wrapper>
                     <p className="font-semibold">{n.title}</p>
-                    {n.body && <p className="text-sm text-muted-foreground line-clamp-2">{n.body}</p>}
-                    <p className="text-xs text-muted-foreground mt-1">{new Date(n.created_at).toLocaleString("pl-PL")}</p>
+                    {n.body && (
+                      <p className="text-sm text-muted-foreground line-clamp-2">{n.body}</p>
+                    )}
+                    <p className="text-xs text-muted-foreground mt-1">
+                      {new Date(n.created_at).toLocaleString("pl-PL")}
+                    </p>
                   </Wrapper>
 
                   {(actorUsername || actorId) && (
-                    <div className="mt-2 flex items-center gap-3 text-sm" onClick={(e) => e.stopPropagation()}>
+                    <div
+                      className="mt-2 flex items-center gap-3 text-sm"
+                      onClick={(e) => e.stopPropagation()}
+                    >
                       {actorUsername ? (
                         <Link
                           to="/u/$username"
@@ -156,13 +169,20 @@ function Notifications() {
                   )}
                 </div>
 
-                <Button variant="ghost" size="icon" onClick={(e) => { e.stopPropagation(); dismiss(n.id); }} aria-label="Usuń">
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    dismiss(n.id);
+                  }}
+                  aria-label="Usuń"
+                >
                   <Trash2 className="h-4 w-4" />
                 </Button>
               </div>
             );
           })}
-
         </div>
       </main>
       <SiteFooter />

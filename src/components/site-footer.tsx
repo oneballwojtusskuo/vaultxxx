@@ -18,52 +18,52 @@ export function SiteFooter() {
             <div className="flex h-7 w-7 items-center justify-center rounded-md bg-gradient-primary p-0.5">
               <VlndLogo className="h-full w-full" />
             </div>
-            <span className="text-sm text-muted-foreground">
+            <span className="text-sm text-foreground/75">
               © {new Date().getFullYear()} vlnd — marketplace cyfrowy
             </span>
           </div>
           <div className="flex flex-wrap items-center justify-center gap-4">
             <Link
               to="/help"
-              className="text-xs text-muted-foreground hover:text-foreground transition-colors"
+              className="text-xs text-foreground/75 hover:text-foreground transition-colors"
             >
               Centrum pomocy
             </Link>
             <Link
               to="/regulamin"
-              className="text-xs text-muted-foreground hover:text-foreground transition-colors"
+              className="text-xs text-foreground/75 hover:text-foreground transition-colors"
             >
               Regulamin
             </Link>
             <Link
               to="/polityka-prywatnosci"
-              className="text-xs text-muted-foreground hover:text-foreground transition-colors"
+              className="text-xs text-foreground/75 hover:text-foreground transition-colors"
             >
               Polityka prywatności
             </Link>
             <Link
               to="/moje-dane"
-              className="text-xs text-muted-foreground hover:text-foreground transition-colors"
+              className="text-xs text-foreground/75 hover:text-foreground transition-colors"
             >
               Moje dane (RODO)
             </Link>
             <button
               type="button"
               onClick={openCookieSettings}
-              className="text-xs text-muted-foreground hover:text-foreground transition-colors"
+              className="text-xs text-foreground/75 hover:text-foreground transition-colors"
             >
               Ustawienia cookies
             </button>
             <Link
               to="/report-infringement"
-              className="text-xs text-muted-foreground hover:text-foreground transition-colors"
+              className="text-xs text-foreground/75 hover:text-foreground transition-colors"
             >
               Zgłoś naruszenie praw autorskich
             </Link>
           </div>
         </div>
 
-        <details className="group rounded-xl border border-border/40 bg-background/40 text-xs text-muted-foreground">
+        <details className="group rounded-xl border border-border/40 bg-background/40 text-xs text-foreground/75">
           <summary className="cursor-pointer list-none p-4 font-semibold text-foreground group-open:border-b group-open:border-border/40">
             Operator serwisu i Administrator Danych Osobowych
           </summary>
@@ -71,7 +71,10 @@ export function SiteFooter() {
             <p>
               {OPERATOR_NAME}, {OPERATOR_LEGAL_FORM}. Adres do korespondencji: {OPERATOR_ADDRESS}.
               Kontakt e-mail:{" "}
-              <a href={`mailto:${OPERATOR_CONTACT}`} className="text-accent hover:underline">
+              <a
+                href={`mailto:${OPERATOR_CONTACT}`}
+                className="font-medium text-primary hover:underline"
+              >
                 {OPERATOR_CONTACT}
               </a>
               . Punkt kontaktowy w rozumieniu aktu o usługach cyfrowych (DSA) oraz sprawy danych

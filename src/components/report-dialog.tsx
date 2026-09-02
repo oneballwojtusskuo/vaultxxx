@@ -4,10 +4,22 @@ import { supabase } from "@/lib/supabase-browser";
 import { useAuth } from "@/hooks/use-auth";
 import { Button } from "@/components/ui/button";
 import {
-  Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter, DialogDescription,
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+  DialogFooter,
+  DialogDescription,
 } from "@/components/ui/dialog";
 import { Textarea } from "@/components/ui/textarea";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { toast } from "sonner";
 
 const REASONS = [
@@ -66,9 +78,15 @@ export function ReportDialog({ targetType, targetId }: Props) {
         </DialogHeader>
         <div className="space-y-4">
           <Select value={reason} onValueChange={setReason}>
-            <SelectTrigger><SelectValue placeholder="Wybierz powód" /></SelectTrigger>
+            <SelectTrigger>
+              <SelectValue placeholder="Wybierz powód" />
+            </SelectTrigger>
             <SelectContent>
-              {REASONS.map((r) => <SelectItem key={r} value={r}>{r}</SelectItem>)}
+              {REASONS.map((r) => (
+                <SelectItem key={r} value={r}>
+                  {r}
+                </SelectItem>
+              ))}
             </SelectContent>
           </Select>
           <Textarea
@@ -79,7 +97,11 @@ export function ReportDialog({ targetType, targetId }: Props) {
           />
         </div>
         <DialogFooter>
-          <Button onClick={submit} disabled={loading} className="bg-gradient-primary text-primary-foreground">
+          <Button
+            onClick={submit}
+            disabled={loading}
+            className="bg-gradient-primary text-primary-foreground"
+          >
             Wyślij zgłoszenie
           </Button>
         </DialogFooter>

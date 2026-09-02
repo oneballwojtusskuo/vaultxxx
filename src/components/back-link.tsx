@@ -6,7 +6,13 @@ import { ArrowLeft } from "lucide-react";
  * dumping the user back on the catalogue. Falls back to /browse when the page
  * was opened directly (e.g. from a shared or affiliate link).
  */
-export function BackLink({ className = "", label = "Wróć" }: { className?: string; label?: string }) {
+export function BackLink({
+  className = "",
+  label = "Wróć",
+}: {
+  className?: string;
+  label?: string;
+}) {
   const router = useRouter();
 
   const goBack = () => {

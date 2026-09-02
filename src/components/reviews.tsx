@@ -7,7 +7,15 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
 
-function Stars({ value, size = 4, onChange }: { value: number; size?: number; onChange?: (n: number) => void }) {
+function Stars({
+  value,
+  size = 4,
+  onChange,
+}: {
+  value: number;
+  size?: number;
+  onChange?: (n: number) => void;
+}) {
   const cls = `h-${size} w-${size}`;
   return (
     <div className="flex items-center gap-0.5">
@@ -35,17 +43,15 @@ export function RatingSummary({ sellerId }: { sellerId: string }) {
   const { data } = useQuery({
     queryKey: ["seller-rating", sellerId],
     queryFn: async () => {
-      const { data } = await supabase
-        .from("reviews")
-        .select("rating")
-        .eq("seller_id", sellerId);
+      const { data } = await supabase.from("reviews").select("rating").eq("seller_id", sellerId);
       const arr = data ?? [];
       if (arr.length === 0) return { avg: 0, count: 0 };
       const avg = arr.reduce((s, r: any) => s + r.rating, 0) / arr.length;
       return { avg, count: arr.length };
     },
   });
-  if (!data || data.count === 0) return <span className="text-sm text-muted-foreground">Brak ocen</span>;
+  if (!data || data.count === 0)
+    return <span className="text-sm text-muted-foreground">Brak ocen</span>;
   return (
     <div className="inline-flex items-center gap-2 text-sm">
       <Stars value={Math.round(data.avg)} />
@@ -111,7 +117,9 @@ export function SellerReviews({ sellerId }: { sellerId: string }) {
                   </span>
                 </div>
                 {r.product?.title && (
-                  <p className="text-xs text-muted-foreground mt-0.5">o produkcie „{r.product.title}"</p>
+                  <p className="text-xs text-muted-foreground mt-0.5">
+                    o produkcie „{r.product.title}"
+                  </p>
                 )}
                 {r.comment && <p className="text-sm mt-2 whitespace-pre-wrap">{r.comment}</p>}
               </div>
@@ -208,13 +216,17 @@ export function ProductReviews({
             className="mb-3"
             maxLength={1000}
           />
-          <Button onClick={submit} disabled={submitting} className="bg-gradient-primary text-primary-foreground shadow-glow">
+          <Button
+            onClick={submit}
+            disabled={submitting}
+            className="bg-gradient-primary text-primary-foreground shadow-glow"
+          >
             {submitting ? "Wysyłanie..." : "Opublikuj opinię"}
           </Button>
         </div>
       )}
 
-      {(!reviews || reviews.length === 0) ? (
+      {!reviews || reviews.length === 0 ? (
         <div className="text-center text-muted-foreground py-8 rounded-xl border border-dashed border-border/50">
           Brak opinii. Bądź pierwszy!
         </div>
@@ -225,13 +237,18 @@ export function ProductReviews({
             const initials = name.slice(0, 1).toUpperCase();
             const mine = user?.id === r.buyer_id;
             return (
-              <div key={r.id} className="rounded-xl bg-gradient-surface border border-border/40 p-4">
+              <div
+                key={r.id}
+                className="rounded-xl bg-gradient-surface border border-border/40 p-4"
+              >
                 <div className="flex items-start gap-3">
                   <div className="h-9 w-9 rounded-full overflow-hidden bg-gradient-primary flex items-center justify-center shrink-0">
                     {r.buyer?.avatar_url ? (
                       <img src={r.buyer.avatar_url} alt="" className="w-full h-full object-cover" />
                     ) : (
-                      <span className="text-primary-foreground font-semibold text-xs">{initials}</span>
+                      <span className="text-primary-foreground font-semibold text-xs">
+                        {initials}
+                      </span>
                     )}
                   </div>
                   <div className="flex-1 min-w-0">
