@@ -51,20 +51,20 @@
   --radius: 0.75rem;
 
   --background: #f9f9fb;
-  --foreground: #1a1a1e;
+  --foreground: #171b24;
   --surface: #ffffff;
   --surface-elevated: #f3f3f7;
   --card: #ffffff;
-  --card-foreground: #1a1a1e;
+  --card-foreground: #171b24;
   --popover: #ffffff;
-  --popover-foreground: #1a1a1e;
+  --popover-foreground: #171b24;
   --primary: #6d4aff;
   --primary-foreground: #ffffff;
   --primary-glow: #7f56ff;
   --secondary: #ece8ff;
   --secondary-foreground: #6d4aff;
   --muted: #f3f3f7;
-  --muted-foreground: #696b78;
+  --muted-foreground: #4d5363;
   --accent: #ece8ff;
   --accent-foreground: #6d4aff;
   --destructive: #d94b4b;
@@ -144,12 +144,13 @@
     box-shadow: var(--shadow-soft);
   }
   .glass {
-    background: rgba(31, 28, 27, 0.92);
+    background: rgba(255, 255, 255, 0.82);
     backdrop-filter: blur(14px);
     -webkit-backdrop-filter: blur(14px);
-    border: 1px solid #2e2a28;
+    border: 1px solid rgba(234, 235, 240, 0.9);
+    box-shadow: 0 10px 30px -22px rgba(27, 23, 56, 0.18);
   }
   .glow-ring {
-    box-shadow: 0 0 0 1px rgba(196, 154, 80, 0.45);
+    box-shadow: 0 0 0 1px rgba(109, 74, 255, 0.35);
   }
 }
