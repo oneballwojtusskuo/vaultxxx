@@ -28,6 +28,7 @@ import { Route as SellRouteImport } from './routes/sell'
 import { Route as MessagesIndexRouteImport } from './routes/messages.index'
 import { Route as MessagesUserIdRouteImport } from './routes/messages.$userId'
 import { Route as ProductIdRouteImport } from './routes/product.$id'
+import { Route as SporyTransactionIdRouteImport } from './routes/spory.$transactionId'
 import { Route as UUsernameRouteImport } from './routes/u.$username'
 import { Route as ApiPublicPaymentsWebhookRouteImport } from './routes/api/public/payments/webhook'
 
@@ -126,6 +127,11 @@ const ProductIdRoute = ProductIdRouteImport.update({
   path: '/product/$id',
   getParentRoute: () => rootRouteImport,
 } as any)
+const SporyTransactionIdRoute = SporyTransactionIdRouteImport.update({
+  id: '/spory/$transactionId',
+  path: '/spory/$transactionId',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const UUsernameRoute = UUsernameRouteImport.update({
   id: '/u/$username',
   path: '/u/$username',
@@ -157,6 +163,7 @@ export interface FileRoutesByFullPath {
   '/sell': typeof SellRoute
   '/messages/$userId': typeof MessagesUserIdRoute
   '/product/$id': typeof ProductIdRoute
+  '/spory/$transactionId': typeof SporyTransactionIdRoute
   '/u/$username': typeof UUsernameRoute
   '/messages/': typeof MessagesIndexRoute
   '/api/public/payments/webhook': typeof ApiPublicPaymentsWebhookRoute
@@ -180,6 +187,7 @@ export interface FileRoutesByTo {
   '/sell': typeof SellRoute
   '/messages/$userId': typeof MessagesUserIdRoute
   '/product/$id': typeof ProductIdRoute
+  '/spory/$transactionId': typeof SporyTransactionIdRoute
   '/u/$username': typeof UUsernameRoute
   '/messages': typeof MessagesIndexRoute
   '/api/public/payments/webhook': typeof ApiPublicPaymentsWebhookRoute
@@ -204,6 +212,7 @@ export interface FileRoutesById {
   '/sell': typeof SellRoute
   '/messages/$userId': typeof MessagesUserIdRoute
   '/product/$id': typeof ProductIdRoute
+  '/spory/$transactionId': typeof SporyTransactionIdRoute
   '/u/$username': typeof UUsernameRoute
   '/messages/': typeof MessagesIndexRoute
   '/api/public/payments/webhook': typeof ApiPublicPaymentsWebhookRoute
@@ -229,6 +238,7 @@ export interface FileRouteTypes {
     | '/sell'
     | '/messages/$userId'
     | '/product/$id'
+    | '/spory/$transactionId'
     | '/u/$username'
     | '/messages/'
     | '/api/public/payments/webhook'
@@ -252,6 +262,7 @@ export interface FileRouteTypes {
     | '/sell'
     | '/messages/$userId'
     | '/product/$id'
+    | '/spory/$transactionId'
     | '/u/$username'
     | '/messages'
     | '/api/public/payments/webhook'
@@ -275,6 +286,7 @@ export interface FileRouteTypes {
     | '/sell'
     | '/messages/$userId'
     | '/product/$id'
+    | '/spory/$transactionId'
     | '/u/$username'
     | '/messages/'
     | '/api/public/payments/webhook'
@@ -299,6 +311,7 @@ export interface RootRouteChildren {
   SellRoute: typeof SellRoute
   MessagesUserIdRoute: typeof MessagesUserIdRoute
   ProductIdRoute: typeof ProductIdRoute
+  SporyTransactionIdRoute: typeof SporyTransactionIdRoute
   UUsernameRoute: typeof UUsernameRoute
   MessagesIndexRoute: typeof MessagesIndexRoute
   ApiPublicPaymentsWebhookRoute: typeof ApiPublicPaymentsWebhookRoute
@@ -439,6 +452,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ProductIdRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/spory/$transactionId': {
+      id: '/spory/$transactionId'
+      path: '/spory/$transactionId'
+      fullPath: '/spory/$transactionId'
+      preLoaderRoute: typeof SporyTransactionIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/u/$username': {
       id: '/u/$username'
       path: '/u/$username'
@@ -475,6 +495,7 @@ const rootRouteChildren: RootRouteChildren = {
   SellRoute: SellRoute,
   MessagesUserIdRoute: MessagesUserIdRoute,
   ProductIdRoute: ProductIdRoute,
+  SporyTransactionIdRoute: SporyTransactionIdRoute,
   UUsernameRoute: UUsernameRoute,
   MessagesIndexRoute: MessagesIndexRoute,
   ApiPublicPaymentsWebhookRoute: ApiPublicPaymentsWebhookRoute,
