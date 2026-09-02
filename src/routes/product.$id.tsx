@@ -250,6 +250,9 @@ function ProductPage() {
           })(),
         },
       });
+      if ("error" in res && res.error) {
+        return toast.error(res.error);
+      }
       if (res.alreadyOwned) {
         toast.info("Już posiadasz ten produkt.");
         refetchTx();

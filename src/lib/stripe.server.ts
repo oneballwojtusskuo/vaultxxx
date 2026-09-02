@@ -8,9 +8,12 @@ const getEnv = (key: string): string => {
 
 export type StripeEnv = "sandbox" | "live";
 
+const GATEWAY_STRIPE_BASE = "https://connector-gateway.lovable.dev/stripe";
+
 /** Klucze pochodzą z integracji płatności Lovable (sandbox/live). */
 export function getSecretKey(env: StripeEnv = "sandbox"): string {
-  const managed = env === "live" ? process.env["STRIPE_LIVE_API_KEY"] : process.env["STRIPE_SANDBOX_API_KEY"];
+  const managed =
+    env === "live" ? process.env["STRIPE_LIVE_API_KEY"] : process.env["STRIPE_SANDBOX_API_KEY"];
   return managed || getEnv("STRIPE_SECRET_KEY");
 }
 
@@ -19,9 +22,37 @@ export function getServerStripeEnv(): StripeEnv {
 }
 
 export function createStripeClient(env: StripeEnv = "sandbox"): Stripe {
-  return new Stripe(getSecretKey(env), {
+  const key = getSecretKey(env);
+  // Klucze zarządzane przez Lovable (lovc_...) muszą iść przez bramkę
+  // connector-gateway; własne klucze sk_/rk_ trafiają wprost do Stripe.
+  const isManaged = key.startsWith("lovc_");
+
+  if (!isManaged) {
+    return new Stripe(key, {
+      apiVersion: "2026-03-25.dahlia",
+      httpClient: Stripe.createFetchHttpClient(),
+    });
+  }
+
+  const lovableApiKey = getEnv("LOVABLE_API_KEY");
+  return new Stripe(key, {
     apiVersion: "2026-03-25.dahlia",
-    httpClient: Stripe.createFetchHttpClient(),
+    httpClient: Stripe.createFetchHttpClient((input, init) => {
+      const stripeUrl = input instanceof Request ? input.url : input.toString();
+      const gatewayUrl = stripeUrl.replace("https://api.stripe.com", GATEWAY_STRIPE_BASE);
+      return fetch(gatewayUrl, {
+        ...init,
+        headers: {
+          ...Object.fromEntries(
+            new Headers(
+              init?.headers ?? (input instanceof Request ? input.headers : undefined),
+            ).entries(),
+          ),
+          "X-Connection-Api-Key": key,
+          "Lovable-API-Key": lovableApiKey,
+        },
+      });
+    }),
   });
 }
 

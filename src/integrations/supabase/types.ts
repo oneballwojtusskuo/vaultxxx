@@ -952,23 +952,52 @@ export type Database = {
       is_current_user_admin: { Args: never; Returns: boolean }
       pl_norm: { Args: { t: string }; Returns: string }
       release_expired_escrow: { Args: never; Returns: number }
-      search_products: {
-        Args: { cat?: string; q?: string }
-        Returns: {
-          category_icon: string
-          category_name: string
-          category_slug: string
-          currency: string
-          custom_category: string
-          downloads_count: number
-          id: string
-          is_tradable: boolean
-          preview_url: string
-          price: number
-          score: number
-          title: string
-        }[]
-      }
+      search_products:
+        | {
+            Args: { cat?: string; q?: string }
+            Returns: {
+              category_icon: string
+              category_name: string
+              category_slug: string
+              currency: string
+              custom_category: string
+              downloads_count: number
+              id: string
+              is_tradable: boolean
+              preview_url: string
+              price: number
+              score: number
+              title: string
+            }[]
+          }
+        | {
+            Args: {
+              cat?: string
+              free_only?: boolean
+              max_price?: number
+              min_downloads?: number
+              min_price?: number
+              min_seller_rating?: number
+              q?: string
+              sort_by?: string
+              tradable_only?: boolean
+            }
+            Returns: {
+              category_icon: string
+              category_name: string
+              category_slug: string
+              currency: string
+              custom_category: string
+              downloads_count: number
+              id: string
+              is_tradable: boolean
+              preview_url: string
+              price: number
+              score: number
+              seller_id: string
+              title: string
+            }[]
+          }
       show_limit: { Args: never; Returns: number }
       show_trgm: { Args: { "": string }; Returns: string[] }
     }
