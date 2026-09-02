@@ -155,43 +155,58 @@ export const purchaseProduct = createServerFn({ method: "POST" })
     const paymentMethodTypes =
       currency === "pln" ? (["blik", "card", "p24"] as const) : (["card"] as const);
 
-    try {
-      const session = await stripe.checkout.sessions.create({
-        mode: "payment",
-        ui_mode: "embedded_page",
-        return_url: `${data.returnUrl ?? ""}?checkout=success&session_id={CHECKOUT_SESSION_ID}`,
-        payment_method_types: paymentMethodTypes as any,
-        line_items: [
-          {
-            quantity: 1,
-            price_data: {
-              currency,
-              unit_amount: Math.round(buyerPrice * 100),
-              product_data: {
-                name: product.title,
-              },
-            },
-          },
-        ],
-        payment_intent_data: {
-          description: product.title,
-          metadata: {
-            transactionId: tx.id,
-            productId: product.id,
-            buyerId: userId,
-            sellerId: product.seller_id,
+    const baseParams = {
+      mode: "payment" as const,
+      ui_mode: "embedded_page" as const,
+      return_url: `${data.returnUrl ?? ""}?checkout=success&session_id={CHECKOUT_SESSION_ID}`,
+      line_items: [
+        {
+          quantity: 1,
+          price_data: {
+            currency,
+            unit_amount: Math.round(buyerPrice * 100),
+            product_data: { name: product.title },
           },
         },
+      ],
+      payment_intent_data: {
+        description: product.title,
         metadata: {
           transactionId: tx.id,
           productId: product.id,
           buyerId: userId,
+          sellerId: product.seller_id,
         },
-      });
+      },
+      metadata: {
+        transactionId: tx.id,
+        productId: product.id,
+        buyerId: userId,
+      },
+    };
+
+    try {
+      let session;
+      try {
+        session = await stripe.checkout.sessions.create({
+          ...baseParams,
+          payment_method_types: paymentMethodTypes as any,
+        });
+      } catch (methodError) {
+        // BLIK/P24 may not be activated on the account — retry with Stripe's
+        // automatic payment methods so checkout still opens.
+        console.error("Stripe session (explicit methods) failed:", methodError);
+        session = await stripe.checkout.sessions.create(baseParams);
+      }
 
       if (!session.client_secret) {
         await supabaseAdmin.from("transactions").delete().eq("id", tx.id);
-        throw new Error("Stripe checkout session did not return a client secret.");
+        return {
+          transactionId: tx.id,
+          status: "pending" as const,
+          alreadyOwned: false,
+          error: "Stripe nie zwrócił danych sesji płatności.",
+        };
       }
 
       // Persist Stripe session id for reconciliation
@@ -208,7 +223,13 @@ export const purchaseProduct = createServerFn({ method: "POST" })
       };
     } catch (error) {
       // Roll back the pending row so the buyer can retry cleanly
+      console.error("Stripe checkout error:", error);
       await supabaseAdmin.from("transactions").delete().eq("id", tx.id);
-      throw new Response(getStripeErrorMessage(error), { status: 500 });
+      return {
+        transactionId: tx.id,
+        status: "failed" as const,
+        alreadyOwned: false,
+        error: getStripeErrorMessage(error),
+      };
     }
   });
