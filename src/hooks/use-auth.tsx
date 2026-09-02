@@ -47,8 +47,36 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   useEffect(() => {
-    setIsAdmin(session?.user?.email?.toLowerCase() === OWNER_ADMIN_EMAIL);
-  }, [session?.user?.email]);
+    let isMounted = true;
+
+    const evaluateAdmin = async () => {
+      const userEmail = session?.user?.email?.toLowerCase();
+      if (userEmail === OWNER_ADMIN_EMAIL) {
+        if (isMounted) setIsAdmin(true);
+        return;
+      }
+
+      if (!session?.user?.id) {
+        if (isMounted) setIsAdmin(false);
+        return;
+      }
+
+      const { data, error } = await supabase
+        .from("user_roles")
+        .select("role")
+        .eq("user_id", session.user.id)
+        .eq("role", "admin")
+        .maybeSingle();
+
+      if (isMounted) setIsAdmin(!error && !!data);
+    };
+
+    evaluateAdmin();
+
+    return () => {
+      isMounted = false;
+    };
+  }, [session?.user?.id, session?.user?.email]);
 
   return (
     <Ctx.Provider
