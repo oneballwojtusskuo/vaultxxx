@@ -213,7 +213,7 @@ export const sendDisputeMessage = createServerFn({ method: "POST" })
     const admin = await isAdmin(supabaseAdmin, context.userId, context.claims);
     const { data: tx } = await supabaseAdmin
       .from("transactions")
-      .select("id, buyer_id, seller_id")
+      .select("id, buyer_id, seller_id, status")
       .eq("id", data.transactionId)
       .maybeSingle();
     if (!tx) throw new Response("Nie znaleziono transakcji", { status: 404 });
@@ -222,15 +222,29 @@ export const sendDisputeMessage = createServerFn({ method: "POST" })
     }
     const { data: thread } = await supabaseAdmin
       .from("dispute_threads")
-      .select("id")
+      .select("id, status")
       .eq("transaction_id", tx.id)
       .maybeSingle();
     if (!thread) throw new Response("Brak wątku sporu", { status: 404 });
+    if (thread.status === "closed" || !["held", "disputed"].includes(tx.status)) {
+      throw new Response("Ten spór jest już zamknięty", { status: 400 });
+    }
     await supabaseAdmin.from("dispute_messages").insert({
       thread_id: thread.id,
       sender_id: context.userId,
       content: data.content,
     } as any);
+
+    const recipients = [tx.buyer_id, tx.seller_id].filter((userId) => userId !== context.userId);
+    for (const recipientId of recipients) {
+      await notify(
+        supabaseAdmin,
+        recipientId,
+        "Nowa wiadomość w sporze",
+        "W wątku sporu pojawiła się nowa wiadomość. Otwórz czat, aby odpowiedzieć.",
+        `/spory/${tx.id}`,
+      );
+    }
     return { ok: true };
   });
 

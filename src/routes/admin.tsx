@@ -22,6 +22,7 @@ import {
   Trash2,
   UserCheck,
   Wallet,
+  MessageSquare,
 } from "lucide-react";
 import { getAdminProductFileUrl, listAdminProducts, moderateProduct } from "@/lib/admin.functions";
 import {
@@ -31,6 +32,7 @@ import {
   setUserBan,
 } from "@/lib/reports.functions";
 import { getDac7Participants, getOwnerRevenueStats } from "@/lib/dac7.functions";
+import { listDisputeThreads } from "@/lib/dispute.functions";
 
 export const Route = createFileRoute("/admin")({
   component: AdminPage,
@@ -130,6 +132,9 @@ function AdminPage() {
               </TabsTrigger>
               <TabsTrigger value="reports">
                 <Flag className="h-4 w-4 mr-1.5" /> Zgłoszenia
+              </TabsTrigger>
+              <TabsTrigger value="disputes">
+                <MessageSquare className="h-4 w-4 mr-1.5" /> Spory
               </TabsTrigger>
               <TabsTrigger value="tax">
                 <Wallet className="h-4 w-4 mr-1.5" /> Przychody i progi podatkowe
@@ -295,6 +300,10 @@ function AdminPage() {
               <ReportsPanel />
             </TabsContent>
 
+            <TabsContent value="disputes">
+              <DisputesPanel />
+            </TabsContent>
+
             <TabsContent value="tax">
               <TaxRevenuePanel />
             </TabsContent>
@@ -302,6 +311,74 @@ function AdminPage() {
         }
       </main>
       <SiteFooter />
+    </div>
+  );
+}
+
+function DisputesPanel() {
+  const fetchDisputes = useServerFn(listDisputeThreads);
+  const {
+    data: threads,
+    isLoading,
+    error,
+  } = useQuery({
+    queryKey: ["admin-open-disputes"],
+    queryFn: () => fetchDisputes({ data: undefined }),
+  });
+  const openThreads = (threads ?? []).filter(
+    (thread: any) =>
+      thread.status === "open" && (thread.tx_status === "held" || thread.tx_status === "disputed"),
+  );
+
+  return (
+    <div className="mt-4 space-y-4">
+      <div className="flex items-center justify-between gap-3 flex-wrap">
+        <div>
+          <h2 className="font-display text-2xl font-semibold">Otwarte spory</h2>
+          <p className="text-sm text-muted-foreground mt-1">
+            Wszystkie aktywne rozmowy kupujących, sprzedawców i administratora.
+          </p>
+        </div>
+        <Badge variant="secondary">{openThreads.length} otwartych</Badge>
+      </div>
+
+      {isLoading ? (
+        <p className="py-10 text-center text-muted-foreground">Ładowanie sporów...</p>
+      ) : error ? (
+        <p className="py-10 text-center text-destructive">Nie udało się załadować sporów.</p>
+      ) : openThreads.length === 0 ? (
+        <div className="rounded-xl border border-dashed border-border/50 py-12 text-center text-muted-foreground">
+          Brak otwartych sporów.
+        </div>
+      ) : (
+        openThreads.map((thread: any) => (
+          <div
+            key={thread.id}
+            className="flex flex-wrap items-center justify-between gap-4 rounded-xl border border-border/40 bg-gradient-surface p-4"
+          >
+            <div className="min-w-0">
+              <p className="font-semibold truncate">{thread.product?.title ?? "Produkt cyfrowy"}</p>
+              <p className="mt-1 text-sm text-muted-foreground">
+                Kupujący: {thread.buyer?.display_name ?? thread.buyer?.username ?? "Użytkownik"} ·
+                Sprzedawca: {thread.seller?.display_name ?? thread.seller?.username ?? "Użytkownik"}
+              </p>
+              <p className="mt-1 text-xs text-muted-foreground">
+                {new Date(thread.created_at).toLocaleString("pl-PL")} · {thread.tx_status}
+              </p>
+              {thread.dispute_reason && (
+                <p className="mt-2 line-clamp-2 text-sm text-foreground/75">
+                  {thread.dispute_reason}
+                </p>
+              )}
+            </div>
+            <Link to="/spory/$transactionId" params={{ transactionId: thread.transaction_id }}>
+              <Button size="sm" className="bg-gradient-primary text-primary-foreground">
+                <MessageSquare className="h-4 w-4 mr-1.5" /> Otwórz spór
+              </Button>
+            </Link>
+          </div>
+        ))
+      )}
     </div>
   );
 }
