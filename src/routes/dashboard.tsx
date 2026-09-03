@@ -151,9 +151,9 @@ function Dashboard() {
     refetchProducts();
   };
 
-  const downloadLicense = (t: any) => {
+  const downloadLicense = async (t: any) => {
     if (!user || !t.product) return;
-    generateLicensePdf({
+    await generateLicensePdf({
       transactionId: t.id,
       createdAt: t.created_at,
       productTitle: t.product.title,
