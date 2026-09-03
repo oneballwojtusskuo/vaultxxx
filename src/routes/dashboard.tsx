@@ -23,6 +23,7 @@ import {
   Link2,
   Clock3,
   WalletCards,
+  Check,
 } from "lucide-react";
 import { toast } from "sonner";
 import { generateLicensePdf } from "@/lib/license-pdf";
