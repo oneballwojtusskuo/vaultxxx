@@ -24,15 +24,36 @@ function Exchanges() {
 
   const withItems = async (rows: any[]) => {
     if (rows.length === 0) return rows;
-    const { data: items } = await (supabase as any)
+    const { data: items, error: itemsError } = await (supabase as any)
       .from("exchange_items")
-      .select("exchange_id, side, product:products(id,title,preview_url)")
+      .select("exchange_id, side, product_id")
       .in(
         "exchange_id",
         rows.map((r) => r.id),
       );
+    if (itemsError) throw itemsError;
+
+    const productIds = Array.from(
+      new Set(
+        rows
+          .flatMap((row) => [row.offered_product_id, row.requested_product_id])
+          .concat((items ?? []).map((item: any) => item.product_id))
+          .filter(Boolean),
+      ),
+    );
+    const { data: products, error: productsError } = await supabase
+      .from("products")
+      .select("id,title,preview_url")
+      .in("id", productIds);
+    if (productsError) throw productsError;
+    const productsById = Object.fromEntries(
+      (products ?? []).map((product) => [product.id, product]),
+    );
     const byExchange: Record<string, any[]> = {};
-    for (const it of items ?? []) (byExchange[it.exchange_id] ||= []).push(it);
+    for (const it of items ?? []) {
+      const product = productsById[it.product_id];
+      if (product) (byExchange[it.exchange_id] ||= []).push({ ...it, product });
+    }
     return rows.map((r) => {
       const list = byExchange[r.id] ?? [];
       const offered = list
@@ -45,42 +66,41 @@ function Exchanges() {
         .filter(Boolean);
       return {
         ...r,
-        offeredList: offered.length ? offered : [r.offered].filter(Boolean),
-        requestedList: requested.length ? requested : [r.requested].filter(Boolean),
+        offeredList: offered.length
+          ? offered
+          : [productsById[r.offered_product_id]].filter(Boolean),
+        requestedList: requested.length
+          ? requested
+          : [productsById[r.requested_product_id]].filter(Boolean),
       };
     });
   };
 
-  const selectCols =
-    "*, offered:products!exchanges_offered_product_id_fkey(id,title,preview_url), requested:products!exchanges_requested_product_id_fkey(id,title,preview_url)";
-
   const incomingQ = useQuery({
     queryKey: ["exchanges-in", user?.id],
     enabled: !!user,
-    queryFn: async () =>
-      withItems(
-        (
-          await supabase
-            .from("exchanges")
-            .select(selectCols)
-            .eq("receiver_id", user!.id)
-            .order("created_at", { ascending: false })
-        ).data ?? [],
-      ),
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("exchanges")
+        .select("*")
+        .eq("receiver_id", user!.id)
+        .order("created_at", { ascending: false });
+      if (error) throw error;
+      return withItems(data ?? []);
+    },
   });
   const outgoingQ = useQuery({
     queryKey: ["exchanges-out", user?.id],
     enabled: !!user,
-    queryFn: async () =>
-      withItems(
-        (
-          await supabase
-            .from("exchanges")
-            .select(selectCols)
-            .eq("proposer_id", user!.id)
-            .order("created_at", { ascending: false })
-        ).data ?? [],
-      ),
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("exchanges")
+        .select("*")
+        .eq("proposer_id", user!.id)
+        .order("created_at", { ascending: false });
+      if (error) throw error;
+      return withItems(data ?? []);
+    },
   });
 
   const updateStatus = async (id: string, status: "accepted" | "rejected" | "cancelled") => {
