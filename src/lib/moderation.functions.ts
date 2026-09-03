@@ -86,7 +86,7 @@ export const reviewListing = createServerFn({ method: "POST" })
     if (desc.trim().length < 12)
       doubts.push("Opis jest zbyt krótki, żeby potwierdzić zgodność z plikiem.");
 
-    const spam = /(?:https?:\/\/).{0,40}(?:https?:\/\/)|(?:.)\1{8,}|crypto\s*airdrop|free\s*nft/i;
+    const spam = /(?:https?:\/\/).{0,40}(?:https?:\/\/)|(.)\1{8,}|crypto\s*airdrop|free\s*nft/i;
     if (spam.test(title) || spam.test(desc)) doubts.push("Treść wygląda na spam.");
 
     const nameTok = tokens(names.join(" "));

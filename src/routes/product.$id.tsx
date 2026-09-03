@@ -456,7 +456,7 @@ function ProductPage() {
                     variant="outline"
                     className="mt-3 w-full sm:w-auto"
                     onClick={() =>
-                      generateLicensePdf({
+                      void generateLicensePdf({
                         transactionId: myTransaction.id,
                         createdAt: myTransaction.created_at,
                         productTitle: p.title,

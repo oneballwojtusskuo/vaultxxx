@@ -23,6 +23,7 @@ import {
   Link2,
   Clock3,
   WalletCards,
+  Check,
 } from "lucide-react";
 import { toast } from "sonner";
 import { generateLicensePdf } from "@/lib/license-pdf";
@@ -150,9 +151,9 @@ function Dashboard() {
     refetchProducts();
   };
 
-  const downloadLicense = (t: any) => {
+  const downloadLicense = async (t: any) => {
     if (!user || !t.product) return;
-    generateLicensePdf({
+    await generateLicensePdf({
       transactionId: t.id,
       createdAt: t.created_at,
       productTitle: t.product.title,
