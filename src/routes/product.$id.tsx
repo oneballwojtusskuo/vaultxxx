@@ -66,6 +66,7 @@ import { getStripeEnvironment } from "@/lib/stripe";
 import { buyerPriceOf } from "@/lib/pricing";
 import { EscrowActions } from "@/components/escrow-actions";
 import { BackLink } from "@/components/back-link";
+import JSZip from "jszip";
 
 export const Route = createFileRoute("/product/$id")({
   component: ProductPage,
@@ -816,18 +817,42 @@ function SecureStreamPlayer({
       return;
     }
     try {
-      for (const file of files) {
+      const validFiles = files.map((file) => {
         const url = new URL(file.url, window.location.origin);
         if (url.pathname.startsWith("/_serverFn")) throw new Error("Invalid download endpoint");
+        return { ...file, url };
+      });
+
+      if (validFiles.length === 1) {
         const a = document.createElement("a");
-        a.href = url.toString();
-        a.download = file.name;
+        a.href = validFiles[0].url.toString();
+        a.download = validFiles[0].name;
         a.target = "_blank";
         a.rel = "noopener noreferrer";
         document.body.appendChild(a);
         a.click();
         a.remove();
+        return;
       }
+
+      toast.info(`Przygotowuję archiwum z ${validFiles.length} plikami...`);
+      const zip = new JSZip();
+      await Promise.all(
+        validFiles.map(async (file) => {
+          const response = await fetch(file.url);
+          if (!response.ok) throw new Error("Could not download file");
+          zip.file(file.name, await response.blob());
+        }),
+      );
+      const archive = await zip.generateAsync({ type: "blob" });
+      const archiveUrl = URL.createObjectURL(archive);
+      const a = document.createElement("a");
+      a.href = archiveUrl;
+      a.download = `${(productTitle || "produkt").replace(/[^\w\-. ]+/g, "_")}.zip`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(archiveUrl);
     } catch {
       toast.error("Nie udało się przygotować linku do pliku. Spróbuj ponownie za chwilę.");
     }
@@ -893,7 +918,10 @@ function SecureStreamPlayer({
             onClick={handleDownload}
             className="bg-gradient-primary text-primary-foreground shadow-glow"
           >
-            <Download className="h-4 w-4 mr-2" /> Pobierz plik
+            <Download className="h-4 w-4 mr-2" />
+            {(data as any)?.downloads?.length > 1
+              ? "Pobierz wszystkie pliki (ZIP)"
+              : "Pobierz plik"}
           </Button>
           {deliveryMode === "stream" && (isVideo || isAudio) && isOwner && (
             <p className="mt-2 text-[11px] text-muted-foreground">
