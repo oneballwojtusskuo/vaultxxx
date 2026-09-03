@@ -17,14 +17,21 @@ export const getSecureStreamUrl = createServerFn({ method: "POST" })
 
     const { data: product, error: pErr } = await supabaseAdmin
       .from("products")
-      .select("id, seller_id, file_path, title")
+      .select("id, seller_id, file_path, file_paths, title")
       .eq("id", data.productId)
       .maybeSingle();
 
     if (pErr || !product) {
       throw new Response("Product not found", { status: 404 });
     }
-    if (!product.file_path) {
+    const filePaths: string[] = Array.from(
+      new Set(
+        [product.file_path, ...(((product as any).file_paths as string[] | null) ?? [])].filter(
+          (path): path is string => typeof path === "string" && path.length > 0,
+        ),
+      ),
+    );
+    if (filePaths.length === 0) {
       throw new Response("No file attached", { status: 404 });
     }
 
@@ -58,18 +65,29 @@ export const getSecureStreamUrl = createServerFn({ method: "POST" })
     }
 
     // Derive a friendly filename with the correct extension
-    const rawExt = product.file_path.includes(".")
-      ? product.file_path.substring(product.file_path.lastIndexOf("."))
+    const rawExt = filePaths[0].includes(".")
+      ? filePaths[0].substring(filePaths[0].lastIndexOf("."))
       : "";
     const safeTitle = (product.title || "plik").replace(/[^\w\-. ]+/g, "_").slice(0, 80) || "plik";
     const downloadName = safeTitle + rawExt;
+    const downloads = await Promise.all(
+      filePaths.map(async (path, index) => {
+        const extension = path.includes(".") ? path.substring(path.lastIndexOf(".")) : "";
+        const name = index === 0 ? downloadName : `${safeTitle}-${index + 1}${extension}`;
+        const { data: signed, error } = await supabaseAdmin.storage
+          .from("product-files")
+          .createSignedUrl(path, 60 * 60, { download: name });
+        if (error || !signed) throw new Response("Could not sign URL", { status: 500 });
+        return { url: signed.signedUrl, name };
+      }),
+    );
 
     const [{ data: streamSigned, error: sErr }, { data: dlSigned, error: dErr }] =
       await Promise.all([
-        supabaseAdmin.storage.from("product-files").createSignedUrl(product.file_path, 60 * 60),
+        supabaseAdmin.storage.from("product-files").createSignedUrl(filePaths[0], 60 * 60),
         supabaseAdmin.storage
           .from("product-files")
-          .createSignedUrl(product.file_path, 60 * 60, { download: downloadName }),
+          .createSignedUrl(filePaths[0], 60 * 60, { download: downloadName }),
       ]);
 
     if (sErr || !streamSigned || dErr || !dlSigned) {
@@ -80,6 +98,7 @@ export const getSecureStreamUrl = createServerFn({ method: "POST" })
       url: streamSigned.signedUrl,
       downloadUrl: dlSigned.signedUrl,
       downloadName,
+      downloads,
       expiresAt: Date.now() + 60 * 60 * 1000,
       title: product.title,
     };

@@ -106,7 +106,7 @@ function AdminPage() {
   const signFile = async (productId: string) => {
     try {
       const data = await getProductFileUrl({ data: { productId } });
-      window.open(data.url, "_blank");
+      for (const file of data.files ?? [{ url: data.url }]) window.open(file.url, "_blank");
     } catch (e: any) {
       toast.error(e?.message ?? "Nie udało się pobrać pliku");
     }

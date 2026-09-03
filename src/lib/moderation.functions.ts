@@ -150,5 +150,14 @@ export const reviewListing = createServerFn({ method: "POST" })
       } as any)
       .eq("id", product.id);
 
+    await supabaseAdmin.from("seller_notifications").insert({
+      user_id: product.seller_id,
+      kind: autoApproved ? "product_published" : "product_review_required",
+      product_title: product.title,
+      admin_note: autoApproved
+        ? "Produkt został automatycznie zweryfikowany i opublikowany."
+        : doubts.join(" "),
+    } as any);
+
     return { status: autoApproved ? "published" : "pending_review", autoApproved, notes: doubts };
   });

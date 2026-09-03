@@ -37,7 +37,7 @@ export const listAdminProducts = createServerFn({ method: "GET" })
     let query = supabaseAdmin
       .from("products")
       .select(
-        "id,title,description,price,currency,status,created_at,preview_url,sample_url,file_path,seller_id,tags,review_notes",
+        "id,title,description,price,currency,status,created_at,preview_url,sample_url,file_path,file_paths,seller_id,tags,review_notes",
       )
       .order("created_at", { ascending: false });
 
@@ -59,7 +59,7 @@ export const listAdminProducts = createServerFn({ method: "GET" })
       seller_id: product.seller_id,
       tags: product.tags,
       review_notes: product.review_notes,
-      has_file: Boolean(product.file_path),
+      has_file: Boolean(product.file_path || product.file_paths?.length),
     }));
   });
 
@@ -141,6 +141,20 @@ export const moderateProduct = createServerFn({ method: "POST" })
       .eq("id", data.productId);
     if (error) throw error;
 
+    const { data: product } = await supabaseAdmin
+      .from("products")
+      .select("seller_id, title")
+      .eq("id", data.productId)
+      .maybeSingle();
+    if (product) {
+      await supabaseAdmin.from("seller_notifications").insert({
+        user_id: product.seller_id,
+        kind: data.status === "published" ? "product_published" : "product_archived",
+        product_title: product.title,
+        admin_note: data.reviewNotes ?? null,
+      } as any);
+    }
+
     return { ok: true };
   });
 
@@ -153,16 +167,28 @@ export const getAdminProductFileUrl = createServerFn({ method: "POST" })
 
     const { data: product, error } = await supabaseAdmin
       .from("products")
-      .select("file_path")
+      .select("file_path, file_paths")
       .eq("id", data.productId)
       .maybeSingle();
     if (error) throw error;
-    if (!product?.file_path) throw new Response("No file attached", { status: 404 });
+    const paths: string[] = Array.from(
+      new Set(
+        [product?.file_path, ...((product as any)?.file_paths ?? [])].filter(
+          (path): path is string => typeof path === "string" && path.length > 0,
+        ),
+      ),
+    );
+    if (paths.length === 0) throw new Response("No file attached", { status: 404 });
 
-    const { data: signed, error: signError } = await supabaseAdmin.storage
-      .from("product-files")
-      .createSignedUrl(product.file_path, 60 * 30);
-    if (signError || !signed) throw new Response("Could not sign file", { status: 500 });
+    const files = await Promise.all(
+      paths.map(async (path, index) => {
+        const { data: signed, error: signError } = await supabaseAdmin.storage
+          .from("product-files")
+          .createSignedUrl(path, 60 * 30, { download: index === 0 ? undefined : true });
+        if (signError || !signed) throw new Response("Could not sign file", { status: 500 });
+        return { url: signed.signedUrl, name: path.split("/").pop() ?? `plik-${index + 1}` };
+      }),
+    );
 
-    return { url: signed.signedUrl };
+    return { url: files[0].url, files };
   });

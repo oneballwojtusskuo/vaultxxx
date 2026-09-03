@@ -800,27 +800,34 @@ function SecureStreamPlayer({
   const handleDownload = async () => {
     const latest = await refetch();
     const access = latest.data ?? data;
-    const href = (access as any)?.downloadUrl || access?.url;
-    const name = (access as any)?.downloadName || productTitle || "plik";
-    if (!href || typeof href !== "string") {
+    const downloads = (access as any)?.downloads as
+      | Array<{ url: string; name: string }>
+      | undefined;
+    const fallback = (access as any)?.downloadUrl || access?.url;
+    const files = downloads?.length
+      ? downloads
+      : fallback && typeof fallback === "string"
+        ? [{ url: fallback, name: (access as any)?.downloadName || productTitle || "plik" }]
+        : [];
+    if (files.length === 0) {
       toast.error(
         "Nie udało się przygotować pliku do pobrania. Odśwież stronę i spróbuj ponownie.",
       );
       return;
     }
     try {
-      const url = new URL(href, window.location.origin);
-      if (url.pathname.startsWith("/_serverFn")) {
-        throw new Error("Invalid download endpoint");
+      for (const file of files) {
+        const url = new URL(file.url, window.location.origin);
+        if (url.pathname.startsWith("/_serverFn")) throw new Error("Invalid download endpoint");
+        const a = document.createElement("a");
+        a.href = url.toString();
+        a.download = file.name;
+        a.target = "_blank";
+        a.rel = "noopener noreferrer";
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
       }
-      const a = document.createElement("a");
-      a.href = url.toString();
-      a.download = name;
-      a.target = "_blank";
-      a.rel = "noopener noreferrer";
-      document.body.appendChild(a);
-      a.click();
-      a.remove();
     } catch {
       toast.error("Nie udało się przygotować linku do pliku. Spróbuj ponownie za chwilę.");
     }
