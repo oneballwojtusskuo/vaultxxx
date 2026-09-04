@@ -1,0 +1,1 @@
+DROP POLICY IF EXISTS "likes_insert_own" ON public.product_likes;
