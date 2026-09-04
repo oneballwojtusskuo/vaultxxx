@@ -1,5 +1,5 @@
 import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
+import { Fragment, useEffect, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { SiteHeader } from "@/components/site-header";
@@ -661,6 +661,8 @@ function TaxRevenuePanel() {
     queryKey: ["admin-dac7-participants"],
     queryFn: () => fetchParticipants({ data: undefined as any }),
   });
+  const [expandedUser, setExpandedUser] = useState<string | null>(null);
+
 
   if (isLoading || !stats) {
     return <div className="mt-6 text-muted-foreground">Ładowanie...</div>;
@@ -764,7 +766,9 @@ function TaxRevenuePanel() {
               </thead>
               <tbody>
                 {participants.participants.map((row: any) => (
-                  <tr key={row.userId} className="border-b border-border/20 last:border-0">
+                  <Fragment key={row.userId}>
+                  <tr className="border-b border-border/20">
+
                     <td className="py-3 pr-3">
                       <div className="font-medium">
                         {row.profile?.display_name ?? row.profile?.username ?? "Użytkownik"}
@@ -805,9 +809,85 @@ function TaxRevenuePanel() {
                           ? "Zbliża się do progu"
                           : "Poniżej progu"}
                     </td>
-                    <td className="py-3">{row.taxProfile?.tin ? "uzupełnione" : "brak danych"}</td>
+                    <td className="py-3">
+                      <button
+                        type="button"
+                        className="text-xs underline underline-offset-4"
+                        onClick={() =>
+                          setExpandedUser(expandedUser === row.userId ? null : row.userId)
+                        }
+                      >
+                        {row.taxProfile?.tin ? "uzupełnione" : "brak danych"} —{" "}
+                        {expandedUser === row.userId ? "ukryj" : "pokaż"}
+                      </button>
+                    </td>
                   </tr>
+                  {expandedUser === row.userId && (
+                    <tr className="border-b border-border/20 bg-muted/30">
+                      <td colSpan={6} className="p-4">
+                        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 text-xs">
+                          <DetailBlock
+                            title="Konto"
+                            items={[
+                              ["ID użytkownika", row.userId],
+                              ["E-mail", row.email],
+                              ["Nazwa użytkownika", row.profile?.username],
+                              ["Nazwa wyświetlana", row.profile?.display_name],
+                              [
+                                "Zweryfikowany sprzedawca",
+                                row.profile?.is_verified_seller ? "tak" : "nie",
+                              ],
+                              ["Zablokowany", row.profile?.is_banned ? "tak" : "nie"],
+                            ]}
+                          />
+                          <DetailBlock
+                            title="Dane podatkowe (DAC7)"
+                            items={[
+                              [
+                                "Typ sprzedawcy",
+                                row.taxProfile?.seller_kind === "business"
+                                  ? "firma"
+                                  : row.taxProfile?.seller_kind === "individual"
+                                    ? "osoba prywatna"
+                                    : row.taxProfile?.seller_kind,
+                              ],
+                              ["Imię i nazwisko / nazwa", row.taxProfile?.full_name],
+                              ["Adres", row.taxProfile?.address_line],
+                              [
+                                "Miasto",
+                                [row.taxProfile?.postal_code, row.taxProfile?.city]
+                                  .filter(Boolean)
+                                  .join(" "),
+                              ],
+                              ["Kraj", row.taxProfile?.country],
+                              ["NIP / TIN", row.taxProfile?.tin],
+                              ["Data urodzenia", row.taxProfile?.date_of_birth],
+                              ["Miejsce urodzenia", row.taxProfile?.birth_place],
+                              ["VAT ID", row.taxProfile?.vat_id],
+                              ["Nr rejestrowy", row.taxProfile?.business_reg_no],
+                              ["Zweryfikowane", row.taxProfile?.verified ? "tak" : "nie"],
+                            ]}
+                          />
+                          <DetailBlock
+                            title="Dane do wypłat"
+                            items={[
+                              ["Numer konta", row.payout?.payout_account],
+                              ["Właściciel konta", row.payout?.payout_holder],
+                              [
+                                "Aktualizacja",
+                                row.payout?.updated_at
+                                  ? new Date(row.payout.updated_at).toLocaleDateString("pl-PL")
+                                  : null,
+                              ],
+                            ]}
+                          />
+                        </div>
+                      </td>
+                    </tr>
+                  )}
+                  </Fragment>
                 ))}
+
               </tbody>
             </table>
           </div>
@@ -822,6 +902,28 @@ function TaxRevenuePanel() {
           {stats.yearRevenuePln.toFixed(2)} zł
         </p>
       </div>
+    </div>
+  );
+}
+
+function DetailBlock({
+  title,
+  items,
+}: {
+  title: string;
+  items: [string, string | null | undefined][];
+}) {
+  return (
+    <div className="rounded-xl border border-border/40 bg-background/60 p-3">
+      <p className="font-semibold mb-2">{title}</p>
+      <dl className="space-y-1">
+        {items.map(([label, value]) => (
+          <div key={label} className="flex justify-between gap-3">
+            <dt className="text-muted-foreground">{label}</dt>
+            <dd className="text-right break-all">{value ? String(value) : "—"}</dd>
+          </div>
+        ))}
+      </dl>
     </div>
   );
 }
