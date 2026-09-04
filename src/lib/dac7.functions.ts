@@ -249,15 +249,37 @@ export const getDac7Participants = createServerFn({ method: "GET" })
 
     const userIds = Array.from(participants.keys());
     if (userIds.length === 0) return { year, participants: [] };
-    const [{ data: profiles }, { data: taxProfiles }] = await Promise.all([
-      supabaseAdmin.from("profiles").select("id, username, display_name").in("id", userIds),
+    const [{ data: profiles }, { data: taxProfiles }, { data: payouts }] = await Promise.all([
+      supabaseAdmin
+        .from("profiles")
+        .select("id, username, display_name, created_at, is_verified_seller, is_banned")
+        .in("id", userIds),
       supabaseAdmin
         .from("seller_tax_profiles")
-        .select("user_id, full_name, tin, verified")
+        .select(
+          "user_id, seller_kind, full_name, address_line, city, postal_code, country, tin, date_of_birth, birth_place, vat_id, business_reg_no, verified, updated_at",
+        )
+        .in("user_id", userIds),
+      supabaseAdmin
+        .from("seller_payouts")
+        .select("user_id, payout_account, payout_holder, updated_at")
         .in("user_id", userIds),
     ]);
+    const emailById = new Map<string, string | null>();
+    await Promise.all(
+      userIds.map(async (userId) => {
+        try {
+          const { data } = await supabaseAdmin.auth.admin.getUserById(userId);
+          emailById.set(userId, data?.user?.email ?? null);
+        } catch {
+          emailById.set(userId, null);
+        }
+      }),
+    );
     const profileById = new Map((profiles ?? []).map((profile: any) => [profile.id, profile]));
     const taxById = new Map((taxProfiles ?? []).map((profile: any) => [profile.user_id, profile]));
+    const payoutById = new Map((payouts ?? []).map((row: any) => [row.user_id, row]));
+
 
     return {
       year,
