@@ -310,6 +310,9 @@ export const getDac7Participants = createServerFn({ method: "GET" })
             affiliateDac7,
             dac7,
             taxProfile: taxProfile ?? null,
+            email: emailById.get(userId) ?? null,
+            payout: payoutById.get(userId) ?? null,
+
           };
         })
         .sort((a, b) => b.totalAmount - a.totalAmount),
