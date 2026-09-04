@@ -661,6 +661,8 @@ function TaxRevenuePanel() {
     queryKey: ["admin-dac7-participants"],
     queryFn: () => fetchParticipants({ data: undefined as any }),
   });
+  const [expandedUser, setExpandedUser] = useState<string | null>(null);
+
 
   if (isLoading || !stats) {
     return <div className="mt-6 text-muted-foreground">Ładowanie...</div>;
