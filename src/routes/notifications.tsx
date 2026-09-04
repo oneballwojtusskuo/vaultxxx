@@ -114,9 +114,19 @@ function Notifications() {
             const actorId: string | null = meta.actor_id ?? null;
             const Wrapper = ({ children }: { children: React.ReactNode }) =>
               n.link ? (
-                <a href={n.link} className="flex-1 min-w-0">
+                <a
+                  href={n.link}
+                  className="flex-1 min-w-0"
+                  onClick={(e) => {
+                    if (e.metaKey || e.ctrlKey || e.shiftKey || e.button !== 0) return;
+                    if (!n.link || !n.link.startsWith("/")) return;
+                    e.preventDefault();
+                    navigate({ to: n.link });
+                  }}
+                >
                   {children}
                 </a>
+
               ) : (
                 <div className="flex-1 min-w-0">{children}</div>
               );
