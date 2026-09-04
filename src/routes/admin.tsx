@@ -809,9 +809,85 @@ function TaxRevenuePanel() {
                           ? "Zbliża się do progu"
                           : "Poniżej progu"}
                     </td>
-                    <td className="py-3">{row.taxProfile?.tin ? "uzupełnione" : "brak danych"}</td>
+                    <td className="py-3">
+                      <button
+                        type="button"
+                        className="text-xs underline underline-offset-4"
+                        onClick={() =>
+                          setExpandedUser(expandedUser === row.userId ? null : row.userId)
+                        }
+                      >
+                        {row.taxProfile?.tin ? "uzupełnione" : "brak danych"} —{" "}
+                        {expandedUser === row.userId ? "ukryj" : "pokaż"}
+                      </button>
+                    </td>
                   </tr>
+                  {expandedUser === row.userId && (
+                    <tr className="border-b border-border/20 bg-muted/30">
+                      <td colSpan={6} className="p-4">
+                        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 text-xs">
+                          <DetailBlock
+                            title="Konto"
+                            items={[
+                              ["ID użytkownika", row.userId],
+                              ["E-mail", row.email],
+                              ["Nazwa użytkownika", row.profile?.username],
+                              ["Nazwa wyświetlana", row.profile?.display_name],
+                              [
+                                "Zweryfikowany sprzedawca",
+                                row.profile?.is_verified_seller ? "tak" : "nie",
+                              ],
+                              ["Zablokowany", row.profile?.is_banned ? "tak" : "nie"],
+                            ]}
+                          />
+                          <DetailBlock
+                            title="Dane podatkowe (DAC7)"
+                            items={[
+                              [
+                                "Typ sprzedawcy",
+                                row.taxProfile?.seller_kind === "business"
+                                  ? "firma"
+                                  : row.taxProfile?.seller_kind === "individual"
+                                    ? "osoba prywatna"
+                                    : row.taxProfile?.seller_kind,
+                              ],
+                              ["Imię i nazwisko / nazwa", row.taxProfile?.full_name],
+                              ["Adres", row.taxProfile?.address_line],
+                              [
+                                "Miasto",
+                                [row.taxProfile?.postal_code, row.taxProfile?.city]
+                                  .filter(Boolean)
+                                  .join(" "),
+                              ],
+                              ["Kraj", row.taxProfile?.country],
+                              ["NIP / TIN", row.taxProfile?.tin],
+                              ["Data urodzenia", row.taxProfile?.date_of_birth],
+                              ["Miejsce urodzenia", row.taxProfile?.birth_place],
+                              ["VAT ID", row.taxProfile?.vat_id],
+                              ["Nr rejestrowy", row.taxProfile?.business_reg_no],
+                              ["Zweryfikowane", row.taxProfile?.verified ? "tak" : "nie"],
+                            ]}
+                          />
+                          <DetailBlock
+                            title="Dane do wypłat"
+                            items={[
+                              ["Numer konta", row.payout?.payout_account],
+                              ["Właściciel konta", row.payout?.payout_holder],
+                              [
+                                "Aktualizacja",
+                                row.payout?.updated_at
+                                  ? new Date(row.payout.updated_at).toLocaleDateString("pl-PL")
+                                  : null,
+                              ],
+                            ]}
+                          />
+                        </div>
+                      </td>
+                    </tr>
+                  )}
+                  </React.Fragment>
                 ))}
+
               </tbody>
             </table>
           </div>
