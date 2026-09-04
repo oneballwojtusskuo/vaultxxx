@@ -766,7 +766,9 @@ function TaxRevenuePanel() {
               </thead>
               <tbody>
                 {participants.participants.map((row: any) => (
-                  <tr key={row.userId} className="border-b border-border/20 last:border-0">
+                  <React.Fragment key={row.userId}>
+                  <tr className="border-b border-border/20">
+
                     <td className="py-3 pr-3">
                       <div className="font-medium">
                         {row.profile?.display_name ?? row.profile?.username ?? "Użytkownik"}
