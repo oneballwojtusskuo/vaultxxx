@@ -1,5 +1,5 @@
 import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
+import { Fragment, useEffect, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { SiteHeader } from "@/components/site-header";
@@ -766,7 +766,7 @@ function TaxRevenuePanel() {
               </thead>
               <tbody>
                 {participants.participants.map((row: any) => (
-                  <React.Fragment key={row.userId}>
+                  <Fragment key={row.userId}>
                   <tr className="border-b border-border/20">
 
                     <td className="py-3 pr-3">
@@ -885,7 +885,7 @@ function TaxRevenuePanel() {
                       </td>
                     </tr>
                   )}
-                  </React.Fragment>
+                  </Fragment>
                 ))}
 
               </tbody>
@@ -902,6 +902,28 @@ function TaxRevenuePanel() {
           {stats.yearRevenuePln.toFixed(2)} zł
         </p>
       </div>
+    </div>
+  );
+}
+
+function DetailBlock({
+  title,
+  items,
+}: {
+  title: string;
+  items: [string, string | null | undefined][];
+}) {
+  return (
+    <div className="rounded-xl border border-border/40 bg-background/60 p-3">
+      <p className="font-semibold mb-2">{title}</p>
+      <dl className="space-y-1">
+        {items.map(([label, value]) => (
+          <div key={label} className="flex justify-between gap-3">
+            <dt className="text-muted-foreground">{label}</dt>
+            <dd className="text-right break-all">{value ? String(value) : "—"}</dd>
+          </div>
+        ))}
+      </dl>
     </div>
   );
 }
