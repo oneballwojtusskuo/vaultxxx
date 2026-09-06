@@ -165,29 +165,41 @@ export const reviewListing = createServerFn({ method: "POST" })
       }
     }
 
-    const autoApproved = doubts.length === 0;
+    const scanStatus = scan.verdict === "clean" ? "clean" : "suspicious";
     const now = new Date().toISOString();
+
     await supabaseAdmin
       .from("products")
       .update({
-        status: autoApproved ? "published" : "pending_review",
-        ai_review_status: autoApproved ? "auto_approved" : "needs_human",
-        ai_review_notes: autoApproved ? "Zatwierdzone automatycznie." : doubts.join(" "),
-        review_notes: autoApproved
-          ? "Zatwierdzone automatycznie (weryfikacja AI)."
-          : doubts.join(" "),
-        reviewed_at: autoApproved ? now : null,
+        status: "pending_review",
+        malware_scan_status: scanStatus,
+        malware_scan_notes: scan.findings.length
+          ? scan.findings.join(" ")
+          : "Skan bezpieczeństwa nie wykrył zagrożeń.",
+        malware_scanned_at: now,
+        ai_review_status: doubts.length === 0 ? "scan_passed" : "needs_human",
+        ai_review_notes: doubts.length ? doubts.join(" ") : "Brak zastrzeżeń automatycznych.",
+        review_notes: doubts.length
+          ? doubts.join(" ")
+          : "Skan bezpieczeństwa OK — oczekuje na weryfikację administratora.",
+        reviewed_at: null,
       } as any)
       .eq("id", product.id);
 
     await supabaseAdmin.from("seller_notifications").insert({
       user_id: product.seller_id,
-      kind: autoApproved ? "product_published" : "product_review_required",
+      kind: "product_review_required",
       product_title: product.title,
-      admin_note: autoApproved
-        ? "Produkt został automatycznie zweryfikowany i opublikowany."
-        : doubts.join(" "),
+      admin_note: doubts.length
+        ? `Plik przeszedł skan bezpieczeństwa. Uwagi: ${doubts.join(" ")}`
+        : "Plik przeszedł skan bezpieczeństwa i oczekuje na weryfikację administratora.",
     } as any);
 
-    return { status: autoApproved ? "published" : "pending_review", autoApproved, notes: doubts };
+    return {
+      status: "pending_review",
+      autoApproved: false,
+      malware: scanStatus as "clean" | "suspicious",
+      notes: doubts,
+    };
   });
+
