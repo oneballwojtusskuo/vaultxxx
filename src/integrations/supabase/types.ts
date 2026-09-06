@@ -492,6 +492,8 @@ export type Database = {
       products: {
         Row: {
           affiliate_commission_pct: number
+          ai_review_notes: string | null
+          ai_review_status: string | null
           category_id: string | null
           created_at: string
           currency: string
@@ -503,6 +505,9 @@ export type Database = {
           id: string
           is_tradable: boolean
           license_terms: Json
+          malware_scan_notes: string | null
+          malware_scan_status: string
+          malware_scanned_at: string | null
           preview_url: string | null
           price: number
           review_notes: string | null
@@ -517,6 +522,8 @@ export type Database = {
         }
         Insert: {
           affiliate_commission_pct?: number
+          ai_review_notes?: string | null
+          ai_review_status?: string | null
           category_id?: string | null
           created_at?: string
           currency?: string
@@ -528,6 +535,9 @@ export type Database = {
           id?: string
           is_tradable?: boolean
           license_terms?: Json
+          malware_scan_notes?: string | null
+          malware_scan_status?: string
+          malware_scanned_at?: string | null
           preview_url?: string | null
           price?: number
           review_notes?: string | null
@@ -542,6 +552,8 @@ export type Database = {
         }
         Update: {
           affiliate_commission_pct?: number
+          ai_review_notes?: string | null
+          ai_review_status?: string | null
           category_id?: string | null
           created_at?: string
           currency?: string
@@ -553,6 +565,9 @@ export type Database = {
           id?: string
           is_tradable?: boolean
           license_terms?: Json
+          malware_scan_notes?: string | null
+          malware_scan_status?: string
+          malware_scanned_at?: string | null
           preview_url?: string | null
           price?: number
           review_notes?: string | null
