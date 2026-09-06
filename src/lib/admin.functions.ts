@@ -37,7 +37,7 @@ export const listAdminProducts = createServerFn({ method: "GET" })
     let query = supabaseAdmin
       .from("products")
       .select(
-        "id,title,description,price,currency,status,created_at,preview_url,sample_url,file_path,file_paths,seller_id,tags,review_notes",
+        "id,title,description,price,currency,status,created_at,preview_url,sample_url,file_path,file_paths,seller_id,tags,review_notes,malware_scan_status,malware_scan_notes,malware_scanned_at",
       )
       .order("created_at", { ascending: false });
 
@@ -59,9 +59,13 @@ export const listAdminProducts = createServerFn({ method: "GET" })
       seller_id: product.seller_id,
       tags: product.tags,
       review_notes: product.review_notes,
+      malware_scan_status: (product.malware_scan_status ?? "pending") as string,
+      malware_scan_notes: product.malware_scan_notes as string | null,
+      malware_scanned_at: product.malware_scanned_at as string | null,
       has_file: Boolean(product.file_path || product.file_paths?.length),
     }));
   });
+
 
 export const moderateProduct = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
