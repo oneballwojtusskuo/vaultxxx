@@ -1,0 +1,1 @@
+REVOKE ALL ON FUNCTION public.guard_product_malware_block() FROM PUBLIC, anon, authenticated;
