@@ -52,6 +52,10 @@ type ProductRow = {
   seller_id: string;
   tags: string[] | null;
   review_notes: string | null;
+  malware_scan_status?: string;
+  malware_scan_notes?: string | null;
+  malware_scanned_at?: string | null;
+
 };
 
 function AdminPage() {
