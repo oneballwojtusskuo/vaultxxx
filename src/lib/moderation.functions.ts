@@ -32,14 +32,16 @@ function overlap(a: string[], b: string[]) {
 }
 
 /**
- * Heuristic (+ optional OpenAI) listing check.
- * Auto-publishes clear, matching files. Sends the rest to admin review.
+ * Step 1: automatic malware / dangerous-content scan of the uploaded files.
+ * Step 2: heuristic (+ optional AI) listing check.
+ * Nothing is auto-published when the scan is not clean.
  */
 export const reviewListing = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((input) => InputSchema.parse(input))
   .handler(async ({ data, context }) => {
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { scanProductFiles } = await import("@/lib/malware-scan.server");
 
     const { data: product, error } = await supabaseAdmin
       .from("products")
@@ -60,28 +62,55 @@ export const reviewListing = createServerFn({ method: "POST" })
       ),
     );
 
-    const doubts: string[] = [];
-    if (paths.length === 0) doubts.push("Brak wgranego pliku produktu.");
-
-    const names: string[] = [];
-    for (const path of paths) {
-      const { data: blob, error: dErr } = await supabaseAdmin.storage
-        .from("product-files")
-        .download(path);
-      if (dErr || !blob) {
-        doubts.push(`Nie udało się odczytać pliku (${path.split("/").pop()}).`);
-        continue;
-      }
-      names.push(path.split("/").pop() ?? path);
-      const buf = new Uint8Array(await blob.slice(0, 8).arrayBuffer());
-      if (looksLikeExecutable(buf))
-        doubts.push("Wykryto plik wykonywalny — wymaga ręcznej weryfikacji.");
-      if (blob.size < 32) doubts.push("Plik wygląda na pusty lub uszkodzony.");
-    }
-
     const title = product.title ?? "";
     const desc = product.description ?? "";
     const tags = ((product.tags as string[] | null) ?? []).join(" ");
+
+    // ---- Step 1: malware scan -------------------------------------------------
+    const scan = await scanProductFiles(supabaseAdmin, {
+      paths,
+      title,
+      description: desc,
+    });
+
+    if (scan.verdict === "infected") {
+      const notes = scan.findings.join(" ");
+      await supabaseAdmin
+        .from("products")
+        .update({
+          status: "pending_review",
+          malware_scan_status: "infected",
+          malware_scan_notes: notes,
+          malware_scanned_at: new Date().toISOString(),
+          ai_review_status: "blocked_malware",
+          ai_review_notes: notes,
+          review_notes: `Skan bezpieczeństwa zablokował publikację: ${notes}`,
+          reviewed_at: null,
+        } as any)
+        .eq("id", product.id);
+
+      await supabaseAdmin.from("seller_notifications").insert({
+        user_id: product.seller_id,
+        kind: "product_review_required",
+        product_title: product.title,
+        admin_note: `Plik został zablokowany przez automatyczny skan bezpieczeństwa. ${notes}`,
+      } as any);
+
+      return {
+        status: "pending_review",
+        autoApproved: false,
+        malware: "infected" as const,
+        notes: scan.findings,
+      };
+    }
+
+    const doubts: string[] = [...scan.findings];
+
+    const names: string[] = scan.files.map((f) => f.name);
+    for (const f of scan.files) {
+      if (f.size > 0 && f.size < 32) doubts.push(`${f.name}: plik wygląda na pusty lub uszkodzony.`);
+    }
+
     if (title.trim().length < 4) doubts.push("Tytuł jest zbyt krótki.");
     if (desc.trim().length < 12)
       doubts.push("Opis jest zbyt krótki, żeby potwierdzić zgodność z plikiem.");
@@ -97,6 +126,7 @@ export const reviewListing = createServerFn({ method: "POST" })
 
     const apiKey = process.env.OPENAI_API_KEY;
     if (apiKey && doubts.length === 0) {
+
       try {
         const res = await fetch("https://api.openai.com/v1/chat/completions", {
           method: "POST",
