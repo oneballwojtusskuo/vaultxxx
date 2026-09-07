@@ -14,6 +14,9 @@ export const getSecureStreamUrl = createServerFn({ method: "POST" })
   .handler(async ({ data, context }) => {
     const { userId } = context;
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { getRequestMeta, writeAuditLog } = await import("@/lib/audit.server");
+    const requestMeta = getRequestMeta();
+    let buyerTransactionId: string | null = null;
 
     const { data: product, error: pErr } = await supabaseAdmin
       .from("products")
@@ -62,6 +65,7 @@ export const getSecureStreamUrl = createServerFn({ method: "POST" })
       if (txErr || !tx) {
         throw new Response("Forbidden — purchase required", { status: 403 });
       }
+      buyerTransactionId = tx.id;
     }
 
     // Derive a friendly filename with the correct extension
@@ -93,6 +97,15 @@ export const getSecureStreamUrl = createServerFn({ method: "POST" })
     if (sErr || !streamSigned || dErr || !dlSigned) {
       throw new Response("Could not sign URL", { status: 500 });
     }
+
+    await writeAuditLog(supabaseAdmin, {
+      transactionId: buyerTransactionId,
+      userId,
+      listingId: product.id,
+      eventType: "download",
+      meta: requestMeta,
+      downloadedAt: new Date().toISOString(),
+    });
 
     return {
       url: streamSigned.signedUrl,
