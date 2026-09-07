@@ -411,3 +411,30 @@ export function generateLicenseText(params: {
 
   return lines.join("\n");
 }
+
+/**
+ * Deterministic SHA-256 fingerprint of a licence agreement.
+ * Identical inputs always produce the same hash, so the value stored in the
+ * audit trail matches the hash printed on the generated PDF.
+ */
+export async function computeLicenseHash(params: {
+  transactionId: string;
+  productId: string;
+  buyerId: string;
+  sellerId: string;
+  amount: number | string;
+  currency: string;
+}): Promise<string> {
+  const canonical = [
+    params.transactionId,
+    params.productId,
+    params.buyerId,
+    params.sellerId,
+    String(params.amount),
+    params.currency,
+  ].join("|");
+  const digest = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(canonical));
+  return Array.from(new Uint8Array(digest))
+    .map((b) => b.toString(16).padStart(2, "0"))
+    .join("");
+}
