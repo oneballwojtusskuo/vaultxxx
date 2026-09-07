@@ -28,6 +28,16 @@ export const purchaseProduct = createServerFn({ method: "POST" })
   .handler(async ({ data, context }) => {
     const { userId } = context;
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { getRequestMeta, writeAuditLog } = await import("@/lib/audit.server");
+    const { computeLicenseHash } = await import("@/lib/license");
+    const requestMeta = getRequestMeta();
+
+    if (data.withdrawalWaiverAccepted !== true) {
+      throw new Response(
+        "Wymagana jest zgoda na dostarczenie treści cyfrowych przed upływem terminu do odstąpienia od umowy.",
+        { status: 400 },
+      );
+    }
 
     let { data: product, error: pErr } = await supabaseAdmin
       .from("products")
@@ -139,6 +149,26 @@ export const purchaseProduct = createServerFn({ method: "POST" })
     if (tErr || !tx)
       throw new Response(tErr?.message ?? "Could not create transaction", { status: 500 });
 
+    const licenseHash = await computeLicenseHash({
+      transactionId: tx.id,
+      productId: product.id,
+      buyerId: userId,
+      sellerId: product.seller_id,
+      amount: buyerPrice,
+      currency: String(product.currency ?? "PLN"),
+    });
+
+    await writeAuditLog(supabaseAdmin, {
+      transactionId: tx.id,
+      userId,
+      listingId: product.id,
+      eventType: "checkout",
+      meta: requestMeta,
+      withdrawalWaiverAccepted: true,
+      licenseHash,
+      checkoutAt: new Date().toISOString(),
+    });
+
     if (isFree) {
       await supabaseAdmin
         .from("products")
@@ -171,19 +201,32 @@ export const purchaseProduct = createServerFn({ method: "POST" })
           },
         },
       ],
+      payment_method_options: {
+        // Wymuszenie silnego uwierzytelnienia (3D Secure) tam, gdzie to możliwe.
+        card: { request_three_d_secure: "any" as const },
+      },
       payment_intent_data: {
         description: product.title,
         metadata: {
           transactionId: tx.id,
           productId: product.id,
+          listing_id: product.id,
+          user_id: userId,
+          ip_address: requestMeta.ip ?? "",
           buyerId: userId,
           sellerId: product.seller_id,
+          license_hash: licenseHash,
         },
       },
       metadata: {
         transactionId: tx.id,
         productId: product.id,
+        listing_id: product.id,
+        user_id: userId,
+        ip_address: requestMeta.ip ?? "",
         buyerId: userId,
+        withdrawal_waiver_accepted: "true",
+        license_hash: licenseHash,
       },
     };
 
