@@ -842,6 +842,66 @@ export type Database = {
         }
         Relationships: []
       }
+      transaction_audit_logs: {
+        Row: {
+          created_at: string
+          event_type: string
+          id: string
+          ip_address: string | null
+          license_hash: string | null
+          listing_id: string | null
+          timestamp_checkout: string | null
+          timestamp_downloaded: string | null
+          transaction_id: string | null
+          user_agent: string | null
+          user_id: string
+          withdrawal_waiver_accepted: boolean
+        }
+        Insert: {
+          created_at?: string
+          event_type?: string
+          id?: string
+          ip_address?: string | null
+          license_hash?: string | null
+          listing_id?: string | null
+          timestamp_checkout?: string | null
+          timestamp_downloaded?: string | null
+          transaction_id?: string | null
+          user_agent?: string | null
+          user_id: string
+          withdrawal_waiver_accepted?: boolean
+        }
+        Update: {
+          created_at?: string
+          event_type?: string
+          id?: string
+          ip_address?: string | null
+          license_hash?: string | null
+          listing_id?: string | null
+          timestamp_checkout?: string | null
+          timestamp_downloaded?: string | null
+          transaction_id?: string | null
+          user_agent?: string | null
+          user_id?: string
+          withdrawal_waiver_accepted?: boolean
+        }
+        Relationships: [
+          {
+            foreignKeyName: "transaction_audit_logs_listing_id_fkey"
+            columns: ["listing_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "transaction_audit_logs_transaction_id_fkey"
+            columns: ["transaction_id"]
+            isOneToOne: false
+            referencedRelation: "transactions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       transactions: {
         Row: {
           affiliate_amount: number
