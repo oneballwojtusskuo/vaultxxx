@@ -7,6 +7,8 @@ const InputSchema = z.object({
   referralUserId: z.string().uuid().nullable().optional(),
   returnUrl: z.string().url().optional(),
   environment: z.enum(["sandbox", "live"]).optional(),
+  /** Art. 38 pkt 13 — zgoda na dostarczenie treści cyfrowych przed terminem odstąpienia. */
+  withdrawalWaiverAccepted: z.boolean().optional(),
 });
 
 const PLATFORM_MARKUP_PCT = 10; // added on top of seller price -> buyer pays price * 1.10
