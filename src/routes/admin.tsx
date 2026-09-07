@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+import { ChargebackPanel } from "@/components/chargeback-panel";
 import { useAuth } from "@/hooks/use-auth";
 import { toast } from "sonner";
 import {
@@ -140,6 +141,9 @@ function AdminPage() {
               <TabsTrigger value="disputes">
                 <MessageSquare className="h-4 w-4 mr-1.5" /> Spory
               </TabsTrigger>
+              <TabsTrigger value="chargeback">
+                <FileText className="h-4 w-4 mr-1.5" /> Chargeback
+              </TabsTrigger>
               <TabsTrigger value="tax">
                 <Wallet className="h-4 w-4 mr-1.5" /> Przychody i progi podatkowe
               </TabsTrigger>
@@ -206,17 +210,36 @@ function AdminPage() {
                                 {new Date(p.created_at).toLocaleString("pl-PL")}
                               </p>
                             </div>
-                            <Badge
-                              variant={
-                                p.status === "published"
-                                  ? "default"
-                                  : p.status === "rejected"
+                            <div className="flex flex-col items-end gap-1.5">
+                              <Badge
+                                variant={
+                                  p.status === "published"
+                                    ? "default"
+                                    : p.status === "rejected"
+                                      ? "destructive"
+                                      : "secondary"
+                                }
+                              >
+                                {p.status}
+                              </Badge>
+                              <Badge
+                                variant={
+                                  p.malware_scan_status === "infected"
                                     ? "destructive"
-                                    : "secondary"
-                              }
-                            >
-                              {p.status}
-                            </Badge>
+                                    : p.malware_scan_status === "clean"
+                                      ? "default"
+                                      : "secondary"
+                                }
+                              >
+                                {p.malware_scan_status === "infected"
+                                  ? "Skan: zagrożenie"
+                                  : p.malware_scan_status === "clean"
+                                    ? "Skan: czysty"
+                                    : p.malware_scan_status === "suspicious"
+                                      ? "Skan: podejrzany"
+                                      : "Skan: oczekuje"}
+                              </Badge>
+                            </div>
                           </div>
                           {p.description && (
                             <p className="text-sm text-muted-foreground mt-2 line-clamp-3">
@@ -241,7 +264,7 @@ function AdminPage() {
                                 <FileText className="h-3 w-3" /> Próbka
                               </a>
                             )}
-                            {p.has_file && (
+                            {p.has_file && p.malware_scan_status !== "infected" && (
                               <button
                                 onClick={() => signFile(p.id)}
                                 className="inline-flex items-center gap-1 px-2 py-1 rounded border border-border hover:border-primary/50"
@@ -250,6 +273,20 @@ function AdminPage() {
                               </button>
                             )}
                           </div>
+                          {p.malware_scan_status === "infected" && (
+                            <p className="text-xs mt-3 rounded-md border border-destructive/40 bg-destructive/10 text-destructive p-2">
+                              <span className="font-semibold">
+                                Plik zablokowany przez skan bezpieczeństwa — pobieranie wyłączone.
+                              </span>{" "}
+                              {p.malware_scan_notes}
+                            </p>
+                          )}
+                          {p.malware_scan_status === "suspicious" && p.malware_scan_notes && (
+                            <p className="text-xs mt-3 rounded-md border border-border bg-muted/40 p-2">
+                              <span className="font-semibold">Ostrzeżenia skanu:</span>{" "}
+                              {p.malware_scan_notes}
+                            </p>
+                          )}
                           {p.review_notes && (
                             <p className="text-xs mt-2 text-muted-foreground">
                               <span className="font-semibold">Notatka:</span> {p.review_notes}
@@ -306,6 +343,10 @@ function AdminPage() {
 
             <TabsContent value="disputes">
               <DisputesPanel />
+            </TabsContent>
+
+            <TabsContent value="chargeback">
+              <ChargebackPanel />
             </TabsContent>
 
             <TabsContent value="tax">
