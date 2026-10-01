@@ -652,8 +652,19 @@ function Sell() {
                 </Label>
                 <Input
                   type="file"
-                  accept="image/*"
-                  onChange={(e) => setPreviewFile(e.target.files?.[0] ?? null)}
+                  accept="image/jpeg,image/png,image/webp"
+                  onChange={(e) => {
+                    const f = e.target.files?.[0] ?? null;
+                    if (f && !["image/jpeg", "image/png", "image/webp"].includes(f.type)) {
+                      toast.error(
+                        "Okładka produktu musi być plikiem graficznym (JPG, PNG, WEBP). Wideo możesz dodać w sekcji próbki.",
+                      );
+                      e.target.value = "";
+                      setPreviewFile(null);
+                      return;
+                    }
+                    setPreviewFile(f);
+                  }}
                 />
                 {previewFile && (
                   <p className="text-xs text-muted-foreground truncate">✓ {previewFile.name}</p>
