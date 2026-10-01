@@ -627,11 +627,14 @@ function Sell() {
                       <span className="font-medium">{buyerPrice.toFixed(2)} PLN</span> · Prowizja
                       partnera: <span className="font-medium">{commission.toFixed(2)} PLN</span> ·
                       Otrzymasz: <span className="font-medium">{net.toFixed(2)} PLN</span>
+                      {pct > 0 && (
+                        <> (przy sprzedaży z polecenia: <span className="font-medium">{sellerGets.toFixed(2)} PLN</span>)</>
+                      )}
                     </p>
                     <p className="text-muted-foreground mt-1">
-                      Doliczana przez platformę marża 10% jest dodawana do Twojej ceny netto (płaci
-                      ją kupujący) — prowizja partnerska jest natomiast finansowana z marży
-                      platformy, więc nie pomniejsza Twojej ceny netto.
+                      Platforma dolicza 10% marży do Twojej ceny (płaci ją kupujący). Prowizja
+                      partnera jest potrącana z Twojej kwoty tylko wtedy, gdy zakup nastąpi z linku
+                      partnera.
                     </p>
                   </div>
                 );
