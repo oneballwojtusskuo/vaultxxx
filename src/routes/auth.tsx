@@ -64,6 +64,7 @@ function AuthPage() {
   const [birthMonth, setBirthMonth] = useState("");
   const [birthYear, setBirthYear] = useState("");
   const [acceptDocs, setAcceptDocs] = useState(false);
+  const [ageConsent, setAgeConsent] = useState(false);
   const [emailTaken, setEmailTaken] = useState(false);
 
   const [showSpamNotice, setShowSpamNotice] = useState(false);
@@ -134,8 +135,9 @@ function AuthPage() {
     const dob = new Date(`${birthDate}T00:00:00`);
     if (Number.isNaN(dob.getTime())) return toast.error("Nieprawidłowa data urodzenia.");
     const age = (Date.now() - dob.getTime()) / (365.2425 * 24 * 3600 * 1000);
-    if (age < 16)
-      return toast.error("Z vlnd mogą korzystać wyłącznie osoby, które ukończyły 16 lat.");
+    if (age < 13)
+      return toast.error("Z vlnd mogą korzystać wyłącznie osoby, które ukończyły 13 lat.");
+    if (!ageConsent) return toast.error("Potwierdź oświadczenie o wieku / zgodzie opiekuna.");
     if (password !== password2) return toast.error("Hasła nie są takie same — wpisz je ponownie.");
     if (!acceptDocs) return toast.error("Zaakceptuj regulamin i politykę prywatności.");
     setLoading(true);
@@ -158,7 +160,7 @@ function AuthPage() {
       password,
       options: {
         emailRedirectTo: redirectTo,
-        data: { date_of_birth: birthDate, age_confirmed_16: true },
+        data: { date_of_birth: birthDate, age_consent_accepted: true },
       },
     });
     setLoading(false);
@@ -354,7 +356,21 @@ function AuthPage() {
                     <Link to="/polityka-prywatnosci" className="text-accent hover:underline">
                       Polityką prywatności
                     </Link>
-                    . Oświadczam, że mam ukończone 16 lat.
+                    .
+                  </span>
+                </label>
+                <label className="flex items-start gap-2 text-xs text-muted-foreground">
+                  <input
+                    type="checkbox"
+                    className="mt-0.5"
+                    required
+                    checked={ageConsent}
+                    onChange={(e) => setAgeConsent(e.target.checked)}
+                  />
+                  <span>
+                    Oświadczam, że mam ukończone 18 lat LUB mam ukończone min. 13 lat i posiadam
+                    zgodę rodzica/opiekuna prawnego na korzystanie z serwisu oraz udział w programie
+                    afiliacyjnym. <span className="text-destructive">*</span>
                   </span>
                 </label>
                 <div className="rounded-lg border border-primary/20 bg-primary/5 p-3 text-xs text-muted-foreground">
@@ -363,7 +379,7 @@ function AuthPage() {
                 </div>
 
                 <Button
-                  disabled={loading}
+                  disabled={loading || !ageConsent || !acceptDocs}
                   type="submit"
                   className="w-full bg-gradient-primary text-primary-foreground shadow-glow"
                 >
