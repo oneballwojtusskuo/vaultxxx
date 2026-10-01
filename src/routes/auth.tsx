@@ -336,7 +336,7 @@ function AuthPage() {
                     </select>
                   </div>
                   <p className="text-xs text-muted-foreground">
-                    Z vlnd mogą korzystać wyłącznie osoby, które ukończyły 16 lat.
+                    Z vlnd mogą korzystać wyłącznie osoby, które ukończyły 13 lat (13–17 lat za zgodą opiekuna).
                   </p>
                 </div>
 
