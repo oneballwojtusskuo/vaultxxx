@@ -592,6 +592,7 @@ export type Database = {
       }
       profiles: {
         Row: {
+          age_verified: boolean
           avatar_url: string | null
           bio: string | null
           created_at: string
@@ -602,11 +603,13 @@ export type Database = {
           is_banned: boolean
           is_verified_seller: boolean
           onboarding_completed: boolean
+          parental_consent_accepted: boolean
           role: string | null
           updated_at: string
           username: string | null
         }
         Insert: {
+          age_verified?: boolean
           avatar_url?: string | null
           bio?: string | null
           created_at?: string
@@ -617,11 +620,13 @@ export type Database = {
           is_banned?: boolean
           is_verified_seller?: boolean
           onboarding_completed?: boolean
+          parental_consent_accepted?: boolean
           role?: string | null
           updated_at?: string
           username?: string | null
         }
         Update: {
+          age_verified?: boolean
           avatar_url?: string | null
           bio?: string | null
           created_at?: string
@@ -632,6 +637,7 @@ export type Database = {
           is_banned?: boolean
           is_verified_seller?: boolean
           onboarding_completed?: boolean
+          parental_consent_accepted?: boolean
           role?: string | null
           updated_at?: string
           username?: string | null
@@ -1017,6 +1023,13 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      follow_counts: {
+        Args: { _user_id: string }
+        Returns: {
+          followers: number
+          following: number
+        }[]
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
