@@ -99,14 +99,11 @@ export const purchaseProduct = createServerFn({ method: "POST" })
     const isFree = sellerNet === 0;
     const buyerPrice = +(sellerNet * (1 + PLATFORM_MARKUP_PCT / 100)).toFixed(2);
 
-    // Seller always receives their full net price. Affiliate commission is
-    // paid out of the platform markup — never out of the seller's cut.
-    const sellerAmount = sellerNet;
-    // Affiliate commission is a % of the SELLER's net price (not the buyer's total).
-    // It's paid out of the platform's 10% markup — never out of the seller's cut.
+    // Platform keeps its full 10% markup. Affiliate commission (a % of the
+    // seller's net price) is deducted from the seller's cut.
     const affiliateAmount = affiliateUserId ? +(sellerNet * (affiliatePct / 100)).toFixed(2) : 0;
-    const grossMarkup = +(buyerPrice - sellerNet).toFixed(2);
-    const platformAmount = +Math.max(grossMarkup - affiliateAmount, 0).toFixed(2);
+    const sellerAmount = +Math.max(sellerNet - affiliateAmount, 0).toFixed(2);
+    const platformAmount = +(buyerPrice - sellerNet).toFixed(2);
 
     // New rows start `pending`; webhook promotes to `held` after payment.
     const status = isFree ? "released" : "pending";

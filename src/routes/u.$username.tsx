@@ -36,17 +36,9 @@ function Profile() {
     queryKey: ["profile-stats", profile?.id],
     enabled: !!profile,
     queryFn: async () => {
-      const [followers, following] = await Promise.all([
-        supabase
-          .from("follows")
-          .select("*", { count: "exact", head: true })
-          .eq("following_id", profile!.id),
-        supabase
-          .from("follows")
-          .select("*", { count: "exact", head: true })
-          .eq("follower_id", profile!.id),
-      ]);
-      return { followers: followers.count ?? 0, following: following.count ?? 0 };
+      const { data } = await supabase.rpc("follow_counts", { _user_id: profile!.id });
+      const row = Array.isArray(data) ? data[0] : data;
+      return { followers: Number(row?.followers ?? 0), following: Number(row?.following ?? 0) };
     },
   });
 

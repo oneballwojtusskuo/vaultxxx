@@ -178,15 +178,15 @@ function RegulaminPage() {
                   społecznościowych wymaga założenia Konta.
                 </li>
                 <li>
-                  Konto może założyć osoba, która ukończyła <b>16. rok życia</b> (zgodnie z art. 8
-                  RODO oraz art. 4 ust. 1 ustawy z dnia 10 maja 2018 r. o ochronie danych
-                  osobowych).
+                  Z serwisu VLND.PL oraz z programu afiliacyjnego mogą korzystać osoby, które
+                  ukończyły <b>13 rok życia</b>, za uprzednią zgodą opiekuna prawnego. Osoby
+                  pełnoletnie (18+) nie potrzebują takiej zgody.
                 </li>
                 <li>
-                  Rejestracja i korzystanie z Platformy przez osobę, która ukończyła 13. rok życia,
-                  a nie ukończyła 16. roku życia, wymaga{" "}
-                  <b>wyraźnej zgody rodzica lub opiekuna prawnego</b>. Operator zastrzega sobie
-                  prawo do żądania okazania takiej zgody i do zablokowania Konta w razie jej braku.
+                  Podczas rejestracji Użytkownik składa oświadczenie o ukończeniu 18 lat lub o
+                  ukończeniu 13 lat i posiadaniu zgody rodzica/opiekuna prawnego. Operator
+                  zastrzega sobie prawo do żądania okazania takiej zgody i do zablokowania Konta w
+                  razie jej braku.
                 </li>
                 <li>
                   Konta osób, które nie ukończyły 13. roku życia, są zabronione i będą usuwane

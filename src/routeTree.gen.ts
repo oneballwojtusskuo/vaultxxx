@@ -27,6 +27,7 @@ import { Route as ResetHaslaRouteImport } from './routes/reset-hasla'
 import { Route as SellRouteImport } from './routes/sell'
 import { Route as MessagesIndexRouteImport } from './routes/messages.index'
 import { Route as MessagesUserIdRouteImport } from './routes/messages.$userId'
+import { Route as PIdRouteImport } from './routes/p.$id'
 import { Route as ProductIdRouteImport } from './routes/product.$id'
 import { Route as SporyTransactionIdRouteImport } from './routes/spory.$transactionId'
 import { Route as UUsernameRouteImport } from './routes/u.$username'
@@ -122,6 +123,11 @@ const MessagesUserIdRoute = MessagesUserIdRouteImport.update({
   path: '/messages/$userId',
   getParentRoute: () => rootRouteImport,
 } as any)
+const PIdRoute = PIdRouteImport.update({
+  id: '/p/$id',
+  path: '/p/$id',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ProductIdRoute = ProductIdRouteImport.update({
   id: '/product/$id',
   path: '/product/$id',
@@ -162,6 +168,7 @@ export interface FileRoutesByFullPath {
   '/reset-hasla': typeof ResetHaslaRoute
   '/sell': typeof SellRoute
   '/messages/$userId': typeof MessagesUserIdRoute
+  '/p/$id': typeof PIdRoute
   '/product/$id': typeof ProductIdRoute
   '/spory/$transactionId': typeof SporyTransactionIdRoute
   '/u/$username': typeof UUsernameRoute
@@ -186,6 +193,7 @@ export interface FileRoutesByTo {
   '/reset-hasla': typeof ResetHaslaRoute
   '/sell': typeof SellRoute
   '/messages/$userId': typeof MessagesUserIdRoute
+  '/p/$id': typeof PIdRoute
   '/product/$id': typeof ProductIdRoute
   '/spory/$transactionId': typeof SporyTransactionIdRoute
   '/u/$username': typeof UUsernameRoute
@@ -211,6 +219,7 @@ export interface FileRoutesById {
   '/reset-hasla': typeof ResetHaslaRoute
   '/sell': typeof SellRoute
   '/messages/$userId': typeof MessagesUserIdRoute
+  '/p/$id': typeof PIdRoute
   '/product/$id': typeof ProductIdRoute
   '/spory/$transactionId': typeof SporyTransactionIdRoute
   '/u/$username': typeof UUsernameRoute
@@ -237,6 +246,7 @@ export interface FileRouteTypes {
     | '/reset-hasla'
     | '/sell'
     | '/messages/$userId'
+    | '/p/$id'
     | '/product/$id'
     | '/spory/$transactionId'
     | '/u/$username'
@@ -261,6 +271,7 @@ export interface FileRouteTypes {
     | '/reset-hasla'
     | '/sell'
     | '/messages/$userId'
+    | '/p/$id'
     | '/product/$id'
     | '/spory/$transactionId'
     | '/u/$username'
@@ -285,6 +296,7 @@ export interface FileRouteTypes {
     | '/reset-hasla'
     | '/sell'
     | '/messages/$userId'
+    | '/p/$id'
     | '/product/$id'
     | '/spory/$transactionId'
     | '/u/$username'
@@ -310,6 +322,7 @@ export interface RootRouteChildren {
   ResetHaslaRoute: typeof ResetHaslaRoute
   SellRoute: typeof SellRoute
   MessagesUserIdRoute: typeof MessagesUserIdRoute
+  PIdRoute: typeof PIdRoute
   ProductIdRoute: typeof ProductIdRoute
   SporyTransactionIdRoute: typeof SporyTransactionIdRoute
   UUsernameRoute: typeof UUsernameRoute
@@ -445,6 +458,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof MessagesUserIdRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/p/$id': {
+      id: '/p/$id'
+      path: '/p/$id'
+      fullPath: '/p/$id'
+      preLoaderRoute: typeof PIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/product/$id': {
       id: '/product/$id'
       path: '/product/$id'
@@ -494,6 +514,7 @@ const rootRouteChildren: RootRouteChildren = {
   ResetHaslaRoute: ResetHaslaRoute,
   SellRoute: SellRoute,
   MessagesUserIdRoute: MessagesUserIdRoute,
+  PIdRoute: PIdRoute,
   ProductIdRoute: ProductIdRoute,
   SporyTransactionIdRoute: SporyTransactionIdRoute,
   UUsernameRoute: UUsernameRoute,
