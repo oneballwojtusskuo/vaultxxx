@@ -268,7 +268,7 @@ function ProductPage() {
         setCheckoutSecret(res.clientSecret);
         setCheckoutOpen(true);
       } else if ("url" in res && res.url) {
-        window.location.href = res.url;
+        window.location.href = String(res.url);
       } else {
         toast.error("Nie udało się otworzyć okna płatności. Spróbuj ponownie.");
       }
