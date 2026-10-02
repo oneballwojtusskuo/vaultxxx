@@ -55,7 +55,12 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { ReportDialog } from "@/components/report-dialog";
 import { VerifiedBadge } from "@/components/verified-badge";
 import { getSecureStreamUrl } from "@/lib/secure-stream.functions";
-import { purchaseProduct } from "@/lib/purchase.functions";
+import {
+  purchaseProduct,
+  purchaseProductGuest,
+  finalizeGuestCheckout,
+} from "@/lib/purchase.functions";
+import { Input } from "@/components/ui/input";
 import { getProductDetails } from "@/lib/product.functions";
 import { generateLicensePdf } from "@/lib/license-pdf";
 import { generateLicenseText, LICENSE_TYPE_LABELS } from "@/lib/license";
@@ -78,6 +83,10 @@ function ProductPage() {
   const navigate = useNavigate();
   const fetchProduct = useServerFn(getProductDetails);
   const purchaseFn = useServerFn(purchaseProduct);
+  const guestPurchaseFn = useServerFn(purchaseProductGuest);
+  const finalizeGuestFn = useServerFn(finalizeGuestCheckout);
+  const [guestEmail, setGuestEmail] = useState("");
+  const [guestAge, setGuestAge] = useState(false);
 
   // Capture ?ref=<userId> into a per-product cookie (30 days), then clean URL.
   useEffect(() => {
@@ -160,6 +169,9 @@ function ProductPage() {
     const params = new URLSearchParams(window.location.search);
     if (params.get("checkout") === "success") {
       toast.success("Płatność zaksięgowana! Odblokowuję dostęp…");
+      const guestSession = params.get("guest") === "1" ? params.get("session_id") : null;
+      params.delete("guest");
+      if (guestSession) void completeGuestLogin(guestSession);
       params.delete("checkout");
       params.delete("session_id");
       const clean = window.location.pathname + (params.toString() ? `?${params.toString()}` : "");
@@ -175,6 +187,32 @@ function ProductPage() {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  async function completeGuestLogin(sessionId: string) {
+    try {
+      let environment: "sandbox" | "live" = "sandbox";
+      try {
+        environment = getStripeEnvironment();
+      } catch {}
+      const r = await finalizeGuestFn({ data: { sessionId, environment } });
+      if (r.mode === "login" && "tokenHash" in r && r.tokenHash) {
+        const { error } = await supabase.auth.verifyOtp({ token_hash: r.tokenHash, type: "magiclink" });
+        if (error) throw error;
+        toast.success("Założyliśmy Ci konto i zalogowaliśmy Cię. Plik jest gotowy do pobrania.");
+        setTimeout(() => window.location.reload(), 800);
+      } else if (r.mode === "email" && "email" in r && r.email) {
+        await supabase.auth.signInWithOtp({
+          email: r.email,
+          options: { emailRedirectTo: window.location.href, shouldCreateUser: false },
+        });
+        toast.success(`Wysłaliśmy link logowania na ${r.email}. Kliknij go, aby pobrać plik.`, {
+          duration: 12000,
+        });
+      }
+    } catch (e: any) {
+      toast.error(e?.message ?? "Nie udało się zalogować po zakupie. Użyj opcji logowania e-mailem.");
+    }
+  }
 
   // Visitor came from an affiliate link, clicked "Kup teraz", signed in and came back:
   // land them straight on the purchase panel instead of losing the referral.
@@ -224,15 +262,64 @@ function ProductPage() {
   const isOwner = user?.id === p.seller_id;
   const isPublished = p.status === "published";
 
-  const buy = async () => {
-    if (!user) {
-      navigate({ to: "/auth", search: { next: `${window.location.pathname}?buy=1` } });
-      return;
+  const buyAsGuest = async () => {
+    const email = guestEmail.trim();
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return toast.error("Podaj poprawny adres e-mail.");
+    if (!guestAge) return toast.error("Potwierdź oświadczenie o wieku.");
+    try {
+      let environment: "sandbox" | "live" = "sandbox";
+      try {
+        environment = getStripeEnvironment();
+      } catch {}
+      const res: any = await guestPurchaseFn({
+        data: {
+          email,
+          ageConsentAccepted: true,
+          productId: p.id,
+          referralUserId: getReferralCookie(p.id),
+          withdrawalWaiverAccepted: true,
+          returnUrl: window.location.origin + window.location.pathname,
+          environment,
+        },
+      });
+      if (res.error) return toast.error(res.error);
+      if (res.alreadyOwned) {
+        await supabase.auth.signInWithOtp({
+          email,
+          options: { emailRedirectTo: window.location.href, shouldCreateUser: false },
+        });
+        return toast.info(`Ten e-mail ma już ten produkt. Wysłaliśmy link logowania na ${email}.`);
+      }
+      if (res.status === "released") {
+        clearReferralCookie(p.id);
+        if (res.tokenHash) {
+          await supabase.auth.verifyOtp({ token_hash: res.tokenHash, type: "magiclink" });
+          toast.success("Gotowe! Założyliśmy Ci konto — możesz pobrać plik.");
+          setTimeout(() => window.location.reload(), 800);
+        } else {
+          await supabase.auth.signInWithOtp({
+            email,
+            options: { emailRedirectTo: window.location.href, shouldCreateUser: false },
+          });
+          toast.success(`Dodano do Twojego konta. Link logowania wysłaliśmy na ${email}.`);
+        }
+        return;
+      }
+      if (res.clientSecret) {
+        setCheckoutSecret(res.clientSecret);
+        setCheckoutOpen(true);
+      } else toast.error("Nie udało się otworzyć okna płatności. Spróbuj ponownie.");
+    } catch (e: any) {
+      toast.error(e?.message ?? "Nie udało się rozpocząć zakupu");
     }
-    if (isOwner) return toast.error("To Twój produkt");
+  };
+
+  const buy = async () => {
     if (!acceptTerms || !acceptWithdrawal) {
       return toast.error("Zaznacz oba wymagane zgody przed dokonaniem zakupu.");
     }
+    if (!user) return buyAsGuest();
+    if (isOwner) return toast.error("To Twój produkt");
 
     try {
       const referralUserId = getReferralCookie(p.id);
@@ -483,6 +570,37 @@ function ProductPage() {
                     acceptWithdrawal={acceptWithdrawal}
                     setAcceptWithdrawal={setAcceptWithdrawal}
                   />
+                  {!user && (
+                    <div className="mt-4 space-y-3 rounded-md border border-border p-4">
+                      <p className="text-sm font-medium">Kup bez zakładania konta</p>
+                      <Input
+                        type="email"
+                        placeholder="Twój e-mail (tu dostaniesz dostęp do pliku)"
+                        value={guestEmail}
+                        onChange={(e) => setGuestEmail(e.target.value)}
+                        maxLength={255}
+                        autoComplete="email"
+                      />
+                      <label className="flex items-start gap-2 text-sm text-muted-foreground">
+                        <Checkbox
+                          checked={guestAge}
+                          onCheckedChange={(v) => setGuestAge(v === true)}
+                          className="mt-0.5"
+                        />
+                        Mam ukończone 18 lat lub 13 lat i zgodę opiekuna.
+                      </label>
+                      <p className="text-xs text-muted-foreground">
+                        Po płatności automatycznie założymy Ci konto na ten e-mail.{" "}
+                        <Link
+                          to="/auth"
+                          search={{ next: `/product/${p.id}?buy=1` } as any}
+                          className="underline"
+                        >
+                          Masz już konto? Zaloguj się
+                        </Link>
+                      </p>
+                    </div>
+                  )}
                 </div>
               )}
 
@@ -500,7 +618,7 @@ function ProductPage() {
                   <Button
                     onClick={buy}
                     size="lg"
-                    disabled={!acceptTerms || !acceptWithdrawal}
+                    disabled={!acceptTerms || !acceptWithdrawal || (!user && (!guestEmail || !guestAge))}
                     className="bg-gradient-primary text-primary-foreground shadow-glow h-12 disabled:opacity-50"
                   >
                     <ShoppingCart className="h-4 w-4 mr-2" /> Kupuję i płacę
