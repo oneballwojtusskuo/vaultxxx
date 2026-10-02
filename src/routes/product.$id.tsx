@@ -240,6 +240,7 @@ function ProductPage() {
         data: {
           productId: p.id,
           referralUserId: referralUserId && referralUserId !== user.id ? referralUserId : null,
+          withdrawalWaiverAccepted: acceptWithdrawal === true,
           returnUrl:
             typeof window !== "undefined"
               ? window.location.origin + window.location.pathname
