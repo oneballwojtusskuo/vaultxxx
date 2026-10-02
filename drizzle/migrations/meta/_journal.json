@@ -8,6 +8,13 @@
       "when": 1790869009353,
       "tag": "0000_age_flags_follows_privacy",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1790954076985,
+      "tag": "0001_profiles_select_policy_tighten",
+      "breakpoints": true
     }
   ]
 }
