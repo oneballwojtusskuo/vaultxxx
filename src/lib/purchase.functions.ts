@@ -186,9 +186,14 @@ async function runPurchase(
     const paymentMethodTypes =
       currency === "pln" ? (["blik", "card", "p24"] as const) : (["card"] as const);
 
+    const { guest_email: guestEmail, ...metaRest } = extraMeta;
+    extraMeta = metaRest;
     const baseParams = {
       mode: "payment" as const,
       ui_mode: "embedded_page" as const,
+      // Keep the listing currency (PLN) so BLIK stays available.
+      adaptive_pricing: { enabled: false },
+      ...(guestEmail ? { customer_email: guestEmail } : {}),
       return_url: `${data.returnUrl ?? ""}?checkout=success${extraMeta.guest ? "&guest=1" : ""}&session_id={CHECKOUT_SESSION_ID}`,
       line_items: [
         {
@@ -332,6 +337,7 @@ export const purchaseProductGuest = createServerFn({ method: "POST" })
     const res: any = await runPurchase(userId, rest, {
       guest: "true",
       guest_new: isNew ? "1" : "0",
+      guest_email: data.email,
     });
 
     // Darmowy produkt: od razu logowanie (tylko nowe konto) albo link e-mail.
