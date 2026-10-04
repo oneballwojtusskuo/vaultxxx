@@ -491,7 +491,7 @@ function ProductPage() {
                 </>
               )}
 
-              <p className="mt-6 text-foreground/80 whitespace-pre-wrap">{p.description}</p>
+              <p className="mt-6 text-base leading-relaxed text-foreground whitespace-pre-wrap">{p.description}</p>
 
               {p.tags && p.tags.length > 0 && (
                 <div className="mt-6 flex flex-wrap gap-2">
@@ -838,30 +838,40 @@ function LicenseSummary({
   sellerName?: string;
 }) {
   const t = terms ?? {};
+  const [expanded, setExpanded] = useState(false);
   const typeKey =
     (t.license_type as keyof typeof LICENSE_TYPE_LABELS) ??
     (t.exclusive ? "exclusive" : "personal");
   const typeLabel = LICENSE_TYPE_LABELS[typeKey] ?? "Personal";
   const text = generateLicenseText({ terms: t, productTitle, sellerName });
   return (
-    <div className="mt-6 rounded-xl border border-border/40 bg-gradient-surface p-4">
-      <div className="flex items-center justify-between gap-2 mb-3">
-        <div className="flex items-center gap-2">
-          <FileText className="h-4 w-4 text-primary" />
-          <span className="text-sm font-semibold uppercase tracking-wider text-primary">
-            Licencja
-          </span>
-        </div>
-        <span className="text-[11px] uppercase tracking-wider px-2 py-1 rounded-full bg-primary/15 text-primary font-semibold">
-          {typeLabel}
+    <div className="mt-6 rounded-xl border border-border/40 bg-gradient-surface px-4 py-3">
+      <button
+        type="button"
+        onClick={() => setExpanded((v) => !v)}
+        className="w-full flex items-center justify-between gap-2 text-left"
+      >
+        <span className="flex items-center gap-2 text-sm text-foreground/75">
+          <FileText className="h-4 w-4 text-muted-foreground" />
+          Licencja: {typeLabel}
         </span>
-      </div>
-      <pre className="text-[12px] leading-relaxed whitespace-pre-wrap font-mono max-h-72 overflow-auto text-foreground/85">
-        {text}
-      </pre>
-      <p className="mt-3 text-[11px] text-muted-foreground">
-        Pełna wersja licencji z Twoimi danymi zostanie dołączona do zamówienia jako PDF.
-      </p>
+        <span className="flex items-center gap-1 text-xs text-muted-foreground">
+          {expanded ? "Ukryj" : "Pokaż warunki"}
+          <ChevronDown
+            className={`h-4 w-4 transition-transform ${expanded ? "rotate-180" : ""}`}
+          />
+        </span>
+      </button>
+      {expanded && (
+        <div className="mt-3 border-t border-border/40 pt-3">
+          <pre className="text-[12px] leading-relaxed whitespace-pre-wrap font-mono max-h-60 overflow-auto text-foreground/85">
+            {text}
+          </pre>
+          <p className="mt-3 text-[11px] text-muted-foreground">
+            Pełna wersja licencji z Twoimi danymi zostanie dołączona do zamówienia jako PDF.
+          </p>
+        </div>
+      )}
     </div>
   );
 }
