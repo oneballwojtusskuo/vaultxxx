@@ -2,7 +2,6 @@ import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { KeyRound } from "lucide-react";
 import { supabase } from "@/lib/supabase-browser";
-import { VlndLogo } from "@/components/vlnd-logo";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -55,11 +54,8 @@ function ResetPasswordPage() {
   return (
     <div className="min-h-screen flex items-center justify-center px-4 bg-gradient-hero">
       <div className="w-full max-w-md rounded-2xl glass border border-border/40 p-6 shadow-elevated">
-        <div className="flex items-center gap-2 justify-center mb-6">
-          <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-gradient-primary shadow-glow p-1">
-            <VlndLogo className="h-full w-full" />
-          </div>
-          <span className="font-display text-2xl font-bold lowercase">vlnd</span>
+        <div className="flex items-center justify-center mb-6">
+          <span className="font-display text-3xl font-bold lowercase">vlnd</span>
         </div>
 
         <h1 className="font-display text-xl font-bold flex items-center gap-2">
