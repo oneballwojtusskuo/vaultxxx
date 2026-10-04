@@ -18,7 +18,6 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/use-auth";
-import { VlndLogo } from "@/components/vlnd-logo";
 import { supabase } from "@/lib/supabase-browser";
 import {
   DropdownMenu,
@@ -102,11 +101,8 @@ export function SiteHeader() {
   return (
     <header className="sticky top-0 z-50 border-b border-border/80 bg-background/95 backdrop-blur-xl">
       <div className="container mx-auto flex h-16 items-center justify-between px-4">
-        <Link to="/" className="flex items-center gap-2 group">
-          <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-gradient-primary shadow-glow transition-transform group-hover:scale-105 p-1">
-            <VlndLogo className="h-full w-full" />
-          </div>
-          <span className="font-display text-xl font-bold tracking-tight lowercase text-foreground">
+        <Link to="/" className="group inline-flex">
+          <span className="font-display text-2xl font-bold tracking-tight lowercase text-foreground transition-transform group-hover:scale-105 inline-block origin-left">
             vlnd
           </span>
         </Link>

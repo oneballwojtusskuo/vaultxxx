@@ -5,7 +5,6 @@ import { supabase } from "@/lib/supabase-browser";
 import { emailAlreadyRegistered } from "@/lib/account.functions";
 
 import { createLovableAuth } from "@lovable.dev/cloud-auth-js";
-import { VlndLogo } from "@/components/vlnd-logo";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -187,11 +186,8 @@ function AuthPage() {
   return (
     <div className="min-h-screen flex items-center justify-center px-4 bg-gradient-hero">
       <div className="w-full max-w-md">
-        <Link to="/" className="flex items-center gap-2 justify-center mb-8">
-          <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-gradient-primary shadow-glow p-1">
-            <VlndLogo className="h-full w-full" />
-          </div>
-          <span className="font-display text-2xl font-bold lowercase">vlnd</span>
+        <Link to="/" className="flex items-center justify-center mb-8">
+          <span className="font-display text-3xl font-bold lowercase">vlnd</span>
         </Link>
 
         <div className="rounded-2xl glass border border-border/40 p-6 shadow-elevated">
