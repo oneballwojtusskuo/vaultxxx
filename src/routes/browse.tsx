@@ -158,6 +158,7 @@ function Browse() {
                 type="number"
                 min="0"
                 placeholder="Cena od"
+                className="bg-card"
                 value={sp.minPrice ?? ""}
                 disabled={sp.freeOnly === true}
                 onChange={(e) =>
@@ -173,6 +174,7 @@ function Browse() {
                 type="number"
                 min="0"
                 placeholder="Cena do"
+                className="bg-card"
                 value={sp.maxPrice ?? ""}
                 disabled={sp.freeOnly === true}
                 onChange={(e) =>
@@ -185,7 +187,7 @@ function Browse() {
                 }
               />
               <select
-                className="h-10 rounded-md border border-input bg-background px-3 text-sm"
+                className="h-10 rounded-md border border-input bg-card px-3 text-sm"
                 value={sp.minRating?.toString() ?? ""}
                 onChange={(e) =>
                   navigate({
@@ -207,6 +209,7 @@ function Browse() {
                 type="number"
                 min="0"
                 placeholder="Pobrań od"
+                className="bg-card"
                 value={sp.minDownloads ?? ""}
                 onChange={(e) =>
                   navigate({
@@ -218,7 +221,7 @@ function Browse() {
                 }
               />
               <select
-                className="h-10 rounded-md border border-input bg-background px-3 text-sm"
+                className="h-10 rounded-md border border-input bg-card px-3 text-sm"
                 value={sp.sort ?? "relevance"}
                 onChange={(e) => navigate({ search: { ...sp, sort: e.target.value as any } })}
               >
