@@ -1,4 +1,5 @@
 import { createServerFn } from "@tanstack/react-start";
+import { getRequest } from "@tanstack/react-start/server";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { z } from "zod";
 
@@ -12,6 +13,31 @@ const InputSchema = z.object({
 });
 
 const PLATFORM_MARKUP_PCT = 10; // added on top of seller price -> buyer pays price * 1.10
+
+/**
+ * Only allow returning to this app's own origin. Uses the request origin as the
+ * trusted base and keeps only the path of the caller-supplied URL.
+ */
+function safeReturnUrl(returnUrl: string | undefined, productId: string) {
+  const req = getRequest();
+  const headerOrigin = req?.headers.get("origin");
+  let base: string | null = null;
+  try {
+    base = new URL(headerOrigin || req?.url || "").origin;
+  } catch {
+    base = null;
+  }
+  const fallbackPath = `/product/${productId}`;
+  if (!base) return fallbackPath;
+  if (!returnUrl) return `${base}${fallbackPath}`;
+  try {
+    const u = new URL(returnUrl);
+    if (u.origin !== base) return `${base}${fallbackPath}`;
+    return `${base}${u.pathname}`;
+  } catch {
+    return `${base}${fallbackPath}`;
+  }
+}
 
 /**
  * Escrow purchase flow:
@@ -194,7 +220,7 @@ async function runPurchase(
       // Keep the listing currency (PLN) so BLIK stays available.
       adaptive_pricing: { enabled: false },
       ...(guestEmail ? { customer_email: guestEmail } : {}),
-      return_url: `${data.returnUrl ?? ""}?checkout=success${extraMeta.guest ? "&guest=1" : ""}&session_id={CHECKOUT_SESSION_ID}`,
+      return_url: `${safeReturnUrl(data.returnUrl, data.productId)}?checkout=success${extraMeta.guest ? "&guest=1" : ""}&session_id={CHECKOUT_SESSION_ID}`,
       line_items: [
         {
           quantity: 1,
