@@ -43,7 +43,7 @@ footer{margin-top:32px;font-size:10px;color:#666}
 @media print{body{margin:0}}
 </style></head><body>
 <h1>Raport dowodowy do sporu płatniczego (chargeback)</h1>
-<div style="font-size:12px;color:#555">Platforma vlnd · Janusz Judek (działalność nierejestrowana) · wygenerowano ${esc(fmt(ev.generatedAt))}</div>
+<div style="font-size:12px;color:#555">Platforma vlnd · INDYWIDUALNA PRAKTYKA LEKARSKA JANUSZ JUDEK, NIP 7772568879 · wygenerowano ${esc(fmt(ev.generatedAt))}</div>
 
 <h2>Transakcja</h2>
 <table>

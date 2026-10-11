@@ -178,9 +178,9 @@ function RegulaminPage() {
                   społecznościowych wymaga założenia Konta.
                 </li>
                 <li>
-                  Z serwisu VLND.PL oraz z programu afiliacyjnego mogą korzystać osoby, które
-                  ukończyły <b>13 rok życia</b>, za uprzednią zgodą opiekuna prawnego. Osoby
-                  pełnoletnie (18+) nie potrzebują takiej zgody.
+                  Serwis jest przeznaczony dla osób od <b>13 roku życia</b> (osoby małoletnie w
+                  wieku 13–17 lat mogą korzystać z serwisu wyłącznie za zgodą rodzica lub opiekuna
+                  prawnego).
                 </li>
                 <li>
                   Podczas rejestracji Użytkownik składa oświadczenie o ukończeniu 18 lat lub o

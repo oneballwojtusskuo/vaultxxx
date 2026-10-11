@@ -2,10 +2,9 @@ import { Link } from "@tanstack/react-router";
 import { openCookieSettings } from "@/components/cookie-banner";
 import {
   OPERATOR_NAME,
-  OPERATOR_LEGAL_FORM,
+  OPERATOR_NIP,
   OPERATOR_ADDRESS,
   OPERATOR_CONTACT,
-  OPERATOR_FOOTER_LINE,
 } from "@/lib/operator";
 
 export function SiteFooter() {
@@ -63,24 +62,26 @@ export function SiteFooter() {
           <summary className="cursor-pointer list-none p-4 font-semibold text-foreground group-open:border-b group-open:border-border/40">
             Operator serwisu i Administrator Danych Osobowych
           </summary>
-          <div className="space-y-1 p-4">
+          <div className="space-y-3 p-4">
             <p>
-              {OPERATOR_NAME}, {OPERATOR_LEGAL_FORM}. Adres do korespondencji: {OPERATOR_ADDRESS}.
-              Kontakt e-mail:{" "}
+              <span className="font-semibold text-foreground">Operator serwisu:</span>
+              <br />
+              {OPERATOR_NAME}
+              <br />
+              {OPERATOR_ADDRESS} | NIP: {OPERATOR_NIP}
+              <br />
+              Kontakt / Punkt kontaktowy DSA:{" "}
               <a
                 href={`mailto:${OPERATOR_CONTACT}`}
                 className="font-medium text-primary hover:underline"
               >
                 {OPERATOR_CONTACT}
               </a>
-              . Punkt kontaktowy w rozumieniu aktu o usługach cyfrowych (DSA) oraz sprawy danych
-              osobowych: ten sam adres e-mail.
             </p>
-            <p>{OPERATOR_FOOTER_LINE}</p>
             <p>
-              Serwis jest platformą pośredniczącą — sprzedawcą treści cyfrowej jest użytkownik
-              wystawiający produkt. Płatności obsługuje Stripe. Serwis przeznaczony dla osób, które
-              ukończyły 16 lat.
+              vlnd.pl jest platformą pośredniczącą — sprzedawcą treści cyfrowych jest użytkownik
+              wystawiający produkt. Płatności obsługuje Stripe. Serwis jest przeznaczony dla osób
+              od 13 roku życia (osoby w wieku 13–17 lat za zgodą rodzica).
             </p>
           </div>
         </details>
