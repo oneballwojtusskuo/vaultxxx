@@ -2,7 +2,6 @@ import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
 import { MailCheck, ShieldAlert } from "lucide-react";
 import { supabase } from "@/lib/supabase-browser";
-import { emailAlreadyRegistered } from "@/lib/account.functions";
 
 import { createLovableAuth } from "@lovable.dev/cloud-auth-js";
 import { Button } from "@/components/ui/button";
@@ -99,20 +98,9 @@ function AuthPage() {
     goNext();
   };
 
-  const checkEmail = async (value: string) => {
-    const v = value.trim();
+  // Account-existence lookups were removed to prevent e-mail enumeration.
+  const checkEmail = async (_value: string) => {
     setEmailTaken(false);
-    if (!v || !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(v)) return;
-    try {
-      const res = await emailAlreadyRegistered({ data: { email: v } });
-      if (res.exists) {
-        setEmailTaken(true);
-        toast.info("Konto z tym adresem e-mail już istnieje — zaloguj się.");
-        setTab("signin");
-      }
-    } catch {
-      /* niekrytyczne — walidacja i tak nastąpi przy rejestracji */
-    }
   };
 
   const sendReset = async () => {
@@ -140,19 +128,6 @@ function AuthPage() {
     if (password !== password2) return toast.error("Hasła nie są takie same — wpisz je ponownie.");
     if (!acceptDocs) return toast.error("Zaakceptuj regulamin i politykę prywatności.");
     setLoading(true);
-    try {
-      const res = await emailAlreadyRegistered({ data: { email: email.trim() } });
-      if (res.exists) {
-        setLoading(false);
-        setEmailTaken(true);
-        setTab("signin");
-        return toast.error(
-          "Konto z tym adresem e-mail już istnieje — zaloguj się lub zresetuj hasło.",
-        );
-      }
-    } catch {
-      /* ignore */
-    }
     const redirectTo = nextPath ? `${window.location.origin}${nextPath}` : window.location.origin;
     const { error } = await supabase.auth.signUp({
       email,

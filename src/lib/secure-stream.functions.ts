@@ -27,10 +27,17 @@ export const getSecureStreamUrl = createServerFn({ method: "POST" })
     if (pErr || !product) {
       throw new Response("Product not found", { status: 404 });
     }
+    // Only sign files stored under the listing seller's own folder, so a seller
+    // can't point their listing at another seller's private files.
+    const sellerPrefix = `${product.seller_id}/`;
     const filePaths: string[] = Array.from(
       new Set(
         [product.file_path, ...(((product as any).file_paths as string[] | null) ?? [])].filter(
-          (path): path is string => typeof path === "string" && path.length > 0,
+          (path): path is string =>
+            typeof path === "string" &&
+            path.startsWith(sellerPrefix) &&
+            !path.includes("..") &&
+            path.length > sellerPrefix.length,
         ),
       ),
     );
