@@ -713,50 +713,13 @@ function TaxRevenuePanel() {
     return <div className="mt-6 text-muted-foreground">Ładowanie...</div>;
   }
 
-  const { threshold } = stats;
-  const barColor =
-    threshold.level === "exceeded"
-      ? "bg-destructive"
-      : threshold.level === "high"
-        ? "bg-amber-600"
-        : threshold.level === "warn"
-          ? "bg-amber-500"
-          : "bg-primary";
-
   return (
     <div className="mt-6 space-y-8">
       <div className="rounded-2xl border border-border/40 bg-gradient-surface p-5 space-y-3">
         <h2 className="font-semibold">
           Przychód z prowizji — {stats.quarter}. kwartał {stats.quarterYear}
         </h2>
-        <div className="flex justify-between text-sm">
-          <span>{stats.quarterRevenuePln.toFixed(2)} zł</span>
-          <span className="text-muted-foreground">
-            limit: {threshold.limitPln.toFixed(2)} zł ({threshold.pct}%)
-          </span>
-        </div>
-        <div className="h-3 w-full overflow-hidden rounded-full bg-muted">
-          <div
-            className={`h-full ${barColor} transition-all`}
-            style={{ width: `${Math.min(100, threshold.pct)}%` }}
-          />
-        </div>
-        {threshold.level !== "ok" && (
-          <p
-            className={`text-sm ${threshold.level === "exceeded" ? "text-destructive" : "text-amber-600"}`}
-          >
-            {threshold.level === "exceeded"
-              ? "Limit działalności nierejestrowanej został przekroczony w tym kwartale."
-              : threshold.level === "high"
-                ? "Zbliżasz się do limitu (ponad 90%)."
-                : "Przekroczono 75% limitu w tym kwartale."}
-          </p>
-        )}
-        <p className="text-xs text-muted-foreground">
-          Uwaga: przekroczenie kwoty 10 813,50 zł przychodu z prowizji w kwartale kalendarzowym
-          oznacza konieczność zarejestrowania działalności gospodarczej (limit „działalności
-          nierejestrowanej" na 2026 r.).
-        </p>
+        <div className="text-sm">{stats.quarterRevenuePln.toFixed(2)} zł</div>
       </div>
 
       <div className="rounded-2xl border border-border/40 bg-gradient-surface p-5">
