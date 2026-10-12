@@ -15,6 +15,13 @@
       "when": 1790954076985,
       "tag": "0001_profiles_select_policy_tighten",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1791779158788,
+      "tag": "0002_product_min_price",
+      "breakpoints": true
     }
   ]
 }

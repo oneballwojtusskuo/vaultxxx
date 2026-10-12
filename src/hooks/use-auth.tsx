@@ -37,7 +37,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           window.location.hash.includes("access_token") ||
           window.location.search.includes("code=")
         ) {
-          toast.success("Zalogowano pomyślnie");
+          toast.success("Dziękujemy! Adres e-mail potwierdzony — dokończ konfigurację konta.");
           window.history.replaceState({}, "", "/");
         }
       }

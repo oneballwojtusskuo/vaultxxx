@@ -544,8 +544,12 @@ function Sell() {
                   min="0"
                   step="0.01"
                   value={price}
-                  onChange={(e) => setPrice(e.target.value)}
+                  onChange={(e) => setPrice(e.target.value.replace("-", ""))}
+                  aria-invalid={!!validatePrice(price)}
                 />
+                {validatePrice(price) && (
+                  <p className="text-xs text-destructive">{validatePrice(price)}</p>
+                )}
               </div>
               <div className="space-y-2">
                 <Label>
