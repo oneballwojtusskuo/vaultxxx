@@ -27,6 +27,7 @@ import { reviewListing } from "@/lib/moderation.functions";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { buyerPriceOf } from "@/lib/pricing";
+import { validatePrice } from "@/lib/pricing-rules";
 import {
   LICENSE_TYPE_LABELS,
   LICENSE_DURATION_LABELS,
@@ -356,6 +357,8 @@ function Sell() {
 
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
+    const priceErr = validatePrice(price);
+    if (priceErr) return toast.error(priceErr);
     if (!user) return;
 
     const coverFile =
@@ -544,8 +547,12 @@ function Sell() {
                   min="0"
                   step="0.01"
                   value={price}
-                  onChange={(e) => setPrice(e.target.value)}
+                  onChange={(e) => setPrice(e.target.value.replace("-", ""))}
+                  aria-invalid={!!validatePrice(price)}
                 />
+                {validatePrice(price) && (
+                  <p className="text-xs text-destructive">{validatePrice(price)}</p>
+                )}
               </div>
               <div className="space-y-2">
                 <Label>

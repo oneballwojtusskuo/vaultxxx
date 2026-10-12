@@ -19,6 +19,7 @@ import { Pencil, Upload } from "lucide-react";
 import { Link } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { validateUploadedFile } from "@/lib/upload-validate.functions";
+import { uploadAvatarFile } from "@/lib/avatar-upload";
 
 export function ProfileEditor() {
   const { user } = useAuth();
@@ -55,14 +56,13 @@ export function ProfileEditor() {
       return toast.error("Wybierz plik graficzny (JPG, PNG, WEBP).");
     if (file.size > 5 * 1024 * 1024) return toast.error("Zdjęcie może mieć maksymalnie 5 MB.");
     setUploading(true);
-    const ext = (file.name.split(".").pop() || "jpg").toLowerCase();
-    const path = `${user.id}/${Date.now()}.${ext}`;
-    const { error } = await supabase.storage.from("avatars").upload(path, file, { upsert: true });
-    if (error) {
+    let path = "";
+    let publicUrl = "";
+    try {
+      ({ path, publicUrl } = await uploadAvatarFile(file));
+    } catch {
       setUploading(false);
-      return toast.error(
-        "Nie udało się wgrać zdjęcia. Zaloguj się ponownie i spróbuj jeszcze raz.",
-      );
+      return toast.error("Nie udało się wgrać zdjęcia. Spróbuj ponownie za chwilę.");
     }
     try {
       await validateFile({ data: { bucket: "avatars", path, kind: "image" } });
@@ -70,7 +70,7 @@ export function ProfileEditor() {
       setUploading(false);
       return toast.error(error?.message ?? "Niepoprawny plik zdjęcia.");
     }
-    const { data } = supabase.storage.from("avatars").getPublicUrl(path);
+    const data = { publicUrl };
     setAvatarUrl(data.publicUrl);
     setUploading(false);
   };

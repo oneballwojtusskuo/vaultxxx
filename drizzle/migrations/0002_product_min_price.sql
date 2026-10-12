@@ -1,0 +1,1 @@
+ALTER TABLE public.products ADD CONSTRAINT products_price_min_check CHECK (price = 0 OR price >= 2) NOT VALID;
