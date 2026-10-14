@@ -185,7 +185,10 @@ function PrivacyPage() {
                 <li>
                   <b>Dostawcy usług płatniczych i escrow:</b> Stripe Payments Europe Ltd. (Irlandia)
                   — obsługa płatności kartowych, BLIK, Apple/Google Pay, mechanizmu escrow, procesu
-                  KYC i wypłat do Sprzedawców; w przyszłości możliwe: PayU S.A., Przelewy24
+                  KYC (weryfikacji tożsamości) oraz wypłat do Sprzedawców i Partnerów przez Stripe
+                  Connect. Numer rachunku bankowego i dokumenty tożsamości podawane są bezpośrednio
+                  Stripe — Platforma przechowuje jedynie identyfikator konta Stripe i status
+                  weryfikacji; w przyszłości możliwe: PayU S.A., Przelewy24
                   (DialCom24 sp. z o.o.).
                 </li>
                 <li>

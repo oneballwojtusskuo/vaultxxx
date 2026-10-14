@@ -259,6 +259,31 @@ function RegulaminPage() {
                   </ul>
                 </li>
                 <li>
+                  <b>Wypłaty dla Sprzedawców (Stripe Connect).</b> Warunkiem wystawienia płatnego
+                  Produktu Cyfrowego jest połączenie przez Sprzedawcę własnego konta w systemie
+                  Stripe (Stripe Connect Express) i przejście weryfikacji tożsamości (KYC)
+                  bezpośrednio u Operatora Płatności. Operator nie gromadzi numerów rachunków
+                  bankowych Sprzedawców. Po zwolnieniu środków z depozytu (ust. 4) należna
+                  Sprzedawcy kwota (cena netto pomniejszona o ewentualną prowizję Partnera) jest
+                  automatycznie przekazywana na konto Stripe Sprzedawcy, a następnie wypłacana przez
+                  Stripe na jego rachunek bankowy zgodnie z harmonogramem wypłat Stripe. Do relacji
+                  Sprzedawcy ze Stripe stosuje się także Umowę o usługi z kontem połączonym Stripe
+                  (Stripe Connected Account Agreement).
+                </li>
+                <li>
+                  <b>Saldo afiliacyjne (Portfel Partnera).</b> Prowizja należna Partnerowi z tytułu
+                  sprzedaży z linku polecającego nie jest wypłacana natychmiast — po zwolnieniu
+                  środków z depozytu powiększa wewnętrzne saldo Partnera prowadzone przez Platformę,
+                  a odpowiadające mu środki pozostają na rachunku Operatora w systemie Stripe.
+                  Partner może zlecić wypłatę salda, gdy osiągnie ono co najmniej{" "}
+                  <b>100,00 PLN</b>. Wypłata jest realizowana automatycznie, w całości dostępnego
+                  salda, przelewem w systemie Stripe na połączone konto Stripe Partnera, skąd Stripe
+                  przekazuje środki na jego rachunek bankowy. Wypłata wymaga połączenia i
+                  zweryfikowania konta Stripe. Saldo nie jest oprocentowane i nie stanowi depozytu
+                  bankowego ani pieniądza elektronicznego. W razie zwrotu środków Kupującemu lub
+                  uznanego chargebacku przed zwolnieniem depozytu prowizja nie jest naliczana.
+                </li>
+                <li>
                   W przypadku uznania sporu na korzyść Kupującego środki są zwracane w całości na
                   jego rzecz. Rozliczenie prowizji Platformy w takim wypadku nie następuje.
                 </li>
@@ -416,7 +441,8 @@ function RegulaminPage() {
                   <b>prawdziwe i aktualne dane identyfikacyjne i podatkowe</b>, w tym: imię i
                   nazwisko lub firmę, adres, numer PESEL lub NIP (a w przypadku podmiotów
                   zagranicznych – odpowiedni numer identyfikacji podatkowej TIN oraz VAT-UE, jeżeli
-                  dotyczy) oraz numer rachunku bankowego do wypłat.
+                  dotyczy). Rachunek bankowy do wypłat Sprzedawca podaje wyłącznie w systemie Stripe
+                  podczas łączenia konta.
                 </li>
                 <li>
                   Zgodnie z <b>Dyrektywą Rady (UE) 2021/514 („DAC7”)</b> oraz ustawą z dnia 23 maja
