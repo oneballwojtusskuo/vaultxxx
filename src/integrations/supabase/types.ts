@@ -19,9 +19,12 @@ export type Database = {
           amount: number
           created_at: string
           currency: string
+          environment: string | null
+          error: string | null
           id: string
           paid_at: string | null
           status: string
+          stripe_transfer_id: string | null
           transaction_id: string | null
           updated_at: string
           user_id: string
@@ -30,9 +33,12 @@ export type Database = {
           amount?: number
           created_at?: string
           currency?: string
+          environment?: string | null
+          error?: string | null
           id?: string
           paid_at?: string | null
           status?: string
+          stripe_transfer_id?: string | null
           transaction_id?: string | null
           updated_at?: string
           user_id: string
@@ -41,9 +47,12 @@ export type Database = {
           amount?: number
           created_at?: string
           currency?: string
+          environment?: string | null
+          error?: string | null
           id?: string
           paid_at?: string | null
           status?: string
+          stripe_transfer_id?: string | null
           transaction_id?: string | null
           updated_at?: string
           user_id?: string
@@ -848,6 +857,39 @@ export type Database = {
         }
         Relationships: []
       }
+      stripe_connect_accounts: {
+        Row: {
+          created_at: string
+          details_submitted: boolean
+          environment: string
+          payouts_enabled: boolean
+          stripe_account_id: string
+          transfers_enabled: boolean
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          details_submitted?: boolean
+          environment: string
+          payouts_enabled?: boolean
+          stripe_account_id: string
+          transfers_enabled?: boolean
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          details_submitted?: boolean
+          environment?: string
+          payouts_enabled?: boolean
+          stripe_account_id?: string
+          transfers_enabled?: boolean
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       transaction_audit_logs: {
         Row: {
           created_at: string
@@ -923,6 +965,7 @@ export type Database = {
           disputed_at: string | null
           held_at: string | null
           id: string
+          payout_error: string | null
           payout_status: string
           platform_amount: number
           platform_fee_pct: number
@@ -932,8 +975,10 @@ export type Database = {
           seller_id: string
           source: string
           status: Database["public"]["Enums"]["transaction_status"]
+          stripe_env: string | null
           stripe_payment_intent_id: string | null
           stripe_session_id: string | null
+          stripe_transfer_id: string | null
         }
         Insert: {
           affiliate_amount?: number
@@ -949,6 +994,7 @@ export type Database = {
           disputed_at?: string | null
           held_at?: string | null
           id?: string
+          payout_error?: string | null
           payout_status?: string
           platform_amount?: number
           platform_fee_pct?: number
@@ -958,8 +1004,10 @@ export type Database = {
           seller_id: string
           source?: string
           status?: Database["public"]["Enums"]["transaction_status"]
+          stripe_env?: string | null
           stripe_payment_intent_id?: string | null
           stripe_session_id?: string | null
+          stripe_transfer_id?: string | null
         }
         Update: {
           affiliate_amount?: number
@@ -975,6 +1023,7 @@ export type Database = {
           disputed_at?: string | null
           held_at?: string | null
           id?: string
+          payout_error?: string | null
           payout_status?: string
           platform_amount?: number
           platform_fee_pct?: number
@@ -984,8 +1033,10 @@ export type Database = {
           seller_id?: string
           source?: string
           status?: Database["public"]["Enums"]["transaction_status"]
+          stripe_env?: string | null
           stripe_payment_intent_id?: string | null
           stripe_session_id?: string | null
+          stripe_transfer_id?: string | null
         }
         Relationships: [
           {
@@ -1040,6 +1091,13 @@ export type Database = {
       is_current_user_admin: { Args: never; Returns: boolean }
       pl_norm: { Args: { t: string }; Returns: string }
       release_expired_escrow: { Args: never; Returns: number }
+      reserve_affiliate_withdrawal: {
+        Args: { _env: string; _min: number; _user_id: string }
+        Returns: {
+          amount: number
+          payout_id: string
+        }[]
+      }
       search_products:
         | {
             Args: { cat?: string; q?: string }
