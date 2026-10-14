@@ -28,6 +28,7 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/comp
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { buyerPriceOf } from "@/lib/pricing";
 import { validatePrice } from "@/lib/pricing-rules";
+import { ConnectPayoutsCard, useConnectStatus } from "@/components/connect-payouts-card";
 import {
   LICENSE_TYPE_LABELS,
   LICENSE_DURATION_LABELS,
@@ -273,8 +274,6 @@ function Sell() {
   const [licMaxStreams, setLicMaxStreams] = useState("");
 
   const [affiliatePct, setAffiliatePct] = useState<string>("10");
-  const [payoutAccount, setPayoutAccount] = useState("");
-  const [payoutHolder, setPayoutHolder] = useState("");
 
   const setLic = (patch: Partial<LicenseTerms>) => setLicTerms((prev) => ({ ...prev, ...patch }));
   const applyPreset = (type: LicenseType) => {
@@ -311,24 +310,7 @@ function Sell() {
   const sellerName =
     sellerProfile?.display_name?.trim() || sellerProfile?.username?.trim() || "PREVIEW";
 
-  const { data: payoutRow } = useQuery({
-    queryKey: ["seller-payout", user?.id],
-    enabled: !!user?.id,
-    queryFn: async () =>
-      (
-        await (supabase as any)
-          .from("seller_payouts")
-          .select("payout_account, payout_holder")
-          .eq("user_id", user!.id)
-          .maybeSingle()
-      ).data as any,
-  });
-
-  useEffect(() => {
-    if (!payoutRow) return;
-    setPayoutAccount((prev) => prev || payoutRow.payout_account || "");
-    setPayoutHolder((prev) => prev || payoutRow.payout_holder || "");
-  }, [payoutRow]);
+  const { data: connectStatus } = useConnectStatus(!!user);
 
   const validateFile = useServerFn(validateUploadedFile);
   const reviewListingFn = useServerFn(reviewListing);
@@ -380,17 +362,11 @@ function Sell() {
       );
     }
 
-    const accountNormalized = payoutAccount.replace(/\s+/g, "").toUpperCase();
-    if (!/^(PL)?\d{26}$/.test(accountNormalized)) {
+    if (Number(String(price).replace(",", ".")) > 0 && !connectStatus?.transfersEnabled) {
       return toast.error(
-        "Podaj poprawny numer konta bankowego (26 cyfr, opcjonalnie z prefiksem PL).",
+        "Aby wystawić płatny produkt, połącz najpierw konto Stripe (sekcja „Wypłaty” poniżej).",
       );
     }
-    if (payoutHolder.trim().length < 3) {
-      return toast.error("Podaj imię i nazwisko (lub nazwę firmy) właściciela konta.");
-    }
-    const holderError = validateCleanText(payoutHolder, "Właściciel konta");
-    if (holderError) return toast.error(holderError);
 
     // Client-side guard (defense-in-depth; server re-validates)
     const effectivePreview =
@@ -419,16 +395,6 @@ function Sell() {
 
     setSubmitting(true);
     try {
-      // Persist payout details for future payouts
-      await (supabase as any).from("seller_payouts").upsert(
-        {
-          user_id: user.id,
-          payout_account: accountNormalized,
-          payout_holder: payoutHolder.trim(),
-          updated_at: new Date().toISOString(),
-        },
-        { onConflict: "user_id" },
-      );
 
       let preview_url: string | null = null;
       let file_path: string | null = null;
@@ -1104,32 +1070,18 @@ function Sell() {
                 </pre>
               </div>
             </div>
-            <div className="rounded-xl border border-border/40 bg-background/40 p-4 space-y-3">
-              <Label className="text-base">Dane do wypłaty *</Label>
-              <p className="text-xs text-muted-foreground">
-                Numer konta jest wymagany — na niego trafią środki po zatwierdzeniu zakupu przez
-                kupującego. Dane są zapisywane w Twoim profilu i widoczne tylko dla Ciebie i
-                administracji.
-              </p>
+            {Number(String(price).replace(",", ".")) > 0 && (
               <div className="space-y-2">
-                <Label className="text-xs uppercase tracking-wider">Właściciel konta *</Label>
-                <Input
-                  required
-                  value={payoutHolder}
-                  onChange={(e) => setPayoutHolder(e.target.value)}
-                  placeholder="Imię i nazwisko lub nazwa firmy"
-                />
+                <Label className="text-base">Wypłaty *</Label>
+                <ConnectPayoutsCard compact />
+                {!connectStatus?.transfersEnabled && (
+                  <p className="text-xs text-muted-foreground">
+                    Płatne produkty możesz wystawić po połączeniu konta Stripe. Produkty darmowe
+                    nie wymagają konta.
+                  </p>
+                )}
               </div>
-              <div className="space-y-2">
-                <Label className="text-xs uppercase tracking-wider">Numer konta (IBAN) *</Label>
-                <Input
-                  required
-                  value={payoutAccount}
-                  onChange={(e) => setPayoutAccount(e.target.value.toUpperCase())}
-                  placeholder="PL00 0000 0000 0000 0000 0000 0000"
-                />
-              </div>
-            </div>
+            )}
 
             <div className="flex items-center gap-3 rounded-lg border border-border/40 p-3">
               <Switch checked={tradable} onCheckedChange={setTradable} id="tradable" />

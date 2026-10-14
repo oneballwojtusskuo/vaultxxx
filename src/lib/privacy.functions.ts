@@ -35,10 +35,9 @@ export const exportMyData = createServerFn({ method: "POST" })
       supabase.from("cookie_consents").select("*").eq("user_id", userId),
       supabase.from("privacy_requests").select("*").eq("user_id", userId),
       supabase
-        .from("seller_payouts")
-        .select("payout_holder, created_at, updated_at")
-        .eq("user_id", userId)
-        .maybeSingle(),
+        .from("stripe_connect_accounts")
+        .select("environment, stripe_account_id, transfers_enabled, created_at, updated_at")
+        .eq("user_id", userId),
     ]);
 
     return {

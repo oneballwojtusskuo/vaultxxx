@@ -261,8 +261,8 @@ export const getDac7Participants = createServerFn({ method: "GET" })
         )
         .in("user_id", userIds),
       supabaseAdmin
-        .from("seller_payouts")
-        .select("user_id, payout_account, payout_holder, updated_at")
+        .from("stripe_connect_accounts")
+        .select("user_id, stripe_account_id, transfers_enabled, updated_at")
         .in("user_id", userIds),
     ]);
     const emailById = new Map<string, string | null>();

@@ -877,10 +877,10 @@ function TaxRevenuePanel() {
                             ]}
                           />
                           <DetailBlock
-                            title="Dane do wypłat"
+                            title="Wypłaty (Stripe)"
                             items={[
-                              ["Numer konta", row.payout?.payout_account],
-                              ["Właściciel konta", row.payout?.payout_holder],
+                              ["Konto Stripe", row.payout?.stripe_account_id],
+                              ["Wypłaty aktywne", row.payout ? (row.payout.transfers_enabled ? "tak" : "nie") : null],
                               [
                                 "Aktualizacja",
                                 row.payout?.updated_at

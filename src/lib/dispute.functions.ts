@@ -282,6 +282,8 @@ export const resolveDispute = createServerFn({ method: "POST" })
           payout_status: "queued",
         } as any)
         .eq("id", tx.id);
+      const { payoutSellerForTransaction } = await import("@/lib/connect.server");
+      await payoutSellerForTransaction(supabaseAdmin, tx.id);
     } else {
       const pi = (tx as any).stripe_payment_intent_id as string | null;
       if (pi) {

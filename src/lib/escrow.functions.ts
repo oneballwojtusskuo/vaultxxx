@@ -25,9 +25,17 @@ export const confirmDelivery = createServerFn({ method: "POST" })
 
     const { error: uErr } = await supabaseAdmin
       .from("transactions")
-      .update({ status: "released" as any, released_at: new Date().toISOString() } as any)
+      .update({
+        status: "released" as any,
+        released_at: new Date().toISOString(),
+        payout_status: "queued",
+      } as any)
       .eq("id", tx.id);
     if (uErr) throw new Response(uErr.message, { status: 500 });
+
+    // Send the seller's share straight to their Stripe account.
+    const { payoutSellerForTransaction } = await import("@/lib/connect.server");
+    await payoutSellerForTransaction(supabaseAdmin, tx.id);
 
     // Notify the seller that funds have been released.
     await supabaseAdmin.from("seller_notifications").insert({

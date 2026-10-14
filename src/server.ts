@@ -96,5 +96,13 @@ export default {
       body: "{}",
     });
     if (!response.ok) throw new Error(`Escrow release failed: ${response.status}`);
+    // Transfer seller shares for released sales to their Stripe accounts.
+    try {
+      const { supabaseAdmin } = await import("./integrations/supabase/client.server");
+      const { processPendingSellerPayouts } = await import("./lib/connect.server");
+      await processPendingSellerPayouts(supabaseAdmin);
+    } catch (e) {
+      console.error("Seller payouts failed", e);
+    }
   },
 };

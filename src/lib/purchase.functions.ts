@@ -237,6 +237,8 @@ async function runPurchase(
       },
       payment_intent_data: {
         description: product.title,
+        // Seller share is transferred to the creator's Stripe account on escrow release.
+        transfer_group: tx.id,
         metadata: {
           transactionId: tx.id,
           productId: product.id,
@@ -288,7 +290,7 @@ async function runPurchase(
       // Persist Stripe session id for reconciliation
       await supabaseAdmin
         .from("transactions")
-        .update({ stripe_session_id: session.id } as any)
+        .update({ stripe_session_id: session.id, stripe_env: env } as any)
         .eq("id", tx.id);
 
       return {
