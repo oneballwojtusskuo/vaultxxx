@@ -1,0 +1,1 @@
+- Creator/affiliate payouts go through Stripe Connect (Accounts v2 recipient) via src/lib/connect.server.ts: seller share is transferred on escrow release (not transfer_data at checkout) so escrow/disputes keep working; never store bank account numbers.
