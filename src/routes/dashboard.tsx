@@ -1,5 +1,5 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { getMyTransactions } from "@/lib/purchases.functions";
@@ -30,9 +30,11 @@ import { generateLicensePdf } from "@/lib/license-pdf";
 import { ProfileEditor } from "@/components/profile-editor";
 import { getMyDac7Status } from "@/lib/dac7.functions";
 import { AlertTriangle as AlertTriangleIcon } from "lucide-react";
-import { OPERATOR_CONTACT } from "@/lib/operator";
+import { ConnectPayoutsCard, useConnectStatus } from "@/components/connect-payouts-card";
+import { getAffiliateWallet, withdrawAffiliateBalance } from "@/lib/connect.functions";
+import { useQueryClient } from "@tanstack/react-query";
 
-const TABS = ["products", "purchases", "sales", "affiliate"] as const;
+const TABS = ["products", "purchases", "sales", "affiliate", "payouts"] as const;
 type DashboardTab = (typeof TABS)[number];
 
 export const Route = createFileRoute("/dashboard")({
@@ -85,17 +87,37 @@ function Dashboard() {
     affiliateEarnings
       ?.filter((tx: any) => tx.status === "released" || tx.status === "completed")
       .reduce((sum: number, tx: any) => sum + Number(tx.affiliate_amount ?? 0), 0) ?? 0;
-  const affiliatePending = Math.max(0, affiliateTotal - affiliateReleased);
-
-  const requestAffiliatePayout = () => {
-    if (affiliateReleased < 100) return;
-    const account = window.prompt("Podaj numer rachunku bankowego do wypłaty:");
-    if (!account?.trim()) return;
-    const subject = encodeURIComponent("Wniosek o wypłatę prowizji afiliacyjnej");
-    const body = encodeURIComponent(
-      `Proszę o wypłatę prowizji afiliacyjnej. Kwota: ${affiliateReleased.toFixed(2)} PLN. Numer rachunku: ${account.trim()}.`,
-    );
-    window.location.href = `mailto:${OPERATOR_CONTACT}?subject=${subject}&body=${body}`;
+  const fetchWallet = useServerFn(getAffiliateWallet);
+  const { data: wallet } = useQuery({
+    queryKey: ["affiliate-wallet", user?.id],
+    enabled: !!user,
+    queryFn: () => fetchWallet(),
+  });
+  const affiliatePending = wallet?.pending ?? 0;
+  const affiliateAvailable = wallet?.available ?? 0;
+  const withdrawMin = wallet?.min ?? 100;
+  const { env: stripeEnv, data: connectStatus } = useConnectStatus(!!user);
+  const withdrawFn = useServerFn(withdrawAffiliateBalance);
+  const qc = useQueryClient();
+  const [withdrawing, setWithdrawing] = useState(false);
+  const requestAffiliatePayout = async () => {
+    if (affiliateAvailable < withdrawMin || !stripeEnv) return;
+    if (!connectStatus?.transfersEnabled) {
+      toast.error("Najpierw połącz konto Stripe w zakładce Wypłaty.");
+      navigate({ to: "/dashboard", search: { tab: "payouts" } });
+      return;
+    }
+    setWithdrawing(true);
+    try {
+      const res: any = await withdrawFn({ data: { environment: stripeEnv } });
+      if (res?.error) throw new Error(res.error);
+      toast.success(`Wypłata ${Number(res.amount).toFixed(2)} PLN wysłana na Twoje konto Stripe.`);
+    } catch (e: any) {
+      toast.error(e?.message ?? "Wypłata nie powiodła się");
+    } finally {
+      setWithdrawing(false);
+      qc.invalidateQueries({ queryKey: ["affiliate-wallet"] });
+    }
   };
 
   const fetchDac7 = useServerFn(getMyDac7Status);
@@ -320,6 +342,7 @@ function Dashboard() {
             <TabsTrigger value="purchases">Zakupy</TabsTrigger>
             <TabsTrigger value="sales">Sprzedaż</TabsTrigger>
             <TabsTrigger value="affiliate">Afiliacja</TabsTrigger>
+            <TabsTrigger value="payouts">Wypłaty</TabsTrigger>
           </TabsList>
 
           <TabsContent value="products" className="mt-6 space-y-3">
@@ -490,7 +513,8 @@ function Dashboard() {
                   Po zakupie prowizja pojawi się w historii.
                 </AffiliateStep>
                 <AffiliateStep number="3" title="Odbierz środki">
-                  Po zwolnieniu escrow środki liczą się do wypłaty.
+                  Po zwolnieniu depozytu prowizja trafia do Twojego salda. Od 100 PLN wypłacisz ją
+                  jednym kliknięciem.
                 </AffiliateStep>
               </div>
               <p className="text-xs text-muted-foreground">
@@ -512,8 +536,8 @@ function Dashboard() {
               />
               <AffiliateStat
                 icon={<Banknote className="h-4 w-4" />}
-                label="Dostępne"
-                value={`${affiliateReleased.toFixed(2)} PLN`}
+                label="Saldo do wypłaty"
+                value={`${affiliateAvailable.toFixed(2)} PLN`}
               />
             </div>
             <div className="flex flex-wrap items-center justify-between gap-4 rounded-xl border border-border/40 bg-gradient-surface p-4">
@@ -522,13 +546,38 @@ function Dashboard() {
                   Minimalny próg wypłaty: <strong className="text-foreground">100,00 PLN</strong>
                 </p>
                 <p className="text-xs mt-1">
-                  Numer rachunku podasz dopiero przy składaniu wniosku.
+                  Wypłata trafia automatycznie na Twoje połączone konto Stripe, a Stripe przelewa
+                  ją na Twój rachunek bankowy.
+                  {affiliateAvailable < withdrawMin &&
+                    ` Brakuje ${(withdrawMin - affiliateAvailable).toFixed(2)} PLN do progu.`}
                 </p>
               </div>
-              <Button onClick={requestAffiliatePayout} disabled={affiliateReleased < 100}>
-                <Banknote className="h-4 w-4 mr-2" /> Wypłać środki
+              <Button
+                onClick={requestAffiliatePayout}
+                disabled={affiliateAvailable < withdrawMin || withdrawing}
+              >
+                <Banknote className="h-4 w-4 mr-2" />
+                {withdrawing ? "Wypłacam…" : "Wypłać środki"}
               </Button>
             </div>
+            {wallet?.history && wallet.history.length > 0 && (
+              <div className="rounded-xl border border-border/40 bg-card p-4 space-y-2">
+                <p className="text-sm font-semibold">Historia wypłat</p>
+                {wallet.history.map((p: any) => (
+                  <div key={p.id} className="flex items-center justify-between text-sm gap-3">
+                    <span className="text-muted-foreground">
+                      {new Date(p.created_at).toLocaleString("pl-PL")} ·{" "}
+                      {p.status === "paid"
+                        ? "wysłano do Stripe"
+                        : p.status === "processing"
+                          ? "w trakcie"
+                          : "nieudana — saldo przywrócone"}
+                    </span>
+                    <span className="font-semibold">{Number(p.amount).toFixed(2)} PLN</span>
+                  </div>
+                ))}
+              </div>
+            )}
             {(!affiliateEarnings || affiliateEarnings.length === 0) && (
               <Empty msg="Brak zarobków z afiliacji" />
             )}
@@ -551,6 +600,10 @@ function Dashboard() {
                 </span>
               </div>
             ))}
+          </TabsContent>
+
+          <TabsContent value="payouts" className="mt-6 space-y-3">
+            <ConnectPayoutsCard />
           </TabsContent>
         </Tabs>
       </main>
