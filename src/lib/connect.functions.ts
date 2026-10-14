@@ -22,8 +22,7 @@ export const startConnectOnboarding = createServerFn({ method: "POST" })
   .handler(async ({ data, context }) => {
     try {
       const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-      const { createStripeClient, getStripeErrorMessage } = await import("@/lib/stripe.server");
-      void getStripeErrorMessage;
+      const { createStripeClient } = await import("@/lib/stripe.server");
       const stripe: any = createStripeClient(data.environment);
       const userId = context.userId;
 
