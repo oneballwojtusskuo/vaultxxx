@@ -225,8 +225,8 @@ function RegulaminPage() {
                 </li>
                 <li>
                   Środki Kupującego są pobierane w chwili zawarcia Umowy Sprzedaży i przechowywane
-                  na <b>rachunku powierniczym (escrow)</b> Operatora Płatności do momentu spełnienia
-                  warunku wydania środków.
+                  na <b>saldzie Operatora w systemie Stripe (depozyt – escrow)</b> do momentu
+                  spełnienia warunku wydania środków.
                 </li>
                 <li>
                   Cena widoczna dla Kupującego zawiera ustaloną przez Sprzedawcę kwotę netto oraz
