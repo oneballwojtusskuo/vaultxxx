@@ -14,7 +14,7 @@ import {
   DialogDescription,
 } from "@/components/ui/dialog";
 import { toast } from "sonner";
-import { Upload, Sparkles } from "lucide-react";
+import { Upload, Sparkles, CheckCircle2 } from "lucide-react";
 import { useServerFn } from "@tanstack/react-start";
 import { validateUploadedFile } from "@/lib/upload-validate.functions";
 import { uploadAvatarFile } from "@/lib/avatar-upload";
@@ -32,6 +32,10 @@ export function OnboardingDialog() {
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
   const [uploading, setUploading] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [password, setPassword] = useState("");
+  const [password2, setPassword2] = useState("");
+  const [done, setDone] = useState(false);
+  const isGuest = (user?.user_metadata as any)?.guest_checkout === "true";
   const validateFile = useServerFn(validateUploadedFile);
 
   useEffect(() => {
@@ -194,6 +198,22 @@ export function OnboardingDialog() {
               Twój profil: vlnd.lovable.app/u/{username || "twoja_nazwa"}
             </p>
           </div>
+
+          {isGuest && (
+            <>
+              <div>
+                <Label>Hasło *</Label>
+                <Input type="password" minLength={8} value={password} onChange={(e) => setPassword(e.target.value)} placeholder="min. 8 znaków" />
+              </div>
+              <div>
+                <Label>Powtórz hasło *</Label>
+                <Input type="password" minLength={8} value={password2} onChange={(e) => setPassword2(e.target.value)} />
+                {password2.length > 0 && password2 !== password && (
+                  <p className="text-xs text-destructive mt-1">Hasła nie są takie same.</p>
+                )}
+              </div>
+            </>
+          )}
 
           <div className="flex items-center gap-4">
             <div className="h-16 w-16 rounded-full overflow-hidden bg-gradient-primary flex items-center justify-center shrink-0">
