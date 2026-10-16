@@ -605,9 +605,9 @@ function Sell() {
                       )}
                     </p>
                     <p className="text-muted-foreground mt-1">
-                      Platforma dolicza 10% marży do Twojej ceny (płaci ją kupujący). Prowizja
-                      partnera jest potrącana z Twojej kwoty tylko wtedy, gdy zakup nastąpi z linku
-                      partnera.
+                      Otrzymujesz 100% swojej ceny. Kupujący dopłaca opłatę serwisową (10% marży
+                      platformy) i koszt realizacji płatności. Prowizja partnera jest potrącana z
+                      Twojej kwoty tylko wtedy, gdy zakup nastąpi z linku partnera.
                     </p>
                   </div>
                 );
