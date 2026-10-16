@@ -11,6 +11,7 @@ import { Repeat2, Check, X, MessageSquare } from "lucide-react";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/exchanges")({
+  staticData: { sitemap: false },
   component: Exchanges,
 });
 

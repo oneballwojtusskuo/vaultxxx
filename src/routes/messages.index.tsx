@@ -8,6 +8,7 @@ import { useAuth } from "@/hooks/use-auth";
 import { MessageSquare } from "lucide-react";
 
 export const Route = createFileRoute("/messages/")({
+  staticData: { sitemap: false },
   component: Inbox,
 });
 

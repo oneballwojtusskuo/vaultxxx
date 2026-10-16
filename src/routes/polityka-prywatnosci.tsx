@@ -13,6 +13,7 @@ import {
 const EFFECTIVE_DATE = "1 stycznia 2026 r.";
 
 export const Route = createFileRoute("/polityka-prywatnosci")({
+  staticData: { sitemap: true },
   head: () => ({
     meta: [
       { title: "Polityka Prywatności i Cookies — vlnd" },

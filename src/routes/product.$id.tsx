@@ -75,6 +75,7 @@ import { BackLink } from "@/components/back-link";
 import JSZip from "jszip";
 
 export const Route = createFileRoute("/product/$id")({
+  staticData: { sitemap: false },
   component: ProductPage,
 });
 

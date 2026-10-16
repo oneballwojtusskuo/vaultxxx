@@ -20,6 +20,7 @@ const schema = z.object({
 });
 
 export const Route = createFileRoute("/help")({
+  staticData: { sitemap: true },
   head: () => ({
     meta: [
       { title: "Centrum pomocy — vlnd" },

@@ -9,6 +9,7 @@ import { ProductCard } from "@/components/product-card";
 import { Heart } from "lucide-react";
 
 export const Route = createFileRoute("/likes")({
+  staticData: { sitemap: false },
   component: Likes,
 });
 

@@ -25,6 +25,7 @@ import { Route as RegulaminRouteImport } from './routes/regulamin'
 import { Route as ReportInfringementRouteImport } from './routes/report-infringement'
 import { Route as ResetHaslaRouteImport } from './routes/reset-hasla'
 import { Route as SellRouteImport } from './routes/sell'
+import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as MessagesIndexRouteImport } from './routes/messages.index'
 import { Route as MessagesUserIdRouteImport } from './routes/messages.$userId'
 import { Route as PIdRouteImport } from './routes/p.$id'
@@ -113,6 +114,11 @@ const SellRoute = SellRouteImport.update({
   path: '/sell',
   getParentRoute: () => rootRouteImport,
 } as any)
+const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
+  id: '/sitemap.xml',
+  path: '/sitemap.xml',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const MessagesIndexRoute = MessagesIndexRouteImport.update({
   id: '/messages/',
   path: '/messages/',
@@ -167,6 +173,7 @@ export interface FileRoutesByFullPath {
   '/report-infringement': typeof ReportInfringementRoute
   '/reset-hasla': typeof ResetHaslaRoute
   '/sell': typeof SellRoute
+  '/sitemap.xml': typeof SitemapDotxmlRoute
   '/messages/$userId': typeof MessagesUserIdRoute
   '/p/$id': typeof PIdRoute
   '/product/$id': typeof ProductIdRoute
@@ -192,6 +199,7 @@ export interface FileRoutesByTo {
   '/report-infringement': typeof ReportInfringementRoute
   '/reset-hasla': typeof ResetHaslaRoute
   '/sell': typeof SellRoute
+  '/sitemap.xml': typeof SitemapDotxmlRoute
   '/messages/$userId': typeof MessagesUserIdRoute
   '/p/$id': typeof PIdRoute
   '/product/$id': typeof ProductIdRoute
@@ -218,6 +226,7 @@ export interface FileRoutesById {
   '/report-infringement': typeof ReportInfringementRoute
   '/reset-hasla': typeof ResetHaslaRoute
   '/sell': typeof SellRoute
+  '/sitemap.xml': typeof SitemapDotxmlRoute
   '/messages/$userId': typeof MessagesUserIdRoute
   '/p/$id': typeof PIdRoute
   '/product/$id': typeof ProductIdRoute
@@ -245,6 +254,7 @@ export interface FileRouteTypes {
     | '/report-infringement'
     | '/reset-hasla'
     | '/sell'
+    | '/sitemap.xml'
     | '/messages/$userId'
     | '/p/$id'
     | '/product/$id'
@@ -270,6 +280,7 @@ export interface FileRouteTypes {
     | '/report-infringement'
     | '/reset-hasla'
     | '/sell'
+    | '/sitemap.xml'
     | '/messages/$userId'
     | '/p/$id'
     | '/product/$id'
@@ -295,6 +306,7 @@ export interface FileRouteTypes {
     | '/report-infringement'
     | '/reset-hasla'
     | '/sell'
+    | '/sitemap.xml'
     | '/messages/$userId'
     | '/p/$id'
     | '/product/$id'
@@ -321,6 +333,7 @@ export interface RootRouteChildren {
   ReportInfringementRoute: typeof ReportInfringementRoute
   ResetHaslaRoute: typeof ResetHaslaRoute
   SellRoute: typeof SellRoute
+  SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   MessagesUserIdRoute: typeof MessagesUserIdRoute
   PIdRoute: typeof PIdRoute
   ProductIdRoute: typeof ProductIdRoute
@@ -444,6 +457,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SellRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/sitemap.xml': {
+      id: '/sitemap.xml'
+      path: '/sitemap.xml'
+      fullPath: '/sitemap.xml'
+      preLoaderRoute: typeof SitemapDotxmlRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/messages/': {
       id: '/messages/'
       path: '/messages'
@@ -513,6 +533,7 @@ const rootRouteChildren: RootRouteChildren = {
   ReportInfringementRoute: ReportInfringementRoute,
   ResetHaslaRoute: ResetHaslaRoute,
   SellRoute: SellRoute,
+  SitemapDotxmlRoute: SitemapDotxmlRoute,
   MessagesUserIdRoute: MessagesUserIdRoute,
   PIdRoute: PIdRoute,
   ProductIdRoute: ProductIdRoute,

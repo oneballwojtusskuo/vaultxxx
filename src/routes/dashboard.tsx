@@ -38,6 +38,7 @@ const TABS = ["products", "purchases", "sales", "affiliate", "payouts"] as const
 type DashboardTab = (typeof TABS)[number];
 
 export const Route = createFileRoute("/dashboard")({
+  staticData: { sitemap: false },
   validateSearch: (search: Record<string, unknown>): { tab?: DashboardTab } => {
     const tab = search.tab as DashboardTab | undefined;
     return TABS.includes(tab as DashboardTab) ? { tab } : {};

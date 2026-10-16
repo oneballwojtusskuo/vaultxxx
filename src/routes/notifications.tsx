@@ -10,6 +10,7 @@ import { Bell, Check, Trash2, MessageSquare } from "lucide-react";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/notifications")({
+  staticData: { sitemap: false },
   component: Notifications,
 });
 

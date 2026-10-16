@@ -22,6 +22,7 @@ import { getMyDac7Status, saveTaxProfile } from "@/lib/dac7.functions";
 import { DAC7_TX_REQUIRED, DAC7_PLN_REQUIRED } from "@/lib/dac7.server";
 
 export const Route = createFileRoute("/dane-podatkowe")({
+  staticData: { sitemap: false },
   head: () => ({
     meta: [
       { title: "Dane podatkowe (DAC7) — vlnd" },
