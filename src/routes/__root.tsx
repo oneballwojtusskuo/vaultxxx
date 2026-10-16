@@ -79,6 +79,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
+      { name: "google-site-verification", content: "agZCLt-RaoqEOEG4VbUrL4GZJw3Z9C7Ms6GvF4-fgwA" },
       { title: "vlnd — kupuj, sprzedawaj i wymieniaj materiały cyfrowe" },
       {
         name: "description",
