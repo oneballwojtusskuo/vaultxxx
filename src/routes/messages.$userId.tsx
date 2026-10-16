@@ -11,6 +11,7 @@ import { ArrowLeft, Send } from "lucide-react";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/messages/$userId")({
+  staticData: { sitemap: false },
   component: Conversation,
 });
 

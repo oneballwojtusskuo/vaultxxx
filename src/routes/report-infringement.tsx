@@ -25,6 +25,7 @@ const schema = z.object({
 });
 
 export const Route = createFileRoute("/report-infringement")({
+  staticData: { sitemap: true },
   head: () => ({
     meta: [
       { title: "Zgłoś naruszenie praw autorskich — vlnd" },

@@ -21,6 +21,7 @@ import { useAuth } from "@/hooks/use-auth";
 import { exportMyData, createPrivacyRequest, getMyPrivacyRequests } from "@/lib/privacy.functions";
 
 export const Route = createFileRoute("/moje-dane")({
+  staticData: { sitemap: false },
   head: () => ({
     meta: [
       { title: "Moje dane i prywatność — vlnd" },

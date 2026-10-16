@@ -247,6 +247,7 @@ function DeviationNote({ show, licType }: { show: boolean; licType: LicenseType 
 }
 
 export const Route = createFileRoute("/sell")({
+  staticData: { sitemap: false },
   component: Sell,
 });
 

@@ -23,6 +23,7 @@ const searchSchema = z.object({
 });
 
 export const Route = createFileRoute("/browse")({
+  staticData: { sitemap: true },
   validateSearch: (s) => searchSchema.parse(s),
   component: Browse,
 });

@@ -12,6 +12,7 @@ import { useAuth } from "@/hooks/use-auth";
 import { RatingSummary, SellerReviews } from "@/components/reviews";
 
 export const Route = createFileRoute("/u/$username")({
+  staticData: { sitemap: false },
   component: Profile,
 });
 

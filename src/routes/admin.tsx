@@ -36,6 +36,7 @@ import { getDac7Participants, getOwnerRevenueStats } from "@/lib/dac7.functions"
 import { listDisputeThreads } from "@/lib/dispute.functions";
 
 export const Route = createFileRoute("/admin")({
+  staticData: { sitemap: false },
   component: AdminPage,
 });
 

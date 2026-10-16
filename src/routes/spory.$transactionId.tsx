@@ -12,6 +12,7 @@ import { useAuth } from "@/hooks/use-auth";
 import { getDisputeChat, resolveDispute, sendDisputeMessage } from "@/lib/dispute.functions";
 
 export const Route = createFileRoute("/spory/$transactionId")({
+  staticData: { sitemap: false },
   component: DisputeChat,
 });
 
