@@ -10,6 +10,8 @@ const InputSchema = z.object({
   environment: z.enum(["sandbox", "live"]).optional(),
   /** Art. 38 pkt 13 — zgoda na dostarczenie treści cyfrowych przed terminem odstąpienia. */
   withdrawalWaiverAccepted: z.boolean().optional(),
+  /** Metoda płatności wybrana przed checkoutem — od niej zależy opłata transakcyjna. */
+  paymentMethod: z.enum(["blik", "card", "p24"]).optional(),
 });
 
 const PLATFORM_MARKUP_PCT = 10; // added on top of seller price -> buyer pays price * 1.10
@@ -126,8 +128,11 @@ async function runPurchase(
     const sellerNet = Number(product.price);
     const isFree = sellerNet === 0;
     const { buyerPriceOf } = await import("@/lib/pricing");
-    // Buyer covers platform margin and payment fee: (price*1.10 + 1) / (1 - 0.016)
-    const buyerPrice = buyerPriceOf(sellerNet);
+    // BLIK and Przelewy24 work only in PLN; other currencies are card-only.
+    const isPln = String(product.currency ?? "PLN").toLowerCase() === "pln";
+    const method = isPln ? (data.paymentMethod ?? "blik") : "card";
+    // Buyer covers platform margin and the fee of the chosen payment method.
+    const buyerPrice = buyerPriceOf(sellerNet, method);
 
     // Affiliate commission (a % of the seller's net price) is deducted from the
     // seller's cut. Platform keeps exactly 10% of the seller price; the rest of
@@ -211,9 +216,8 @@ async function runPurchase(
     const stripe = createStripeClient(env);
 
     const currency = String(product.currency ?? "PLN").toLowerCase();
-    // BLIK requires PLN. Promote BLIK first for Polish currency; fall back to card + p24 otherwise.
-    const paymentMethodTypes =
-      currency === "pln" ? (["blik", "card", "p24"] as const) : (["card"] as const);
+    // Only the chosen method — the total was calculated for its fee.
+    const paymentMethodTypes = [method];
 
     const { guest_email: guestEmail, ...metaRest } = extraMeta;
     extraMeta = metaRest;
@@ -234,10 +238,14 @@ async function runPurchase(
           },
         },
       ],
-      payment_method_options: {
-        // Wymuszenie silnego uwierzytelnienia (3D Secure) tam, gdzie to możliwe.
-        card: { request_three_d_secure: "any" as const },
-      },
+      ...(method === "card"
+        ? {
+            payment_method_options: {
+              // Wymuszenie silnego uwierzytelnienia (3D Secure) tam, gdzie to możliwe.
+              card: { request_three_d_secure: "any" as const },
+            },
+          }
+        : {}),
       payment_intent_data: {
         description: product.title,
         // Seller share is transferred to the creator's Stripe account on escrow release.
@@ -262,6 +270,7 @@ async function runPurchase(
         buyerId: userId,
         withdrawal_waiver_accepted: "true",
         license_hash: licenseHash,
+        payment_method: method,
         ...extraMeta,
       },
     };
@@ -274,10 +283,15 @@ async function runPurchase(
           payment_method_types: paymentMethodTypes as any,
         });
       } catch (methodError) {
-        // BLIK/P24 may not be activated on the account — retry with Stripe's
-        // automatic payment methods so checkout still opens.
-        console.error("Stripe session (explicit methods) failed:", methodError);
-        session = await stripe.checkout.sessions.create(baseParams);
+        // Chosen method unavailable — don't switch silently (price depends on it).
+        console.error("Stripe session (chosen method) failed:", methodError);
+        await supabaseAdmin.from("transactions").delete().eq("id", tx.id);
+        return {
+          transactionId: tx.id,
+          status: "failed" as const,
+          alreadyOwned: false,
+          error: "Ta metoda płatności jest chwilowo niedostępna. Wybierz inną metodę.",
+        };
       }
 
       if (!session.client_secret) {
