@@ -88,6 +88,10 @@ export function OnboardingDialog() {
     const uname = username.trim().toLowerCase();
     const unameError = validateUsername(uname);
     if (unameError) return toast.error(unameError);
+    if (isGuest) {
+      if (password.length < 8) return toast.error("Hasło musi mieć min. 8 znaków.");
+      if (password !== password2) return toast.error("Hasła nie są takie same.");
+    }
     const bioError = validateCleanText(bio, "Opis profilu");
     if (bioError) return toast.error(bioError);
     const nameError = validateCleanText(displayName, "Nazwa wyświetlana");
@@ -105,6 +109,17 @@ export function OnboardingDialog() {
       return toast.error("Ta nazwa użytkownika jest już zajęta");
     }
 
+    if (isGuest) {
+      const { error: pwErr } = await supabase.auth.updateUser({
+        password,
+        data: { guest_checkout: "false" },
+      });
+      if (pwErr) {
+        setSaving(false);
+        return toast.error(pwErr.message);
+      }
+    }
+
     const { error } = await supabase
       .from("profiles" as any)
       .update({
@@ -117,21 +132,52 @@ export function OnboardingDialog() {
       .eq("id", user.id);
     setSaving(false);
     if (error) return toast.error(error.message);
+    if (isGuest) {
+      setDone(true);
+      window.dispatchEvent(new Event("vlnd:purchase-refresh"));
+      return;
+    }
     toast.success("Profil gotowy! Witaj w vlnd 🎉");
     setOpen(false);
   };
 
   if (!user) return null;
 
+  if (done) {
+    return (
+      <Dialog open={open} onOpenChange={setOpen}>
+        <DialogContent className="sm:max-w-md">
+          <div className="flex flex-col items-center text-center gap-3 py-4">
+            <CheckCircle2 className="h-12 w-12 text-accent" />
+            <DialogTitle className="font-display text-xl">Zakup został zrealizowany</DialogTitle>
+            <DialogDescription>
+              Dziękujemy! Konto jest gotowe, a kupiony plik czeka na Ciebie na stronie produktu i w
+              zakładce Zakupy w Twoim panelu.
+            </DialogDescription>
+            <Button
+              className="w-full bg-gradient-primary text-primary-foreground"
+              onClick={() => setOpen(false)}
+            >
+              Pobierz zakupiony plik
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+    );
+  }
+
   return (
     <Dialog open={open} onOpenChange={() => {}}>
       <DialogContent className="sm:max-w-md [&>button]:hidden">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
-            <Sparkles className="h-5 w-5 text-primary" /> Skonfiguruj swój profil
+            <Sparkles className="h-5 w-5 text-primary" />{" "}
+            {isGuest ? "Dokończ zakładanie konta" : "Skonfiguruj swój profil"}
           </DialogTitle>
           <DialogDescription>
-            Nazwa użytkownika jest wymagana — pozostałe kroki możesz pominąć i uzupełnić później.
+            {isGuest
+              ? "Płatność przyjęta. Ustaw nazwę użytkownika i hasło, aby zawsze mieć dostęp do zakupu."
+              : "Nazwa użytkownika jest wymagana — pozostałe kroki możesz pominąć i uzupełnić później."}
           </DialogDescription>
         </DialogHeader>
 

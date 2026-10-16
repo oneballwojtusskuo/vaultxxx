@@ -525,6 +525,7 @@ function Sell() {
           ? "Produkt został automatycznie zweryfikowany i opublikowany."
           : "Produkt wysłany do weryfikacji przez administratora.",
       );
+      void clearSellDraft();
       navigate({ to: "/dashboard" });
     } catch (err: any) {
       toast.error(err.message ?? "Błąd publikacji");
