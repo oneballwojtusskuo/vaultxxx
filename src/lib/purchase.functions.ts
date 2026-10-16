@@ -125,13 +125,16 @@ async function runPurchase(
 
     const sellerNet = Number(product.price);
     const isFree = sellerNet === 0;
-    const buyerPrice = +(sellerNet * (1 + PLATFORM_MARKUP_PCT / 100)).toFixed(2);
+    const { buyerPriceOf } = await import("@/lib/pricing");
+    // Buyer covers platform margin and payment fee: (price*1.10 + 1) / (1 - 0.016)
+    const buyerPrice = buyerPriceOf(sellerNet);
 
-    // Platform keeps its full 10% markup. Affiliate commission (a % of the
-    // seller's net price) is deducted from the seller's cut.
+    // Affiliate commission (a % of the seller's net price) is deducted from the
+    // seller's cut. Platform keeps exactly 10% of the seller price; the rest of
+    // the buyer surcharge covers the payment operator fee.
     const affiliateAmount = affiliateUserId ? +(sellerNet * (affiliatePct / 100)).toFixed(2) : 0;
     const sellerAmount = +Math.max(sellerNet - affiliateAmount, 0).toFixed(2);
-    const platformAmount = +(buyerPrice - sellerNet).toFixed(2);
+    const platformAmount = +(sellerNet * (PLATFORM_MARKUP_PCT / 100)).toFixed(2);
 
     // New rows start `pending`; webhook promotes to `held` after payment.
     const status = isFree ? "released" : "pending";

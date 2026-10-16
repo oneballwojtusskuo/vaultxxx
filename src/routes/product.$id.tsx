@@ -69,7 +69,7 @@ import { LikeButton } from "@/components/like-button";
 import { ProductReviews, RatingSummary } from "@/components/reviews";
 import { CheckoutDialog } from "@/components/checkout-dialog";
 import { getStripeEnvironment } from "@/lib/stripe";
-import { buyerPriceOf } from "@/lib/pricing";
+import { buyerPriceOf, formatPrice } from "@/lib/pricing";
 import { EscrowActions } from "@/components/escrow-actions";
 import { BackLink } from "@/components/back-link";
 import JSZip from "jszip";
@@ -476,16 +476,15 @@ function ProductPage() {
                 <>
                   <div className="mt-6 flex items-baseline gap-3">
                     <span className="text-5xl font-bold text-gradient">
-                      {Number(p.price) === 0 ? "Bezpłatny" : `${buyerPriceOf(p.price).toFixed(2)}`}
+                      {Number(p.price) === 0 ? "Bezpłatny" : Number(p.price).toFixed(2).replace(".", ",")}
                     </span>
                     {Number(p.price) > 0 && (
                       <span className="text-muted-foreground">{p.currency}</span>
                     )}
                   </div>
                   {Number(p.price) > 0 && (
-                    <p className="mt-1 text-xs text-muted-foreground">
-                      Sprzedawca otrzyma {Number(p.price).toFixed(2)} {p.currency} · doliczone 10%
-                      prowizji platformy
+                    <p className="mt-1 text-sm text-muted-foreground">
+                      ~{formatPrice(buyerPriceOf(p.price), p.currency)} z opłatą transakcyjną
                     </p>
                   )}
                   <DeliveryModeCallout mode={(p as any).license_terms?.delivery_mode ?? "both"} />
@@ -707,6 +706,8 @@ function ProductPage() {
           clientSecret={checkoutSecret}
           open={checkoutOpen}
           onOpenChange={setCheckoutOpen}
+          sellerPrice={Number(p.price)}
+          currency={p.currency}
         />
       </div>
     </TooltipProvider>
