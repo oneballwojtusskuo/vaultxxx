@@ -238,10 +238,14 @@ async function runPurchase(
           },
         },
       ],
-      payment_method_options: {
-        // Wymuszenie silnego uwierzytelnienia (3D Secure) tam, gdzie to możliwe.
-        card: { request_three_d_secure: "any" as const },
-      },
+      ...(method === "card"
+        ? {
+            payment_method_options: {
+              // Wymuszenie silnego uwierzytelnienia (3D Secure) tam, gdzie to możliwe.
+              card: { request_three_d_secure: "any" as const },
+            },
+          }
+        : {}),
       payment_intent_data: {
         description: product.title,
         // Seller share is transferred to the creator's Stripe account on escrow release.
@@ -266,6 +270,7 @@ async function runPurchase(
         buyerId: userId,
         withdrawal_waiver_accepted: "true",
         license_hash: licenseHash,
+        payment_method: method,
         ...extraMeta,
       },
     };

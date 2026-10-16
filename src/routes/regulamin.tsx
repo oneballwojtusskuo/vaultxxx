@@ -229,10 +229,17 @@ function RegulaminPage() {
                   spełnienia warunku wydania środków.
                 </li>
                 <li>
-                  Cena widoczna dla Kupującego zawiera ustaloną przez Sprzedawcę kwotę netto oraz
-                  doliczoną prowizję Platformy w wysokości <b>10%</b> ceny netto Sprzedawcy.
-                  Dodatkowe opłaty Operatora Płatności (opłaty przetwarzania) mogą pomniejszać kwotę
-                  do wypłaty zgodnie z jego cennikiem.
+                  Cena Produktu prezentowana w ogłoszeniu to kwota ustalona przez Sprzedawcę. Do
+                  ceny tej doliczana jest <b>opłata serwisowa i realizacji płatności</b> ponoszona
+                  przez Kupującego, obejmująca prowizję Platformy w wysokości <b>10%</b> ceny
+                  Sprzedawcy oraz opłatę Operatora Płatności właściwą dla wybranej metody płatności
+                  (BLIK: 1,6% + 1,00 PLN; karta płatnicza i Przelewy24: 1,9% + 1,00 PLN). Łączna
+                  kwota do zapłaty wynosi: (cena Sprzedawcy × 1,10 + 1,00 PLN) / (1 − stawka
+                  procentowa metody) i jest prezentowana Kupującemu przed złożeniem zamówienia, z
+                  podziałem na cenę Produktu i opłatę serwisową. Sprzedawca otrzymuje 100% ustalonej
+                  przez siebie ceny (pomniejszonej wyłącznie o ewentualną prowizję Partnera przy
+                  sprzedaży z linku polecającego). Opłaty serwisowe nie podlegają zwrotowi, chyba że
+                  dochodzi do zwrotu całej płatności na rzecz Kupującego.
                 </li>
                 <li>
                   Zwolnienie środków na rzecz Sprzedawcy następuje po{" "}

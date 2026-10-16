@@ -1,7 +1,7 @@
 import { Link } from "@tanstack/react-router";
 import { Download, Repeat2 } from "lucide-react";
 import { LikeButton } from "@/components/like-button";
-import { buyerPriceOf, formatPrice } from "@/lib/pricing";
+import { minBuyerPriceOf, formatPrice } from "@/lib/pricing";
 
 export interface ProductCardData {
   id: string;
@@ -58,7 +58,7 @@ export function ProductCard({ p }: { p: ProductCardData }) {
         </div>
         {Number(p.price) > 0 && (
           <p className="mt-0.5 text-[11px] text-muted-foreground">
-            ~{formatPrice(buyerPriceOf(p.price), p.currency)} z opłatą transakcyjną
+            od ~{formatPrice(minBuyerPriceOf(p.price), p.currency)} z opłatą transakcyjną
           </p>
         )}
       </div>

@@ -69,7 +69,7 @@ import { LikeButton } from "@/components/like-button";
 import { ProductReviews, RatingSummary } from "@/components/reviews";
 import { CheckoutDialog } from "@/components/checkout-dialog";
 import { getStripeEnvironment } from "@/lib/stripe";
-import { buyerPriceOf, formatPrice } from "@/lib/pricing";
+import { buyerPriceOf, formatPrice, PAYMENT_FEES, PAYMENT_METHODS, type PaymentMethod } from "@/lib/pricing";
 import { EscrowActions } from "@/components/escrow-actions";
 import { BackLink } from "@/components/back-link";
 import JSZip from "jszip";
@@ -163,6 +163,7 @@ function ProductPage() {
   const [exchangeOpen, setExchangeOpen] = useState(false);
   const [acceptTerms, setAcceptTerms] = useState(false);
   const [acceptWithdrawal, setAcceptWithdrawal] = useState(false);
+  const [payMethod, setPayMethod] = useState<PaymentMethod>("blik");
 
   // Handle Stripe return_url: ?checkout=success
   useEffect(() => {
@@ -279,6 +280,7 @@ function ProductPage() {
           productId: p.id,
           referralUserId: getReferralCookie(p.id),
           withdrawalWaiverAccepted: true,
+          paymentMethod: payMethod,
           returnUrl: window.location.origin + window.location.pathname,
           environment,
         },
@@ -329,6 +331,7 @@ function ProductPage() {
           productId: p.id,
           referralUserId: referralUserId && referralUserId !== user.id ? referralUserId : null,
           withdrawalWaiverAccepted: acceptWithdrawal === true,
+          paymentMethod: payMethod,
           returnUrl:
             typeof window !== "undefined"
               ? window.location.origin + window.location.pathname
@@ -484,8 +487,30 @@ function ProductPage() {
                   </div>
                   {Number(p.price) > 0 && (
                     <p className="mt-1 text-sm text-muted-foreground">
-                      ~{formatPrice(buyerPriceOf(p.price), p.currency)} z opłatą transakcyjną
+                      ~{formatPrice(buyerPriceOf(p.price, payMethod), p.currency)} z opłatą transakcyjną
                     </p>
+                  )}
+                  {Number(p.price) > 0 && String(p.currency).toUpperCase() === "PLN" && (
+                    <div className="mt-4">
+                      <p className="text-xs uppercase tracking-wider text-muted-foreground mb-2">
+                        Metoda płatności
+                      </p>
+                      <div className="grid grid-cols-3 gap-2">
+                        {PAYMENT_METHODS.map((m) => (
+                          <button
+                            key={m}
+                            type="button"
+                            onClick={() => setPayMethod(m)}
+                            className={`rounded-xl border px-3 py-2 text-left transition-colors ${payMethod === m ? "border-primary bg-primary/10" : "border-border/60 bg-card hover:border-primary/40"}`}
+                          >
+                            <span className="block text-sm font-medium">{PAYMENT_FEES[m].label}</span>
+                            <span className="block text-xs text-muted-foreground">
+                              {formatPrice(buyerPriceOf(p.price, m), p.currency)}
+                            </span>
+                          </button>
+                        ))}
+                      </div>
+                    </div>
                   )}
                   <DeliveryModeCallout mode={(p as any).license_terms?.delivery_mode ?? "both"} />
                 </>
@@ -707,6 +732,7 @@ function ProductPage() {
           open={checkoutOpen}
           onOpenChange={setCheckoutOpen}
           sellerPrice={Number(p.price)}
+          paymentMethod={String(p.currency).toUpperCase() === "PLN" ? payMethod : "card"}
           currency={p.currency}
         />
       </div>

@@ -107,8 +107,8 @@ function HelpPage() {
               Twojego linku.
             </FaqCard>
             <FaqCard icon={<Percent className="h-4 w-4" />} title="Prowizja platformy">
-              vlnd dolicza 10% do ceny sprzedawcy — to jedyna prowizja platformy, całą resztę
-              otrzymuje twórca.
+              Twórca otrzymuje 100% swojej ceny. Kupujący dopłaca opłatę serwisową: 10% dla
+              platformy plus koszt płatności (BLIK 1,6% + 1 zł, karta i Przelewy24 1,9% + 1 zł).
             </FaqCard>
           </section>
 
