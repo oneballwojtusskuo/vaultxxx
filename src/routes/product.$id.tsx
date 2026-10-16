@@ -190,6 +190,13 @@ function ProductPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  useEffect(() => {
+    const h = () => void refetchTx();
+    window.addEventListener("vlnd:purchase-refresh", h);
+    return () => window.removeEventListener("vlnd:purchase-refresh", h);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   async function completeGuestLogin(sessionId: string) {
     try {
       let environment: "sandbox" | "live" = "sandbox";
@@ -200,8 +207,8 @@ function ProductPage() {
       if (r.mode === "login" && "tokenHash" in r && r.tokenHash) {
         const { error } = await supabase.auth.verifyOtp({ token_hash: r.tokenHash, type: "magiclink" });
         if (error) throw error;
-        toast.success("Założyliśmy Ci konto i zalogowaliśmy Cię. Plik jest gotowy do pobrania.");
-        setTimeout(() => window.location.reload(), 800);
+        toast.success("Płatność przyjęta! Ustaw jeszcze nazwę użytkownika i hasło.");
+        void refetchTx();
       } else if (r.mode === "email" && "email" in r && r.email) {
         await supabase.auth.signInWithOtp({
           email: r.email,

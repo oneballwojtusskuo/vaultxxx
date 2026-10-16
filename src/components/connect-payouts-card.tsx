@@ -31,7 +31,15 @@ export function useConnectStatus(enabled = true) {
   return { env, ...q };
 }
 
-export function ConnectPayoutsCard({ compact = false }: { compact?: boolean }) {
+export function ConnectPayoutsCard({
+  compact = false,
+  returnTo,
+  onBeforeRedirect,
+}: {
+  compact?: boolean;
+  returnTo?: "dashboard" | "sell";
+  onBeforeRedirect?: () => Promise<unknown>;
+}) {
   const { env, data: status, isLoading } = useConnectStatus();
   const qc = useQueryClient();
   const start = useServerFn(startConnectOnboarding);
@@ -42,8 +50,9 @@ export function ConnectPayoutsCard({ compact = false }: { compact?: boolean }) {
     if (!env) return toast.error("Płatności nie są skonfigurowane.");
     setBusy(true);
     try {
-      const res: any = await start({ data: { environment: env } });
+      const res: any = await start({ data: { environment: env, returnTo } });
       if (res?.error) throw new Error(res.error);
+      if (onBeforeRedirect) await onBeforeRedirect();
       window.location.href = res.url;
     } catch (e: any) {
       toast.error(e?.message ?? "Nie udało się połączyć ze Stripe");

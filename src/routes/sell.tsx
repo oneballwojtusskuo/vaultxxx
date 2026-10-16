@@ -29,6 +29,7 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { buyerPriceOf } from "@/lib/pricing";
 import { validatePrice } from "@/lib/pricing-rules";
 import { ConnectPayoutsCard, useConnectStatus } from "@/components/connect-payouts-card";
+import { saveSellDraft, loadSellDraft, clearSellDraft } from "@/lib/sell-draft";
 import {
   LICENSE_TYPE_LABELS,
   LICENSE_DURATION_LABELS,
@@ -312,6 +313,59 @@ function Sell() {
 
   const { data: connectStatus } = useConnectStatus(!!user);
 
+  const saveDraft = () =>
+    saveSellDraft({
+      userId: user?.id,
+      title,
+      description,
+      price,
+      categoryId,
+      customCategory,
+      tags,
+      tradable,
+      previewFile,
+      productFiles,
+      sampleFile,
+      licType,
+      licTerms,
+      licCustom,
+      licMaxStreams,
+      affiliatePct,
+    });
+
+  // Back from Stripe onboarding: restore the form exactly as the creator left it.
+  useEffect(() => {
+    if (!user) return;
+    let cancelled = false;
+    loadSellDraft().then((d) => {
+      if (cancelled || !d || d.userId !== user.id) return;
+      setTitle(d.title ?? "");
+      setDescription(d.description ?? "");
+      setPrice(d.price ?? "0");
+      setCategoryId(d.categoryId ?? "");
+      setCustomCategory(d.customCategory ?? "");
+      setTags(d.tags ?? "");
+      setTradable(d.tradable ?? true);
+      setPreviewFile(d.previewFile ?? null);
+      setProductFiles(d.productFiles ?? []);
+      setSampleFile(d.sampleFile ?? null);
+      if (d.licType) setLicType(d.licType);
+      if (d.licTerms) setLicTerms(d.licTerms);
+      setLicCustom(d.licCustom ?? "");
+      setLicMaxStreams(d.licMaxStreams ?? "");
+      setAffiliatePct(d.affiliatePct ?? "10");
+      toast.success("Przywróciliśmy Twój formularz wraz z wgranymi plikami.");
+      const url = new URL(window.location.href);
+      url.searchParams.delete("draft");
+      url.searchParams.delete("connect");
+      window.history.replaceState({}, "", url.pathname + url.search);
+    });
+    return () => {
+      cancelled = true;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user?.id]);
+
   const validateFile = useServerFn(validateUploadedFile);
   const reviewListingFn = useServerFn(reviewListing);
 
@@ -471,6 +525,7 @@ function Sell() {
           ? "Produkt został automatycznie zweryfikowany i opublikowany."
           : "Produkt wysłany do weryfikacji przez administratora.",
       );
+      void clearSellDraft();
       navigate({ to: "/dashboard" });
     } catch (err: any) {
       toast.error(err.message ?? "Błąd publikacji");
@@ -1073,7 +1128,7 @@ function Sell() {
             {Number(String(price).replace(",", ".")) > 0 && (
               <div className="space-y-2">
                 <Label className="text-base">Wypłaty *</Label>
-                <ConnectPayoutsCard compact />
+                <ConnectPayoutsCard compact returnTo="sell" onBeforeRedirect={saveDraft} />
                 {!connectStatus?.transfersEnabled && (
                   <p className="text-xs text-muted-foreground">
                     Płatne produkty możesz wystawić po połączeniu konta Stripe. Produkty darmowe
