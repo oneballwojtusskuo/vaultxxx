@@ -18,7 +18,9 @@ function appOrigin() {
 /** Creates (once) the creator's Stripe account and returns the onboarding link. */
 export const startConnectOnboarding = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i) => EnvSchema.parse(i))
+  .inputValidator((i) =>
+    EnvSchema.extend({ returnTo: z.enum(["dashboard", "sell"]).optional() }).parse(i),
+  )
   .handler(async ({ data, context }) => {
     try {
       const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
@@ -66,7 +68,8 @@ export const startConnectOnboarding = createServerFn({ method: "POST" })
       }
 
       const origin = appOrigin();
-      const back = `${origin}/dashboard?tab=payouts`;
+      const back =
+        data.returnTo === "sell" ? `${origin}/sell?draft=1` : `${origin}/dashboard?tab=payouts`;
       const link = await stripe.v2.core.accountLinks.create({
         account: accountId,
         use_case: {
