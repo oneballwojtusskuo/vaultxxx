@@ -68,7 +68,7 @@ export function OnboardingDialog() {
     return () => {
       cancelled = true;
     };
-  }, [user, loading]);
+  }, [user, loading, confirmTab]);
 
   const uploadAvatar = async (file: File) => {
     if (!user) return;
