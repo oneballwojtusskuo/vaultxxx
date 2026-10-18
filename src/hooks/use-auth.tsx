@@ -37,7 +37,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           window.location.hash.includes("access_token") ||
           window.location.search.includes("code=")
         ) {
-          toast.success("Dziękujemy! Adres e-mail potwierdzony — dokończ konfigurację konta.");
+          const isSignupConfirm = window.location.hash.includes("type=signup");
+          if (isSignupConfirm) {
+            sessionStorage.setItem("vlnd:confirm-tab", "1");
+            window.dispatchEvent(new Event("vlnd:confirm-tab"));
+            toast.success(
+              "Dziękujemy! Adres e-mail potwierdzony. Wróć do karty, w której zakładałeś konto — tam ustawisz nazwę użytkownika.",
+              { duration: 15000 },
+            );
+          } else {
+            toast.success("Dziękujemy! Adres e-mail potwierdzony — dokończ konfigurację konta.");
+          }
           window.history.replaceState({}, "", "/");
         }
       }

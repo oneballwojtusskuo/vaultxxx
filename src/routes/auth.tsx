@@ -142,6 +142,28 @@ function AuthPage() {
     if (error) return toast.error(error.message);
     setPendingEmail(email);
     setShowSpamNotice(true);
+    // Wait on THIS tab/device until the e-mail is confirmed (link may be opened elsewhere),
+    // then sign in here so the onboarding (username) appears on the original screen.
+    const creds = { email, password };
+    const started = Date.now();
+    const poll = async () => {
+      if (Date.now() - started > 60 * 60 * 1000) return;
+      const { data: s } = await supabase.auth.getSession();
+      if (s.session) {
+        setShowSpamNotice(false);
+        window.location.href = nextPath ?? "/";
+        return;
+      }
+      const { data, error: e2 } = await supabase.auth.signInWithPassword(creds);
+      if (!e2 && data.session) {
+        setShowSpamNotice(false);
+        toast.success("Dziękujemy! Adres e-mail potwierdzony — ustaw nazwę użytkownika.");
+        window.location.href = nextPath ?? "/";
+        return;
+      }
+      setTimeout(poll, 5000);
+    };
+    setTimeout(poll, 5000);
   };
 
   const google = async () => {
