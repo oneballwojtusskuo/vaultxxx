@@ -31,6 +31,7 @@ import { validatePrice } from "@/lib/pricing-rules";
 import { ConnectPayoutsCard, useConnectStatus } from "@/components/connect-payouts-card";
 import { saveSellDraft, loadSellDraft, clearSellDraft } from "@/lib/sell-draft";
 import {
+const safeFileName = (n: string) => n.normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/ł/g, "l").replace(/Ł/g, "L").replace(/[^a-zA-Z0-9._-]+/g, "_").replace(/_+/g, "_").slice(-120) || "plik";
   LICENSE_TYPE_LABELS,
   LICENSE_DURATION_LABELS,
   LICENSE_OPTION_HELP,
@@ -459,7 +460,7 @@ function Sell() {
       const effectivePreview =
         coverFile ?? (sampleFile && checkImageFile(sampleFile) === null ? sampleFile : null);
       if (effectivePreview) {
-        const path = `${user.id}/${Date.now()}-${effectivePreview.name}`;
+        const path = `${user.id}/${Date.now()}-${safeFileName(effectivePreview.name)}`;
         const { error } = await supabase.storage
           .from("product-previews")
           .upload(path, effectivePreview);
@@ -469,14 +470,14 @@ function Sell() {
         preview_url = supabase.storage.from("product-previews").getPublicUrl(path).data.publicUrl;
       }
       if (sampleFile) {
-        const path = `${user.id}/sample-${Date.now()}-${sampleFile.name}`;
+        const path = `${user.id}/sample-${Date.now()}-${safeFileName(sampleFile.name)}`;
         const { error } = await supabase.storage.from("product-previews").upload(path, sampleFile);
         if (error) throw error;
         await validateFile({ data: { bucket: "product-previews", path, kind: "any" } });
         sample_url = supabase.storage.from("product-previews").getPublicUrl(path).data.publicUrl;
       }
       for (const productFile of productFiles) {
-        const path = `${user.id}/${Date.now()}-${productFile.name}`;
+        const path = `${user.id}/${Date.now()}-${safeFileName(productFile.name)}`;
         const { error } = await supabase.storage.from("product-files").upload(path, productFile);
         if (error) throw error;
         await validateFile({ data: { bucket: "product-files", path, kind: "any" } });
