@@ -38,8 +38,16 @@ export function OnboardingDialog() {
   const isGuest = (user?.user_metadata as any)?.guest_checkout === "true";
   const validateFile = useServerFn(validateUploadedFile);
 
+  const [confirmTab, setConfirmTab] = useState(false);
   useEffect(() => {
-    if (loading || !user) {
+    const sync = () => setConfirmTab(sessionStorage.getItem("vlnd:confirm-tab") === "1");
+    sync();
+    window.addEventListener("vlnd:confirm-tab", sync);
+    return () => window.removeEventListener("vlnd:confirm-tab", sync);
+  }, []);
+
+  useEffect(() => {
+    if (loading || !user || confirmTab) {
       setOpen(false);
       return;
     }
