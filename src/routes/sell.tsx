@@ -31,7 +31,6 @@ import { validatePrice } from "@/lib/pricing-rules";
 import { ConnectPayoutsCard, useConnectStatus } from "@/components/connect-payouts-card";
 import { saveSellDraft, loadSellDraft, clearSellDraft } from "@/lib/sell-draft";
 import {
-const safeFileName = (n: string) => n.normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/ł/g, "l").replace(/Ł/g, "L").replace(/[^a-zA-Z0-9._-]+/g, "_").replace(/_+/g, "_").slice(-120) || "plik";
   LICENSE_TYPE_LABELS,
   LICENSE_DURATION_LABELS,
   LICENSE_OPTION_HELP,
@@ -46,6 +45,7 @@ const safeFileName = (n: string) => n.normalize("NFD").replace(/[\u0300-\u036f]/
   type DeliveryMode,
   type TerritoryPreset,
 } from "@/lib/license";
+const safeFileName = (n: string) => n.normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/ł/g, "l").replace(/Ł/g, "L").replace(/[^a-zA-Z0-9._-]+/g, "_").replace(/_+/g, "_").slice(-120) || "plik";
 
 const SAFE_IMAGE_MIME = ["image/jpeg", "image/png", "image/webp", "image/gif"];
 const SAFE_IMAGE_EXT = [".jpg", ".jpeg", ".png", ".webp", ".gif"];
