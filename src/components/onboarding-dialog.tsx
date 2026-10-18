@@ -18,6 +18,7 @@ import { Upload, Sparkles, CheckCircle2 } from "lucide-react";
 import { useServerFn } from "@tanstack/react-start";
 import { validateUploadedFile } from "@/lib/upload-validate.functions";
 import { uploadAvatarFile } from "@/lib/avatar-upload";
+import { notifyAdminSignup } from "@/lib/admin-notify.functions";
 
 /**
  * Shown right after account creation: the user must pick a username,
@@ -144,6 +145,7 @@ export function OnboardingDialog() {
       .eq("id", user.id);
     setSaving(false);
     if (error) return toast.error(error.message);
+    notifyAdminSignup().catch(() => {});
     if (isGuest) {
       setDone(true);
       window.dispatchEvent(new Event("vlnd:purchase-refresh"));

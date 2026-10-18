@@ -195,6 +195,25 @@ export const reviewListing = createServerFn({ method: "POST" })
         : "Plik przeszedł skan bezpieczeństwa i oczekuje na weryfikację administratora.",
     } as any);
 
+    try {
+      const { data: seller } = await supabaseAdmin
+        .from("profiles" as any)
+        .select("username")
+        .eq("id", product.seller_id)
+        .maybeSingle();
+      const { sendTemplateEmail } = await import("@/lib/email-templates/send-email");
+      await sendTemplateEmail("admin-alert", "wojciechjudek04@gmail.com", {
+        templateData: {
+          kind: "product",
+          productTitle: product.title,
+          username: (seller as any)?.username ?? null,
+        },
+        idempotencyKey: `admin-product-${product.id}`,
+      });
+    } catch (e) {
+      console.error("Admin product email failed", e);
+    }
+
     return {
       status: "pending_review",
       autoApproved: false,
