@@ -50,30 +50,30 @@
 :root {
   --radius: 0.75rem;
 
-  --background: #f9f9fb;
-  --foreground: #171b24;
+  --background: #f8f7f4;
+  --foreground: #111322;
   --surface: #ffffff;
-  --surface-elevated: #f3f3f7;
+  --surface-elevated: #f2f0fa;
   --card: #ffffff;
-  --card-foreground: #171b24;
+  --card-foreground: #111322;
   --popover: #ffffff;
-  --popover-foreground: #171b24;
-  --primary: #6d4aff;
+  --popover-foreground: #111322;
+  --primary: #5b3df5;
   --primary-foreground: #ffffff;
-  --primary-glow: #7f56ff;
-  --secondary: #ece8ff;
-  --secondary-foreground: #6d4aff;
-  --muted: #f3f3f7;
-  --muted-foreground: #4d5363;
+  --primary-glow: #8b5cf6;
+  --secondary: #eeeaff;
+  --secondary-foreground: #4b2fd9;
+  --muted: #f1efea;
+  --muted-foreground: #5a5f6e;
   --accent: #5b3fd6;
   --accent-foreground: #ffffff;
   --destructive: #d94b4b;
   --destructive-foreground: #ffffff;
   --success: #2b9c71;
   --success-foreground: #ffffff;
-  --border: #eaebf0;
-  --input: #f3f3f7;
-  --ring: #6d4aff;
+  --border: #e4e2dc;
+  --input: #e4e2dc;
+  --ring: #5b3df5;
 
   --sidebar: #1b1738;
   --sidebar-foreground: #a5a1c9;
@@ -83,13 +83,13 @@
   --sidebar-accent-foreground: #ffffff;
   --sidebar-border: #2b2554;
 
-  --gradient-primary: linear-gradient(135deg, #6d4aff 0%, #7f56ff 100%);
-  --gradient-hero: linear-gradient(180deg, #f9f9fb 0%, #f3f3f7 100%);
-  --gradient-surface: linear-gradient(180deg, #ffffff 0%, #f9f9fb 100%);
+  --gradient-primary: linear-gradient(135deg, #5b3df5 0%, #8b5cf6 100%);
+  --gradient-hero: radial-gradient(1200px 400px at 50% -10%, #ece7ff 0%, transparent 60%), linear-gradient(180deg, #f8f7f4 0%, #f4f2ee 100%);
+  --gradient-surface: linear-gradient(180deg, #ffffff 0%, #ffffff 100%);
 
   --shadow-glow: 0 12px 28px -18px rgba(109, 74, 255, 0.45);
   --shadow-elevated: 0 16px 36px -22px rgba(27, 23, 56, 0.18);
-  --shadow-soft: 0 8px 18px -12px rgba(27, 23, 56, 0.08);
+  --shadow-soft: 0 1px 2px rgba(17, 19, 34, 0.04), 0 6px 16px -10px rgba(17, 19, 34, 0.12);
 
   --transition-smooth: cubic-bezier(0.22, 1, 0.36, 1);
 }
@@ -110,7 +110,8 @@
   h3,
   h4 {
     font-family: var(--font-display);
-    letter-spacing: -0.02em;
+    letter-spacing: -0.025em;
+    color: var(--color-foreground);
   }
   ::selection {
     background: oklch(0.72 0.088 82 / 0.28);
@@ -149,6 +150,11 @@
     -webkit-backdrop-filter: blur(14px);
     border: 1px solid rgba(234, 235, 240, 0.9);
     box-shadow: 0 10px 30px -22px rgba(27, 23, 56, 0.18);
+  }
+  .empty-state {
+    border: 1.5px dashed var(--color-border);
+    border-radius: 1.25rem;
+    background: linear-gradient(180deg, #ffffff 0%, var(--color-surface-elevated) 100%);
   }
   .glow-ring {
     box-shadow: 0 0 0 1px rgba(109, 74, 255, 0.35);

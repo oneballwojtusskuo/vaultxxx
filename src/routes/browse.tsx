@@ -118,7 +118,7 @@ function Browse() {
     <div className="min-h-screen flex flex-col">
       <SiteHeader />
       <main className="container mx-auto px-4 py-10 flex-1">
-        <h1 className="font-display text-4xl font-bold">Odkrywaj</h1>
+        <h1 className="font-display text-4xl md:text-5xl font-bold tracking-tight">Odkrywaj</h1>
         <p className="text-muted-foreground mt-1">
           Przeglądaj wszystkie materiały cyfrowe od społeczności.
         </p>
@@ -327,8 +327,19 @@ function Browse() {
               ))}
             </div>
           ) : (
-            <div className="text-center text-muted-foreground py-20">
-              {sp.q ? "Brak produktów pasujących do zapytania." : "Brak wyników."}
+            <div className="empty-state mx-auto max-w-xl px-6 py-14 text-center">
+              <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-secondary text-2xl text-secondary-foreground">✦</div>
+              <h2 className="font-display text-xl font-semibold">
+                {sp.q ? "Nic tu jeszcze nie pasuje" : "Pierwsze materiały są w drodze"}
+              </h2>
+              <p className="mt-2 text-sm text-muted-foreground">
+                {sp.q
+                  ? "Brak produktów pasujących do zapytania. Spróbuj innej frazy lub wyczyść filtry."
+                  : "Twórcy właśnie przygotowują swoje produkty. Masz coś wartościowego? Bądź jednym z pierwszych."}
+              </p>
+              <Link to="/sell" className="mt-6 inline-flex items-center rounded-full bg-gradient-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground shadow-glow transition-transform hover:-translate-y-0.5">
+                Wystaw swój produkt
+              </Link>
             </div>
           )}
         </div>

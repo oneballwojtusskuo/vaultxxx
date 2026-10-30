@@ -19,7 +19,7 @@ export function ProductCard({ p }: { p: ProductCardData }) {
     <Link
       to="/product/$id"
       params={{ id: p.id }}
-      className="group relative overflow-hidden rounded-2xl bg-gradient-surface border border-border/40 transition-all duration-500 hover:border-primary/40 hover:shadow-glow hover:-translate-y-1"
+      className="group relative overflow-hidden rounded-2xl bg-card border border-border shadow-soft transition-all duration-500 hover:border-primary/40 hover:shadow-elevated hover:-translate-y-1"
     >
       <div className="aspect-[4/3] overflow-hidden bg-muted">
         {p.preview_url ? (
@@ -43,11 +43,11 @@ export function ProductCard({ p }: { p: ProductCardData }) {
       </div>
       <div className="p-4">
         {p.category && (
-          <span className="text-xs uppercase tracking-wider text-muted-foreground">
+          <span className="inline-flex rounded-full bg-secondary px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-secondary-foreground">
             {p.category.name}
           </span>
         )}
-        <h3 className="mt-1 font-display text-base font-semibold line-clamp-1">{p.title}</h3>
+        <h3 className="mt-2 font-display text-base font-semibold line-clamp-1">{p.title}</h3>
         <div className="mt-3 flex items-center justify-between">
           <span className="text-lg font-bold text-gradient">
             {Number(p.price) === 0 ? "Bezpłatny" : formatPrice(p.price, p.currency)}
