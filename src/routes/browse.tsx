@@ -123,10 +123,10 @@ function Browse() {
         <img src={heroImg} alt="Biurko twórcy z laptopem i e-bookiem" width={1920} height={832} className="absolute inset-0 h-full w-full object-cover" />
         <div className="absolute inset-0 bg-gradient-to-r from-foreground/40 via-foreground/10 to-transparent" />
         <div className="relative container mx-auto px-4 py-12 md:py-20">
-          <div className="max-w-md rounded-2xl bg-card p-6 md:p-8 shadow-xl">
-            <h1 className="font-display text-3xl md:text-4xl font-bold tracking-tight">Zarabiaj na swoich produktach cyfrowych</h1>
+          <div className="max-w-sm rounded-2xl bg-card p-5 md:p-6 shadow-xl">
+            <h1 className="font-display text-2xl md:text-3xl font-bold tracking-tight">Zarabiaj na swoich produktach cyfrowych</h1>
             <p className="mt-3 text-muted-foreground">Wystawiaj e-booki, plannery i kursy z 0% prowizji dla twórcy.</p>
-            <Link to="/sell" className="mt-6 flex w-full items-center justify-center rounded-full bg-gradient-primary px-6 py-3 font-semibold text-primary-foreground shadow-glow transition-transform hover:-translate-y-0.5">Zacznij sprzedawać</Link>
+            <Link to="/sell" className="mt-5 flex w-full items-center justify-center rounded-full bg-gradient-primary px-6 py-3 font-semibold text-primary-foreground shadow-glow transition-transform hover:-translate-y-0.5">Zacznij sprzedawać</Link>
             <Link to="/help" className="mt-4 block text-center text-sm text-primary hover:underline">Dowiedz się, jak działa VLND</Link>
           </div>
         </div>
