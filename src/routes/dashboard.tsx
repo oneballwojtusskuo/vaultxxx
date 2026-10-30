@@ -202,7 +202,7 @@ function Dashboard() {
       <main className="container mx-auto px-4 py-10 flex-1">
         <div className="flex items-center justify-between flex-wrap gap-4">
           <div>
-            <h1 className="font-display text-4xl font-bold">Mój panel</h1>
+            <h1 className="font-display text-4xl md:text-5xl font-bold tracking-tight">Mój panel</h1>
             <p className="text-muted-foreground mt-1">
               Zarządzaj produktami, zakupami i wymianami.
             </p>
