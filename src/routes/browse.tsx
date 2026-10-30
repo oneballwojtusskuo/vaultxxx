@@ -1,5 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import heroImg from "@/assets/hero-creator.jpg";
+import heroAsset from "@/assets/hero-banner.jpg.asset.json";
+const heroImg = heroAsset.url;
 import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
 import { Search, SlidersHorizontal } from "lucide-react";
