@@ -1,4 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
+import heroImg from "@/assets/hero-creator.jpg";
 import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
 import { Search, SlidersHorizontal } from "lucide-react";
@@ -117,8 +118,20 @@ function Browse() {
   return (
     <div className="min-h-screen flex flex-col">
       <SiteHeader />
+      <section className="relative overflow-hidden">
+        <img src={heroImg} alt="Biurko twórcy z laptopem i e-bookiem" width={1920} height={832} className="absolute inset-0 h-full w-full object-cover" />
+        <div className="absolute inset-0 bg-gradient-to-r from-foreground/40 via-foreground/10 to-transparent" />
+        <div className="relative container mx-auto px-4 py-12 md:py-20">
+          <div className="max-w-md rounded-2xl bg-card p-6 md:p-8 shadow-xl">
+            <h1 className="font-display text-3xl md:text-4xl font-bold tracking-tight">Zarabiaj na swoich produktach cyfrowych</h1>
+            <p className="mt-3 text-muted-foreground">Wystawiaj e-booki, plannery i kursy z 0% prowizji dla twórcy.</p>
+            <Link to="/sell" className="mt-6 flex w-full items-center justify-center rounded-full bg-gradient-primary px-6 py-3 font-semibold text-primary-foreground shadow-glow transition-transform hover:-translate-y-0.5">Zacznij sprzedawać</Link>
+            <Link to="/help" className="mt-4 block text-center text-sm text-primary hover:underline">Dowiedz się, jak działa VLND</Link>
+          </div>
+        </div>
+      </section>
       <main className="container mx-auto px-4 py-10 flex-1">
-        <h1 className="font-display text-4xl md:text-5xl font-bold tracking-tight">Odkrywaj</h1>
+        <h2 className="font-display text-4xl md:text-5xl font-bold tracking-tight">Odkrywaj</h2>
         <p className="text-muted-foreground mt-1">
           Przeglądaj wszystkie materiały cyfrowe od społeczności.
         </p>
