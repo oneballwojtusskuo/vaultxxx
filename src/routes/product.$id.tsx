@@ -1,3 +1,4 @@
+import { getProductSeo } from "@/lib/seo.functions";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
@@ -80,16 +81,15 @@ export const Route = createFileRoute("/product/$id")({
   staticData: { sitemap: false },
   loader: async ({ params }) => {
     const ok = /^[0-9a-f-]{36}$/i.test(params.id);
-    return { seo: ok ? await getProductSeo({ data: { id: params.id } }).catch((e) => { console.error("[seo-loader]", e); return null; }) : null };
+    return { seo: ok ? await getProductSeo({ data: { id: params.id } }).catch(() => null) : null };
   },
   head: ({ params, loaderData }) => {
-    console.log("[seo-head]", JSON.stringify(loaderData)?.slice(0,100));
     const p = loaderData?.seo;
     const url = `${SITE}/product/${params.id}`;
     if (!p) {
       return {
         meta: [
-          { title: "Produkt cyfrowy — vlnd" + JSON.stringify(loaderData ?? "UNDEF") },
+          { title: "Produkt cyfrowy — vlnd" },
           { name: "description", content: "Materiał cyfrowy na marketplace vlnd." },
           { name: "robots", content: "noindex" },
         ],
