@@ -83,6 +83,7 @@ export const Route = createFileRoute("/product/$id")({
     return { seo: ok ? await getProductSeo({ data: { id: params.id } }).catch((e) => { console.error("[seo-loader]", e); return null; }) : null };
   },
   head: ({ params, loaderData }) => {
+    console.log("[seo-head]", JSON.stringify(loaderData)?.slice(0,100));
     const p = loaderData?.seo;
     const url = `${SITE}/product/${params.id}`;
     if (!p) {
