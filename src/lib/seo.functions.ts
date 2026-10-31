@@ -28,7 +28,7 @@ export const getProductSeo = createServerFn({ method: "GET" })
         .eq("id", data.id)
         .eq("status", "published")
         .maybeSingle();
-      if (error) console.error("[seo]", error.message);
+      console.error("[seo] row", !!row, error?.message, data.id);
       return (row as ProductSeo) ?? null;
     } catch (e) {
       console.error("[seo]", e);
