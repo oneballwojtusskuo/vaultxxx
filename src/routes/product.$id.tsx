@@ -1,3 +1,4 @@
+import { getProductSeo } from "@/lib/seo.functions";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
@@ -74,8 +75,71 @@ import { EscrowActions } from "@/components/escrow-actions";
 import { BackLink } from "@/components/back-link";
 import JSZip from "jszip";
 
+const SITE = "https://vlnd.pl";
+
 export const Route = createFileRoute("/product/$id")({
   staticData: { sitemap: false },
+  loader: async ({ params }) => {
+    const ok = /^[0-9a-f-]{36}$/i.test(params.id);
+    return { seo: ok ? await getProductSeo({ data: { id: params.id } }).catch(() => null) : null };
+  },
+  head: ({ params, loaderData }) => {
+    const p = loaderData?.seo;
+    const url = `${SITE}/product/${params.id}`;
+    if (!p) {
+      return {
+        meta: [
+          { title: "Produkt cyfrowy — vlnd" },
+          { name: "description", content: "Materiał cyfrowy na marketplace vlnd." },
+          { name: "robots", content: "noindex" },
+        ],
+      };
+    }
+    const clean = (p.description ?? "").replace(/\s+/g, " ").trim();
+    const price = Number(p.price) === 0 ? "Za darmo" : `${Number(p.price).toFixed(2)} ${p.currency}`;
+    const desc = (clean ? clean.slice(0, 140) + (clean.length > 140 ? "…" : "") + " " : "") + `${price} na vlnd.`;
+    const title = `${p.title.slice(0, 55)} — vlnd`;
+    const img = p.preview_url && p.preview_url.startsWith("https://") ? p.preview_url : null;
+    return {
+      meta: [
+        { title },
+        { name: "description", content: desc },
+        { property: "og:title", content: title },
+        { property: "og:description", content: desc },
+        { property: "og:type", content: "product" },
+        { property: "og:url", content: url },
+        { name: "twitter:card", content: img ? "summary_large_image" : "summary" },
+        { name: "twitter:title", content: title },
+        { name: "twitter:description", content: desc },
+        ...(img
+          ? [
+              { property: "og:image", content: img },
+              { name: "twitter:image", content: img },
+            ]
+          : []),
+      ],
+      links: [{ rel: "canonical", href: url }],
+      scripts: [
+        {
+          type: "application/ld+json",
+          children: JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "Product",
+            name: p.title,
+            description: clean || undefined,
+            image: img ?? undefined,
+            url,
+            offers: {
+              "@type": "Offer",
+              price: Number(p.price).toFixed(2),
+              priceCurrency: p.currency,
+              availability: "https://schema.org/InStock",
+            },
+          }),
+        },
+      ],
+    };
+  },
   component: ProductPage,
 });
 
