@@ -22,14 +22,16 @@ export const getProductSeo = createServerFn({ method: "GET" })
   .inputValidator((input) => z.object({ id: z.string().uuid() }).parse(input))
   .handler(async ({ data }): Promise<ProductSeo | null> => {
     try {
-      const { data: row } = await publicClient()
+      const { data: row, error } = await publicClient()
         .from("products")
         .select("id, title, description, price, currency, preview_url")
         .eq("id", data.id)
         .eq("status", "published")
         .maybeSingle();
+      if (error) console.error("[seo]", error.message);
       return (row as ProductSeo) ?? null;
-    } catch {
+    } catch (e) {
+      console.error("[seo]", e);
       return null;
     }
   });
