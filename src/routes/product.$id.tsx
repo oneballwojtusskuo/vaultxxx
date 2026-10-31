@@ -80,7 +80,7 @@ export const Route = createFileRoute("/product/$id")({
   staticData: { sitemap: false },
   loader: async ({ params }) => {
     const ok = /^[0-9a-f-]{36}$/i.test(params.id);
-    return { seo: ok ? await getProductSeo({ data: { id: params.id } }).catch(() => null) : null };
+    return { seo: ok ? await getProductSeo({ data: { id: params.id } }).catch((e) => { console.error("[seo-loader]", e); return null; }) : null };
   },
   head: ({ params, loaderData }) => {
     const p = loaderData?.seo;
