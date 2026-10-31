@@ -89,7 +89,7 @@ export const Route = createFileRoute("/product/$id")({
     if (!p) {
       return {
         meta: [
-          { title: "Produkt cyfrowy — vlnd" },
+          { title: "Produkt cyfrowy — vlnd" + JSON.stringify(loaderData ?? "UNDEF") },
           { name: "description", content: "Materiał cyfrowy na marketplace vlnd." },
           { name: "robots", content: "noindex" },
         ],
