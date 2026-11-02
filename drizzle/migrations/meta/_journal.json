@@ -29,6 +29,13 @@
       "when": 1791975882907,
       "tag": "0003_stripe_connect_payouts",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1793639995537,
+      "tag": "0004_stable_product_slugs",
+      "breakpoints": true
     }
   ]
 }
