@@ -1,5 +1,6 @@
 import { getProductSeo } from "@/lib/seo.functions";
-import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate, redirect, notFound } from "@tanstack/react-router";
+import { isProductId, productShareUrl, productUrlKey } from "@/lib/product-links";
 import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import {
@@ -75,23 +76,29 @@ import { EscrowActions } from "@/components/escrow-actions";
 import { BackLink } from "@/components/back-link";
 import JSZip from "jszip";
 
-const SITE = "https://vlnd.pl";
-
 export const Route = createFileRoute("/product/$id")({
   staticData: { sitemap: false },
-  loader: async ({ params }) => {
-    const ok = /^[0-9a-f-]{36}$/i.test(params.id);
-    return { seo: ok ? await getProductSeo({ data: { id: params.id } }).catch(() => null) : null };
+  loader: async ({ params, location }) => {
+    const seo = await getProductSeo({ data: { id: params.id } });
+    if (seo && params.id !== seo.slug) {
+      throw redirect({ to: "/product/$id", params: { id: seo.slug }, search: location.search, hash: location.hash, statusCode: 301 });
+    }
+    if (!seo && !isProductId(params.id)) throw notFound();
+    return { seo };
   },
   head: ({ params, loaderData }) => {
     const p = loaderData?.seo;
-    const url = `${SITE}/product/${params.id}`;
+    const url = productShareUrl(p ?? { id: params.id });
     if (!p) {
       return {
         meta: [
           { title: "Produkt cyfrowy — vlnd" },
           { name: "description", content: "Materiał cyfrowy na marketplace vlnd." },
           { name: "robots", content: "noindex" },
+          { property: "og:title", content: "Produkt cyfrowy — vlnd" },
+          { property: "og:description", content: "Materiał cyfrowy na marketplace vlnd." },
+          { property: "og:type", content: "website" },
+          { name: "twitter:card", content: "summary" },
         ],
       };
     }
@@ -144,7 +151,9 @@ export const Route = createFileRoute("/product/$id")({
 });
 
 function ProductPage() {
-  const { id } = Route.useParams();
+  const { id: urlKey } = Route.useParams();
+  const { seo } = Route.useLoaderData();
+  const id = seo?.id ?? urlKey;
   const { user, loading: authLoading } = useAuth();
   const navigate = useNavigate();
   const fetchProduct = useServerFn(getProductDetails);
@@ -690,7 +699,7 @@ function ProductPage() {
                         Po płatności automatycznie założymy Ci konto na ten e-mail.{" "}
                         <Link
                           to="/auth"
-                          search={{ next: `/product/${p.id}?buy=1` } as any}
+                          search={{ next: `/product/${productUrlKey(seo ?? p)}?buy=1` } as any}
                           className="underline"
                         >
                           Masz już konto? Zaloguj się
@@ -703,10 +712,11 @@ function ProductPage() {
 
               <div className="mt-6 flex flex-wrap gap-3">
                 <LikeButton productId={p.id} sellerId={p.seller_id} />
-                <ShareButton title={p.title} />
+                <ShareButton title={p.title} url={productShareUrl(seo ?? p)} />
                 {user && !isOwner && isPublished && (p as any).affiliate_commission_pct > 0 && (
                   <ReferralButton
                     productId={p.id}
+                    productKey={productUrlKey(seo ?? p)}
                     referrerId={user.id}
                     pct={(p as any).affiliate_commission_pct}
                   />
@@ -814,15 +824,17 @@ function ProductPage() {
 
 function ReferralButton({
   productId,
+  productKey,
   referrerId,
   pct,
 }: {
   productId: string;
+  productKey: string;
   referrerId: string;
   pct: number;
 }) {
   const [copied, setCopied] = useState(false);
-  const link = buildReferralLink(productId, referrerId);
+  const link = buildReferralLink(productId, referrerId, productKey);
   const handle = async () => {
     try {
       await navigator.clipboard.writeText(link);
@@ -848,9 +860,8 @@ function ReferralButton({
   );
 }
 
-function ShareButton({ title }: { title: string }) {
+function ShareButton({ title, url }: { title: string; url: string }) {
   const [copied, setCopied] = useState(false);
-  const url = typeof window !== "undefined" ? window.location.href : "";
 
   const copyLink = async () => {
     try {

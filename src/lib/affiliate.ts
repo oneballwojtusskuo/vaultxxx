@@ -4,6 +4,7 @@
 // opted into the "afiliacyjne" category in the cookie banner.
 
 import { affiliationCookiesAllowed } from "@/components/cookie-banner";
+import { productShareUrl } from "@/lib/product-links";
 
 const DAYS = 30;
 
@@ -34,15 +35,8 @@ export function clearReferralCookie(productId: string) {
   document.cookie = `${cookieName(productId)}=; path=/; max-age=0; SameSite=Lax`;
 }
 
-export function buildReferralLink(productId: string, referrerId: string): string {
-  const base =
-    typeof window !== "undefined"
-      ? `${window.location.origin}/product/${productId}`
-      : `/product/${productId}`;
-  const url = new URL(
-    base,
-    typeof window !== "undefined" ? window.location.origin : "http://localhost",
-  );
+export function buildReferralLink(productId: string, referrerId: string, productKey?: string): string {
+  const url = new URL(productShareUrl({ id: productId, slug: productKey }));
   url.searchParams.set("ref", referrerId);
   return url.toString();
 }

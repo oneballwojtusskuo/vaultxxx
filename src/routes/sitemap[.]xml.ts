@@ -2,6 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { getRouterInstance } from "@tanstack/react-start";
 import { listPublishedProductsForSitemap } from "@/lib/seo.functions";
 import { sitemapStaticPaths, sitemapXML, type SitemapEntry } from "@/lib/sitemap";
+import { productUrlKey } from "@/lib/product-links";
 
 const DEFAULT_BASE_URL = "https://vlnd.lovable.app";
 const ALLOWED_HOSTS = new Set(["vlnd.lovable.app", "vlnd.pl", "www.vlnd.pl"]);
@@ -17,7 +18,7 @@ export const Route = createFileRoute("/sitemap.xml")({
         const entries: SitemapEntry[] = sitemapStaticPaths(router).map((path) => ({ path }));
         try {
           const products = await listPublishedProductsForSitemap();
-          for (const p of products) entries.push({ path: `/product/${p.id}`, lastmod: p.updated_at });
+          for (const p of products) entries.push({ path: `/product/${productUrlKey(p)}`, lastmod: p.updated_at });
         } catch (e) {
           return new Response("Sitemap temporarily unavailable", { status: 503, headers: { "Cache-Control": "no-store" } });
         }
