@@ -1,6 +1,6 @@
 import { getProductSeo } from "@/lib/seo.functions";
-import { createFileRoute, Link, useNavigate, redirect, notFound } from "@tanstack/react-router";
-import { isProductId, productShareUrl, productUrlKey } from "@/lib/product-links";
+import { createFileRoute, Link, useNavigate, redirect } from "@tanstack/react-router";
+import { productShareUrl, productUrlKey } from "@/lib/product-links";
 import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import {
@@ -83,7 +83,6 @@ export const Route = createFileRoute("/product/$id")({
     if (seo && params.id !== seo.slug) {
       throw redirect({ to: "/product/$id", params: { id: seo.slug }, search: location.search, hash: location.hash, statusCode: 301 });
     }
-    if (!seo && !isProductId(params.id)) throw notFound();
     return { seo };
   },
   head: ({ params, loaderData }) => {
@@ -153,7 +152,6 @@ export const Route = createFileRoute("/product/$id")({
 function ProductPage() {
   const { id: urlKey } = Route.useParams();
   const { seo } = Route.useLoaderData();
-  const id = seo?.id ?? urlKey;
   const { user, loading: authLoading } = useAuth();
   const navigate = useNavigate();
   const fetchProduct = useServerFn(getProductDetails);
@@ -163,9 +161,21 @@ function ProductPage() {
   const [guestEmail, setGuestEmail] = useState("");
   const [guestAge, setGuestAge] = useState(false);
 
+  const {
+    data: p,
+    refetch,
+    isLoading,
+    error,
+  } = useQuery({
+    queryKey: ["product", urlKey, user?.id ?? "anon"],
+    queryFn: () => fetchProduct({ data: { productId: urlKey } }),
+    retry: 1,
+  });
+  const id = p?.id ?? seo?.id ?? "";
+
   // Capture ?ref=<userId> into a per-product cookie (30 days), then clean URL.
   useEffect(() => {
-    if (typeof window === "undefined") return;
+    if (typeof window === "undefined" || !id) return;
     const params = new URLSearchParams(window.location.search);
     const ref = params.get("ref");
     if (ref && user?.id !== ref) {
@@ -177,20 +187,9 @@ function ProductPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id]);
 
-  const {
-    data: p,
-    refetch,
-    isLoading,
-    error,
-  } = useQuery({
-    queryKey: ["product", id, user?.id ?? "anon"],
-    queryFn: () => fetchProduct({ data: { productId: id } }),
-    retry: 1,
-  });
-
   const { data: myTransaction, refetch: refetchTx } = useQuery({
     queryKey: ["myTx", id, user?.id],
-    enabled: !!user,
+    enabled: !!user && !!id,
     queryFn: async () => {
       const { data, error } = await supabase
         .from("transactions")
