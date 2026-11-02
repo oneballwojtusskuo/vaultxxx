@@ -1,5 +1,6 @@
 import { getProductSeo } from "@/lib/seo.functions";
-import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate, redirect } from "@tanstack/react-router";
+import { productShareUrl, productUrlKey } from "@/lib/product-links";
 import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import {
@@ -75,23 +76,28 @@ import { EscrowActions } from "@/components/escrow-actions";
 import { BackLink } from "@/components/back-link";
 import JSZip from "jszip";
 
-const SITE = "https://vlnd.pl";
-
 export const Route = createFileRoute("/product/$id")({
   staticData: { sitemap: false },
-  loader: async ({ params }) => {
-    const ok = /^[0-9a-f-]{36}$/i.test(params.id);
-    return { seo: ok ? await getProductSeo({ data: { id: params.id } }).catch(() => null) : null };
+  loader: async ({ params, location }) => {
+    const seo = await getProductSeo({ data: { id: params.id } });
+    if (seo && params.id !== seo.slug) {
+      throw redirect({ to: "/product/$id", params: { id: seo.slug }, search: location.search, hash: location.hash, statusCode: 301 });
+    }
+    return { seo };
   },
   head: ({ params, loaderData }) => {
     const p = loaderData?.seo;
-    const url = `${SITE}/product/${params.id}`;
+    const url = productShareUrl(p ?? { id: params.id });
     if (!p) {
       return {
         meta: [
           { title: "Produkt cyfrowy — vlnd" },
           { name: "description", content: "Materiał cyfrowy na marketplace vlnd." },
           { name: "robots", content: "noindex" },
+          { property: "og:title", content: "Produkt cyfrowy — vlnd" },
+          { property: "og:description", content: "Materiał cyfrowy na marketplace vlnd." },
+          { property: "og:type", content: "website" },
+          { name: "twitter:card", content: "summary" },
         ],
       };
     }
@@ -144,7 +150,8 @@ export const Route = createFileRoute("/product/$id")({
 });
 
 function ProductPage() {
-  const { id } = Route.useParams();
+  const { id: urlKey } = Route.useParams();
+  const { seo } = Route.useLoaderData();
   const { user, loading: authLoading } = useAuth();
   const navigate = useNavigate();
   const fetchProduct = useServerFn(getProductDetails);
@@ -154,9 +161,21 @@ function ProductPage() {
   const [guestEmail, setGuestEmail] = useState("");
   const [guestAge, setGuestAge] = useState(false);
 
+  const {
+    data: p,
+    refetch,
+    isLoading,
+    error,
+  } = useQuery({
+    queryKey: ["product", urlKey, user?.id ?? "anon"],
+    queryFn: () => fetchProduct({ data: { productId: urlKey } }),
+    retry: 1,
+  });
+  const id = p?.id ?? seo?.id ?? "";
+
   // Capture ?ref=<userId> into a per-product cookie (30 days), then clean URL.
   useEffect(() => {
-    if (typeof window === "undefined") return;
+    if (typeof window === "undefined" || !id) return;
     const params = new URLSearchParams(window.location.search);
     const ref = params.get("ref");
     if (ref && user?.id !== ref) {
@@ -168,20 +187,9 @@ function ProductPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id]);
 
-  const {
-    data: p,
-    refetch,
-    isLoading,
-    error,
-  } = useQuery({
-    queryKey: ["product", id, user?.id ?? "anon"],
-    queryFn: () => fetchProduct({ data: { productId: id } }),
-    retry: 1,
-  });
-
   const { data: myTransaction, refetch: refetchTx } = useQuery({
     queryKey: ["myTx", id, user?.id],
-    enabled: !!user,
+    enabled: !!user && !!id,
     queryFn: async () => {
       const { data, error } = await supabase
         .from("transactions")
@@ -690,7 +698,7 @@ function ProductPage() {
                         Po płatności automatycznie założymy Ci konto na ten e-mail.{" "}
                         <Link
                           to="/auth"
-                          search={{ next: `/product/${p.id}?buy=1` } as any}
+                          search={{ next: `/product/${productUrlKey(seo ?? p)}?buy=1` } as any}
                           className="underline"
                         >
                           Masz już konto? Zaloguj się
@@ -703,10 +711,11 @@ function ProductPage() {
 
               <div className="mt-6 flex flex-wrap gap-3">
                 <LikeButton productId={p.id} sellerId={p.seller_id} />
-                <ShareButton title={p.title} />
+                <ShareButton title={p.title} url={productShareUrl(seo ?? p)} />
                 {user && !isOwner && isPublished && (p as any).affiliate_commission_pct > 0 && (
                   <ReferralButton
                     productId={p.id}
+                    productKey={productUrlKey(seo ?? p)}
                     referrerId={user.id}
                     pct={(p as any).affiliate_commission_pct}
                   />
@@ -814,15 +823,17 @@ function ProductPage() {
 
 function ReferralButton({
   productId,
+  productKey,
   referrerId,
   pct,
 }: {
   productId: string;
+  productKey: string;
   referrerId: string;
   pct: number;
 }) {
   const [copied, setCopied] = useState(false);
-  const link = buildReferralLink(productId, referrerId);
+  const link = buildReferralLink(productId, referrerId, productKey);
   const handle = async () => {
     try {
       await navigator.clipboard.writeText(link);
@@ -848,9 +859,8 @@ function ReferralButton({
   );
 }
 
-function ShareButton({ title }: { title: string }) {
+function ShareButton({ title, url }: { title: string; url: string }) {
   const [copied, setCopied] = useState(false);
-  const url = typeof window !== "undefined" ? window.location.href : "";
 
   const copyLink = async () => {
     try {

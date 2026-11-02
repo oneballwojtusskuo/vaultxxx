@@ -524,6 +524,7 @@ export type Database = {
           reviewed_by: string | null
           sample_url: string | null
           seller_id: string
+          slug: string | null
           status: Database["public"]["Enums"]["product_status"]
           tags: string[] | null
           title: string
@@ -554,6 +555,7 @@ export type Database = {
           reviewed_by?: string | null
           sample_url?: string | null
           seller_id: string
+          slug?: string | null
           status?: Database["public"]["Enums"]["product_status"]
           tags?: string[] | null
           title: string
@@ -584,6 +586,7 @@ export type Database = {
           reviewed_by?: string | null
           sample_url?: string | null
           seller_id?: string
+          slug?: string | null
           status?: Database["public"]["Enums"]["product_status"]
           tags?: string[] | null
           title?: string

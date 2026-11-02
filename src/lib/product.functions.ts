@@ -1,8 +1,9 @@
 import { createServerFn } from "@tanstack/react-start";
 import { getRequest } from "@tanstack/react-start/server";
 import { z } from "zod";
+import { isProductId } from "@/lib/product-links";
 
-const ProductInputSchema = z.object({ productId: z.string().uuid() });
+const ProductInputSchema = z.object({ productId: z.string().min(1).max(120).regex(/^[a-zA-Z0-9-]+$/) });
 
 async function getOptionalUserId(supabaseAdmin: any) {
   const authHeader = getRequest()?.headers.get("authorization") ?? "";
@@ -37,7 +38,7 @@ export const getProductDetails = createServerFn({ method: "GET" })
       .select(
         "id, seller_id, category_id, title, description, price, currency, preview_url, sample_url, tags, status, is_tradable, license_terms, downloads_count, affiliate_commission_pct, created_at, updated_at, custom_category",
       )
-      .eq("id", data.productId)
+      .eq(isProductId(data.productId) ? "id" : "slug", data.productId)
       .maybeSingle();
 
     if (error) {
@@ -46,7 +47,7 @@ export const getProductDetails = createServerFn({ method: "GET" })
         .select(
           "id, seller_id, category_id, title, description, price, currency, preview_url, tags, status, is_tradable, downloads_count, created_at, updated_at",
         )
-        .eq("id", data.productId)
+        .eq(isProductId(data.productId) ? "id" : "slug", data.productId)
         .maybeSingle();
       product = fallback.data as typeof product;
       error = fallback.error;

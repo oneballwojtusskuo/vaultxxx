@@ -2,9 +2,11 @@ import { Link } from "@tanstack/react-router";
 import { Download, Repeat2 } from "lucide-react";
 import { LikeButton } from "@/components/like-button";
 import { minBuyerPriceOf, formatPrice } from "@/lib/pricing";
+import { productUrlKey } from "@/lib/product-links";
 
 export interface ProductCardData {
   id: string;
+  slug?: string | null;
   title: string;
   price: number;
   currency: string;
@@ -18,7 +20,7 @@ export function ProductCard({ p }: { p: ProductCardData }) {
   return (
     <Link
       to="/product/$id"
-      params={{ id: p.id }}
+      params={{ id: productUrlKey(p) }}
       className="group relative overflow-hidden rounded-2xl bg-card border border-border shadow-soft transition-all duration-500 hover:border-primary/40 hover:shadow-elevated hover:-translate-y-1"
     >
       <div className="aspect-[4/3] overflow-hidden bg-muted">
