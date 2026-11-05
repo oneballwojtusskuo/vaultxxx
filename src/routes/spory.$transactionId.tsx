@@ -13,6 +13,15 @@ import { getDisputeChat, resolveDispute, sendDisputeMessage } from "@/lib/disput
 
 export const Route = createFileRoute("/spory/$transactionId")({
   staticData: { sitemap: false },
+  head: () => ({ meta: [
+    { title: "Rozmowa dotycząca transakcji — vlnd" },
+    { name: "description", content: "Sprawdź zgłoszenie dotyczące transakcji i kontakt w sprawie zakupu na vlnd." },
+    { property: "og:title", content: "Rozmowa dotycząca transakcji — vlnd" },
+    { property: "og:description", content: "Sprawdź zgłoszenie dotyczące transakcji i kontakt w sprawie zakupu na vlnd." },
+    { property: "og:type", content: "website" },
+    { name: "twitter:card", content: "summary" },
+  ] }),
+
   component: DisputeChat,
 });
 

@@ -99,10 +99,10 @@ export function SiteHeader() {
   }, [user, refetchNotif, refetchMsg]);
 
   return (
-    <header className="sticky top-0 z-50 border-b border-border/80 bg-background/95 backdrop-blur-xl">
-      <div className="container mx-auto flex h-16 items-center justify-between px-4">
+    <header className="sticky top-0 z-50 border-b border-border bg-card">
+      <div className="mx-auto max-w-7xl flex h-16 items-center justify-between px-5 sm:px-8">
         <Link to="/" className="group inline-flex">
-          <span className="font-display text-2xl font-bold tracking-tight lowercase text-foreground transition-transform group-hover:scale-105 inline-block origin-left">
+          <span className="font-display text-3xl font-bold lowercase text-foreground">
             vlnd
           </span>
         </Link>
@@ -260,14 +260,10 @@ export function SiteHeader() {
               </DropdownMenu>
             </>
           ) : (
-            <Link to="/auth">
-              <Button
-                size="sm"
-                className="bg-gradient-primary text-primary-foreground hover:opacity-90 shadow-glow"
-              >
-                Zaloguj
-              </Button>
-            </Link>
+            <>
+              <Button asChild size="sm" variant="ghost"><Link to="/auth">Zaloguj</Link></Button>
+              <Button asChild size="sm" className="ml-1 h-9 px-3"><Link to="/auth" search={{ mode: "signup" }}>Załóż konto</Link></Button>
+            </>
           )}
         </div>
       </div>

@@ -10,6 +10,15 @@ import { Heart } from "lucide-react";
 
 export const Route = createFileRoute("/likes")({
   staticData: { sitemap: false },
+  head: () => ({ meta: [
+    { title: "Polubione produkty — vlnd" },
+    { name: "description", content: "Wróć do zapisanych materiałów cyfrowych od twórców na vlnd." },
+    { property: "og:title", content: "Polubione produkty — vlnd" },
+    { property: "og:description", content: "Wróć do zapisanych materiałów cyfrowych od twórców na vlnd." },
+    { property: "og:type", content: "website" },
+    { name: "twitter:card", content: "summary" },
+  ] }),
+
   component: Likes,
 });
 

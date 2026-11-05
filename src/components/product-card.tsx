@@ -1,5 +1,5 @@
 import { Link } from "@tanstack/react-router";
-import { Download, Repeat2 } from "lucide-react";
+import { Download, Repeat2, FileText } from "lucide-react";
 import { LikeButton } from "@/components/like-button";
 import { minBuyerPriceOf, formatPrice } from "@/lib/pricing";
 import { productUrlKey } from "@/lib/product-links";
@@ -21,18 +21,18 @@ export function ProductCard({ p }: { p: ProductCardData }) {
     <Link
       to="/product/$id"
       params={{ id: productUrlKey(p) }}
-      className="group relative overflow-hidden rounded-2xl bg-card border border-border shadow-soft transition-all duration-500 hover:border-primary/40 hover:shadow-elevated hover:-translate-y-1"
+      className="group relative block min-w-0 overflow-hidden rounded-lg bg-card border border-border shadow-soft transition-shadow hover:shadow-elevated"
     >
       <div className="aspect-[4/3] overflow-hidden bg-muted">
         {p.preview_url ? (
           <img
             src={p.preview_url}
             alt={p.title}
-            className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-110"
+            className="h-full w-full object-cover"
             loading="lazy"
           />
         ) : (
-          <div className="h-full w-full bg-gradient-primary opacity-30" />
+          <div className="flex h-full items-center justify-center text-muted-foreground"><FileText className="h-10 w-10" /></div>
         )}
         {p.is_tradable && (
           <span className="absolute top-3 right-3 inline-flex items-center gap-1 rounded-full glass px-2.5 py-1 text-xs font-medium">
@@ -45,13 +45,13 @@ export function ProductCard({ p }: { p: ProductCardData }) {
       </div>
       <div className="p-4">
         {p.category && (
-          <span className="inline-flex rounded-full bg-secondary px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-secondary-foreground">
+          <span className="text-xs text-muted-foreground">
             {p.category.name}
           </span>
         )}
-        <h3 className="mt-2 font-display text-base font-semibold line-clamp-1">{p.title}</h3>
-        <div className="mt-3 flex items-center justify-between">
-          <span className="text-lg font-bold text-gradient">
+        <h3 className="mt-2 min-h-12 font-display text-base font-semibold line-clamp-2 leading-6">{p.title}</h3>
+        <div className="mt-3 flex flex-wrap gap-2 items-center justify-between">
+          <span className="text-lg font-bold text-foreground">
             {Number(p.price) === 0 ? "Bezpłatny" : formatPrice(p.price, p.currency)}
           </span>
           <span className="inline-flex items-center gap-1 text-xs text-muted-foreground">

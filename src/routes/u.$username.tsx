@@ -13,6 +13,15 @@ import { RatingSummary, SellerReviews } from "@/components/reviews";
 
 export const Route = createFileRoute("/u/$username")({
   staticData: { sitemap: false },
+  head: () => ({ meta: [
+    { title: "Profil twórcy — vlnd" },
+    { name: "description", content: "Poznaj twórcę i jego materiały cyfrowe na vlnd." },
+    { property: "og:title", content: "Profil twórcy — vlnd" },
+    { property: "og:description", content: "Poznaj twórcę i jego materiały cyfrowe na vlnd." },
+    { property: "og:type", content: "website" },
+    { name: "twitter:card", content: "summary" },
+  ] }),
+
   component: Profile,
 });
 

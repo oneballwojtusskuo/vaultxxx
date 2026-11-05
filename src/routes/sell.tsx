@@ -249,6 +249,15 @@ function DeviationNote({ show, licType }: { show: boolean; licType: LicenseType 
 
 export const Route = createFileRoute("/sell")({
   staticData: { sitemap: false },
+  head: () => ({ meta: [
+    { title: "Wystaw produkt cyfrowy — vlnd" },
+    { name: "description", content: "Dodaj własny e-book, planner lub inny materiał cyfrowy do sprzedaży na vlnd." },
+    { property: "og:title", content: "Wystaw produkt cyfrowy — vlnd" },
+    { property: "og:description", content: "Dodaj własny e-book, planner lub inny materiał cyfrowy do sprzedaży na vlnd." },
+    { property: "og:type", content: "website" },
+    { name: "twitter:card", content: "summary" },
+  ] }),
+
   component: Sell,
 });
 

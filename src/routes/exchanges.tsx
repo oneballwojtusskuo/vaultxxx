@@ -12,6 +12,15 @@ import { toast } from "sonner";
 
 export const Route = createFileRoute("/exchanges")({
   staticData: { sitemap: false },
+  head: () => ({ meta: [
+    { title: "Moje wymiany — vlnd" },
+    { name: "description", content: "Zarządzaj propozycjami wymiany materiałów cyfrowych na vlnd." },
+    { property: "og:title", content: "Moje wymiany — vlnd" },
+    { property: "og:description", content: "Zarządzaj propozycjami wymiany materiałów cyfrowych na vlnd." },
+    { property: "og:type", content: "website" },
+    { name: "twitter:card", content: "summary" },
+  ] }),
+
   component: Exchanges,
 });
 

@@ -9,6 +9,15 @@ import { MessageSquare } from "lucide-react";
 
 export const Route = createFileRoute("/messages/")({
   staticData: { sitemap: false },
+  head: () => ({ meta: [
+    { title: "Wiadomości — vlnd" },
+    { name: "description", content: "Rozmawiaj z twórcami i kupującymi na vlnd." },
+    { property: "og:title", content: "Wiadomości — vlnd" },
+    { property: "og:description", content: "Rozmawiaj z twórcami i kupującymi na vlnd." },
+    { property: "og:type", content: "website" },
+    { name: "twitter:card", content: "summary" },
+  ] }),
+
   component: Inbox,
 });
 

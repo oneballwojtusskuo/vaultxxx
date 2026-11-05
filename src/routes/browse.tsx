@@ -1,9 +1,8 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import heroAsset from "@/assets/tlo.jpg.asset.json";
-const heroImg = heroAsset.url;
+import { CreatorIntro, CreatorSteps } from "@/components/creator-intro";
 import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
-import { Search, SlidersHorizontal } from "lucide-react";
+import { Search, SlidersHorizontal, SearchX } from "lucide-react";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 import { ProductCard } from "@/components/product-card";
@@ -27,6 +26,14 @@ const searchSchema = z.object({
 export const Route = createFileRoute("/browse")({
   staticData: { sitemap: true },
   validateSearch: (s) => searchSchema.parse(s),
+  head: () => ({ meta: [
+    { title: "vlnd — produkty cyfrowe prosto od twórców" },
+    { name: "description", content: "Odkrywaj e-booki, plannery i szablony od twórców. Sprzedawaj własne materiały cyfrowe na vlnd i udostępniaj je jednym linkiem." },
+    { property: "og:title", content: "vlnd — produkty cyfrowe prosto od twórców" },
+    { property: "og:description", content: "Kupuj materiały cyfrowe lub zacznij sprzedawać własne e-booki, plannery i szablony." },
+    { property: "og:type", content: "website" },
+    { name: "twitter:card", content: "summary_large_image" },
+  ] }),
   component: Browse,
 });
 
@@ -45,7 +52,8 @@ function Browse() {
     queryKey: ["browse-users", sp.q],
     enabled: !!sp.q,
     queryFn: async () => {
-      const term = sp.q!;
+      const term = sp.q;
+      if (!term) return [];
       const { data } = await supabase
         .from("profiles")
         .select("id, username, display_name, avatar_url, is_verified_seller, bio")
@@ -74,7 +82,7 @@ function Browse() {
         const fallback = await supabase
           .from("products")
           .select(
-            "id,title,price,currency,preview_url,is_tradable,downloads_count,seller_id,category_id,tags,description,created_at",
+            "id,slug,title,price,currency,preview_url,is_tradable,downloads_count,seller_id,category_id,tags,description,created_at",
           )
           .eq("status", "published")
           .order("created_at", { ascending: false })
@@ -96,6 +104,7 @@ function Browse() {
       }
       return (rows ?? []).map((r: any) => ({
         id: r.id,
+        slug: r.slug,
         title: r.title,
         price: r.price,
         currency: r.currency,
@@ -116,26 +125,18 @@ function Browse() {
     },
   });
 
+  const guide = products?.find((p: any) => Number(p.price) === 0 && p.title.toLowerCase().includes("przewodnik sprzedaży"));
+
   return (
     <div className="min-h-screen flex flex-col">
       <SiteHeader />
-      <section className="relative overflow-hidden">
-        <img src={heroImg} alt="Biurko twórcy z laptopem i e-bookiem" width={1920} height={832} className="absolute inset-0 h-full w-full object-cover" />
-        <div className="absolute inset-0 bg-gradient-to-r from-foreground/40 via-foreground/10 to-transparent" />
-        <div className="relative container mx-auto px-4 py-12 md:py-20">
-          <div className="max-w-sm rounded-2xl bg-card p-5 md:p-6 shadow-xl">
-            <h1 className="font-display text-2xl md:text-3xl font-bold tracking-tight">Zarabiaj na swoich produktach cyfrowych</h1>
-            <p className="mt-3 text-muted-foreground">Wystawiaj e-booki, plannery i kursy z 0% prowizji dla twórcy.</p>
-            <Link to="/sell" className="mt-5 flex w-full items-center justify-center rounded-full bg-gradient-primary px-6 py-3 font-semibold text-primary-foreground shadow-glow transition-transform hover:-translate-y-0.5">Zacznij sprzedawać</Link>
-            <Link to="/help" className="mt-4 block text-center text-sm text-primary hover:underline">Dowiedz się, jak działa VLND</Link>
-          </div>
+      <CreatorIntro />
+      <main id="odkrywaj" className="mx-auto w-full max-w-7xl scroll-mt-20 px-5 py-10 sm:px-8 sm:py-12 flex-1">
+        <div className="flex flex-wrap items-end justify-between gap-3">
+          <div><h2 className="font-display text-3xl font-semibold">Odkrywaj</h2>
+          <p className="text-muted-foreground mt-2 text-sm">Materiały do pracy, nauki i własnych projektów.</p></div>
+          <Button asChild variant="link" className="px-0"><a href="#dla-tworcow">Chcesz sprzedawać?</a></Button>
         </div>
-      </section>
-      <main className="container mx-auto px-4 py-10 flex-1">
-        <h2 className="font-display text-4xl md:text-5xl font-bold tracking-tight">Odkrywaj</h2>
-        <p className="text-muted-foreground mt-1">
-          Przeglądaj wszystkie materiały cyfrowe od społeczności.
-        </p>
 
         <form
           className="mt-6 flex gap-2"
@@ -149,11 +150,12 @@ function Browse() {
             <Input
               value={q}
               onChange={(e) => setQ(e.target.value)}
-              placeholder="Szukaj produktów..."
+              aria-label="Szukaj produktów"
+              placeholder="Szukaj e-booków, plannerów, szablonów…"
               className="pl-9"
             />
           </div>
-          <Button type="submit" className="bg-gradient-primary text-primary-foreground shadow-glow">
+          <Button type="submit">
             Szukaj
           </Button>
         </form>
@@ -278,10 +280,10 @@ function Browse() {
           )}
         </div>
 
-        <div className="mt-6 flex flex-wrap gap-2">
+        <div className="mt-6 flex gap-2 overflow-x-auto pb-2">
           <Link
             to="/browse"
-            className={`px-3 py-1.5 rounded-full text-xs border transition-colors ${!sp.category ? "bg-primary text-primary-foreground border-primary" : "border-border hover:border-primary/50"}`}
+            className={`shrink-0 px-3 py-2 rounded-md text-sm border transition-colors ${!sp.category ? "bg-primary text-primary-foreground border-primary" : "border-border hover:border-primary/50"}`}
           >
             Wszystkie
           </Link>
@@ -290,7 +292,7 @@ function Browse() {
               key={c.id}
               to="/browse"
               search={{ category: c.slug }}
-              className={`px-3 py-1.5 rounded-full text-xs border transition-colors ${sp.category === c.slug ? "bg-primary text-primary-foreground border-primary" : "border-border hover:border-primary/50"}`}
+              className={`shrink-0 px-3 py-2 rounded-md text-sm border transition-colors ${sp.category === c.slug ? "bg-primary text-primary-foreground border-primary" : "border-border hover:border-primary/50"}`}
             >
               {c.name}
             </Link>
@@ -335,21 +337,21 @@ function Browse() {
           {isLoading ? (
             <div className="text-center text-muted-foreground py-20">Ładowanie...</div>
           ) : products && products.length > 0 ? (
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5">
+            <div className="grid grid-cols-1 min-[360px]:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6">
               {products.map((p: any) => (
                 <ProductCard key={p.id} p={p} />
               ))}
             </div>
           ) : (
             <div className="empty-state mx-auto max-w-xl px-6 py-14 text-center">
-              <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-secondary text-2xl text-secondary-foreground">✦</div>
+              <SearchX className="mx-auto mb-4 h-8 w-8 text-muted-foreground" />
               <h2 className="font-display text-xl font-semibold">
                 {sp.q ? "Nic tu jeszcze nie pasuje" : "Pierwsze materiały są w drodze"}
               </h2>
               <p className="mt-2 text-sm text-muted-foreground">
                 {sp.q
                   ? "Brak produktów pasujących do zapytania. Spróbuj innej frazy lub wyczyść filtry."
-                  : "Twórcy właśnie przygotowują swoje produkty. Masz coś wartościowego? Bądź jednym z pierwszych."}
+                  : "Nie ma jeszcze produktów w tym widoku. Sprawdź pozostałe kategorie lub dodaj własny materiał."}
               </p>
               <Link to="/sell" className="mt-6 inline-flex items-center rounded-full bg-gradient-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground shadow-glow transition-transform hover:-translate-y-0.5">
                 Wystaw swój produkt
@@ -358,6 +360,7 @@ function Browse() {
           )}
         </div>
       </main>
+      <CreatorSteps guide={guide} />
       <SiteFooter />
     </div>
   );

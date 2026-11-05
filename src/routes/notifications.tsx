@@ -11,6 +11,15 @@ import { toast } from "sonner";
 
 export const Route = createFileRoute("/notifications")({
   staticData: { sitemap: false },
+  head: () => ({ meta: [
+    { title: "Powiadomienia — vlnd" },
+    { name: "description", content: "Sprawdź wiadomości o zakupach, produktach i aktywności na vlnd." },
+    { property: "og:title", content: "Powiadomienia — vlnd" },
+    { property: "og:description", content: "Sprawdź wiadomości o zakupach, produktach i aktywności na vlnd." },
+    { property: "og:type", content: "website" },
+    { name: "twitter:card", content: "summary" },
+  ] }),
+
   component: Notifications,
 });
 

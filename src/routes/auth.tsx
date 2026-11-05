@@ -21,8 +21,18 @@ import { toast } from "sonner";
 
 export const Route = createFileRoute("/auth")({
   staticData: { sitemap: false },
-  validateSearch: (s: Record<string, unknown>): { next?: string } =>
-    typeof s.next === "string" ? { next: s.next } : {},
+  validateSearch: (s: Record<string, unknown>): { next?: string; mode?: "signup" } => ({
+    next: typeof s.next === "string" ? s.next : undefined,
+    mode: s.mode === "signup" ? "signup" : undefined,
+  }),
+  head: () => ({ meta: [
+    { title: "Dołącz lub zaloguj się — vlnd" },
+    { name: "description", content: "Załóż konto vlnd, aby sprzedawać własne materiały cyfrowe i zarządzać zakupami." },
+    { property: "og:title", content: "Dołącz do vlnd" },
+    { property: "og:description", content: "Twoje produkty cyfrowe i zakupy w jednym miejscu." },
+    { property: "og:type", content: "website" },
+    { name: "twitter:card", content: "summary" },
+  ] }),
 
   component: AuthPage,
 });
@@ -51,10 +61,10 @@ const MONTHS = [
 
 function AuthPage() {
   const navigate = useNavigate();
-  const { next } = Route.useSearch();
+  const { next, mode } = Route.useSearch();
   const nextPath = safeNext(next);
   const lovableAuth = createLovableAuth();
-  const [tab, setTab] = useState<"signin" | "signup">("signin");
+  const [tab, setTab] = useState<"signin" | "signup">(mode ?? "signin");
   const [loading, setLoading] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -188,7 +198,8 @@ function AuthPage() {
           <span className="font-display text-3xl font-bold lowercase">vlnd</span>
         </Link>
 
-        <div className="rounded-2xl glass border border-border/40 p-6 shadow-elevated">
+        <div className="rounded-lg bg-card border border-border p-6 shadow-soft">
+          <h1 className="mb-5 text-2xl font-semibold">{tab === "signup" ? "Dołącz do vlnd" : "Dobrze Cię widzieć"}</h1>
           <Tabs value={tab} onValueChange={(v) => setTab(v as "signin" | "signup")}>
             <TabsList className="w-full grid grid-cols-2">
               <TabsTrigger value="signin">Zaloguj</TabsTrigger>

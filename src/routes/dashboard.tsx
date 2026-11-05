@@ -39,6 +39,15 @@ type DashboardTab = (typeof TABS)[number];
 
 export const Route = createFileRoute("/dashboard")({
   staticData: { sitemap: false },
+  head: () => ({ meta: [
+    { title: "Mój panel — vlnd" },
+    { name: "description", content: "Zarządzaj swoimi produktami cyfrowymi, zakupami i wypłatami na vlnd." },
+    { property: "og:title", content: "Mój panel — vlnd" },
+    { property: "og:description", content: "Zarządzaj swoimi produktami cyfrowymi, zakupami i wypłatami na vlnd." },
+    { property: "og:type", content: "website" },
+    { name: "twitter:card", content: "summary" },
+  ] }),
+
   validateSearch: (search: Record<string, unknown>): { tab?: DashboardTab } => {
     const tab = search.tab as DashboardTab | undefined;
     return TABS.includes(tab as DashboardTab) ? { tab } : {};

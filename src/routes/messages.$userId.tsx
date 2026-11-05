@@ -12,6 +12,15 @@ import { toast } from "sonner";
 
 export const Route = createFileRoute("/messages/$userId")({
   staticData: { sitemap: false },
+  head: () => ({ meta: [
+    { title: "Rozmowa z użytkownikiem — vlnd" },
+    { name: "description", content: "Twoja rozmowa z użytkownikiem platformy vlnd." },
+    { property: "og:title", content: "Rozmowa z użytkownikiem — vlnd" },
+    { property: "og:description", content: "Twoja rozmowa z użytkownikiem platformy vlnd." },
+    { property: "og:type", content: "website" },
+    { name: "twitter:card", content: "summary" },
+  ] }),
+
   component: Conversation,
 });
 

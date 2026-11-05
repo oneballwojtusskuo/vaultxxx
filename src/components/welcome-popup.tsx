@@ -183,19 +183,14 @@ const TRANSLATIONS = {
 export function WelcomePopup() {
   const { user, loading } = useAuth();
   const [open, setOpen] = useState(false);
-  const [lang, setLang] = useState<Lang>(() => {
-    if (typeof window === "undefined") return "pl";
-    try {
-      return (localStorage.getItem(LANG_KEY) as Lang) || "pl";
-    } catch {
-      return "pl";
-    }
-  });
+  const [lang, setLang] = useState<Lang>("pl");
+  const [showPrompt, setShowPrompt] = useState(false);
   const [expanded, setExpanded] = useState(false);
 
   const t = TRANSLATIONS[lang];
 
   useEffect(() => {
+    try { if (localStorage.getItem(LANG_KEY) === "en") setLang("en"); } catch { /* restricted storage */ }
     if (loading) return;
     if (user) return;
     if (typeof window === "undefined") return;
@@ -204,12 +199,13 @@ export function WelcomePopup() {
     } catch {
       // Ignore storage access issues and keep the welcome popup available.
     }
-    const t = setTimeout(() => setOpen(true), 800);
+    const t = setTimeout(() => setShowPrompt(true), 800);
     return () => clearTimeout(t);
   }, [user, loading]);
 
   const close = () => {
     setOpen(false);
+    setShowPrompt(false);
     try {
       localStorage.setItem(STORAGE_KEY, "1");
     } catch {
@@ -227,7 +223,17 @@ export function WelcomePopup() {
     }
   };
 
-  if (!open) return null;
+  if (!open) return showPrompt ? (
+    <div className="border-t border-border bg-card px-5 py-3">
+      <div className="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-3 text-xs text-muted-foreground">
+        <div className="flex items-center gap-2"><Globe className="h-4 w-4" /><span>{t.language}:</span>
+          <Button size="sm" variant={lang === "pl" ? "secondary" : "ghost"} onClick={() => changeLang("pl")}>PL</Button>
+          <Button size="sm" variant={lang === "en" ? "secondary" : "ghost"} onClick={() => changeLang("en")}>EN</Button>
+        </div>
+        <div className="flex items-center gap-2"><Button variant="link" size="sm" onClick={() => setOpen(true)}>{t.title}</Button><Button variant="ghost" size="icon" aria-label={t.close} onClick={close}><X /></Button></div>
+      </div>
+    </div>
+  ) : null;
 
   return (
     <div className="fixed inset-0 z-[100] flex items-end sm:items-center justify-center p-4 pointer-events-none">

@@ -37,6 +37,15 @@ import { listDisputeThreads } from "@/lib/dispute.functions";
 
 export const Route = createFileRoute("/admin")({
   staticData: { sitemap: false },
+  head: () => ({ meta: [
+    { title: "Administracja — vlnd" },
+    { name: "description", content: "Panel zarządzania produktami i zgłoszeniami platformy vlnd." },
+    { property: "og:title", content: "Administracja — vlnd" },
+    { property: "og:description", content: "Panel zarządzania produktami i zgłoszeniami platformy vlnd." },
+    { property: "og:type", content: "website" },
+    { name: "twitter:card", content: "summary" },
+  ] }),
+
   component: AdminPage,
 });
 
