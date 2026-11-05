@@ -26,7 +26,7 @@ export function CreatorIntro() {
           <p className="mt-5 text-xs leading-relaxed text-hero-foreground/75">Bez opłat za wystawienie. Płatności obsługuje Stripe.</p>
         </div>
       </section>
-      <div className="border-b border-border bg-card">
+      <div className="hidden border-b border-border bg-card md:block">
         <div className="mx-auto grid max-w-7xl grid-cols-1 divide-y divide-border px-5 sm:grid-cols-3 sm:divide-x sm:divide-y-0 sm:px-8">
           <p className="py-4 text-sm sm:pr-5"><span className="font-semibold">Bez opłat dla twórcy</span><span className="ml-2 text-muted-foreground">Konto, wystawianie i sprzedaż — zawsze bez opłat platformy.</span></p>
           <p className="py-4 text-sm sm:px-5"><span className="font-semibold">Zacznij w kilka chwil</span><span className="ml-2 text-muted-foreground">Załóż konto, dodaj plik i wyślij do akceptacji.</span></p>
