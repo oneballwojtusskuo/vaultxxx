@@ -28,7 +28,7 @@ export function CreatorIntro() {
       </section>
       <div className="border-b border-border bg-card">
         <div className="mx-auto grid max-w-7xl grid-cols-1 divide-y divide-border px-5 sm:grid-cols-3 sm:divide-x sm:divide-y-0 sm:px-8">
-          <p className="py-4 text-sm sm:pr-5"><span className="font-semibold">Bez kosztów na start</span><span className="ml-2 text-muted-foreground">Darmowe konto i wystawianie. Bez abonamentu.</span></p>
+          <p className="py-4 text-sm sm:pr-5"><span className="font-semibold">Bez opłat dla twórcy</span><span className="ml-2 text-muted-foreground">Konto, wystawianie i sprzedaż — zawsze bez opłat platformy.</span></p>
           <p className="py-4 text-sm sm:px-5"><span className="font-semibold">Zacznij w kilka chwil</span><span className="ml-2 text-muted-foreground">Załóż konto, dodaj plik i wyślij do akceptacji.</span></p>
           <p className="py-4 text-sm sm:pl-5"><span className="font-semibold">Zarabiaj na poleceniach</span><span className="ml-2 text-muted-foreground">Afiliacja: polecaj produkty i otrzymuj prowizję za zakupy.</span></p>
         </div>
