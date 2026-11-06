@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
-import { Mail, LifeBuoy, Send, Shield, Repeat, Users, Percent } from "lucide-react";
+import { Mail, LifeBuoy, Send, Shield, Repeat, Users, Percent, Award } from "lucide-react";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 import { Input } from "@/components/ui/input";
@@ -110,6 +110,10 @@ function HelpPage() {
             <FaqCard icon={<Percent className="h-4 w-4" />} title="Prowizja platformy">
               Twórca otrzymuje 100% swojej ceny. Kupujący dopłaca opłatę serwisową: 10% dla
               platformy plus koszt płatności (BLIK 1,6% + 1 zł, karta i Przelewy24 1,9% + 1 zł).
+            </FaqCard>
+            <FaqCard icon={<Award className="h-4 w-4" />} title="Pierwszych 30 twórców">
+              Wystaw produkt i poczekaj na akceptację. Pierwszych 30 twórców otrzyma trwały numer,
+              wyróżnienie na stronie głównej i jedną bezpłatną promocję na profilu vlnd.
             </FaqCard>
           </section>
 

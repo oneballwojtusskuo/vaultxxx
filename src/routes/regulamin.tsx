@@ -10,7 +10,7 @@ import {
   OPERATOR_CONTACT,
 } from "@/lib/operator";
 
-const EFFECTIVE_DATE = "1 stycznia 2026 r.";
+const EFFECTIVE_DATE = "6 listopada 2026 r.";
 
 export const Route = createFileRoute("/regulamin")({
   staticData: { sitemap: true },
@@ -494,7 +494,35 @@ function RegulaminPage() {
               </ol>
             </Section>
 
-            <Section title="§ 9. Dane osobowe i pliki cookies">
+            <Section id="akcja-startowa" title="§ 9. Akcja dla pierwszych 30 twórców">
+              <ol>
+                <li>
+                  Akcja obejmuje 30 twórców, których pierwszy Produkt Cyfrowy uzyska status
+                  opublikowany po przejściu weryfikacji. O kolejności decyduje moment nadania tego
+                  statusu. Przysługuje jedno miejsce na twórcę, niezależnie od liczby Produktów
+                  Cyfrowych; Operator może wykluczyć dodatkowe Konta tej samej osoby.
+                </li>
+                <li>
+                  Nagrodą jest trwały numer miejsca, wyróżnienie profilu i wybranego Produktu
+                  Cyfrowego na stronie głównej oraz jednorazowa bezpłatna promocja na profilu vlnd
+                  w serwisie Instagram. Formę i termin publikacji promocji Operator ustala z twórcą;
+                  promocja nie obejmuje płatnego zasięgu i nie gwarantuje sprzedaży.
+                </li>
+                <li>
+                  Numer miejsca nie przechodzi na inną osobę i nie jest ponownie przyznawany.
+                  Publiczne wyróżnienie wymaga aktywnego Konta i co najmniej jednego opublikowanego
+                  Produktu Cyfrowego. Usunięcie Konta lub Produktu Cyfrowego, albo naruszenie
+                  Regulaminu, może zakończyć publiczne wyróżnienie bez prawa do ekwiwalentu.
+                </li>
+                <li>
+                  Nagroda nie ma formy pieniężnej, nie podlega wypłacie ani wymianie i nie zmienia
+                  zasad opłat, prowizji lub afiliacji. Po zajęciu wszystkich miejsc akcja zostanie
+                  zamknięta, a miejsca już przyznane zachowają swój numer.
+                </li>
+              </ol>
+            </Section>
+
+            <Section title="§ 10. Dane osobowe i pliki cookies">
               <ol>
                 <li>
                   Administratorem danych osobowych Użytkowników jest Operator. Szczegółowe
@@ -509,7 +537,7 @@ function RegulaminPage() {
               </ol>
             </Section>
 
-            <Section title="§ 10. Zmiany Regulaminu. Postanowienia końcowe">
+            <Section title="§ 11. Zmiany Regulaminu. Postanowienia końcowe">
               <ol>
                 <li>
                   Operator zastrzega sobie prawo do zmiany Regulaminu z ważnych przyczyn (zmiana
@@ -549,9 +577,9 @@ function RegulaminPage() {
   );
 }
 
-function Section({ title, children }: { title: string; children: React.ReactNode }) {
+function Section({ id, title, children }: { id?: string; title: string; children: React.ReactNode }) {
   return (
-    <section className="space-y-3">
+    <section id={id} className="scroll-mt-24 space-y-3">
       <h2 className="font-display text-xl sm:text-2xl font-semibold text-foreground">{title}</h2>
       <div className="text-sm sm:text-base text-muted-foreground space-y-3 [&_ul]:list-disc [&_ul]:pl-6 [&_ol]:list-decimal [&_ol]:pl-6 [&_li]:mb-1 [&_b]:text-foreground [&_a]:text-accent">
         {children}

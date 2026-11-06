@@ -24,6 +24,7 @@ import {
   Clock3,
   WalletCards,
   Check,
+  Award,
 } from "lucide-react";
 import { toast } from "sonner";
 import { generateLicensePdf } from "@/lib/license-pdf";
@@ -239,29 +240,34 @@ function Dashboard() {
               <div
                 key={n.id}
                 className={`flex items-start gap-3 rounded-xl border p-4 ${
-                  n.kind === "product_published"
+                  n.kind === "product_published" || n.kind === "launch_creator_awarded"
                     ? "border-success/40 bg-success/10"
                     : n.kind === "product_review_required"
                       ? "border-amber-500/40 bg-amber-500/10"
                       : "border-destructive/40 bg-destructive/10"
                 }`}
               >
-                {n.kind === "product_published" ? (
+                {n.kind === "launch_creator_awarded" ? (
+                  <Award className="h-5 w-5 text-success shrink-0 mt-0.5" />
+                ) : n.kind === "product_published" ? (
                   <Check className="h-5 w-5 text-success shrink-0 mt-0.5" />
                 ) : (
                   <AlertTriangle className="h-5 w-5 text-destructive shrink-0 mt-0.5" />
                 )}
                 <div className="flex-1 min-w-0">
                   <p className="font-semibold">
-                    {n.kind === "product_published"
-                      ? "Produkt został opublikowany."
-                      : n.kind === "product_review_required"
-                        ? "Produkt oczekuje na weryfikację administratora."
-                        : `Twoje ogłoszenie${n.product_title ? ` „${n.product_title}"` : ""} zostało odrzucone lub usunięte.`}
+                    {n.kind === "launch_creator_awarded"
+                      ? "Jesteś jednym z pierwszych 30 twórców vlnd."
+                      : n.kind === "product_published"
+                        ? "Produkt został opublikowany."
+                        : n.kind === "product_review_required"
+                          ? "Produkt oczekuje na weryfikację administratora."
+                          : `Twoje ogłoszenie${n.product_title ? ` „${n.product_title}"` : ""} zostało odrzucone lub usunięte.`}
                   </p>
                   {n.admin_note && (
                     <p className="text-sm text-muted-foreground mt-1 whitespace-pre-wrap">
-                      <span className="font-medium text-foreground">Powód:</span> {n.admin_note}
+                      {n.kind !== "launch_creator_awarded" && <span className="font-medium text-foreground">Powód: </span>}
+                      {n.admin_note}
                     </p>
                   )}
                   <p className="text-xs text-muted-foreground mt-1">

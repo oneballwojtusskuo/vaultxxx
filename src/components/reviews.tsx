@@ -75,7 +75,7 @@ export function SellerReviews({ sellerId }: { sellerId: string }) {
       const buyerIds = Array.from(new Set(arr.map((r: any) => r.buyer_id)));
       if (buyerIds.length === 0) return arr;
       const { data: profiles } = await supabase
-        .from("profiles")
+        .from("public_creator_profiles")
         .select("id, username, display_name, avatar_url")
         .in("id", buyerIds);
       const pmap = new Map((profiles ?? []).map((p) => [p.id, p]));
@@ -158,7 +158,7 @@ export function ProductReviews({
       const buyerIds = Array.from(new Set(arr.map((r: any) => r.buyer_id)));
       if (buyerIds.length === 0) return arr;
       const { data: profiles } = await supabase
-        .from("profiles")
+        .from("public_creator_profiles")
         .select("id, username, display_name, avatar_url")
         .in("id", buyerIds);
       const pmap = new Map((profiles ?? []).map((p) => [p.id, p]));

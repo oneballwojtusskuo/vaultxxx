@@ -9,6 +9,6 @@
 - [x] Verify mobile and desktop browsing, guide access and signup navigation.
 
 # First 30 creators launch offer
-- [ ] Award one permanent numbered place per creator after their first approved product, capped at 30.
-- [ ] Show a truthful live counter, concise launch-offer copy and highlighted creators on the homepage.
-- [ ] Add clear offer terms and verify awarding, capacity and mobile/desktop presentation.
+- [x] Award one permanent numbered place per creator after their first approved product, capped at 30.
+- [x] Show a truthful live counter, concise launch-offer copy and highlighted creators on the homepage.
+- [x] Add clear offer terms and verify awarding, capacity and mobile/desktop presentation.

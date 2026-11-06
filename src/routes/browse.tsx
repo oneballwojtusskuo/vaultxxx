@@ -1,5 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { CreatorIntro, CreatorSteps } from "@/components/creator-intro";
+import { LaunchOffer } from "@/components/launch-offer";
 import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
 import { Search, SlidersHorizontal, SearchX } from "lucide-react";
@@ -55,7 +56,7 @@ function Browse() {
       const term = sp.q;
       if (!term) return [];
       const { data } = await supabase
-        .from("profiles")
+        .from("public_creator_profiles")
         .select("id, username, display_name, avatar_url, is_verified_seller, bio")
         .or(`username.ilike.%${term}%,display_name.ilike.%${term}%`)
         .limit(12);
@@ -131,6 +132,7 @@ function Browse() {
     <div className="min-h-screen flex flex-col">
       <SiteHeader />
       <CreatorIntro />
+      <LaunchOffer />
       <main id="odkrywaj" className="mx-auto w-full max-w-7xl scroll-mt-20 px-5 py-10 sm:px-8 sm:py-12 flex-1">
         <div className="flex flex-wrap items-end justify-between gap-3">
           <div><h2 className="font-display text-3xl font-semibold">Odkrywaj</h2>

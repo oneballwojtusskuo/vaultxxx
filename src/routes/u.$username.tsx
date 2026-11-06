@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/button";
 import { MessageSquare, Users } from "lucide-react";
 import { useAuth } from "@/hooks/use-auth";
 import { RatingSummary, SellerReviews } from "@/components/reviews";
+import { Badge } from "@/components/ui/badge";
 
 export const Route = createFileRoute("/u/$username")({
   staticData: { sitemap: false },
@@ -34,9 +35,22 @@ function Profile() {
     queryKey: ["profile", username],
     queryFn: async () => {
       const { data } = await supabase
-        .from("profiles")
+        .from("public_creator_profiles")
         .select("id, username, display_name, avatar_url, bio, is_verified_seller, created_at")
         .eq("username", username)
+        .maybeSingle();
+      return data;
+    },
+  });
+
+  const { data: launchPlace } = useQuery({
+    queryKey: ["profile-launch-place", profile?.id],
+    enabled: !!profile,
+    queryFn: async () => {
+      const { data } = await supabase
+        .from("launch_creators")
+        .select("slot")
+        .eq("seller_id", profile!.id!)
         .maybeSingle();
       return data;
     },
@@ -46,7 +60,7 @@ function Profile() {
     queryKey: ["profile-stats", profile?.id],
     enabled: !!profile,
     queryFn: async () => {
-      const { data } = await supabase.rpc("follow_counts", { _user_id: profile!.id });
+      const { data } = await supabase.rpc("follow_counts", { _user_id: profile!.id! });
       const row = Array.isArray(data) ? data[0] : data;
       return { followers: Number(row?.followers ?? 0), following: Number(row?.following ?? 0) };
     },
@@ -61,7 +75,7 @@ function Profile() {
         .select(
           "id,title,price,currency,preview_url,is_tradable,downloads_count, category:categories(name,icon)",
         )
-        .eq("seller_id", profile!.id)
+        .eq("seller_id", profile!.id!)
         .eq("status", "published")
         .order("created_at", { ascending: false });
       return data ?? [];
@@ -114,6 +128,11 @@ function Profile() {
               <div className="flex items-center gap-2 flex-wrap">
                 <h1 className="font-display text-3xl font-bold">{name}</h1>
                 {profile.is_verified_seller && <VerifiedBadge />}
+                {launchPlace && (
+                  <Badge variant="secondary" className="font-medium">
+                    Pierwszy twórca · #{String(launchPlace.slot).padStart(2, "0")}
+                  </Badge>
+                )}
               </div>
               <p className="text-muted-foreground">@{profile.username}</p>
               {profile.bio && (
@@ -125,16 +144,16 @@ function Profile() {
                 </span>
                 <span>{stats?.following ?? 0} obserwowanych</span>
                 <span>{products?.length ?? 0} produktów</span>
-                <RatingSummary sellerId={profile.id} />
+                <RatingSummary sellerId={profile.id!} />
               </div>
             </div>
             <div className="flex gap-2 flex-wrap">
-              <FollowButton targetUserId={profile.id} />
-              {user && user.id !== profile.id && (
+              <FollowButton targetUserId={profile.id!} />
+              {user && user.id !== profile.id! && (
                 <Button
                   variant="outline"
                   onClick={() =>
-                    navigate({ to: "/messages/$userId", params: { userId: profile.id } })
+                    navigate({ to: "/messages/$userId", params: { userId: profile.id! } })
                   }
                 >
                   <MessageSquare className="h-4 w-4 mr-2" /> Wiadomość
@@ -158,7 +177,7 @@ function Profile() {
         )}
 
         <h2 className="font-display text-2xl font-bold mt-10 mb-4">Opinie o twórcy</h2>
-        <SellerReviews sellerId={profile.id} />
+        <SellerReviews sellerId={profile.id!} />
 
         <div className="mt-8 text-center">
           <Link to="/browse" className="text-sm text-muted-foreground hover:text-foreground">
