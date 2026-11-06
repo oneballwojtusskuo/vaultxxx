@@ -12,3 +12,8 @@
 - [x] Award one permanent numbered place per creator after their first approved product, capped at 30.
 - [x] Show a truthful live counter, concise launch-offer copy and highlighted creators on the homepage.
 - [x] Add clear offer terms and verify awarding, capacity and mobile/desktop presentation.
+
+# Simpler registration
+- [x] Put Google sign-up above the e-mail form.
+- [x] Reduce e-mail registration to e-mail, one visible-password field and one combined consent.
+- [x] Verify desktop/mobile registration and its authentication request.

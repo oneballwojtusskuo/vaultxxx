@@ -1,6 +1,6 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
-import { MailCheck, ShieldAlert } from "lucide-react";
+import { Eye, EyeOff, MailCheck, ShieldAlert } from "lucide-react";
 import { supabase } from "@/lib/supabase-browser";
 
 import { createLovableAuth } from "@lovable.dev/cloud-auth-js";
@@ -44,20 +44,28 @@ function safeNext(next: string | undefined): string | null {
   return next;
 }
 
-const MONTHS = [
-  "stycznia",
-  "lutego",
-  "marca",
-  "kwietnia",
-  "maja",
-  "czerwca",
-  "lipca",
-  "sierpnia",
-  "września",
-  "października",
-  "listopada",
-  "grudnia",
-];
+function GoogleIcon() {
+  return (
+    <svg className="h-4 w-4" viewBox="0 0 48 48" aria-hidden="true">
+      <path
+        fill="#FFC107"
+        d="M43.6 20.5h-1.9V20H24v8h11.3c-1.6 4.7-6.1 8-11.3 8-6.6 0-12-5.4-12-12s5.4-12 12-12c3.1 0 5.8 1.2 7.9 3.1l5.7-5.7C34 6.5 29.3 4.5 24 4.5 13.2 4.5 4.5 13.2 4.5 24S13.2 43.5 24 43.5 43.5 34.8 43.5 24c0-1.2-.1-2.4-.4-3.5z"
+      />
+      <path
+        fill="#FF3D00"
+        d="M6.3 14.7l6.6 4.8C14.7 15.7 19 13 24 13c3.1 0 5.8 1.2 7.9 3.1l5.7-5.7C34 6.5 29.3 4.5 24 4.5 16.4 4.5 9.8 8.8 6.3 14.7z"
+      />
+      <path
+        fill="#4CAF50"
+        d="M24 43.5c5.2 0 9.9-2 13.4-5.2l-6.2-5.2c-2 1.4-4.5 2.4-7.2 2.4-5.2 0-9.6-3.3-11.2-7.9l-6.5 5C9.7 38.9 16.2 43.5 24 43.5z"
+      />
+      <path
+        fill="#1976D2"
+        d="M43.6 20.5H24v8h11.3c-.8 2.3-2.3 4.3-4.1 5.6l6.2 5.2c-.4.4 6.6-4.8 6.6-14.8 0-1.2-.1-2.4-.4-4z"
+      />
+    </svg>
+  );
+}
 
 function AuthPage() {
   const navigate = useNavigate();
@@ -68,28 +76,13 @@ function AuthPage() {
   const [loading, setLoading] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [password2, setPassword2] = useState("");
-  const [birthDay, setBirthDay] = useState("");
-  const [birthMonth, setBirthMonth] = useState("");
-  const [birthYear, setBirthYear] = useState("");
-  const [acceptDocs, setAcceptDocs] = useState(false);
-  const [ageConsent, setAgeConsent] = useState(false);
-  const [emailTaken, setEmailTaken] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+  const [acceptRegistration, setAcceptRegistration] = useState(false);
 
   const [showSpamNotice, setShowSpamNotice] = useState(false);
   const [pendingEmail, setPendingEmail] = useState("");
   const [resetOpen, setResetOpen] = useState(false);
   const [resetEmail, setResetEmail] = useState("");
-
-  const currentYear = new Date().getFullYear();
-  const years = Array.from({ length: 100 }, (_, i) => currentYear - i);
-  const daysInMonth =
-    birthMonth && birthYear ? new Date(Number(birthYear), Number(birthMonth), 0).getDate() : 31;
-
-  const birthDate =
-    birthDay && birthMonth && birthYear
-      ? `${birthYear}-${String(birthMonth).padStart(2, "0")}-${String(birthDay).padStart(2, "0")}`
-      : "";
 
   const goNext = () => {
     if (nextPath) {
@@ -109,11 +102,6 @@ function AuthPage() {
     goNext();
   };
 
-  // Account-existence lookups were removed to prevent e-mail enumeration.
-  const checkEmail = async (_value: string) => {
-    setEmailTaken(false);
-  };
-
   const sendReset = async () => {
     const v = resetEmail.trim();
     if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(v)) return toast.error("Podaj poprawny adres e-mail.");
@@ -129,15 +117,8 @@ function AuthPage() {
 
   const signUp = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!birthDate) return toast.error("Wybierz pełną datę urodzenia (dzień, miesiąc i rok).");
-    const dob = new Date(`${birthDate}T00:00:00`);
-    if (Number.isNaN(dob.getTime())) return toast.error("Nieprawidłowa data urodzenia.");
-    const age = (Date.now() - dob.getTime()) / (365.2425 * 24 * 3600 * 1000);
-    if (age < 13)
-      return toast.error("Z vlnd mogą korzystać wyłącznie osoby, które ukończyły 13 lat.");
-    if (!ageConsent) return toast.error("Potwierdź oświadczenie o wieku / zgodzie opiekuna.");
-    if (password !== password2) return toast.error("Hasła nie są takie same — wpisz je ponownie.");
-    if (!acceptDocs) return toast.error("Zaakceptuj regulamin i politykę prywatności.");
+    if (!acceptRegistration)
+      return toast.error("Potwierdź wymagania wieku i zaakceptuj dokumenty serwisu.");
     setLoading(true);
     const redirectTo = nextPath ? `${window.location.origin}${nextPath}` : window.location.origin;
     const { error } = await supabase.auth.signUp({
@@ -145,7 +126,7 @@ function AuthPage() {
       password,
       options: {
         emailRedirectTo: redirectTo,
-        data: { date_of_birth: birthDate, age_consent_accepted: true },
+        data: { age_consent_accepted: true },
       },
     });
     setLoading(false);
@@ -206,7 +187,26 @@ function AuthPage() {
               <TabsTrigger value="signup">Rejestracja</TabsTrigger>
             </TabsList>
 
-            <TabsContent value="signin" className="space-y-4 mt-6">
+            <div className="mt-5 space-y-2">
+              <Button
+                type="button"
+                variant="outline"
+                disabled={loading}
+                onClick={google}
+                className="h-11 w-full"
+              >
+                <GoogleIcon />
+                Kontynuuj przez Google
+              </Button>
+              <p className="text-center text-xs text-muted-foreground">Szybko i bez hasła.</p>
+            </div>
+            <div className="my-5 flex items-center gap-3 text-xs text-muted-foreground">
+              <div className="h-px flex-1 bg-border" />
+              lub przez e-mail
+              <div className="h-px flex-1 bg-border" />
+            </div>
+
+            <TabsContent value="signin" className="space-y-4">
               <form onSubmit={signIn} className="space-y-4">
                 <div className="space-y-2">
                   <Label>Email</Label>
@@ -218,13 +218,28 @@ function AuthPage() {
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label>Hasło</Label>
-                  <Input
-                    type="password"
-                    required
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                  />
+                  <Label htmlFor="signin-password">Hasło</Label>
+                  <div className="relative">
+                    <Input
+                      id="signin-password"
+                      type={showPassword ? "text" : "password"}
+                      autoComplete="current-password"
+                      required
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      className="pr-11"
+                    />
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="icon"
+                      className="absolute right-1 top-0.5 h-8 w-8 text-muted-foreground"
+                      onClick={() => setShowPassword((visible) => !visible)}
+                      aria-label={showPassword ? "Ukryj hasło" : "Pokaż hasło"}
+                    >
+                      {showPassword ? <EyeOff /> : <Eye />}
+                    </Button>
+                  </div>
                 </div>
                 <button
                   type="button"
@@ -246,113 +261,59 @@ function AuthPage() {
               </form>
             </TabsContent>
 
-            <TabsContent value="signup" className="space-y-4 mt-6">
+            <TabsContent value="signup" className="space-y-4">
               <form onSubmit={signUp} className="space-y-4">
                 <div className="space-y-2">
                   <Label>Email</Label>
                   <Input
                     type="email"
+                    autoComplete="email"
                     required
                     value={email}
-                    onChange={(e) => {
-                      setEmail(e.target.value);
-                      setEmailTaken(false);
-                    }}
-                    onBlur={(e) => checkEmail(e.target.value)}
+                    onChange={(e) => setEmail(e.target.value)}
                   />
-                  {emailTaken && (
-                    <p className="text-xs text-destructive">
-                      Konto z tym adresem już istnieje — przejdź do zakładki „Zaloguj”.
-                    </p>
-                  )}
                   <p className="text-xs text-muted-foreground">
                     Nazwę użytkownika wybierzesz zaraz po potwierdzeniu adresu e-mail.
                   </p>
                 </div>
                 <div className="space-y-2">
-                  <Label>Hasło</Label>
-                  <Input
-                    type="password"
-                    required
-                    minLength={8}
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                  />
+                  <Label htmlFor="signup-password">Hasło</Label>
+                  <div className="relative">
+                    <Input
+                      id="signup-password"
+                      type={showPassword ? "text" : "password"}
+                      autoComplete="new-password"
+                      required
+                      minLength={8}
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      className="pr-11"
+                    />
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="icon"
+                      className="absolute right-1 top-0.5 h-8 w-8 text-muted-foreground"
+                      onClick={() => setShowPassword((visible) => !visible)}
+                      aria-label={showPassword ? "Ukryj hasło" : "Pokaż hasło"}
+                    >
+                      {showPassword ? <EyeOff /> : <Eye />}
+                    </Button>
+                  </div>
                   <p className="text-xs text-muted-foreground">
                     Min. 8 znaków. Sprawdzamy bazę wyciekłych haseł.
                   </p>
                 </div>
-                <div className="space-y-2">
-                  <Label>Powtórz hasło</Label>
-                  <Input
-                    type="password"
-                    required
-                    minLength={8}
-                    value={password2}
-                    onChange={(e) => setPassword2(e.target.value)}
-                  />
-                  {password2.length > 0 && password2 !== password && (
-                    <p className="text-xs text-destructive">Hasła nie są takie same.</p>
-                  )}
-                </div>
-                <div className="space-y-2">
-                  <Label>
-                    Data urodzenia <span className="text-destructive">*</span>
-                  </Label>
-                  <div className="grid grid-cols-3 gap-2">
-                    <select
-                      required
-                      value={birthDay}
-                      onChange={(e) => setBirthDay(e.target.value)}
-                      className="h-10 rounded-md border border-input bg-background px-2 text-sm"
-                    >
-                      <option value="">Dzień</option>
-                      {Array.from({ length: daysInMonth }, (_, i) => i + 1).map((d) => (
-                        <option key={d} value={d}>
-                          {d}
-                        </option>
-                      ))}
-                    </select>
-                    <select
-                      required
-                      value={birthMonth}
-                      onChange={(e) => setBirthMonth(e.target.value)}
-                      className="h-10 rounded-md border border-input bg-background px-2 text-sm"
-                    >
-                      <option value="">Miesiąc</option>
-                      {MONTHS.map((m, i) => (
-                        <option key={m} value={i + 1}>
-                          {m}
-                        </option>
-                      ))}
-                    </select>
-                    <select
-                      required
-                      value={birthYear}
-                      onChange={(e) => setBirthYear(e.target.value)}
-                      className="h-10 rounded-md border border-input bg-background px-2 text-sm"
-                    >
-                      <option value="">Rok</option>
-                      {years.map((y) => (
-                        <option key={y} value={y}>
-                          {y}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-                  <p className="text-xs text-muted-foreground">
-                    Z vlnd mogą korzystać wyłącznie osoby, które ukończyły 13 lat (13–17 lat za zgodą opiekuna).
-                  </p>
-                </div>
-
                 <label className="flex items-start gap-2 text-xs text-muted-foreground">
                   <input
                     type="checkbox"
                     className="mt-0.5"
-                    checked={acceptDocs}
-                    onChange={(e) => setAcceptDocs(e.target.checked)}
+                    required
+                    checked={acceptRegistration}
+                    onChange={(e) => setAcceptRegistration(e.target.checked)}
                   />
                   <span>
+                    Mam ukończone 18 lat albo co najmniej 13 lat i zgodę rodzica/opiekuna prawnego.
                     Akceptuję{" "}
                     <Link to="/regulamin" className="text-accent hover:underline">
                       Regulamin
@@ -361,21 +322,7 @@ function AuthPage() {
                     <Link to="/polityka-prywatnosci" className="text-accent hover:underline">
                       Polityką prywatności
                     </Link>
-                    .
-                  </span>
-                </label>
-                <label className="flex items-start gap-2 text-xs text-muted-foreground">
-                  <input
-                    type="checkbox"
-                    className="mt-0.5"
-                    required
-                    checked={ageConsent}
-                    onChange={(e) => setAgeConsent(e.target.checked)}
-                  />
-                  <span>
-                    Oświadczam, że mam ukończone 18 lat LUB mam ukończone min. 13 lat i posiadam
-                    zgodę rodzica/opiekuna prawnego na korzystanie z serwisu oraz udział w programie
-                    afiliacyjnym. <span className="text-destructive">*</span>
+                    . <span className="text-destructive">*</span>
                   </span>
                 </label>
                 <div className="rounded-lg border border-primary/20 bg-primary/5 p-3 text-xs text-muted-foreground">
@@ -384,7 +331,7 @@ function AuthPage() {
                 </div>
 
                 <Button
-                  disabled={loading || !ageConsent || !acceptDocs}
+                  disabled={loading || !acceptRegistration}
                   type="submit"
                   className="w-full bg-gradient-primary text-primary-foreground shadow-glow"
                 >
@@ -393,33 +340,6 @@ function AuthPage() {
               </form>
             </TabsContent>
           </Tabs>
-
-          <div className="my-5 flex items-center gap-3 text-xs text-muted-foreground">
-            <div className="h-px flex-1 bg-border" />
-            lub
-            <div className="h-px flex-1 bg-border" />
-          </div>
-          <Button variant="outline" disabled={loading} onClick={google} className="w-full">
-            <svg className="h-4 w-4 mr-2" viewBox="0 0 48 48">
-              <path
-                fill="#FFC107"
-                d="M43.6 20.5h-1.9V20H24v8h11.3c-1.6 4.7-6.1 8-11.3 8-6.6 0-12-5.4-12-12s5.4-12 12-12c3.1 0 5.8 1.2 7.9 3.1l5.7-5.7C34 6.5 29.3 4.5 24 4.5 13.2 4.5 4.5 13.2 4.5 24S13.2 43.5 24 43.5 43.5 34.8 43.5 24c0-1.2-.1-2.4-.4-3.5z"
-              />
-              <path
-                fill="#FF3D00"
-                d="M6.3 14.7l6.6 4.8C14.7 15.7 19 13 24 13c3.1 0 5.8 1.2 7.9 3.1l5.7-5.7C34 6.5 29.3 4.5 24 4.5 16.4 4.5 9.8 8.8 6.3 14.7z"
-              />
-              <path
-                fill="#4CAF50"
-                d="M24 43.5c5.2 0 9.9-2 13.4-5.2l-6.2-5.2c-2 1.4-4.5 2.4-7.2 2.4-5.2 0-9.6-3.3-11.2-7.9l-6.5 5C9.7 38.9 16.2 43.5 24 43.5z"
-              />
-              <path
-                fill="#1976D2"
-                d="M43.6 20.5H24v8h11.3c-.8 2.3-2.3 4.3-4.1 5.6l6.2 5.2c-.4.4 6.6-4.8 6.6-14.8 0-1.2-.1-2.4-.4-4z"
-              />
-            </svg>
-            Kontynuuj z Google
-          </Button>
         </div>
       </div>
 
