@@ -43,6 +43,13 @@
       "when": 1793640072450,
       "tag": "0005_normalize_product_slug_accents",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1793952382026,
+      "tag": "0006_launch_creator_places",
+      "breakpoints": true
     }
   ]
 }

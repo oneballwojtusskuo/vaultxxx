@@ -376,6 +376,27 @@ export type Database = {
         }
         Relationships: []
       }
+      launch_creators: {
+        Row: {
+          awarded_at: string
+          product_id: string
+          seller_id: string
+          slot: number
+        }
+        Insert: {
+          awarded_at?: string
+          product_id: string
+          seller_id: string
+          slot: number
+        }
+        Update: {
+          awarded_at?: string
+          product_id?: string
+          seller_id?: string
+          slot?: number
+        }
+        Relationships: []
+      }
       messages: {
         Row: {
           content: string
@@ -1083,6 +1104,14 @@ export type Database = {
           followers: number
           following: number
         }[]
+      }
+      grant_launch_creator_place: {
+        Args: {
+          _product_id: string
+          _product_title: string
+          _seller_id: string
+        }
+        Returns: number
       }
       has_role: {
         Args: {
