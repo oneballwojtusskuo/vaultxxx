@@ -71,6 +71,13 @@
       "when": 1793952710816,
       "tag": "0009_hide_banned_public_creator_cards",
       "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "7",
+      "when": 1794495891493,
+      "tag": "0010_restrict_launch_creators_read",
+      "breakpoints": true
     }
   ]
 }
