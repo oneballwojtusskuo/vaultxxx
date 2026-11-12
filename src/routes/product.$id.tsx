@@ -27,7 +27,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/lib/supabase-browser";
 import { useAuth } from "@/hooks/use-auth";
-import { Link2 as LinkIcon } from "lucide-react";
+import { Link2 as LinkIcon, Loader2, CheckCircle2 } from "lucide-react";
 import { toast } from "sonner";
 import { useEffect, useState } from "react";
 import {
@@ -1035,7 +1035,30 @@ function SecureStreamPlayer({
         ? "Twój dostęp (tylko streaming)"
         : "Twój dostęp (streaming + pobieranie)";
 
+  const [dlState, setDlState] = useState<"idle" | "preparing" | "started">("idle");
+  const [dlLink, setDlLink] = useState<{ href: string; name: string } | null>(null);
+
+  const triggerSave = (href: string, name: string) => {
+    const a = document.createElement("a");
+    a.href = href;
+    a.download = name;
+    a.rel = "noopener";
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+  };
+
   const handleDownload = async () => {
+    setDlState("preparing");
+    setDlLink(null);
+    try {
+      await runDownload();
+    } finally {
+      setDlState((s) => (s === "preparing" ? "idle" : s));
+    }
+  };
+
+  const runDownload = async () => {
     const latest = await refetch();
     const access = latest.data ?? data;
     const downloads = (access as any)?.downloads as
@@ -1061,14 +1084,10 @@ function SecureStreamPlayer({
       });
 
       if (validFiles.length === 1) {
-        const a = document.createElement("a");
-        a.href = validFiles[0].url.toString();
-        a.download = validFiles[0].name;
-        a.target = "_blank";
-        a.rel = "noopener noreferrer";
-        document.body.appendChild(a);
-        a.click();
-        a.remove();
+        const href = validFiles[0].url.toString();
+        triggerSave(href, validFiles[0].name);
+        setDlLink({ href, name: validFiles[0].name });
+        setDlState("started");
         return;
       }
 
@@ -1083,13 +1102,11 @@ function SecureStreamPlayer({
       );
       const archive = await zip.generateAsync({ type: "blob" });
       const archiveUrl = URL.createObjectURL(archive);
-      const a = document.createElement("a");
-      a.href = archiveUrl;
-      a.download = `${(productTitle || "produkt").replace(/[^\w\-. ]+/g, "_")}.zip`;
-      document.body.appendChild(a);
-      a.click();
-      a.remove();
-      URL.revokeObjectURL(archiveUrl);
+      const zipName = `${(productTitle || "produkt").replace(/[^\w\-. ]+/g, "_")}.zip`;
+      triggerSave(archiveUrl, zipName);
+      setDlLink({ href: archiveUrl, name: zipName });
+      setDlState("started");
+      setTimeout(() => URL.revokeObjectURL(archiveUrl), 10 * 60_000);
     } catch {
       toast.error("Nie udało się przygotować linku do pliku. Spróbuj ponownie za chwilę.");
     }
@@ -1153,13 +1170,38 @@ function SecureStreamPlayer({
         <div className={showStream ? "mt-3" : ""}>
           <Button
             onClick={handleDownload}
+            disabled={dlState === "preparing"}
             className="bg-gradient-primary text-primary-foreground shadow-glow"
           >
-            <Download className="h-4 w-4 mr-2" />
-            {(data as any)?.downloads?.length > 1
-              ? "Pobierz wszystkie pliki (ZIP)"
-              : "Pobierz plik"}
+            {dlState === "preparing" ? (
+              <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+            ) : (
+              <Download className="h-4 w-4 mr-2" />
+            )}
+            {dlState === "preparing"
+              ? "Przygotowuję plik..."
+              : (data as any)?.downloads?.length > 1
+                ? "Pobierz wszystkie pliki (ZIP)"
+                : "Pobierz plik"}
           </Button>
+          {dlState === "started" && dlLink && (
+            <div className="mt-3 rounded-lg border border-success/30 bg-background p-3 text-sm">
+              <p className="flex items-center gap-2 font-medium text-success">
+                <CheckCircle2 className="h-4 w-4" /> Pobieranie rozpoczęte!
+              </p>
+              <p className="mt-1 text-xs text-muted-foreground">
+                Plik zapisuje się w folderze „Pobrane". Na iPhonie sprawdź ikonę strzałki przy
+                pasku adresu, a na Androidzie powiadomienia.
+              </p>
+              <a
+                href={dlLink.href}
+                download={dlLink.name}
+                className="mt-2 inline-flex items-center gap-1 text-xs font-semibold text-primary underline underline-offset-2"
+              >
+                <Download className="h-3 w-3" /> Nie widzisz pliku? Kliknij tutaj, aby pobrać
+              </a>
+            </div>
+          )}
           {deliveryMode === "stream" && (isVideo || isAudio) && isOwner && (
             <p className="mt-2 text-[11px] text-muted-foreground">
               Pobieranie widoczne tylko dla Ciebie (właściciela). Kupujący otrzymują wyłącznie
