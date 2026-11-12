@@ -1000,6 +1000,8 @@ function SecureStreamPlayer({
   productTitle?: string;
 }) {
   const fetchUrl = useServerFn(getSecureStreamUrl);
+  const [dlState, setDlState] = useState<"idle" | "preparing" | "started">("idle");
+  const [dlLink, setDlLink] = useState<{ href: string; name: string } | null>(null);
   const { data, isLoading, error, refetch } = useQuery({
     queryKey: ["stream-url", productId],
     queryFn: () => fetchUrl({ data: { productId } }),
@@ -1035,8 +1037,6 @@ function SecureStreamPlayer({
         ? "Twój dostęp (tylko streaming)"
         : "Twój dostęp (streaming + pobieranie)";
 
-  const [dlState, setDlState] = useState<"idle" | "preparing" | "started">("idle");
-  const [dlLink, setDlLink] = useState<{ href: string; name: string } | null>(null);
 
   const triggerSave = (href: string, name: string) => {
     const a = document.createElement("a");
