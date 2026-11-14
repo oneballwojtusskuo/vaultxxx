@@ -11,3 +11,4 @@
 - Stripe clients always use the connector gateway with an explicit environment; never fall back to direct secret-key SDK access.
 - Exchange transitions and all item ownership are validated by database triggers so API callers cannot self-approve or substitute someone else's files.
 - Privileged scans validate seller-prefixed paths before storage access; Stripe return URLs use an exact application-origin allowlist.
+- RLS administrator checks delegate to the caller-scoped security-definer has_role function; never read user_roles through an invoker function used by that table's policies, because it recurses.

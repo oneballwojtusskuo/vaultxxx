@@ -41,3 +41,7 @@
 - [x] Verify authenticated sandbox card checkout, downloaded PDF (540538 bytes), purchase in dashboard, signed-out denial and forged webhook HTTP 400.
 - [x] Fix payment transport, guest identity verification and stale download authorization.
 - [x] Run regression tests; real-money payments and physical-device checks remain outside this sandbox verification.
+
+# Restore authenticated catalogue visibility
+- [x] Remove the recursive administrator permission check without broadening data access.
+- [x] Verify products and featured creators while signed in, without purchases or notifications.
