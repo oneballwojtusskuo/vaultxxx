@@ -45,3 +45,8 @@
 # Restore authenticated catalogue visibility
 - [x] Remove the recursive administrator permission check without broadening data access.
 - [x] Verify products and featured creators while signed in, without purchases or notifications.
+
+# Edit own listings
+- [x] Add editing from own products, reusing all existing listing fields and retaining existing uploads.
+- [x] Protect owner-only saves and retain moderation and immutable shared links.
+- [x] Test validation and verify an authenticated edit/save through the interface.

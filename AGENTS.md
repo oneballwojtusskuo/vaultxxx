@@ -12,3 +12,4 @@
 - Exchange transitions and all item ownership are validated by database triggers so API callers cannot self-approve or substitute someone else's files.
 - Privileged scans validate seller-prefixed paths before storage access; Stripe return URLs use an exact application-origin allowlist.
 - RLS administrator checks delegate to the caller-scoped security-definer has_role function; never read user_roles through an invoker function used by that table's policies, because it recurses.
+- Listing edits reuse the sell form with an edit identifier; owner-scoped server actions allowlist editable fields, preserve slugs, retain existing uploads, and requeue changed content for moderation.

@@ -1,7 +1,9 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { validateCleanText } from "@/lib/profanity";
 import { useEffect, useState } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { z } from "zod";
+import { getEditableListing, updateOwnListing } from "@/lib/listing-edit.functions";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 import { Input } from "@/components/ui/input";
@@ -249,6 +251,7 @@ function DeviationNote({ show, licType }: { show: boolean; licType: LicenseType 
 
 export const Route = createFileRoute("/sell")({
   staticData: { sitemap: false },
+  validateSearch: (search) => z.object({ edit: z.string().uuid().optional() }).parse(search),
   head: () => ({ meta: [
     { title: "Wystaw produkt cyfrowy — vlnd" },
     { name: "description", content: "Dodaj własny e-book, planner lub inny materiał cyfrowy do sprzedaży na vlnd." },
@@ -263,6 +266,15 @@ export const Route = createFileRoute("/sell")({
 
 function Sell() {
   const { user, loading } = useAuth();
+  const { edit } = Route.useSearch();
+  const queryClient = useQueryClient();
+  const fetchEditable = useServerFn(getEditableListing);
+  const saveEdited = useServerFn(updateOwnListing);
+  const { data: existing, isPending: editLoading, error: editError } = useQuery({
+    queryKey: ["editable-listing", user?.id, edit],
+    enabled: !!user && !!edit,
+    queryFn: () => { if (!edit) throw new Error("Brak ogłoszenia"); return fetchEditable({ data: { productId: edit } }); },
+  });
   const navigate = useNavigate();
   const [submitting, setSubmitting] = useState(false);
   const [title, setTitle] = useState("");
@@ -276,6 +288,7 @@ function Sell() {
   const [previewFile, setPreviewFile] = useState<File | null>(null);
   const [productFiles, setProductFiles] = useState<File[]>([]);
   const [sampleFile, setSampleFile] = useState<File | null>(null);
+  const [removeSample, setRemoveSample] = useState(false);
   const [generatingWatermark, setGeneratingWatermark] = useState(false);
   const [licType, setLicType] = useState<LicenseType>("personal");
   const [licTerms, setLicTerms] = useState<LicenseTerms>(() => presetForType("personal"));
@@ -286,6 +299,19 @@ function Sell() {
   const [licMaxStreams, setLicMaxStreams] = useState("");
 
   const [affiliatePct, setAffiliatePct] = useState<string>("10");
+
+  useEffect(() => {
+    if (!existing) return;
+    setTitle(existing.title); setDescription(existing.description ?? ""); setPrice(String(existing.price));
+    setCategoryId(existing.category_id ?? ""); setCustomCategory(existing.custom_category ?? "");
+    setTags((existing.tags ?? []).join(", ")); setTradable(existing.is_tradable);
+    setAffiliatePct(String(existing.affiliate_commission_pct));
+    const terms = existing.license_terms as LicenseTerms;
+    setLicTerms(terms); setLicType(terms.license_type ?? "personal");
+    setPresetSnapshot(presetForType(terms.license_type ?? "personal"));
+    setLicCustom(terms.custom_terms ?? ""); setLicMaxStreams(terms.max_streams ? String(terms.max_streams) : "");
+    setPreviewFile(null); setProductFiles([]); setSampleFile(null);
+  }, [existing]);
 
   const setLic = (patch: Partial<LicenseTerms>) => setLicTerms((prev) => ({ ...prev, ...patch }));
   const applyPreset = (type: LicenseType) => {
@@ -304,6 +330,10 @@ function Sell() {
     queryKey: ["cats-sell"],
     queryFn: async () => (await supabase.from("categories").select("*").order("name")).data ?? [],
   });
+
+  useEffect(() => {
+    if (existing?.category_id && cats?.length) setCategoryId(existing.category_id);
+  }, [existing?.category_id, cats]);
 
   const isOtherCategory = (cats ?? []).some((c: any) => c.id === categoryId && c.slug === "other");
 
@@ -346,7 +376,7 @@ function Sell() {
 
   // Back from Stripe onboarding: restore the form exactly as the creator left it.
   useEffect(() => {
-    if (!user) return;
+    if (!user || edit) return;
     let cancelled = false;
     loadSellDraft().then((d) => {
       if (cancelled || !d || d.userId !== user.id) return;
@@ -375,7 +405,7 @@ function Sell() {
       cancelled = true;
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [user?.id]);
+  }, [user?.id, edit]);
 
   const validateFile = useServerFn(validateUploadedFile);
   const reviewListingFn = useServerFn(reviewListing);
@@ -410,12 +440,12 @@ function Sell() {
 
     const coverFile =
       previewFile ?? (sampleFile && checkImageFile(sampleFile) === null ? sampleFile : null);
-    if (!coverFile) {
+    if (!coverFile && !existing?.preview_url) {
       return toast.error(
         "Wgraj okładkę produktu albo wybierz próbkę jako okładkę — to pole jest wymagane.",
       );
     }
-    if (productFiles.length === 0) {
+    if (productFiles.length === 0 && !existing?.file_path && !existing?.file_paths.length) {
       return toast.error("Wgraj plik produktu — to pole jest wymagane.");
     }
     if (!categoryId) {
@@ -450,7 +480,7 @@ function Sell() {
     }
 
     const dm = (licTerms.delivery_mode ?? "download") as DeliveryMode;
-    if ((dm === "stream" || dm === "both") && !isStreamableFile(productFiles[0])) {
+    if ((dm === "stream" || dm === "both") && !(productFiles.length ? isStreamableFile(productFiles[0]) : STREAMABLE_EXT.some((ext) => (existing?.file_path ?? "").toLowerCase().endsWith(ext)))) {
       return toast.error(
         `Wybrałeś sposób dostarczenia „${DELIVERY_MODE_LABELS[dm]}", ale główny plik „${productFiles[0]?.name ?? ""}" nie jest obsługiwany przez przeglądarkowy odtwarzacz. ` +
           `Streaming działa tylko dla audio/wideo (${STREAMABLE_EXT.join(", ")}). Zmień plik lub wybierz „Tylko pobieranie".`,
@@ -461,10 +491,10 @@ function Sell() {
     setSubmitting(true);
     try {
 
-      let preview_url: string | null = null;
+      let preview_url: string | null = existing?.preview_url ?? null;
       let file_path: string | null = null;
-      const file_paths: string[] = [];
-      let sample_url: string | null = null;
+      const file_paths: string[] = productFiles.length ? [] : (existing?.file_paths.length ? [...existing.file_paths] : existing?.file_path ? [existing.file_path] : []);
+      let sample_url: string | null = removeSample ? null : existing?.sample_url ?? null;
 
       const effectivePreview =
         coverFile ?? (sampleFile && checkImageFile(sampleFile) === null ? sampleFile : null);
@@ -498,7 +528,7 @@ function Sell() {
         seller_id: user.id,
         title,
         description,
-        price: parseFloat(price) || 0,
+        price: Number(price.replace(",", ".")),
         category_id: categoryId || null,
         custom_category: isOtherCategory ? customCategory.trim() : null,
         tags: tags
@@ -521,6 +551,17 @@ function Sell() {
           custom_terms: licCustom,
         },
       } as any;
+      if (edit) {
+        const { seller_id, status, file_path: ignoredPath, ...fields } = listing;
+        const result = await saveEdited({ data: { productId: edit, ...fields } });
+        if (result.reviewRequired && productFiles.length > 0) {
+          try { await reviewListingFn({ data: { productId: edit } }); } catch { /* Remains pending for moderator. */ }
+        }
+        await queryClient.invalidateQueries();
+        toast.success(result.reviewRequired ? "Zmiany zapisane. Ogłoszenie oczekuje na ponowną weryfikację." : "Zmiany ogłoszenia zapisane.");
+        navigate({ to: "/dashboard" });
+        return;
+      }
       const { data, error } = await supabase.from("products").insert(listing).select("id").single();
 
       if (error) throw error;
@@ -546,16 +587,17 @@ function Sell() {
   };
 
   if (loading || !user) return null;
+  if (edit && (editLoading || editError || !cats?.length)) return <div className="min-h-screen flex flex-col"><SiteHeader /><main className="container mx-auto px-4 py-10 flex-1"><p>{editError ? editError.message : "Ładowanie ogłoszenia…"}</p><Button variant="outline" onClick={() => navigate({ to: "/dashboard" })}>Wróć do panelu</Button></main><SiteFooter /></div>;
 
   return (
     <TooltipProvider delayDuration={150}>
       <div className="min-h-screen flex flex-col">
         <SiteHeader />
         <main className="container mx-auto px-4 py-10 flex-1 max-w-3xl">
-          <h1 className="font-display text-4xl font-bold">Wystaw produkt</h1>
+          <h1 className="font-display text-4xl font-bold">{edit ? "Edytuj ogłoszenie" : "Wystaw produkt"}</h1>
           <p className="text-muted-foreground mt-1">Podziel się swoją pracą ze społecznością.</p>
 
-          <form
+          <form key={edit ?? "new"}
             onSubmit={submit}
             className="mt-8 space-y-5 rounded-2xl bg-gradient-surface border border-border/40 p-6"
           >
@@ -590,7 +632,7 @@ function Sell() {
                 <Label>
                   Kategoria <span className="text-destructive">*</span>
                 </Label>
-                <Select value={categoryId} onValueChange={setCategoryId} required>
+                <Select value={categoryId} onValueChange={(value) => { if (value || !edit) setCategoryId(value); }} required>
                   <SelectTrigger>
                     <SelectValue placeholder="Wybierz kategorię" />
                   </SelectTrigger>
@@ -705,6 +747,7 @@ function Sell() {
                     setPreviewFile(f);
                   }}
                 />
+                {existing?.preview_url && !previewFile && <img src={existing.preview_url} alt="Obecna okładka" className="h-24 w-24 rounded-md object-cover" />}
                 {previewFile && (
                   <p className="text-xs text-muted-foreground truncate">✓ {previewFile.name}</p>
                 )}
@@ -720,9 +763,10 @@ function Sell() {
                 <Input
                   type="file"
                   multiple
-                  required
+                  required={!edit}
                   onChange={(e) => setProductFiles(Array.from(e.target.files ?? []))}
                 />
+                {existing && productFiles.length === 0 && <p className="text-xs text-muted-foreground break-all">{(existing.file_paths.length ? existing.file_paths : [existing.file_path]).filter(Boolean).map((path) => path?.split("/").pop()).join(", ")}</p>}
                 {productFiles.length > 0 && (
                   <p className="text-xs text-muted-foreground truncate">
                     ✓ {productFiles.map((file) => file.name).join(", ")}
@@ -745,8 +789,9 @@ function Sell() {
               <Input
                 type="file"
                 accept="audio/*,video/*,image/*,application/pdf"
-                onChange={(e) => setSampleFile(e.target.files?.[0] ?? null)}
+                onChange={(e) => { setSampleFile(e.target.files?.[0] ?? null); setRemoveSample(false); }}
               />
+              {existing?.sample_url && !sampleFile && <div className="flex items-center gap-3"><span className="text-xs text-muted-foreground">{removeSample ? "Próbka zostanie usunięta" : "Obecna próbka"}</span><Button type="button" variant="outline" size="sm" onClick={() => setRemoveSample((value) => !value)}>{removeSample ? "Zachowaj próbkę" : "Usuń próbkę"}</Button></div>}
               <div className="rounded-md border border-dashed border-accent/40 bg-background/40 p-3 space-y-2">
                 <div className="flex items-start gap-2">
                   <Droplets className="h-4 w-4 text-accent mt-0.5 shrink-0" />
@@ -1139,7 +1184,7 @@ function Sell() {
             {Number(String(price).replace(",", ".")) > 0 && (
               <div className="space-y-2">
                 <Label className="text-base">Wypłaty *</Label>
-                <ConnectPayoutsCard compact returnTo="sell" onBeforeRedirect={saveDraft} />
+                <ConnectPayoutsCard compact returnTo={edit ? "dashboard" : "sell"} onBeforeRedirect={edit ? undefined : saveDraft} />
                 {!connectStatus?.transfersEnabled && (
                   <p className="text-xs text-muted-foreground">
                     Płatne produkty możesz wystawić po połączeniu konta Stripe. Produkty darmowe
@@ -1158,11 +1203,12 @@ function Sell() {
 
             <Button
               type="submit"
-              disabled={submitting}
+              disabled={submitting || (!!edit && !existing)}
               className="w-full h-12 bg-gradient-primary text-primary-foreground shadow-glow"
             >
-              {submitting ? "Publikuję..." : "Opublikuj produkt"}
+              {submitting ? (edit ? "Zapisuję…" : "Publikuję...") : edit ? "Zapisz zmiany" : "Opublikuj produkt"}
             </Button>
+            {edit && <Button type="button" variant="outline" className="w-full" disabled={submitting} onClick={() => navigate({ to: "/dashboard" })}>Anuluj</Button>}
           </form>
         </main>
         <SiteFooter />

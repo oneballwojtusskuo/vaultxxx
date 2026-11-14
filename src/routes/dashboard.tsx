@@ -11,6 +11,7 @@ import { Button } from "@/components/ui/button";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import {
   Plus,
+  Pencil,
   PlayCircle,
   Trash2,
   FileText,
@@ -360,7 +361,7 @@ function Dashboard() {
             {myProducts?.map((p) => (
               <div
                 key={p.id}
-                className="flex items-center gap-4 rounded-xl bg-gradient-surface border border-border/40 p-4"
+                className="flex flex-wrap items-center gap-4 rounded-xl bg-gradient-surface border border-border/40 p-4"
               >
                 <div className="h-16 w-16 rounded-lg overflow-hidden bg-muted shrink-0">
                   {p.preview_url ? (
@@ -400,6 +401,7 @@ function Dashboard() {
                   )}
                 </div>
                 <div className="flex items-center gap-1 shrink-0">
+                  {p.status !== "sold" && <Button asChild variant="outline" size="sm"><Link to="/sell" search={{ edit: p.id }}><Pencil className="h-4 w-4" /> Edytuj</Link></Button>}
                   {p.status === "published" && (
                     <Button
                       variant="outline"
