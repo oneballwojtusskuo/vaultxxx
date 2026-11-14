@@ -2,17 +2,14 @@ import { createServerFn } from "@tanstack/react-start";
 import { getRequest } from "@tanstack/react-start/server";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { z } from "zod";
+import { trustedAppOrigin } from "./access-security";
 
 const EnvSchema = z.object({ environment: z.enum(["sandbox", "live"]) });
 
 function appOrigin() {
   const req = getRequest();
   const h = req?.headers.get("origin");
-  try {
-    return new URL(h || req?.url || "").origin;
-  } catch {
-    return "https://vlnd.pl";
-  }
+  return trustedAppOrigin(h || req?.url || "");
 }
 
 /** Creates (once) the creator's Stripe account and returns the onboarding link. */

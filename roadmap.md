@@ -34,5 +34,10 @@
 
 # Security audit
 - [x] Check live RLS, grants, private storage and authenticated file access.
-- [x] Harden exposed product columns, order writes and Stripe event verification; test rejected requests (HTTP 400); authenticated purchase/download end-to-end not verified because no requesting-user session could be minted.
-- [ ] Deep security scan result — waiting for the background scanner notification.
+- [x] Harden exposed product columns, order writes and Stripe event verification; test rejected requests (HTTP 400) and complete authenticated sandbox checkout/download verification.
+- [x] Review completed deep scan; fix exchange authorization, guest identity exposure, scan paths and Stripe return origins.
+
+# Authenticated purchase and download audit
+- [x] Verify authenticated sandbox card checkout, downloaded PDF (540538 bytes), purchase in dashboard, signed-out denial and forged webhook HTTP 400.
+- [x] Fix payment transport, guest identity verification and stale download authorization.
+- [x] Run regression tests; real-money payments and physical-device checks remain outside this sandbox verification.

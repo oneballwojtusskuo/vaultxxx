@@ -61,7 +61,6 @@ import { getSecureStreamUrl } from "@/lib/secure-stream.functions";
 import {
   purchaseProduct,
   purchaseProductGuest,
-  finalizeGuestCheckout,
 } from "@/lib/purchase.functions";
 import { Input } from "@/components/ui/input";
 import { getProductDetails } from "@/lib/product.functions";
@@ -157,7 +156,6 @@ function ProductPage() {
   const fetchProduct = useServerFn(getProductDetails);
   const purchaseFn = useServerFn(purchaseProduct);
   const guestPurchaseFn = useServerFn(purchaseProductGuest);
-  const finalizeGuestFn = useServerFn(finalizeGuestCheckout);
   const [guestEmail, setGuestEmail] = useState("");
   const [guestAge, setGuestAge] = useState(false);
 
@@ -191,11 +189,12 @@ function ProductPage() {
     queryKey: ["myTx", id, user?.id],
     enabled: !!user && !!id,
     queryFn: async () => {
+      if (!user) return null;
       const { data, error } = await supabase
         .from("transactions")
         .select("*")
         .eq("product_id", id)
-        .eq("buyer_id", user!.id)
+        .eq("buyer_id", user.id)
         .in("status", ["held", "released", "completed", "disputed"])
         .limit(1)
         .maybeSingle();
@@ -205,7 +204,7 @@ function ProductPage() {
           .from("transactions")
           .select("*")
           .eq("product_id", id)
-          .eq("buyer_id", user!.id)
+          .eq("buyer_id", user.id)
           .eq("status", "completed")
           .limit(1)
           .maybeSingle();
@@ -220,10 +219,11 @@ function ProductPage() {
     queryKey: ["myProducts", user?.id],
     enabled: !!user,
     queryFn: async () => {
+      if (!user) return [];
       const { data } = await supabase
         .from("products")
         .select("id,title")
-        .eq("seller_id", user!.id)
+        .eq("seller_id", user.id)
         .eq("status", "published");
       return data ?? [];
     },
@@ -243,10 +243,10 @@ function ProductPage() {
     if (typeof window === "undefined") return;
     const params = new URLSearchParams(window.location.search);
     if (params.get("checkout") === "success") {
-      toast.success("Płatność zaksięgowana! Odblokowuję dostęp…");
+      toast.info("Sprawdzamy potwierdzenie płatności. Dostęp pojawi się po jej zaksięgowaniu.");
       const guestSession = params.get("guest") === "1" ? params.get("session_id") : null;
       params.delete("guest");
-      if (guestSession) void completeGuestLogin(guestSession);
+      if (guestSession) toast.info("Zaloguj się adresem e-mail podanym przy zakupie, aby pobrać plik.", { duration: 12000 });
       params.delete("checkout");
       params.delete("session_id");
       const clean = window.location.pathname + (params.toString() ? `?${params.toString()}` : "");
@@ -269,32 +269,6 @@ function ProductPage() {
     return () => window.removeEventListener("vlnd:purchase-refresh", h);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
-
-  async function completeGuestLogin(sessionId: string) {
-    try {
-      let environment: "sandbox" | "live" = "sandbox";
-      try {
-        environment = getStripeEnvironment();
-      } catch {}
-      const r = await finalizeGuestFn({ data: { sessionId, environment } });
-      if (r.mode === "login" && "tokenHash" in r && r.tokenHash) {
-        const { error } = await supabase.auth.verifyOtp({ token_hash: r.tokenHash, type: "magiclink" });
-        if (error) throw error;
-        toast.success("Płatność przyjęta! Ustaw jeszcze nazwę użytkownika i hasło.");
-        void refetchTx();
-      } else if (r.mode === "email" && "email" in r && r.email) {
-        await supabase.auth.signInWithOtp({
-          email: r.email,
-          options: { emailRedirectTo: window.location.href, shouldCreateUser: false },
-        });
-        toast.success(`Wysłaliśmy link logowania na ${r.email}. Kliknij go, aby pobrać plik.`, {
-          duration: 12000,
-        });
-      }
-    } catch (e: any) {
-      toast.error(e?.message ?? "Nie udało się zalogować po zakupie. Użyj opcji logowania e-mailem.");
-    }
-  }
 
   // Visitor came from an affiliate link, clicked "Kup teraz", signed in and came back:
   // land them straight on the purchase panel instead of losing the referral.
@@ -365,6 +339,11 @@ function ProductPage() {
           environment,
         },
       });
+      if (res.requiresSignIn) {
+        toast.info("Zaloguj się lub załóż konto, aby bezpiecznie dokończyć zakup.");
+        await navigate({ to: "/auth", search: { mode: "signup", next: `${window.location.pathname}?buy=1` } });
+        return;
+      }
       if (res.error) return toast.error(res.error);
       if (res.alreadyOwned) {
         await supabase.auth.signInWithOtp({
@@ -375,17 +354,12 @@ function ProductPage() {
       }
       if (res.status === "released") {
         clearReferralCookie(p.id);
-        if (res.tokenHash) {
-          await supabase.auth.verifyOtp({ token_hash: res.tokenHash, type: "magiclink" });
-          toast.success("Gotowe! Założyliśmy Ci konto — możesz pobrać plik.");
-          setTimeout(() => window.location.reload(), 800);
-        } else {
-          await supabase.auth.signInWithOtp({
-            email,
-            options: { emailRedirectTo: window.location.href, shouldCreateUser: false },
-          });
-          toast.success(`Dodano do Twojego konta. Link logowania wysłaliśmy na ${email}.`);
-        }
+        const { error } = await supabase.auth.signInWithOtp({
+          email,
+          options: { emailRedirectTo: window.location.href, shouldCreateUser: false },
+        });
+        if (error) throw error;
+        toast.success(`Dodano do Twojego konta. Potwierdź adres przez link wysłany na ${email}, aby pobrać plik.`);
         return;
       }
       if (res.clientSecret) {
@@ -1000,10 +974,13 @@ function SecureStreamPlayer({
   productTitle?: string;
 }) {
   const fetchUrl = useServerFn(getSecureStreamUrl);
+  const { user } = useAuth();
   const [dlState, setDlState] = useState<"idle" | "preparing" | "started">("idle");
   const [dlLink, setDlLink] = useState<{ href: string; name: string } | null>(null);
   const { data, isLoading, error, refetch } = useQuery({
-    queryKey: ["stream-url", productId],
+    queryKey: ["stream-url", productId, user?.id],
+    enabled: !!user,
+    gcTime: 0,
     queryFn: () => fetchUrl({ data: { productId } }),
     staleTime: 50 * 60 * 1000, // 50 min
   });
@@ -1060,7 +1037,11 @@ function SecureStreamPlayer({
 
   const runDownload = async () => {
     const latest = await refetch();
-    const access = latest.data ?? data;
+    if (latest.error || !latest.data) {
+      toast.error("Nie udało się potwierdzić dostępu. Zaloguj się ponownie i spróbuj jeszcze raz.");
+      return;
+    }
+    const access = latest.data;
     const downloads = (access as any)?.downloads as
       | Array<{ url: string; name: string }>
       | undefined;

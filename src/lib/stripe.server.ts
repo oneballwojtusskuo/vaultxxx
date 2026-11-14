@@ -13,29 +13,16 @@ export type StripeEnv = "sandbox" | "live";
 const GATEWAY_STRIPE_BASE = "https://connector-gateway.lovable.dev/stripe";
 
 /** Klucze pochodzą z integracji płatności Lovable (sandbox/live). */
-export function getSecretKey(env: StripeEnv = "sandbox"): string {
-  const managed =
-    env === "live" ? process.env["STRIPE_LIVE_API_KEY"] : process.env["STRIPE_SANDBOX_API_KEY"];
-  return managed || getEnv("STRIPE_SECRET_KEY");
+export function getSecretKey(env: StripeEnv): string {
+  return getEnv(env === "live" ? "STRIPE_LIVE_API_KEY" : "STRIPE_SANDBOX_API_KEY");
 }
 
 export function getServerStripeEnv(): StripeEnv {
   return process.env["STRIPE_LIVE_API_KEY"] ? "live" : "sandbox";
 }
 
-export function createStripeClient(env: StripeEnv = "sandbox"): Stripe {
+export function createStripeClient(env: StripeEnv): Stripe {
   const key = getSecretKey(env);
-  // Klucze zarządzane przez Lovable (lovc_...) muszą iść przez bramkę
-  // connector-gateway; własne klucze sk_/rk_ trafiają wprost do Stripe.
-  const isManaged = key.startsWith("lovc_");
-
-  if (!isManaged) {
-    return new Stripe(key, {
-      apiVersion: "2026-03-25.dahlia",
-      httpClient: Stripe.createFetchHttpClient(),
-    });
-  }
-
   const lovableApiKey = getEnv("LOVABLE_API_KEY");
   return new Stripe(key, {
     apiVersion: "2026-03-25.dahlia",
@@ -78,7 +65,7 @@ export function getStripeErrorMessage(error: unknown): string {
 
 export async function verifyWebhook(
   req: Request,
-  env: StripeEnv = "sandbox",
+  env: StripeEnv,
 ): Promise<{ id: string; type: string; livemode: boolean; data: { object: any } }> {
   const signature = req.headers.get("stripe-signature");
   const body = await req.text();

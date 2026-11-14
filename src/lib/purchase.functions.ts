@@ -2,6 +2,7 @@ import { createServerFn } from "@tanstack/react-start";
 import { getRequest } from "@tanstack/react-start/server";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { z } from "zod";
+import { trustedAppOrigin } from "./access-security";
 
 const InputSchema = z.object({
   productId: z.string().uuid(),
@@ -25,7 +26,7 @@ function safeReturnUrl(returnUrl: string | undefined, productId: string) {
   const headerOrigin = req?.headers.get("origin");
   let base: string | null = null;
   try {
-    base = new URL(headerOrigin || req?.url || "").origin;
+    base = trustedAppOrigin(headerOrigin || req?.url || "");
   } catch {
     base = null;
   }
@@ -213,7 +214,6 @@ async function runPurchase(
     // ---- Stripe Embedded Checkout ----
     const env = data.environment ?? "sandbox";
     const { createStripeClient, getStripeErrorMessage } = await import("@/lib/stripe.server");
-    const stripe = createStripeClient(env);
 
     const currency = String(product.currency ?? "PLN").toLowerCase();
     // Only the chosen method — the total was calculated for its fee.
@@ -276,6 +276,7 @@ async function runPurchase(
     };
 
     try {
+      const stripe = createStripeClient(env);
       let session;
       try {
         session = await stripe.checkout.sessions.create({
@@ -290,7 +291,7 @@ async function runPurchase(
           transactionId: tx.id,
           status: "failed" as const,
           alreadyOwned: false,
-          error: "Ta metoda płatności jest chwilowo niedostępna. Wybierz inną metodę.",
+          error: getStripeErrorMessage(methodError),
         };
       }
 
@@ -305,10 +306,14 @@ async function runPurchase(
       }
 
       // Persist Stripe session id for reconciliation
-      await supabaseAdmin
+      const saved = await supabaseAdmin
         .from("transactions")
         .update({ stripe_session_id: session.id, stripe_env: env } as any)
         .eq("id", tx.id);
+      if (saved.error) {
+        await stripe.checkout.sessions.expire(session.id);
+        throw saved.error;
+      }
 
       return {
         transactionId: tx.id,
@@ -339,92 +344,11 @@ const GuestSchema = InputSchema.extend({
   ageConsentAccepted: z.literal(true),
 });
 
-/**
- * Zakup bez konta: znajduje lub zakłada konto dla podanego e-maila i
- * uruchamia ten sam przepływ escrow co dla zalogowanych.
- * Istniejące konta NIGDY nie są logowane automatycznie (ochrona przed
- * przejęciem konta) — dostają link logowania na e-mail.
- */
+/** Guest requests cannot assign transactions to an unverified email identity. */
 export const purchaseProductGuest = createServerFn({ method: "POST" })
   .inputValidator((input) => GuestSchema.parse(input))
-  .handler(async ({ data }) => {
-    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    let userId: string | null = null;
-    let isNew = false;
-    const created = await supabaseAdmin.auth.admin.createUser({
-      email: data.email,
-      email_confirm: true,
-      user_metadata: { age_consent_accepted: "true", guest_checkout: "true" },
-    });
-    if (created.data?.user) {
-      userId = created.data.user.id;
-      isNew = true;
-    } else {
-      const link = await supabaseAdmin.auth.admin.generateLink({
-        type: "magiclink",
-        email: data.email,
-      });
-      userId = link.data?.user?.id ?? null;
-    }
-    if (!userId) {
-      return { status: "failed" as const, error: "Nie udało się przygotować konta dla tego e-maila." };
-    }
-    const { data: banned } = await supabaseAdmin
-      .from("profiles")
-      .select("is_banned")
-      .eq("id", userId)
-      .maybeSingle();
-    if ((banned as any)?.is_banned) {
-      return { status: "failed" as const, error: "To konto jest zablokowane." };
-    }
-
-    const { email: _e, ageConsentAccepted: _a, ...rest } = data;
-    const res: any = await runPurchase(userId, rest, {
-      guest: "true",
-      guest_new: isNew ? "1" : "0",
-      guest_email: data.email,
-    });
-
-    // Darmowy produkt: od razu logowanie (tylko nowe konto) albo link e-mail.
-    if (res.status === "released" && !res.alreadyOwned) {
-      if (isNew) {
-        const link = await supabaseAdmin.auth.admin.generateLink({ type: "magiclink", email: data.email });
-        return { ...res, isNew, tokenHash: link.data?.properties?.hashed_token ?? null };
-      }
-      return { ...res, isNew };
-    }
-    return { ...res, isNew };
-  });
-
-/** Po powrocie z płatności gościa: loguje nowe konto lub każe wysłać link e-mail. */
-export const finalizeGuestCheckout = createServerFn({ method: "POST" })
-  .inputValidator((input) =>
-    z
-      .object({ sessionId: z.string().min(10).max(255), environment: z.enum(["sandbox", "live"]) })
-      .parse(input),
-  )
-  .handler(async ({ data }) => {
-    try {
-      const { createStripeClient } = await import("@/lib/stripe.server");
-      const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-      const stripe = createStripeClient(data.environment);
-      const session = await stripe.checkout.sessions.retrieve(data.sessionId);
-      const md = session.metadata ?? {};
-      if (md.guest !== "true" || !md.buyerId) return { mode: "none" as const };
-      if (Date.now() / 1000 - session.created > 2 * 60 * 60) return { mode: "none" as const };
-      const { data: u } = await supabaseAdmin.auth.admin.getUserById(md.buyerId);
-      const email = u?.user?.email;
-      if (!email) return { mode: "none" as const };
-      const paid = session.payment_status === "paid";
-      // Automatyczne logowanie tylko dla świeżo założonego konta, które
-      // nigdy się nie logowało — inaczej link logowania idzie na e-mail.
-      if (md.guest_new === "1" && !u.user?.last_sign_in_at) {
-        const link = await supabaseAdmin.auth.admin.generateLink({ type: "magiclink", email });
-        const tokenHash = link.data?.properties?.hashed_token;
-        if (tokenHash) return { mode: "login" as const, tokenHash, paid, email };
-      }
-      return { mode: "email" as const, email, paid };
-    } catch (e: any) {
-      return { mode: "none" as const, error: e?.message ?? "Błąd" };
-    }
-  });
+  .handler(async () => ({
+    status: "failed" as const,
+    requiresSignIn: true,
+    error: "Zaloguj się lub potwierdź adres e-mail, aby kontynuować zakup.",
+  }));

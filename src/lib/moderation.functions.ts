@@ -1,6 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { z } from "zod";
+import { isSellerFile } from "./access-security";
 
 const InputSchema = z.object({
   productId: z.string().uuid(),
@@ -61,6 +62,9 @@ export const reviewListing = createServerFn({ method: "POST" })
         ),
       ),
     );
+    if (paths.some((path) => !isSellerFile(path, product.seller_id))) {
+      throw new Response("Forbidden file reference", { status: 403 });
+    }
 
     const title = product.title ?? "";
     const desc = product.description ?? "";

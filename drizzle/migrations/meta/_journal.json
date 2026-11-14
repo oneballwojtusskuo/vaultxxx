@@ -92,6 +92,13 @@
       "when": 1794681512979,
       "tag": "0012_restrict_product_file_columns_for_members",
       "breakpoints": true
+    },
+    {
+      "idx": 13,
+      "version": "7",
+      "when": 1794681883074,
+      "tag": "0013_guard_exchange_authorization",
+      "breakpoints": true
     }
   ]
 }

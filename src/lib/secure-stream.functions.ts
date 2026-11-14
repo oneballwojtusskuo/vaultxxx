@@ -1,6 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { z } from "zod";
+import { isSellerFile } from "./access-security";
 
 const InputSchema = z.object({ productId: z.string().uuid() });
 
@@ -29,15 +30,12 @@ export const getSecureStreamUrl = createServerFn({ method: "POST" })
     }
     // Only sign files stored under the listing seller's own folder, so a seller
     // can't point their listing at another seller's private files.
-    const sellerPrefix = `${product.seller_id}/`;
     const filePaths: string[] = Array.from(
       new Set(
         [product.file_path, ...(((product as any).file_paths as string[] | null) ?? [])].filter(
           (path): path is string =>
             typeof path === "string" &&
-            path.startsWith(sellerPrefix) &&
-            !path.includes("..") &&
-            path.length > sellerPrefix.length,
+            isSellerFile(path, product.seller_id),
         ),
       ),
     );

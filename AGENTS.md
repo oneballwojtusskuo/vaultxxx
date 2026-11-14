@@ -6,3 +6,8 @@
 - Legal pages share launch and revision dates through a browser-safe legal-dates module so document updates never silently backdate the service or amended terms.
 - Private product columns are read only through authenticated owner-scoped server actions; public and member catalogue grants expose explicit safe columns.
 - Stripe fulfillment verifies raw-body signatures and event mode, then matches stored checkout identity, currency and exact amount before atomically promoting a pending order.
+- Guest checkout never returns login tokens or confirms email ownership; guests verify their mailbox through the normal emailed sign-in link.
+- Download queries are scoped to the signed-in identity and require a fresh successful authorization check before initiating a save.
+- Stripe clients always use the connector gateway with an explicit environment; never fall back to direct secret-key SDK access.
+- Exchange transitions and all item ownership are validated by database triggers so API callers cannot self-approve or substitute someone else's files.
+- Privileged scans validate seller-prefixed paths before storage access; Stripe return URLs use an exact application-origin allowlist.
