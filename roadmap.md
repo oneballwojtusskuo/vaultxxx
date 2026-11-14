@@ -26,3 +26,8 @@
 # Digital-content legal documentation
 - [x] Correct the terms, privacy policy and help for digital-file delivery without physical-goods DAC7 reporting claims.
 - [x] Verify the updated public documents; leave tax monitoring, payments and stored data unchanged.
+
+# Current legal bases and consistent dates
+- [x] Align document dates with the confirmed launch and separately identify the revision date.
+- [x] Update PKE, consumer-redress references and privacy disclosures to match installed tools and analytics settings.
+- [x] Verify public documents and date rules without changing payments or data collection.

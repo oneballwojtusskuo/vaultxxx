@@ -10,8 +10,10 @@ import {
   OPERATOR_CONTACT,
 } from "@/lib/operator";
 
-const EFFECTIVE_DATE = "1 stycznia 2026 r.";
-const UPDATED_DATE = "14 listopada 2026 r.";
+import { SERVICE_LAUNCH_DATE, LEGAL_REVISION_DATE, formatLegalDate } from "@/lib/legal-dates";
+
+const LAUNCH_DATE = formatLegalDate(SERVICE_LAUNCH_DATE);
+const UPDATED_DATE = formatLegalDate(LEGAL_REVISION_DATE);
 
 export const Route = createFileRoute("/polityka-prywatnosci")({
   staticData: { sitemap: true },
@@ -21,7 +23,7 @@ export const Route = createFileRoute("/polityka-prywatnosci")({
       {
         name: "description",
         content:
-          "Polityka Prywatności i Polityka Plików Cookies platformy vlnd — zgodna z RODO (GDPR) i polskim prawem. Zasady przetwarzania danych Kupujących i Sprzedawców, dostarczanie plików cyfrowych i rozliczenia Stripe Connect.",
+          "Polityka Prywatności i Polityka Plików Cookies platformy vlnd — dane użytkowników, płatności i prawa wynikające z RODO. Zasady przetwarzania danych Kupujących i Sprzedawców, dostarczanie plików cyfrowych i rozliczenia Stripe Connect.",
       },
       { property: "og:title", content: "Polityka Prywatności i Cookies — vlnd" },
       {
@@ -51,7 +53,7 @@ function PrivacyPage() {
             </h1>
           </div>
           <p className="text-sm text-muted-foreground mb-10">
-            Obowiązuje od dnia {EFFECTIVE_DATE}. Aktualizacja: {UPDATED_DATE} Kontakt w sprawach prywatności:{" "}
+            Start serwisu: {LAUNCH_DATE} r. Wersja dokumentu: {UPDATED_DATE} r. Kontakt w sprawach prywatności:{" "}
             <a className="underline hover:text-foreground" href={`mailto:${OPERATOR_CONTACT}`}>
               {OPERATOR_CONTACT}
             </a>
@@ -76,7 +78,8 @@ function PrivacyPage() {
                 związku z przetwarzaniem danych osobowych i w sprawie swobodnego przepływu takich
                 danych (<b>„RODO”</b>), ustawa z dnia 10 maja 2018 r. o ochronie danych osobowych,
                 ustawa z dnia 18 lipca 2002 r. o świadczeniu usług drogą elektroniczną, ustawa z
-                dnia 12 lipca 2024 r. — Prawo komunikacji elektronicznej oraz właściwe przepisy
+                dnia 12 lipca 2024 r. — Prawo komunikacji elektronicznej (Dz.U. z 2024 r. poz. 1221, z późn. zm.),
+                w szczególności art. 398 i 399 obowiązujące od 10 listopada 2024 r., oraz właściwe przepisy
                 podatkowe i rachunkowe.
               </p>
             </Section>
@@ -180,21 +183,30 @@ function PrivacyPage() {
                   KYC (weryfikacji tożsamości) oraz wypłat do Sprzedawców i Partnerów przez Stripe
                   Connect. Numer rachunku bankowego i dokumenty tożsamości podawane są bezpośrednio
                   Stripe — Platforma przechowuje jedynie identyfikator konta Stripe i status
-                  weryfikacji; w przyszłości możliwe: PayU S.A., Przelewy24
-                  (DialCom24 sp. z o.o.).
+                  weryfikacji; Stripe jest odrębnym administratorem danych w zakresie własnych obowiązków
+                  płatniczych i weryfikacyjnych.
                 </li>
                 <li>
-                  <b>Dostawca hostingu i infrastruktury chmurowej:</b> podmiot świadczący usługi
-                  hostingowe oraz zaplecze bazodanowe Platformy.
+                  <b>Dostawca hostingu i infrastruktury chmurowej:</b> Lovable (Lovable Cloud) i dostawcy infrastruktury
+                  niezbędni do utrzymania kont, bazy danych oraz przechowywania plików.
                 </li>
                 <li>
-                  <b>Dostawcy usług e-mail transakcyjnych i newslettera:</b> wysyłka powiadomień
+                  <b>Dostawcy wiadomości transakcyjnych:</b> Lovable i jego dostawcy wysyłki — wysyłka powiadomień
                   systemowych, potwierdzeń rejestracji, potwierdzeń zakupu, przypomnień dotyczących
                   escrow.
                 </li>
                 <li>
                   <b>Dostawcy narzędzi analitycznych i antyfraudowych</b> — w zakresie
                   zanonimizowanych lub spseudonimizowanych danych statystycznych.
+                </li>
+                <li>
+                  <b>Formularz pomocy:</b> FormSubmit otrzymuje imię, e-mail, temat i treść
+                  wiadomości w celu jej przekazania na adres kontaktowy Operatora.
+                </li>
+                <li>
+                  <b>Google Fonts:</b> przy ładowaniu strony przeglądarka łączy się z serwerami
+                  Google po czcionki; Google otrzymuje adres IP i techniczne dane żądania.
+                  Nie jest to to samo narzędzie co statystyki Lovable.
                 </li>
                 <li>
                   <b>Organy podatkowe i inne organy publiczne</b> (Szef Krajowej Administracji
@@ -207,7 +219,8 @@ function PrivacyPage() {
                 </li>
               </ul>
               <p>
-                Administrator zawiera z podmiotami przetwarzającymi umowy powierzenia przetwarzania
+                W relacjach, w których dostawca działa jako podmiot przetwarzający, Administrator
+                zapewnia właściwe warunki powierzenia przetwarzania
                 danych osobowych zgodne z art. 28 RODO. W przypadku przekazania danych do państw
                 trzecich (poza Europejski Obszar Gospodarczy) Administrator stosuje odpowiednie
                 zabezpieczenia, w szczególności standardowe klauzule umowne zatwierdzone przez
@@ -268,7 +281,7 @@ function PrivacyPage() {
               <p>
                 Użytkownikowi przysługuje ponadto{" "}
                 <b>prawo wniesienia skargi do organu nadzorczego</b> — Prezesa Urzędu Ochrony Danych
-                Osobowych (PUODO), ul. Stawki 2, 00-193 Warszawa,{" "}
+                Osobowych (PUODO); aktualne dane kontaktowe są dostępne na{" "}
                 <a
                   className="underline"
                   href="https://uodo.gov.pl"
@@ -281,56 +294,74 @@ function PrivacyPage() {
               </p>
             </Section>
 
-            <Section title="§ 5. Polityka Plików Cookies">
-              <ol>
+            <Section title="§ 5. Cookies, pamięć przeglądarki i statystyki">
+              <p>
+                Art. 399 Prawa komunikacji elektronicznej reguluje przechowywanie informacji
+                na urządzeniu i dostęp do niej, również przy użyciu localStorage, sessionStorage
+                i IndexedDB, a nie tylko cookies. Wyjątek z art. 399 ust. 3 dotyczy czynności
+                niezbędnych do transmisji lub dostarczenia usługi żądanej przez Użytkownika.
+                Pozostałe zapisy wymagające zgody podlegają art. 399 ust. 1 i 2.
+              </p>
+              <ul>
                 <li>
-                  Pliki <b>cookies</b> („ciasteczka”) to niewielkie pliki tekstowe zapisywane przez
-                  przeglądarkę internetową na urządzeniu końcowym Użytkownika, umożliwiające
-                  identyfikację przeglądarki podczas kolejnych odwiedzin Platformy.
+                  <b>Logowanie i bezpieczeństwo:</b> dane sesji są zapisywane w pamięci przeglądarki;
+                  znacznik potwierdzenia konta w sessionStorage dotyczy bieżącej karty. Dostawca
+                  logowania Lovable Cloud otrzymuje dane potrzebne do uwierzytelnienia. Przy
+                  wyborze logowania Google także Google przetwarza dane zgodnie ze swoją polityką,
+                  a Platforma otrzymuje dane konta niezbędne do logowania i profilu.
                 </li>
                 <li>
-                  Platforma wykorzystuje następujące kategorie plików cookies:
-                  <ul>
-                    <li>
-                      <b>Cookies niezbędne</b> — bezwzględnie konieczne do prawidłowego działania
-                      Platformy, w tym utrzymania sesji zalogowanego Użytkownika, obsługi koszyka,
-                      procesu zakupu i mechanizmu escrow oraz zapewnienia bezpieczeństwa (ochrona
-                      przed atakami CSRF). Cookies te nie wymagają zgody Użytkownika i są
-                      stosowane na zasadach art. 399 ust. 3 Prawa komunikacji elektronicznej.
-                    </li>
-                    <li>
-                      <b>Cookies analityczne / statystyczne</b> — służące do zliczania odwiedzin,
-                      analizy zachowań Użytkowników i doskonalenia Platformy. Zbierają dane w formie
-                      zagregowanej i spseudonimizowanej.
-                    </li>
-                    <li>
-                      <b>Cookies marketingowe i afiliacyjne</b> — umożliwiające prawidłowe działanie
-                      programu partnerskiego (afiliacji), w tym zapamiętanie linku polecającego
-                      przez okres do 30 dni oraz dopasowanie treści marketingowych.
-                    </li>
-                    <li>
-                      <b>Cookies funkcjonalne</b> — zapamiętujące preferencje Użytkownika, np.
-                      wybrany język interfejsu, zamknięcie okna powitalnego, ustawienia motywu.
-                    </li>
-                  </ul>
+                  <b>Wybór zgód i preferencje:</b> wybór banera, jego wersja i data są zapisywane
+                  w localStorage; dla zalogowanych osób również w rejestrze zgód Platformy.
+                  Obecnie zapis nie ma automatycznego terminu wygaśnięcia. Język i zamknięcie
+                  okna powitalnego są zapamiętywane w localStorage do usunięcia danych przeglądarki.
                 </li>
                 <li>
-                  Cookies analityczne i marketingowe uruchamiane są wyłącznie po uzyskaniu
-                  <b> dobrowolnej zgody</b> Użytkownika wyrażonej za pośrednictwem banera zgód
-                  cookie. Zgoda może być w każdej chwili wycofana, w tym poprzez zmianę ustawień
-                  przeglądarki.
+                  <b>Robocze ogłoszenie:</b> formularz i wybrane pliki mogą być zapisane lokalnie
+                  w IndexedDB, aby wrócić do ogłoszenia po połączeniu Stripe. Szkic starszy niż
+                  24 godziny nie jest przywracany; sam zapis może pozostać na urządzeniu do
+                  usunięcia szkicu, nadpisania lub wyczyszczenia danych przeglądarki.
                 </li>
                 <li>
-                  Użytkownik może samodzielnie zarządzać plikami cookies z poziomu swojej
-                  przeglądarki internetowej — blokować je w całości, ograniczyć do wybranych domen
-                  lub usuwać już zapisane pliki. Instrukcje dostępne są w dokumentacji
-                  najpopularniejszych przeglądarek (Chrome, Firefox, Safari, Edge, Opera).
+                  <b>Afiliacja:</b> po zgodzie na kategorię afiliacyjną cookie
+                  „vaultx_ref_[identyfikator produktu]” zapisuje identyfikator polecającego na
+                  maksymalnie 30 dni. Platforma odczytuje go w celu przypisania prowizji.
+                  Wycofanie zgody nie usuwa automatycznie wcześniej zapisanych cookies;
+                  można je usunąć w ustawieniach przeglądarki.
                 </li>
-                <li>
-                  Ograniczenie lub wyłączenie plików cookies niezbędnych może uniemożliwić
-                  prawidłowe korzystanie z Platformy, w tym zalogowanie się i dokonanie zakupu.
-                </li>
-              </ol>
+              </ul>
+              <h3 className="font-semibold text-foreground">Statystyki odwiedzin Lovable</h3>
+              <p>
+                Na opublikowanej stronie statystyki Lovable zapisują odwiedzone strony, źródło
+                wejścia, kraj, przeglądarkę, system operacyjny, rodzaj urządzenia, czas na stronie,
+                szybkość ładowania, błędy oraz kliknięcia przycisków i linków. Nie używają cookies,
+                niczego nie zapisują na urządzeniu odwiedzającego, nie zachowują adresów IP
+                i nie identyfikują osób ani powracających odwiedzających. Dane szczegółowe są
+                przechowywane przez 90 dni, a dzienne podsumowania przez rok.
+              </p>
+              <p>
+                Obecny baner zapisuje wybór w przeglądarce, lecz nie przekazuje go do Google
+                Consent Mode ani do statystyk Lovable. W tej konfiguracji również kliknięcia
+                są rejestrowane dla wszystkich odwiedzających niezależnie od wyboru w banerze.
+                Odwiedziny, czas na stronie, szybkość ładowania i błędy są zapisywane dla każdego
+                odwiedzającego bez cookies i bez identyfikowania osób. Platforma nie wysyła
+                własnych dodatkowych zdarzeń do tego narzędzia.
+              </p>
+              <p>
+                Lovable zbiera te dane dla nas.
+                {" "}<a href="https://lovable.dev/privacy" className="underline" target="_blank" rel="noreferrer">Polityka prywatności Lovable</a>
+                {" "}wyjaśnia, jak je przetwarza. Podstawą przetwarzania statystyk służących
+                utrzymaniu i poprawie serwisu jest prawnie uzasadniony interes Administratora
+                (art. 6 ust. 1 lit. f RODO), w zakresie, w którym RODO ma zastosowanie.
+              </p>
+              <p>
+                W sprawdzonym kodzie nie ma Google Analytics, pikseli reklamowych Meta ani
+                innych narzędzi remarketingu. Sam wybór kategorii marketingowej lub analitycznej
+                w banerze nie oznacza uruchomienia takich narzędzi.
+                Ustawienia zgód można ponownie otworzyć przez „Ustawienia cookies” w stopce;
+                dane lokalne można również usunąć lub zablokować w przeglądarce.
+                Usunięcie danych niezbędnych może spowodować wylogowanie lub utratę szkicu.
+              </p>
             </Section>
 
             <Section title="§ 6. Bezpieczeństwo danych i okres ich przechowywania">
@@ -370,9 +401,11 @@ function PrivacyPage() {
                       przedawnienia roszczeń;
                     </li>
                     <li>
-                      dane transakcyjne oraz księgowe — przez okres <b>5 lat</b> licząc od końca
-                      roku kalendarzowego, w którym powstał obowiązek podatkowy, zgodnie z ustawą
-                      Ordynacja podatkowa oraz ustawą o rachunkowości;
+                      dokumentacja podatkowa — co do zasady do upływu terminu przedawnienia
+                      zobowiązania podatkowego, zwykle 5 lat od końca roku, w którym upłynął termin
+                      płatności podatku (art. 70 § 1 Ordynacji podatkowej), z uwzględnieniem jego
+                      zawieszenia lub przerwania. Dokumentacja księgowa — według terminów
+                      art. 74 ustawy o rachunkowości, jeżeli ustawa ma zastosowanie;
                     </li>
                     <li>
                       dane przetwarzane na podstawie zgody (marketing) — do czasu wycofania zgody;
@@ -382,8 +415,9 @@ function PrivacyPage() {
                       przedawnienia roszczeń wynikającego z Kodeksu cywilnego;
                     </li>
                     <li>
-                      dane w rejestrze zgłoszeń DSA (Notice &amp; Takedown) — przez okres wymagany
-                      Rozporządzeniem 2022/2065 (DSA).
+                      dane w rejestrze zgłoszeń DSA — przez czas niezbędny do obsługi zgłoszenia,
+                      odwołania, wykonania właściwego obowiązku prawnego i obrony przed roszczeniami;
+                      nie przyjmuje się jednego uniwersalnego okresu wynikającego z DSA.
                     </li>
                   </ul>
                 </li>

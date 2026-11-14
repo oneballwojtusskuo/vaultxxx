@@ -10,8 +10,10 @@ import {
   OPERATOR_CONTACT,
 } from "@/lib/operator";
 
-const EFFECTIVE_DATE = "6 listopada 2026 r.";
-const UPDATED_DATE = "14 listopada 2026 r.";
+import { SERVICE_LAUNCH_DATE, LEGAL_REVISION_DATE, formatLegalDate } from "@/lib/legal-dates";
+
+const LAUNCH_DATE = formatLegalDate(SERVICE_LAUNCH_DATE);
+const UPDATED_DATE = formatLegalDate(LEGAL_REVISION_DATE);
 
 export const Route = createFileRoute("/regulamin")({
   staticData: { sitemap: true },
@@ -49,7 +51,7 @@ function RegulaminPage() {
             <h1 className="font-display text-3xl font-bold">Regulamin serwisu vlnd</h1>
           </div>
           <p className="text-sm text-muted-foreground mb-10">
-            Obowiązuje od dnia {EFFECTIVE_DATE}. Aktualizacja: {UPDATED_DATE} Kontakt:{" "}
+            Start serwisu: {LAUNCH_DATE} r. Wersja dokumentu: {UPDATED_DATE} r. Kontakt:{" "}
             <a className="underline hover:text-foreground" href={`mailto:${OPERATOR_CONTACT}`}>
               {OPERATOR_CONTACT}
             </a>
@@ -95,7 +97,7 @@ function RegulaminPage() {
                 <li>
                   <b>Produkt Cyfrowy</b> – treść cyfrowa w rozumieniu ustawy z dnia 30 maja 2014 r.
                   o prawach konsumenta, czyli dane wytwarzane i dostarczane w postaci cyfrowej,
-                  oferowane bez nośnika materialnego (np. pliki PDF, e-booki, notatki, szablony,
+                  oferowane bez nośnika materialnego (np. pliki PDF, e-booki, raporty, notatki, szablony,
                   pliki audio, graficzne i wideo).
                 </li>
                 <li>
@@ -106,7 +108,8 @@ function RegulaminPage() {
                   <b>Operator Płatności</b> – zewnętrzny, licencjonowany dostawca usług płatniczych
                   (m.in. Stripe Payments Europe Ltd. z siedzibą w Irlandii oraz podmioty z nim
                   współpracujące), obsługujący transakcje na Platformie oraz przechowujący środki na
-                  rachunku powierniczym.
+                  saldzie w systemie płatności zgodnie z zasadami opisanymi w § 4;
+                  nie oznacza to prowadzenia przez Platformę bankowego rachunku powierniczego.
                 </li>
                 <li>
                   <b>Escrow</b> – mechanizm depozytu, w którym środki Kupującego są blokowane u
@@ -127,8 +130,9 @@ function RegulaminPage() {
                 </li>
                 <li>
                   Umowa Sprzedaży zawierana jest bezpośrednio pomiędzy Sprzedawcą a Kupującym.
-                  Operator nie nabywa praw do Produktów Cyfrowych, nie jest ich sprzedawcą, dostawcą
-                  ani licencjodawcą.
+                  Operator nie nabywa praw do Produktów Cyfrowych, nie jest ich sprzedawcą ani licencjodawcą w relacji cywilnoprawnej.
+                  Nie wyłącza to obowiązków Operatora wynikających z bezwzględnie obowiązujących
+                  przepisów, w tym ewentualnych obowiązków podatkowych dotyczących usług elektronicznych.
                 </li>
                 <li>
                   W zakresie dopuszczonym przez bezwzględnie obowiązujące przepisy prawa Operator{" "}
@@ -370,8 +374,9 @@ function RegulaminPage() {
                   </ul>
                 </li>
                 <li>
-                  Operator prowadzi wewnętrzny rejestr zgłoszeń oraz publikuje raporty
-                  przejrzystości zgodnie z art. 15 i 24 DSA.
+                  Operator prowadzi rejestr zgłoszeń i wykonuje obowiązki przejrzystości DSA
+                  w zakresie, w którym mają do niego zastosowanie, z uwzględnieniem ustawowych
+                  wyłączeń dla mikroprzedsiębiorstw i małych przedsiębiorstw.
                 </li>
               </ol>
             </Section>
@@ -381,7 +386,8 @@ function RegulaminPage() {
                 <li>
                   Kupujący uprawniony jest do zgłoszenia sporu w mechanizmie escrow („Zgłoś
                   problem”) w terminie do momentu automatycznego zwolnienia środków, wskazując
-                  uzasadnienie (co najmniej 10 znaków).
+                  uzasadnienie (co najmniej 10 znaków). Termin technicznego sporu escrow nie
+                  ogranicza ustawowych uprawnień do reklamacji ani dochodzenia roszczeń.
                 </li>
                 <li>
                   Po zgłoszeniu sporu środki pozostają w depozycie do czasu polubownego
@@ -394,17 +400,13 @@ function RegulaminPage() {
                   terminie 14 dni.
                 </li>
                 <li>
-                  Konsument może skorzystać z pozasądowych sposobów rozpatrywania reklamacji i
-                  dochodzenia roszczeń, w szczególności platformy ODR pod adresem{" "}
-                  <a
-                    className="underline"
-                    href="https://ec.europa.eu/consumers/odr"
-                    target="_blank"
-                    rel="noreferrer"
-                  >
-                    https://ec.europa.eu/consumers/odr
-                  </a>
-                  .
+                  Konsument może skorzystać z pomocy miejskiego lub powiatowego rzecznika
+                  konsumentów oraz właściwego podmiotu pozasądowego rozwiązywania sporów.
+                  Informacje o uprawnionych podmiotach publikuje
+                  {" "}<a className="underline" href="https://polubowne.uokik.gov.pl/" target="_blank" rel="noreferrer">UOKiK</a>.
+                  Unijna platforma ODR została zamknięta 20 lipca 2025 r. i nie służy już
+                  do składania skarg. Udział w postępowaniu pozasądowym odbywa się na zasadach
+                  właściwych dla danego podmiotu i sporu.
                 </li>
               </ol>
             </Section>
@@ -416,12 +418,15 @@ function RegulaminPage() {
                   materialnym.
                 </li>
                 <li>
-                  Zgodnie z <b>art. 38 pkt 13 ustawy z dnia 30 maja 2014 r. o prawach konsumenta</b>
+                  Zgodnie z <b>art. 38 ust. 1 pkt 13 ustawy z dnia 30 maja 2014 r. o prawach konsumenta</b>
                   , Konsumentowi
                   <b> nie przysługuje prawo odstąpienia od umowy</b> zawartej na odległość, jeżeli
                   spełnianie świadczenia rozpoczęło się za wyraźną i uprzednią zgodą Konsumenta,
                   który został poinformowany przed rozpoczęciem świadczenia, że po jego spełnieniu
-                  utraci prawo odstąpienia od umowy, i przyjął to do wiadomości.
+                  utraci prawo odstąpienia od umowy, i przyjął to do wiadomości, a przedsiębiorca
+                  przekazał wymagane potwierdzenie zawarcia umowy oraz tej zgody na trwałym nośniku
+                  zgodnie z art. 15 ust. 1 i 2 lub art. 21 ust. 1 ustawy. Brak któregokolwiek
+                  z ustawowych warunków nie pozwala uznać prawa odstąpienia za utracone.
                 </li>
                 <li>
                   Składając zamówienie i zaznaczając odpowiednie oświadczenie w procesie zakupowym,
@@ -442,7 +447,7 @@ function RegulaminPage() {
               <ol>
                 <li>
                   Platforma obsługuje wyłącznie dostarczanie gotowych treści cyfrowych drogą
-                  elektroniczną, w szczególności plików PDF, e-booków i notatek. Nie pośredniczy
+                  elektroniczną, w szczególności plików PDF, e-booków, raportów i notatek. Nie pośredniczy
                   w sprzedaży rzeczy materialnych, ich wysyłce ani w zamawianiu indywidualnych
                   usług wykonywanych przez twórcę na zlecenie Kupującego. Dostarczenie Produktu
                   oznacza przyznanie dostępu do pliku lub treści, a nie fizycznej przesyłki.
@@ -523,7 +528,7 @@ function RegulaminPage() {
                   <b>Polityce Prywatności</b> stanowiącej odrębny dokument.
                 </li>
                 <li>
-                  Platforma wykorzystuje pliki cookies, w tym cookies programu partnerskiego
+                  Platforma wykorzystuje cookies i pamięć przeglądarki, w tym cookies programu partnerskiego
                   (afiliacja) o okresie ważności do 30 dni, na zasadach opisanych w Polityce
                   Cookies.
                 </li>
@@ -540,14 +545,20 @@ function RegulaminPage() {
                 <li>
                   W sprawach nieuregulowanych Regulaminem zastosowanie mają w szczególności: Kodeks
                   cywilny, ustawa o prawach konsumenta, ustawa o świadczeniu usług drogą
-                  elektroniczną, RODO, DSA, ustawa o prawie autorskim i prawach pokrewnych oraz
+                  elektroniczną, ustawa z dnia 12 lipca 2024 r. — Prawo komunikacji elektronicznej
+                  (w szczególności art. 398 i 399, obowiązujące od 10 listopada 2024 r.), RODO, DSA, ustawa o prawie autorskim i prawach pokrewnych oraz
                   właściwe przepisy podatkowe.
                 </li>
                 <li>
                   Prawem właściwym jest prawo polskie. Sądem właściwym dla sporów z Użytkownikami
                   niebędącymi Konsumentami jest sąd właściwy miejscowo dla siedziby Operatora.
                 </li>
-                <li>Regulamin wchodzi w życie z dniem {EFFECTIVE_DATE}.</li>
+                <li>
+                  Serwis rozpoczął działalność {LAUNCH_DATE} r. Niniejsza wersja dokumentu została
+                  opracowana {UPDATED_DATE} r.; data startu serwisu nie jest datą wejścia w życie
+                  nowych obowiązków. Zmiany warunków umownych stosuje się z zachowaniem wymaganego
+                  zawiadomienia i terminów wskazanych powyżej, bez działania wstecz.
+                </li>
               </ol>
             </Section>
 

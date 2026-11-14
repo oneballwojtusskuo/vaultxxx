@@ -3,3 +3,4 @@
 - Creator entry sections are shared frontend components on browse; link signup intent through the auth mode query and preserve next destinations without changing checkout or onboarding requirements.
 - The first-30-creator launch offer is awarded only by the database trigger on product publication, with one permanent non-recycled slot per seller; public reads expose only launch slots and existing public profile/product fields, never client writes.
 - Public creator cards and reviews read the public_creator_profiles view; never grant anonymous SELECT on profiles, because the full table contains private account fields.
+- Legal pages share launch and revision dates through a browser-safe legal-dates module so document updates never silently backdate the service or amended terms.
