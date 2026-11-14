@@ -1,0 +1,2 @@
+REVOKE SELECT ON public.products FROM authenticated;
+GRANT SELECT (id, seller_id, category_id, title, description, price, currency, preview_url, tags, is_tradable, status, downloads_count, created_at, updated_at, sample_url, license_terms, affiliate_commission_pct, custom_category, slug) ON public.products TO authenticated;

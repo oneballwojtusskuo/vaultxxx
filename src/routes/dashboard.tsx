@@ -2,7 +2,7 @@ import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
-import { getMyTransactions } from "@/lib/purchases.functions";
+import { getMyTransactions, getMyListings } from "@/lib/purchases.functions";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 import { useAuth } from "@/hooks/use-auth";
@@ -66,17 +66,11 @@ function Dashboard() {
     if (!loading && !user) navigate({ to: "/auth" });
   }, [user, loading, navigate]);
 
+  const fetchListings = useServerFn(getMyListings);
   const { data: myProducts, refetch: refetchProducts } = useQuery({
     queryKey: ["my-products", user?.id],
     enabled: !!user,
-    queryFn: async () =>
-      (
-        await supabase
-          .from("products")
-          .select("*, category:categories(name)")
-          .eq("seller_id", user!.id)
-          .order("created_at", { ascending: false })
-      ).data ?? [],
+    queryFn: async () => await fetchListings(),
   });
 
   const fetchTransactions = useServerFn(getMyTransactions);

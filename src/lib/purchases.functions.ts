@@ -4,6 +4,18 @@ import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 /** Statuses that mean the buyer actually has access to the product. */
 const OWNED_STATUSES = ["held", "released", "completed", "disputed"];
 
+/** Private listing fields are never exposed through broad product-column grants. */
+export const getMyListings = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { data, error } = await supabaseAdmin.from("products")
+      .select("*, category:categories(name)").eq("seller_id", context.userId)
+      .order("created_at", { ascending: false });
+    if (error) throw error;
+    return data ?? [];
+  });
+
 /**
  * Returns the signed-in user's transactions (purchases, sales, affiliate).
  * Client access to `public.transactions` is revoked, so this goes through the

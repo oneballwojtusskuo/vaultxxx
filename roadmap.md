@@ -31,3 +31,8 @@
 - [x] Align document dates with the confirmed launch and separately identify the revision date.
 - [x] Update PKE, consumer-redress references and privacy disclosures to match installed tools and analytics settings.
 - [x] Verify public documents and date rules without changing payments or data collection.
+
+# Security audit
+- [x] Check live RLS, grants, private storage and authenticated file access.
+- [x] Harden exposed product columns, order writes and Stripe event verification; test rejected requests (HTTP 400); authenticated purchase/download end-to-end not verified because no requesting-user session could be minted.
+- [ ] Deep security scan result — waiting for the background scanner notification.

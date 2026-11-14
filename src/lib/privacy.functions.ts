@@ -27,7 +27,7 @@ export const exportMyData = createServerFn({ method: "POST" })
       payout,
     ] = await Promise.all([
       supabaseAdmin.from("profiles").select("*").eq("id", userId).maybeSingle(),
-      supabase.from("products").select("*").eq("seller_id", userId),
+      supabaseAdmin.from("products").select("*").eq("seller_id", userId),
       supabase.from("transactions").select("*").eq("buyer_id", userId),
       supabase.from("transactions").select("*").eq("seller_id", userId),
       supabase.from("reviews").select("*").eq("buyer_id", userId),

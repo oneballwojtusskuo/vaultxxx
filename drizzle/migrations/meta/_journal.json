@@ -78,6 +78,20 @@
       "when": 1794495891493,
       "tag": "0010_restrict_launch_creators_read",
       "breakpoints": true
+    },
+    {
+      "idx": 11,
+      "version": "7",
+      "when": 1794681402969,
+      "tag": "0011_harden_marketplace_api_access",
+      "breakpoints": true
+    },
+    {
+      "idx": 12,
+      "version": "7",
+      "when": 1794681512979,
+      "tag": "0012_restrict_product_file_columns_for_members",
+      "breakpoints": true
     }
   ]
 }

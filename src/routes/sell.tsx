@@ -521,7 +521,7 @@ function Sell() {
           custom_terms: licCustom,
         },
       } as any;
-      const { data, error } = await supabase.from("products").insert(listing).select().single();
+      const { data, error } = await supabase.from("products").insert(listing).select("id").single();
 
       if (error) throw error;
       if (!data) throw new Error("Nie udało się zapisać produktu. Spróbuj ponownie.");

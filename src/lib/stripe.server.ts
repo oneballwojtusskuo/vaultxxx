@@ -1,4 +1,6 @@
 import Stripe from "stripe";
+import { timingSafeEqual } from "node:crypto";
+import { StripeEventSchema, validWebhookTimestamp } from "@/lib/webhook-security";
 
 const getEnv = (key: string): string => {
   const value = process.env[key];
@@ -77,14 +79,15 @@ export function getStripeErrorMessage(error: unknown): string {
 export async function verifyWebhook(
   req: Request,
   env: StripeEnv = "sandbox",
-): Promise<{ type: string; data: { object: any } }> {
+): Promise<{ id: string; type: string; livemode: boolean; data: { object: any } }> {
   const signature = req.headers.get("stripe-signature");
   const body = await req.text();
   const managedSecret =
     env === "live"
       ? process.env["PAYMENTS_LIVE_WEBHOOK_SECRET"]
       : process.env["PAYMENTS_SANDBOX_WEBHOOK_SECRET"];
-  const secret = managedSecret || getEnv("STRIPE_WEBHOOK_SECRET");
+  if (!managedSecret) throw new Error("Webhook secret is not configured for this environment");
+  const secret = managedSecret;
 
   if (!signature || !body) throw new Error("Missing signature or body");
 
@@ -97,8 +100,7 @@ export async function verifyWebhook(
   }
   if (!timestamp || v1Signatures.length === 0) throw new Error("Invalid signature format");
 
-  const age = Math.abs(Date.now() / 1000 - Number(timestamp));
-  if (age > 300) throw new Error("Webhook timestamp too old");
+  if (!validWebhookTimestamp(timestamp, Date.now() / 1000)) throw new Error("Invalid webhook timestamp");
 
   const key = await crypto.subtle.importKey(
     "raw",
@@ -114,7 +116,11 @@ export async function verifyWebhook(
   );
   const expected = Buffer.from(new Uint8Array(signed)).toString("hex");
 
-  if (!v1Signatures.includes(expected)) throw new Error("Invalid webhook signature");
+  const valid = v1Signatures.some((value) => /^[a-f0-9]{64}$/i.test(value)
+    && timingSafeEqual(Buffer.from(value, "hex"), Buffer.from(expected, "hex")));
+  if (!valid) throw new Error("Invalid webhook signature");
 
-  return JSON.parse(body);
+  const event = StripeEventSchema.parse(JSON.parse(body));
+  if (event.livemode !== (env === "live")) throw new Error("Wrong webhook environment");
+  return event;
 }
