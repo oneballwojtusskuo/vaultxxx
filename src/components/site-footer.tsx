@@ -1,11 +1,7 @@
 import { Link } from "@tanstack/react-router";
 import { openCookieSettings } from "@/components/cookie-banner";
-import {
-  OPERATOR_NAME,
-  OPERATOR_NIP,
-  OPERATOR_ADDRESS,
-  OPERATOR_CONTACT,
-} from "@/lib/operator";
+import { OPERATOR_CONTACT } from "@/lib/operator";
+import { Button } from "@/components/ui/button";
 
 export function SiteFooter() {
   return (
@@ -42,13 +38,20 @@ export function SiteFooter() {
             >
               Moje dane (RODO)
             </Link>
-            <button
-              type="button"
-              onClick={openCookieSettings}
+            <a
+              href={`mailto:${OPERATOR_CONTACT}`}
               className="text-xs text-foreground/75 hover:text-foreground transition-colors"
             >
+              Kontakt
+            </a>
+            <Button
+              type="button"
+              variant="link"
+              onClick={openCookieSettings}
+              className="h-auto p-0 text-xs font-normal text-foreground/75 hover:text-foreground transition-colors"
+            >
               Ustawienia cookies
-            </button>
+            </Button>
             <Link
               to="/report-infringement"
               className="text-xs text-foreground/75 hover:text-foreground transition-colors"
@@ -58,33 +61,6 @@ export function SiteFooter() {
           </div>
         </div>
 
-        <details className="group rounded-xl border border-border/40 bg-background/40 text-xs text-foreground/75">
-          <summary className="cursor-pointer list-none p-4 font-semibold text-foreground group-open:border-b group-open:border-border/40">
-            Operator serwisu i Administrator Danych Osobowych
-          </summary>
-          <div className="space-y-3 p-4">
-            <p>
-              <span className="font-semibold text-foreground">Operator serwisu:</span>
-              <br />
-              {OPERATOR_NAME}
-              <br />
-              {OPERATOR_ADDRESS} | NIP: {OPERATOR_NIP}
-              <br />
-              Kontakt / Punkt kontaktowy DSA:{" "}
-              <a
-                href={`mailto:${OPERATOR_CONTACT}`}
-                className="font-medium text-primary hover:underline"
-              >
-                {OPERATOR_CONTACT}
-              </a>
-            </p>
-            <p>
-              vlnd.pl jest platformą pośredniczącą — sprzedawcą treści cyfrowych jest użytkownik
-              wystawiający produkt. Płatności obsługuje Stripe. Serwis jest przeznaczony dla osób
-              od 13 roku życia (osoby w wieku 13–17 lat za zgodą rodzica).
-            </p>
-          </div>
-        </details>
       </div>
     </footer>
   );

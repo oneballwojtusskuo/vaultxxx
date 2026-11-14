@@ -17,3 +17,8 @@
 - [x] Put Google sign-up above the e-mail form.
 - [x] Reduce e-mail registration to e-mail, one visible-password field and one combined consent.
 - [x] Verify desktop/mobile registration and its authentication request.
+
+# Concise operator presentation
+- [x] Remove the operator details block from the shared footer, retaining legal links and contact.
+- [x] Remove REGON and repeated operator definitions; retain name, address, NIP and contact in legal documents.
+- [x] Verify the footer and legal documents on desktop and mobile.

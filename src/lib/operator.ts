@@ -1,9 +1,8 @@
 // Dane Operatora Platformy VLND / Administratora Danych Osobowych.
 
-export const OPERATOR_NAME = "INDYWIDUALNA PRAKTYKA LEKARSKA JANUSZ JUDEK";
+export const OPERATOR_NAME = "Indywidualna Praktyka Lekarska Janusz Judek";
 export const OPERATOR_NIP = "7772568879";
-export const OPERATOR_REGON = "301713974";
-export const OPERATOR_LEGAL_FORM = `NIP: ${OPERATOR_NIP}, REGON: ${OPERATOR_REGON}`;
+export const OPERATOR_LEGAL_FORM = `NIP: ${OPERATOR_NIP}`;
 export const OPERATOR_ADDRESS = "ul. Kwiatowa 12, 64-530 Radzyny";
 export const OPERATOR_CONTACT = "vlndmarketplace@gmail.com";
 

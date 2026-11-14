@@ -60,20 +60,10 @@ function PrivacyPage() {
           <article className="prose prose-invert prose-sm sm:prose-base max-w-none space-y-8 leading-relaxed">
             <Section title="§ 1. Administrator danych osobowych">
               <p>
-                Operator Platformy VLND oraz Administrator Danych Osobowych: <b>{OPERATOR_NAME}</b>,{" "}
-                {OPERATOR_LEGAL_FORM} (dalej: <b>„Administrator”</b> lub <b>„Operator”</b>).
-                <br />
-                Adres do korespondencji: {OPERATOR_ADDRESS}.<br />
-                Kontakt e-mail:{" "}
-                <a className="underline" href={`mailto:${OPERATOR_CONTACT}`}>
-                  {OPERATOR_CONTACT}
-                </a>
-                .
-              </p>
-              <p>
-                We wszystkich sprawach dotyczących przetwarzania danych osobowych oraz wykonywania
-                przysługujących Państwu praw można kontaktować się z Administratorem pod adresem
-                e-mail:{" "}
+                Administratorem danych osobowych i operatorem Platformy VLND jest{" "}
+                <b>{OPERATOR_NAME}</b>, {OPERATOR_LEGAL_FORM}, adres do korespondencji:{" "}
+                {OPERATOR_ADDRESS} (dalej: <b>„Administrator”</b> lub <b>„Operator”</b>).
+                Kontakt w sprawach prywatności i wykonywania praw wynikających z RODO:{" "}
                 <a className="underline" href={`mailto:${OPERATOR_CONTACT}`}>
                   {OPERATOR_CONTACT}
                 </a>

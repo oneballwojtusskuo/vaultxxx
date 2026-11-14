@@ -64,22 +64,16 @@ function RegulaminPage() {
                 zawierania i wykonywania umów pomiędzy jej Użytkownikami oraz warunki obsługi
                 płatności w modelu powierniczym (escrow).
               </p>
-              <p>
-                <b>Operator Platformy VLND oraz Administrator Danych Osobowych:</b> {OPERATOR_NAME},{" "}
-                {OPERATOR_LEGAL_FORM}.<br />
-                Adres do korespondencji: {OPERATOR_ADDRESS}.<br />
-                Kontakt e-mail:{" "}
-                <a className="underline" href={`mailto:${OPERATOR_CONTACT}`}>
-                  {OPERATOR_CONTACT}
-                </a>
-                .
-              </p>
               <p>Na potrzeby Regulaminu przyjmuje się następujące definicje:</p>
               <ul>
                 <li>
                   <b>Operator</b> – {OPERATOR_NAME}, {OPERATOR_LEGAL_FORM}, adres do korespondencji:{" "}
-                  {OPERATOR_ADDRESS}, e-mail: {OPERATOR_CONTACT} – podmiot prowadzący Platformę
-                  VLND, świadczący usługi pośrednictwa w rozumieniu Rozporządzenia (UE) 2022/2065
+                  {OPERATOR_ADDRESS}, kontakt e-mail i punkt kontaktowy DSA:{" "}
+                  <a className="underline" href={`mailto:${OPERATOR_CONTACT}`}>
+                    {OPERATOR_CONTACT}
+                  </a>
+                  {" "}– podmiot prowadzący Platformę VLND i administrator danych osobowych,
+                  świadczący usługi pośrednictwa w rozumieniu Rozporządzenia (UE) 2022/2065
                   (Digital Services Act, „DSA”).
                 </li>
                 <li>
