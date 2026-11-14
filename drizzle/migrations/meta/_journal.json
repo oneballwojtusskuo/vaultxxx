@@ -99,6 +99,13 @@
       "when": 1794681883074,
       "tag": "0013_guard_exchange_authorization",
       "breakpoints": true
+    },
+    {
+      "idx": 14,
+      "version": "7",
+      "when": 1794682278401,
+      "tag": "0014_restrict_has_role_to_caller",
+      "breakpoints": true
     }
   ]
 }

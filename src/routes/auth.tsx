@@ -40,8 +40,13 @@ export const Route = createFileRoute("/auth")({
 // Only allow same-origin relative paths for post-auth return.
 function safeNext(next: string | undefined): string | null {
   if (!next) return null;
-  if (!next.startsWith("/") || next.startsWith("//")) return null;
-  return next;
+  if (!next.startsWith("/") || next.startsWith("//") || next.includes("\\")) return null;
+  if (/[\u0000-\u001f]/.test(next)) return null;
+  try {
+    const u = new URL(next, "https://vlnd.pl");
+    if (u.origin !== "https://vlnd.pl") return null;
+    return u.pathname + u.search + u.hash;
+  } catch { return null; }
 }
 
 function GoogleIcon() {
