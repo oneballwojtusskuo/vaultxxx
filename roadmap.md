@@ -22,3 +22,7 @@
 - [x] Remove the operator details block from the shared footer, retaining legal links and contact.
 - [x] Remove REGON and repeated operator definitions; retain name, address, NIP and contact in legal documents.
 - [x] Verify the footer and legal documents on desktop and mobile.
+
+# Digital-content legal documentation
+- [x] Correct the terms, privacy policy and help for digital-file delivery without physical-goods DAC7 reporting claims.
+- [x] Verify the updated public documents; leave tax monitoring, payments and stored data unchanged.

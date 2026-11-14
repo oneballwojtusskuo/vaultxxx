@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
-import { Mail, LifeBuoy, Send, Shield, Repeat, Users, Percent, Award } from "lucide-react";
+import { Mail, LifeBuoy, Send, Shield, Repeat, Users, Percent, Award, FileText } from "lucide-react";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 import { Input } from "@/components/ui/input";
@@ -95,6 +95,11 @@ function HelpPage() {
           </p>
 
           <section className="grid sm:grid-cols-2 gap-4 mb-10">
+            <FaqCard icon={<FileText className="h-4 w-4" />} title="Pliki cyfrowe i podatki">
+              Na vlnd kupujesz dostęp do plików, np. PDF-ów, e-booków i notatek, a nie rzeczy
+              materialnych. Progi DAC7 dla sprzedaży towarów nie dotyczą dostarczania tych plików.
+              Twórca nadal rozlicza swoje podatki, a weryfikacja konta do wypłat odbywa się w Stripe.
+            </FaqCard>
             <FaqCard icon={<Shield className="h-4 w-4" />} title="Bezpieczeństwo (Escrow)">
               Środki kupującego trafiają do depozytu. Kupujący ma 24 godziny na potwierdzenie
               odbioru lub zgłoszenie problemu; po tym czasie środki są automatycznie zwalniane.

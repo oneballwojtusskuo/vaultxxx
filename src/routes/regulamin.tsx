@@ -11,6 +11,7 @@ import {
 } from "@/lib/operator";
 
 const EFFECTIVE_DATE = "6 listopada 2026 r.";
+const UPDATED_DATE = "14 listopada 2026 r.";
 
 export const Route = createFileRoute("/regulamin")({
   staticData: { sitemap: true },
@@ -20,7 +21,7 @@ export const Route = createFileRoute("/regulamin")({
       {
         name: "description",
         content:
-          "Regulamin platformy vlnd — marketplace cyfrowego z płatnościami powierniczymi (escrow). Warunki korzystania, prawa i obowiązki użytkowników, procedura Notice & Takedown, DAC7.",
+          "Regulamin platformy vlnd — marketplace cyfrowego z płatnościami powierniczymi (escrow). Warunki korzystania, prawa i obowiązki użytkowników, procedura Notice & Takedown i dostarczanie treści cyfrowych.",
       },
       { property: "og:title", content: "Regulamin serwisu — vlnd" },
       {
@@ -48,7 +49,7 @@ function RegulaminPage() {
             <h1 className="font-display text-3xl font-bold">Regulamin serwisu vlnd</h1>
           </div>
           <p className="text-sm text-muted-foreground mb-10">
-            Obowiązuje od dnia {EFFECTIVE_DATE}. Kontakt:{" "}
+            Obowiązuje od dnia {EFFECTIVE_DATE}. Aktualizacja: {UPDATED_DATE} Kontakt:{" "}
             <a className="underline hover:text-foreground" href={`mailto:${OPERATOR_CONTACT}`}>
               {OPERATOR_CONTACT}
             </a>
@@ -93,8 +94,9 @@ function RegulaminPage() {
                 </li>
                 <li>
                   <b>Produkt Cyfrowy</b> – treść cyfrowa w rozumieniu ustawy z dnia 30 maja 2014 r.
-                  o prawach konsumenta, oferowana przez Sprzedawcę (np. pliki audio, graficzne,
-                  wideo, dokumenty, kod źródłowy, szablony, presety, projekty).
+                  o prawach konsumenta, czyli dane wytwarzane i dostarczane w postaci cyfrowej,
+                  oferowane bez nośnika materialnego (np. pliki PDF, e-booki, notatki, szablony,
+                  pliki audio, graficzne i wideo).
                 </li>
                 <li>
                   <b>Umowa Sprzedaży</b> – umowa zawierana bezpośrednio pomiędzy Sprzedawcą a
@@ -436,54 +438,51 @@ function RegulaminPage() {
               </ol>
             </Section>
 
-            <Section title="§ 8. Obowiązki podatkowe. Dyrektywa DAC7">
+            <Section title="§ 8. Treści cyfrowe i obowiązki podatkowe">
               <ol>
                 <li>
-                  Sprzedawca zobowiązany jest podać{" "}
-                  <b>prawdziwe i aktualne dane identyfikacyjne i podatkowe</b>, w tym: imię i
-                  nazwisko lub firmę, adres, numer PESEL lub NIP (a w przypadku podmiotów
-                  zagranicznych – odpowiedni numer identyfikacji podatkowej TIN oraz VAT-UE, jeżeli
-                  dotyczy). Rachunek bankowy do wypłat Sprzedawca podaje wyłącznie w systemie Stripe
-                  podczas łączenia konta.
+                  Platforma obsługuje wyłącznie dostarczanie gotowych treści cyfrowych drogą
+                  elektroniczną, w szczególności plików PDF, e-booków i notatek. Nie pośredniczy
+                  w sprzedaży rzeczy materialnych, ich wysyłce ani w zamawianiu indywidualnych
+                  usług wykonywanych przez twórcę na zlecenie Kupującego. Dostarczenie Produktu
+                  oznacza przyznanie dostępu do pliku lub treści, a nie fizycznej przesyłki.
                 </li>
                 <li>
-                  Zgodnie z <b>Dyrektywą Rady (UE) 2021/514 („DAC7”)</b> oraz ustawą z dnia 23 maja
-                  2024 r. wdrażającą DAC7 do polskiego porządku prawnego, Operator jako operator
-                  platformy cyfrowej jest zobowiązany do gromadzenia, weryfikacji i{" "}
-                  <b>
-                    corocznego przekazywania Szefowi Krajowej Administracji Skarbowej informacji o
-                    Sprzedawcach
-                  </b>{" "}
-                  podlegających raportowaniu, w tym o wysokości uzyskanego wynagrodzenia.
+                  Na gruncie VAT automatyczne dostarczanie plików przez internet przy minimalnym
+                  udziale człowieka stanowi usługę świadczoną drogą elektroniczną, jeżeli spełnia
+                  warunki art. 7 rozporządzenia wykonawczego Rady (UE) nr 282/2011. Nie zmienia to
+                  kwalifikacji Produktu jako treści cyfrowej w prawie konsumenckim ani zasad licencji.
                 </li>
                 <li>
-                  Sprzedawca zobowiązany jest do współpracy z Operatorem w zakresie weryfikacji
-                  danych oraz do ich niezwłocznej aktualizacji. Odmowa podania wymaganych danych po
-                  dwóch wezwaniach skutkuje
-                  <b> zablokowaniem możliwości wypłat</b> oraz – zgodnie z ustawą DAC7 – może
-                  skutkować zamknięciem Konta.
+                  Dostarczanie gotowych plików cyfrowych nie jest sprzedażą towarów materialnych
+                  w rozumieniu DAC7. Progi 30 transakcji lub 2 000 EUR dotyczące sprzedaży towarów
+                  nie mają zastosowania do dostarczania takich plików ani do wypłat afiliacyjnych.
+                  Kwalifikacja jako usługi elektronicznej dla VAT nie przesądza sama w sobie
+                  o zakresie DAC7. Rozszerzenie Platformy o czynności objęte tymi przepisami,
+                  w tym usługi wykonywane osobiście na zlecenie, wymaga odrębnej oceny prawnej.
                 </li>
                 <li>
-                  Sprzedawca ponosi <b>wyłączną odpowiedzialność</b> za rozliczenie należnych
-                  podatków (PIT, CIT, VAT) oraz składek z tytułu prowadzonej działalności lub
-                  uzyskanych przychodów. Operator nie świadczy usług doradztwa podatkowego.
+                  Sprzedawca podaje prawdziwe i aktualne dane niezbędne do rozliczeń oraz wykonania
+                  obowiązków wynikających z właściwych przepisów. Weryfikację tożsamości (KYC),
+                  dane rachunku bankowego i dokumenty wymagane do wypłat przekazuje bezpośrednio
+                  Stripe. Wymogi obsługi płatności są odrębne od raportowania DAC7 przez Platformę.
                 </li>
                 <li>
-                  Użytkownik uzyskujący przychody z programu partnerskiego (afiliacyjnego)
-                  samodzielnie odpowiada za ich prawidłowe rozliczenie w zeznaniu podatkowym i wobec
-                  właściwego urzędu skarbowego. Operator nie rozlicza za Użytkownika PIT, CIT, VAT
-                  ani innych należności publicznoprawnych.
+                  Sprzedawca odpowiada za rozliczenie należnych podatków (PIT, CIT, VAT) oraz
+                  składek stosownie do prowadzonej działalności i uzyskiwanych przychodów.
+                  Brak zastosowania progów DAC7 dla towarów nie oznacza zwolnienia z podatków.
+                  Operator nie świadczy usług doradztwa podatkowego.
                 </li>
                 <li>
-                  Partner korzystający z wygenerowanych linków afiliacyjnych ma obowiązek oznaczać
-                  treści promocyjne zgodnie z aktualnymi wytycznymi UOKiK, w szczególności jasno
-                  informować o komercyjnym charakterze rekomendacji i relacji afiliacyjnej.
+                  Partner uzyskujący przychody z afiliacji samodzielnie odpowiada za ich prawidłowe
+                  rozliczenie podatkowe. Operator wykonuje własne obowiązki podatkowe, księgowe
+                  i ewentualne obowiązki płatnika, jeżeli wynikają z właściwych przepisów prawa.
+                  Dane transakcji i wypłat są przetwarzane na potrzeby rozliczeń, a nie na podstawie
+                  progów raportowania sprzedaży rzeczy materialnych.
                 </li>
                 <li>
-                  Operator gromadzi dane o wypłatach z programu partnerskiego i może raportować je
-                  zgodnie z DAC7. Raportowanie może dotyczyć Użytkownika, który w roku kalendarzowym
-                  otrzyma co najmniej 30 wypłat lub którego łączna kwota wypłat przekroczy
-                  równowartość 2 000 EUR, około 8 500–9 000 zł.
+                  Partner ma obowiązek oznaczać treści promocyjne zgodnie z aktualnymi wytycznymi
+                  UOKiK, jasno informując o komercyjnym charakterze rekomendacji i relacji afiliacyjnej.
                 </li>
               </ol>
             </Section>
@@ -541,7 +540,8 @@ function RegulaminPage() {
                 <li>
                   W sprawach nieuregulowanych Regulaminem zastosowanie mają w szczególności: Kodeks
                   cywilny, ustawa o prawach konsumenta, ustawa o świadczeniu usług drogą
-                  elektroniczną, RODO, DSA, DAC7, ustawa o prawie autorskim i prawach pokrewnych.
+                  elektroniczną, RODO, DSA, ustawa o prawie autorskim i prawach pokrewnych oraz
+                  właściwe przepisy podatkowe.
                 </li>
                 <li>
                   Prawem właściwym jest prawo polskie. Sądem właściwym dla sporów z Użytkownikami
@@ -553,7 +553,7 @@ function RegulaminPage() {
 
             <p className="text-xs text-muted-foreground pt-6 border-t border-border/40">
               Kontakt w sprawach związanych z Regulaminem, zgłoszeniami DSA (Notice &amp; Takedown),
-              obowiązkami DAC7 oraz reklamacjami:{" "}
+              dostarczaniem treści cyfrowych oraz reklamacjami:{" "}
               <a className="underline hover:text-foreground" href={`mailto:${OPERATOR_CONTACT}`}>
                 {OPERATOR_CONTACT}
               </a>

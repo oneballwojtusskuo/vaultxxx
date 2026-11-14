@@ -11,6 +11,7 @@ import {
 } from "@/lib/operator";
 
 const EFFECTIVE_DATE = "1 stycznia 2026 r.";
+const UPDATED_DATE = "14 listopada 2026 r.";
 
 export const Route = createFileRoute("/polityka-prywatnosci")({
   staticData: { sitemap: true },
@@ -20,13 +21,13 @@ export const Route = createFileRoute("/polityka-prywatnosci")({
       {
         name: "description",
         content:
-          "Polityka Prywatności i Polityka Plików Cookies platformy vlnd — zgodna z RODO (GDPR) i polskim prawem. Zasady przetwarzania danych Kupujących i Sprzedawców, escrow, DAC7.",
+          "Polityka Prywatności i Polityka Plików Cookies platformy vlnd — zgodna z RODO (GDPR) i polskim prawem. Zasady przetwarzania danych Kupujących i Sprzedawców, dostarczanie plików cyfrowych i rozliczenia Stripe Connect.",
       },
       { property: "og:title", content: "Polityka Prywatności i Cookies — vlnd" },
       {
         property: "og:description",
         content:
-          "Jak vlnd przetwarza dane osobowe użytkowników marketplace'u cyfrowego zgodnie z RODO, ustawą o ochronie danych osobowych i DAC7.",
+          "Jak vlnd przetwarza dane osobowe użytkowników marketplace'u cyfrowego zgodnie z RODO, ustawą o ochronie danych osobowych; zakupy plików, płatności i wypłaty.",
       },
       { property: "og:type", content: "article" },
       { name: "twitter:card", content: "summary" },
@@ -50,7 +51,7 @@ function PrivacyPage() {
             </h1>
           </div>
           <p className="text-sm text-muted-foreground mb-10">
-            Obowiązuje od dnia {EFFECTIVE_DATE}. Kontakt w sprawach prywatności:{" "}
+            Obowiązuje od dnia {EFFECTIVE_DATE}. Aktualizacja: {UPDATED_DATE} Kontakt w sprawach prywatności:{" "}
             <a className="underline hover:text-foreground" href={`mailto:${OPERATOR_CONTACT}`}>
               {OPERATOR_CONTACT}
             </a>
@@ -75,8 +76,8 @@ function PrivacyPage() {
                 związku z przetwarzaniem danych osobowych i w sprawie swobodnego przepływu takich
                 danych (<b>„RODO”</b>), ustawa z dnia 10 maja 2018 r. o ochronie danych osobowych,
                 ustawa z dnia 18 lipca 2002 r. o świadczeniu usług drogą elektroniczną, ustawa z
-                dnia 16 lipca 2004 r. — Prawo telekomunikacyjne oraz ustawa z dnia 23 maja 2024 r.
-                wdrażająca Dyrektywę Rady (UE) 2021/514 (<b>„DAC7”</b>).
+                dnia 12 lipca 2024 r. — Prawo komunikacji elektronicznej oraz właściwe przepisy
+                podatkowe i rachunkowe.
               </p>
             </Section>
 
@@ -126,9 +127,9 @@ function PrivacyPage() {
                 <li>
                   <b>Zakres danych:</b> wszystkie dane wskazane w punkcie A, a ponadto: imię i
                   nazwisko lub firma, adres zamieszkania lub siedziby, kraj rezydencji podatkowej,
-                  numer PESEL lub NIP (w przypadku podmiotów zagranicznych — TIN, VAT-UE), numer
-                  rachunku bankowego lub identyfikator konta Stripe Connect, dane wymagane w
-                  procesie KYC (weryfikacji tożsamości) przez dostawcę płatności, informacje o
+                  identyfikator podatkowy (NIP, TIN lub VAT-UE), jeżeli jest niezbędny do rozliczeń
+                  lub wymagany właściwymi przepisami, identyfikator konta Stripe Connect i status
+                  jego weryfikacji, informacje o
                   wysokości uzyskanego wynagrodzenia, dane oferowanych Produktów Cyfrowych i
                   metadanych z nimi związanych.
                 </li>
@@ -140,11 +141,11 @@ function PrivacyPage() {
                       rozliczenie prowizji — art. 6 ust. 1 lit. b RODO;
                     </li>
                     <li>
-                      wypełnienie obowiązków raportowych wynikających z <b>Dyrektywy DAC7</b>{" "}
-                      (Dyrektywa Rady (UE) 2021/514) i ustawy wdrażającej ją do polskiego porządku
-                      prawnego, w tym coroczne przekazywanie Szefowi Krajowej Administracji
-                      Skarbowej informacji o Sprzedawcach podlegających raportowaniu — art. 6 ust. 1
-                      lit. c RODO;
+                      wypełnienie mających zastosowanie obowiązków podatkowych i księgowych
+                      związanych z rozliczeniami Platformy — art. 6 ust. 1 lit. c RODO.
+                      Dostarczania gotowych plików cyfrowych nie traktuje się jako sprzedaży
+                      towarów materialnych na potrzeby DAC7; progi dotyczące sprzedaży takich
+                      towarów nie stanowią podstawy zbierania danych Twórców ani Partnerów;
                     </li>
                     <li>
                       przeciwdziałanie oszustwom, praniu pieniędzy i finansowaniu terroryzmu (AML) —
@@ -159,8 +160,8 @@ function PrivacyPage() {
 
               <h3 className="font-semibold text-foreground pt-2">C. Marketing własny</h3>
               <p>
-                Za odrębną, dobrowolną zgodą Użytkownika (art. 6 ust. 1 lit. a RODO oraz art. 10
-                ustawy o świadczeniu usług drogą elektroniczną i art. 172 Prawa telekomunikacyjnego)
+                Za odrębną, dobrowolną zgodą Użytkownika (art. 6 ust. 1 lit. a RODO oraz art. 398
+                Prawa komunikacji elektronicznej)
                 Administrator może przesyłać newsletter, powiadomienia o nowościach oraz informacje
                 handlowe dotyczące własnych usług. Zgoda może być cofnięta w dowolnym momencie bez
                 wpływu na zgodność z prawem przetwarzania dokonanego przed jej cofnięciem.
@@ -198,7 +199,7 @@ function PrivacyPage() {
                 <li>
                   <b>Organy podatkowe i inne organy publiczne</b> (Szef Krajowej Administracji
                   Skarbowej, sądy, prokuratura, Policja, UODO) — wyłącznie w przypadkach wymaganych
-                  przepisami prawa, w tym raportowanie DAC7.
+                  przepisami prawa lub na podstawie wiążącego żądania uprawnionego organu.
                 </li>
                 <li>
                   <b>Kancelarie prawne, doradcy podatkowi, audytorzy</b> — w zakresie niezbędnym do
@@ -230,7 +231,7 @@ function PrivacyPage() {
                 <li>
                   <b>Prawo do usunięcia danych („prawo do bycia zapomnianym”)</b> (art. 17 RODO) — z
                   zastrzeżeniem sytuacji, w których dalsze przetwarzanie jest wymagane przepisami
-                  prawa (np. dokumentacja księgowa, obowiązki DAC7, obrona przed roszczeniami).
+                  prawa (np. dokumentacja księgowa) lub niezbędne do obrony przed roszczeniami.
                 </li>
                 <li>
                   <b>Prawo do ograniczenia przetwarzania</b> (art. 18 RODO).
@@ -295,7 +296,7 @@ function PrivacyPage() {
                       Platformy, w tym utrzymania sesji zalogowanego Użytkownika, obsługi koszyka,
                       procesu zakupu i mechanizmu escrow oraz zapewnienia bezpieczeństwa (ochrona
                       przed atakami CSRF). Cookies te nie wymagają zgody Użytkownika i są
-                      przetwarzane na podstawie art. 173 ust. 3 pkt 2 Prawa telekomunikacyjnego.
+                      stosowane na zasadach art. 399 ust. 3 Prawa komunikacji elektronicznej.
                     </li>
                     <li>
                       <b>Cookies analityczne / statystyczne</b> — służące do zliczania odwiedzin,
@@ -372,10 +373,6 @@ function PrivacyPage() {
                       dane transakcyjne oraz księgowe — przez okres <b>5 lat</b> licząc od końca
                       roku kalendarzowego, w którym powstał obowiązek podatkowy, zgodnie z ustawą
                       Ordynacja podatkowa oraz ustawą o rachunkowości;
-                    </li>
-                    <li>
-                      dane raportowane w ramach <b>DAC7</b> — przez okres wymagany przepisami
-                      wdrażającymi tę dyrektywę;
                     </li>
                     <li>
                       dane przetwarzane na podstawie zgody (marketing) — do czasu wycofania zgody;
