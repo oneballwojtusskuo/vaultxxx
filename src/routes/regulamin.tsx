@@ -316,11 +316,14 @@ function RegulaminPage() {
                   zakresie wybranego typu licencji (Personal, Commercial, Extended itp.).
                 </li>
                 <li>
-                  Sprzedawca ponosi <b>wyłączną odpowiedzialność</b> za naruszenia praw autorskich,
-                  praw pokrewnych, praw do znaków towarowych, wizerunku lub dóbr osobistych osób
-                  trzecich wynikające z zamieszczonych przez niego treści. Sprzedawca zobowiązuje
-                  się <b>zwolnić Operatora z odpowiedzialności</b> i pokryć wszelkie koszty (w tym
-                  koszty obsługi prawnej i zasądzonych roszczeń) w związku z takimi naruszeniami.
+                  Sprzedawca ponosi odpowiedzialność za zgodność oferowanych Treści Cyfrowych
+                  z prawem, w tym za ewentualne naruszenie praw osób trzecich wynikające
+                  z zamieszczonych przez niego materiałów. W przypadku, gdy osoba trzecia
+                  skieruje przeciwko Operatorowi udokumentowane roszczenia wynikające
+                  bezpośrednio z zawinionego naruszenia praw przez Sprzedawcę, Sprzedawca
+                  zobowiązuje się podjąć działania zmierzające do zaspokojenia lub oddalenia
+                  tych roszczeń. Odpowiedzialność Sprzedawcy nie obejmuje roszczeń ani kosztów
+                  powstałych z przyczyn leżących po stronie Operatora lub osób trzecich.
                 </li>
                 <li>
                   Zgodnie z art. 16 DSA Operator udostępnia procedurę zgłaszania treści potencjalnie
