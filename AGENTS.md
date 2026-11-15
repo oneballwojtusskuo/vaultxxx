@@ -4,6 +4,7 @@
 - The first-30-creator launch offer is awarded only by the database trigger on product publication, with one permanent non-recycled slot per seller; public reads expose only launch slots and existing public profile/product fields, never client writes.
 - Public creator cards and reviews read the public_creator_profiles view; never grant anonymous SELECT on profiles, because the full table contains private account fields.
 - Legal pages share launch and revision dates through a browser-safe legal-dates module so document updates never silently backdate the service or amended terms.
+- Contractual dispute limits live in a browser-safe legal-dispute-policy module with rule tests; they document manual operator handling, not automated payment release.
 - Private product columns are read only through authenticated owner-scoped server actions; public and member catalogue grants expose explicit safe columns.
 - Stripe fulfillment verifies raw-body signatures and event mode, then matches stored checkout identity, currency and exact amount before atomically promoting a pending order.
 - Guest checkout never returns login tokens or confirms email ownership; guests verify their mailbox through the normal emailed sign-in link.

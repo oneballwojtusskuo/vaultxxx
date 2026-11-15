@@ -50,3 +50,7 @@
 - [x] Add editing from own products, reusing all existing listing fields and retaining existing uploads.
 - [x] Protect owner-only saves and retain moderation and immutable shared links.
 - [x] Test validation and verify an authenticated edit/save through the interface.
+
+# Fairer dispute terms
+- [x] Remove the contractual penalty and set platform dispute resolution at 7 business days.
+- [x] Verify the revised terms and prepare the creator message.

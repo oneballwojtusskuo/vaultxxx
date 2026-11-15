@@ -11,6 +11,7 @@ import {
 } from "@/lib/operator";
 
 import { SERVICE_LAUNCH_DATE, LEGAL_REVISION_DATE, formatLegalDate } from "@/lib/legal-dates";
+import { LEGAL_DISPUTE_POLICY } from "@/lib/legal-dispute-policy";
 
 const LAUNCH_DATE = formatLegalDate(SERVICE_LAUNCH_DATE);
 const UPDATED_DATE = formatLegalDate(LEGAL_REVISION_DATE);
@@ -248,7 +249,9 @@ function RegulaminPage() {
                   „Potwierdź odbiór i zwolnij środki”) lub – jeżeli Kupujący w ciągu 24 godzin od
                   udostępnienia Produktu nie potwierdzi odbioru ani nie zgłosi problemu –
                   automatycznie po upływie tego terminu. Po zgłoszeniu sporu środki pozostają w
-                  depozycie bez ograniczenia czasowego do czasu rozstrzygnięcia.
+                  depozycie do jego rozstrzygnięcia przez Operatora, nie dłużej niż{" "}
+                  <b>{LEGAL_DISPUTE_POLICY.resolutionBusinessDays} dni roboczych od zgłoszenia</b>,
+                  z zastrzeżeniem niezależnych postępowań wskazanych w § 6 ust. 2.
                 </li>
                 <li>
                   Operator zastrzega sobie prawo do <b>wstrzymania wypłaty środków Sprzedawcy</b>, w
@@ -360,18 +363,20 @@ function RegulaminPage() {
                   , Operator uprawniony jest do:
                   <ul>
                     <li>
-                      natychmiastowego, trwałego usunięcia Konta Sprzedawcy bez prawa do
-                      odszkodowania;
+                      zablokowania lub usunięcia nielegalnego Produktu oraz zablokowania lub
+                      usunięcia Konta Sprzedawcy, z uzasadnieniem decyzji i prawem do odwołania;
                     </li>
                     <li>
-                      naliczenia kary umownej w wysokości do 200% wartości kwestionowanych
-                      transakcji, nie mniej niż 500 zł za każdy przypadek naruszenia, z prawem do
-                      dochodzenia odszkodowania przewyższającego wysokość kary umownej;
+                      wstrzymania wypłaty środków dotyczących nielegalnego Produktu zgodnie
+                      z § 4 i § 6;
                     </li>
                     <li>
                       zawiadomienia właściwych organów ścigania oraz uprawnionego (posiadacza praw).
                     </li>
                   </ul>
+                  Operator nie nalicza kar umownych za te naruszenia. Odpowiedzialność za szkodę
+                  oraz dochodzenie odszkodowania podlegają ogólnym zasadom prawa, w szczególności
+                  Kodeksu cywilnego. Samo zgłoszenie nie przesądza o naruszeniu.
                 </li>
                 <li>
                   Operator prowadzi rejestr zgłoszeń i wykonuje obowiązki przejrzystości DSA
@@ -392,7 +397,17 @@ function RegulaminPage() {
                 <li>
                   Po zgłoszeniu sporu środki pozostają w depozycie do czasu polubownego
                   rozstrzygnięcia sporu pomiędzy Sprzedawcą a Kupującym albo decyzji Operatora
-                  działającego jako mediator.
+                  działającego jako mediator. Operator rozstrzyga spór w terminie maksymalnie{" "}
+                  <b>{LEGAL_DISPUTE_POLICY.resolutionBusinessDays} dni roboczych od jego zgłoszenia</b>{" "}
+                  i informuje obie strony o decyzji oraz sposobie rozliczenia środków.
+                  Dni robocze oznaczają dni od poniedziałku do piątku z wyłączeniem dni ustawowo
+                  wolnych od pracy w Polsce; termin liczy się od następnego dnia roboczego po
+                  zgłoszeniu. Dalsze wstrzymanie środków może wynikać wyłącznie z niezależnego
+                  postępowania u Operatora Płatności (np. chargeback), obowiązujących przepisów
+                  prawa lub wiążącego żądania uprawnionego organu, a nie z przedłużania mediacji
+                  przez Operatora. Operator informuje strony o podstawie takiego wstrzymania,
+                  o ile prawo nie zabrania jej ujawnienia. Termin ten nie ogranicza ustawowych
+                  praw stron.
                 </li>
                 <li>
                   Reklamacje dotyczące funkcjonowania Platformy (a nie treści Produktów Cyfrowych)
