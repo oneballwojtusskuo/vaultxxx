@@ -201,18 +201,31 @@ function RegulaminPage() {
                   propagujących przemoc lub nienawiść.
                 </li>
                 <li>
-                  Operator zastrzega sobie prawo do{" "}
-                  <b>zablokowania lub trwałego usunięcia Konta bez odszkodowania</b>
-                  oraz do wstrzymania wypłat środków w przypadku:
+                  W przypadku naruszenia Regulaminu lub przepisów prawa Operator w pierwszej
+                  kolejności wzywa Użytkownika (e-mailem lub w Platformie) do usunięcia naruszenia w
+                  wyznaczonym, rozsądnym terminie. <b>Trwałe usunięcie Konta</b> jest dopuszczalne
+                  wyłącznie w razie poważnego lub powtarzającego się naruszenia albo bezskutecznego
+                  upływu terminu z wezwania. Bez wcześniejszego wezwania Operator może tymczasowo
+                  zablokować Konto, Produkt lub wypłatę tylko, gdy wymaga tego natychmiastowe
+                  działanie, w szczególności przy:
                   <ul>
-                    <li>naruszenia postanowień Regulaminu lub przepisów prawa;</li>
                     <li>
-                      uzasadnionego podejrzenia oszustwa, prania pieniędzy lub finansowania
+                      uzasadnionym podejrzeniu oszustwa, prania pieniędzy lub finansowania
                       terroryzmu;
                     </li>
-                    <li>podania nieprawdziwych danych identyfikacyjnych;</li>
-                    <li>zgłoszenia treści jako nielegalnych zgodnie z procedurą § 5.</li>
+                    <li>podaniu nieprawdziwych danych identyfikacyjnych;</li>
+                    <li>
+                      treściach w sposób oczywisty nielegalnych lub uzasadnionym zgłoszeniu w
+                      procedurze § 5;
+                    </li>
+                    <li>żądaniu uprawnionego organu państwowego.</li>
                   </ul>
+                  Każda decyzja jest przekazywana Użytkownikowi wraz z uzasadnieniem. Użytkownik
+                  może się od niej odwołać na adres e-mail Operatora w terminie 14 dni, a Operator
+                  rozpatruje odwołanie w ciągu 7 dni roboczych. Po usunięciu Konta Operator
+                  rozlicza i wypłaca Sprzedawcy należne środki za zrealizowane sprzedaże, chyba że
+                  stoją temu na przeszkodzie przepisy prawa, żądanie organu lub nierozstrzygnięty
+                  spór dotyczący tych środków.
                 </li>
               </ol>
             </Section>
@@ -275,11 +288,17 @@ function RegulaminPage() {
                   Stripe (Stripe Connect Express) i przejście weryfikacji tożsamości (KYC)
                   bezpośrednio u Operatora Płatności. Operator nie gromadzi numerów rachunków
                   bankowych Sprzedawców. Po zwolnieniu środków z depozytu (ust. 4) należna
-                  Sprzedawcy kwota (cena netto pomniejszona o ewentualną prowizję Partnera) jest
+                  Sprzedawcy kwota – <b>100% ceny ustalonej przez Sprzedawcę</b>, pomniejszona
+                  wyłącznie o ewentualną prowizję Partnera przy sprzedaży z linku polecającego –
+                  jest
                   automatycznie przekazywana na konto Stripe Sprzedawcy, a następnie wypłacana przez
                   Stripe na jego rachunek bankowy zgodnie z harmonogramem wypłat Stripe. Do relacji
                   Sprzedawcy ze Stripe stosuje się także Umowę o usługi z kontem połączonym Stripe
-                  (Stripe Connected Account Agreement).
+                  (Stripe Connected Account Agreement). Opłata serwisowa i prowizja Platformy są
+                  doliczane do ceny po stronie Kupującego i nie są potrącane z kwoty Sprzedawcy.
+                  Operator nie pobiera ani nie potrąca z ceny Sprzedawcy podatku VAT ani innych
+                  podatków – Sprzedawca samodzielnie rozlicza podatki należne z tytułu swojej
+                  sprzedaży, o ile go dotyczą.
                 </li>
                 <li>
                   <b>Saldo afiliacyjne (Portfel Partnera).</b> Prowizja należna Partnerowi z tytułu
@@ -299,9 +318,16 @@ function RegulaminPage() {
                   jego rzecz. Rozliczenie prowizji Platformy w takim wypadku nie następuje.
                 </li>
                 <li>
-                  Sprzedawca przyjmuje do wiadomości, że rzeczywiste terminy uznania środków na jego
-                  rachunku bankowym zależą od Operatora Płatności i mogą wynosić od 2 do 14 dni
-                  roboczych.
+                  Wypłata przebiega w dwóch etapach: (a) <b>zwolnienie środków przez Platformę</b>
+                  – przekazanie kwoty na konto Stripe Sprzedawcy niezwłocznie po spełnieniu warunku
+                  z ust. 4 (potwierdzenie odbioru lub upływ 24 godzin bez zgłoszenia problemu, a przy
+                  sporze – po jego rozstrzygnięciu); (b) <b>wypłata przez Stripe</b> z konta Stripe
+                  na rachunek bankowy Sprzedawcy, zgodnie z harmonogramem wypłat Stripe, zwykle w
+                  ciągu kilku dni roboczych. Na etap (b) Operator nie ma wpływu. Jeżeli środki nie
+                  zostaną zwolnione w terminie z lit. (a), a nie zachodzi żadna z przesłanek z ust.
+                  5, Sprzedawca może zgłosić opóźnienie na adres e-mail Operatora. Operator w ciągu
+                  3 dni roboczych od zgłoszenia zwalnia środki albo wskazuje na piśmie konkretną
+                  przyczynę wstrzymania.
                 </li>
               </ol>
             </Section>
