@@ -656,7 +656,8 @@ function ProductPage() {
                         className="h-11"
                       />
                       <p className="text-xs text-muted-foreground">
-                        Na ten adres wyślemy dostęp do pliku. Nie musisz zakładać konta.
+                        Plik pobierzesz na vlnd.pl. Po zakupie zalogujesz się tym adresem e-mail i
+                        pobierzesz go ze swojego konta.
                       </p>
                     </div>
                   )}
