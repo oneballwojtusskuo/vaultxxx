@@ -20,9 +20,6 @@ import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 import {
   OPERATOR_NAME,
-  OPERATOR_LEGAL_FORM,
-  OPERATOR_ADDRESS,
-  OPERATOR_CONTACT,
 } from "@/lib/operator";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/lib/supabase-browser";
@@ -373,7 +370,7 @@ function ProductPage() {
 
   const buy = async () => {
     if (!acceptTerms || !acceptWithdrawal) {
-      return toast.error("Zaznacz oba wymagane zgody przed dokonaniem zakupu.");
+      return toast.error("Zaznacz zgodę, aby kontynuować.");
     }
     if (!user) return buyAsGuest();
     if (isOwner) return toast.error("To Twój produkt");
@@ -642,43 +639,58 @@ function ProductPage() {
               )}
 
               {!isOwner && isPublished && !myTransaction && (
-                <div id="panel-zakupu">
-                  <PurchaseConsents
-                    acceptTerms={acceptTerms}
-                    setAcceptTerms={setAcceptTerms}
-                    acceptWithdrawal={acceptWithdrawal}
-                    setAcceptWithdrawal={setAcceptWithdrawal}
-                  />
+                <div id="panel-zakupu" className="mt-8 rounded-2xl border border-border/60 bg-card p-5 shadow-sm space-y-4">
                   {!user && (
-                    <div className="mt-4 space-y-3 rounded-md border border-border p-4">
-                      <p className="text-sm font-medium">Kup bez zakładania konta</p>
+                    <div className="space-y-1.5">
+                      <label htmlFor="guest-email" className="text-sm font-medium">
+                        Twój e-mail
+                      </label>
                       <Input
+                        id="guest-email"
                         type="email"
-                        placeholder="Twój e-mail (tu dostaniesz dostęp do pliku)"
+                        placeholder="np. jan@gmail.com"
                         value={guestEmail}
                         onChange={(e) => setGuestEmail(e.target.value)}
                         maxLength={255}
                         autoComplete="email"
+                        className="h-11"
                       />
-                      <label className="flex items-start gap-2 text-sm text-muted-foreground">
-                        <Checkbox
-                          checked={guestAge}
-                          onCheckedChange={(v) => setGuestAge(v === true)}
-                          className="mt-0.5"
-                        />
-                        Mam ukończone 18 lat lub 13 lat i zgodę opiekuna.
-                      </label>
                       <p className="text-xs text-muted-foreground">
-                        Po płatności automatycznie założymy Ci konto na ten e-mail.{" "}
-                        <Link
-                          to="/auth"
-                          search={{ next: `/product/${productUrlKey(seo ?? p)}?buy=1` } as any}
-                          className="underline"
-                        >
-                          Masz już konto? Zaloguj się
-                        </Link>
+                        Na ten adres wyślemy dostęp do pliku. Nie musisz zakładać konta.
                       </p>
                     </div>
+                  )}
+                  <PurchaseConsents
+                    checked={acceptTerms && acceptWithdrawal && (!!user || guestAge)}
+                    onChange={(v) => {
+                      setAcceptTerms(v);
+                      setAcceptWithdrawal(v);
+                      setGuestAge(v);
+                    }}
+                    isFree={Number(p.price) === 0}
+                    isGuest={!user}
+                  />
+                  <Button
+                    onClick={buy}
+                    size="lg"
+                    disabled={!acceptTerms || !acceptWithdrawal || (!user && (!guestEmail || !guestAge))}
+                    className="w-full bg-gradient-primary text-primary-foreground shadow-glow h-12 disabled:opacity-50"
+                  >
+                    <ShoppingCart className="h-4 w-4 mr-2" />
+                    {Number(p.price) === 0
+                      ? "Odbierz bezpłatnie"
+                      : `Kupuję i płacę · ${formatPrice(buyerPriceOf(p.price, payMethod), p.currency)}`}
+                  </Button>
+                  {!user && (
+                    <p className="text-center text-xs text-muted-foreground">
+                      <Link
+                        to="/auth"
+                        search={{ next: `/product/${productUrlKey(seo ?? p)}?buy=1` } as any}
+                        className="underline"
+                      >
+                        Masz już konto? Zaloguj się
+                      </Link>
+                    </p>
                   )}
                 </div>
               )}
@@ -693,16 +705,6 @@ function ProductPage() {
                     referrerId={user.id}
                     pct={(p as any).affiliate_commission_pct}
                   />
-                )}
-                {!isOwner && isPublished && !myTransaction && (
-                  <Button
-                    onClick={buy}
-                    size="lg"
-                    disabled={!acceptTerms || !acceptWithdrawal || (!user && (!guestEmail || !guestAge))}
-                    className="bg-gradient-primary text-primary-foreground shadow-glow h-12 disabled:opacity-50"
-                  >
-                    <ShoppingCart className="h-4 w-4 mr-2" /> Kupuję i płacę
-                  </Button>
                 )}
 
                 {!isOwner && isPublished && p.is_tradable && user && !myTransaction && (
@@ -1241,62 +1243,46 @@ function DeliveryModeCallout({ mode }: { mode: "stream" | "download" | "both" })
 }
 
 function PurchaseConsents({
-  acceptTerms,
-  setAcceptTerms,
-  acceptWithdrawal,
-  setAcceptWithdrawal,
+  checked,
+  onChange,
+  isFree,
+  isGuest,
 }: {
-  acceptTerms: boolean;
-  setAcceptTerms: (v: boolean) => void;
-  acceptWithdrawal: boolean;
-  setAcceptWithdrawal: (v: boolean) => void;
+  checked: boolean;
+  onChange: (v: boolean) => void;
+  isFree: boolean;
+  isGuest: boolean;
 }) {
+  const docLink = "text-accent underline hover:text-accent/80";
   return (
-    <div className="mt-8 rounded-xl border border-border/60 bg-card/40 p-4 space-y-3">
-      <label className="flex items-start gap-3 cursor-pointer">
-        <Checkbox
-          checked={acceptTerms}
-          onCheckedChange={(v) => setAcceptTerms(v === true)}
-          className="mt-0.5"
-          aria-label="Akceptuję Regulamin i Politykę Prywatności"
-        />
-        <span className="text-xs sm:text-sm text-foreground/90 leading-relaxed">
-          Akceptuję{" "}
-          <Link
-            to="/regulamin"
-            target="_blank"
-            className="text-accent underline hover:text-accent/80"
-          >
-            Regulamin Serwisu
-          </Link>{" "}
-          oraz{" "}
-          <Link
-            to="/polityka-prywatnosci"
-            target="_blank"
-            className="text-accent underline hover:text-accent/80"
-          >
-            Politykę Prywatności
-          </Link>{" "}
-          Operatora Platformy VLND ({OPERATOR_NAME}, {OPERATOR_LEGAL_FORM}, {OPERATOR_ADDRESS},{" "}
-          {OPERATOR_CONTACT}).
-        </span>
-      </label>
-      <label className="flex items-start gap-3 cursor-pointer">
-        <Checkbox
-          checked={acceptWithdrawal}
-          onCheckedChange={(v) => setAcceptWithdrawal(v === true)}
-          className="mt-0.5"
-          aria-label="Zgoda na dostarczenie treści cyfrowych przed upływem terminu odstąpienia"
-        />
-        <span className="text-xs sm:text-sm text-foreground/90 leading-relaxed">
-          Wyrażam zgodę na dostarczenie treści cyfrowych przed upływem terminu do odstąpienia od
-          umowy i przyjmuję do wiadomości, że{" "}
-          <b className="text-foreground">
-            stracę prawo do odstąpienia od umowy z chwilą rozpoczęcia pobierania pliku
-          </b>{" "}
-          (art. 38 pkt 13 ustawy o prawach konsumenta).
-        </span>
-      </label>
-    </div>
+    <label className="flex items-start gap-3 cursor-pointer">
+      <Checkbox
+        checked={checked}
+        onCheckedChange={(v) => onChange(v === true)}
+        className="mt-0.5"
+        aria-label="Akceptuję warunki zakupu"
+      />
+      <span className="text-xs text-foreground/85 leading-relaxed">
+        Akceptuję{" "}
+        <Link to="/regulamin" target="_blank" className={docLink}>
+          Regulamin
+        </Link>{" "}
+        i{" "}
+        <Link to="/polityka-prywatnosci" target="_blank" className={docLink}>
+          Politykę prywatności
+        </Link>{" "}
+        ({OPERATOR_NAME}).
+        {!isFree && (
+          <>
+            {" "}Żądam dostarczenia treści cyfrowej przed upływem terminu odstąpienia i wiem, że{" "}
+            <b className="text-foreground">
+              tracę prawo do odstąpienia od umowy z chwilą rozpoczęcia pobierania
+            </b>{" "}
+            (art. 38 pkt 13 ustawy o prawach konsumenta).
+          </>
+        )}
+        {isGuest && " Mam ukończone 18 lat lub 13 lat i zgodę opiekuna."}
+      </span>
+    </label>
   );
 }
