@@ -54,3 +54,7 @@
 # Fairer dispute terms
 - [x] Remove the contractual penalty and set platform dispute resolution at 7 business days.
 - [x] Verify the revised terms and prepare the creator message.
+
+# Automatic guest account creation
+- [ ] Replace manual-signup redirection with automatic passwordless account creation from the guest email.
+- [ ] Return the verified buyer to the same product and test the complete guest entry flow.

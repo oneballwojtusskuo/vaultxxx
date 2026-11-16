@@ -339,16 +339,3 @@ export const purchaseProduct = createServerFn({ method: "POST" })
   .inputValidator((input) => InputSchema.parse(input))
   .handler(async ({ data, context }) => runPurchase(context.userId, data));
 
-const GuestSchema = InputSchema.extend({
-  email: z.string().trim().toLowerCase().email().max(255),
-  ageConsentAccepted: z.literal(true),
-});
-
-/** Guest requests cannot assign transactions to an unverified email identity. */
-export const purchaseProductGuest = createServerFn({ method: "POST" })
-  .inputValidator((input) => GuestSchema.parse(input))
-  .handler(async () => ({
-    status: "failed" as const,
-    requiresSignIn: true,
-    error: "Zaloguj się lub potwierdź adres e-mail, aby kontynuować zakup.",
-  }));

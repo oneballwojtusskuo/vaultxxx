@@ -55,10 +55,8 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { ReportDialog } from "@/components/report-dialog";
 import { VerifiedBadge } from "@/components/verified-badge";
 import { getSecureStreamUrl } from "@/lib/secure-stream.functions";
-import {
-  purchaseProduct,
-  purchaseProductGuest,
-} from "@/lib/purchase.functions";
+import { purchaseProduct } from "@/lib/purchase.functions";
+import { requestGuestLoginLink } from "@/lib/guest-checkout";
 import { Input } from "@/components/ui/input";
 import { getProductDetails } from "@/lib/product.functions";
 import { generateLicensePdf } from "@/lib/license-pdf";
@@ -152,9 +150,10 @@ function ProductPage() {
   const navigate = useNavigate();
   const fetchProduct = useServerFn(getProductDetails);
   const purchaseFn = useServerFn(purchaseProduct);
-  const guestPurchaseFn = useServerFn(purchaseProductGuest);
   const [guestEmail, setGuestEmail] = useState("");
   const [guestAge, setGuestAge] = useState(false);
+  const [guestAuthLoading, setGuestAuthLoading] = useState(false);
+  const [guestEmailSent, setGuestEmailSent] = useState(false);
 
   const {
     data: p,
@@ -280,7 +279,7 @@ function ProductPage() {
       document
         .getElementById("panel-zakupu")
         ?.scrollIntoView({ behavior: "smooth", block: "center" });
-      toast.info("Potwierdź obie zgody i dokończ zakup.");
+      toast.info("Potwierdź zgodę i dokończ zakup.");
     }, 400);
   }, [user]);
 
@@ -319,52 +318,21 @@ function ProductPage() {
     const email = guestEmail.trim();
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return toast.error("Podaj poprawny adres e-mail.");
     if (!guestAge) return toast.error("Potwierdź oświadczenie o wieku.");
+
+    setGuestAuthLoading(true);
     try {
-      let environment: "sandbox" | "live" = "sandbox";
-      try {
-        environment = getStripeEnvironment();
-      } catch {}
-      const res: any = await guestPurchaseFn({
-        data: {
-          email,
-          ageConsentAccepted: true,
-          productId: p.id,
-          referralUserId: getReferralCookie(p.id),
-          withdrawalWaiverAccepted: true,
-          paymentMethod: payMethod,
-          returnUrl: window.location.origin + window.location.pathname,
-          environment,
-        },
-      });
-      if (res.requiresSignIn) {
-        toast.info("Zaloguj się lub załóż konto, aby bezpiecznie dokończyć zakup.");
-        await navigate({ to: "/auth", search: { mode: "signup", next: `${window.location.pathname}?buy=1` } });
-        return;
-      }
-      if (res.error) return toast.error(res.error);
-      if (res.alreadyOwned) {
-        await supabase.auth.signInWithOtp({
-          email,
-          options: { emailRedirectTo: window.location.href, shouldCreateUser: false },
-        });
-        return toast.info(`Ten e-mail ma już ten produkt. Wysłaliśmy link logowania na ${email}.`);
-      }
-      if (res.status === "released") {
-        clearReferralCookie(p.id);
-        const { error } = await supabase.auth.signInWithOtp({
-          email,
-          options: { emailRedirectTo: window.location.href, shouldCreateUser: false },
-        });
-        if (error) throw error;
-        toast.success(`Dodano do Twojego konta. Potwierdź adres przez link wysłany na ${email}, aby pobrać plik.`);
-        return;
-      }
-      if (res.clientSecret) {
-        setCheckoutSecret(res.clientSecret);
-        setCheckoutOpen(true);
-      } else toast.error("Nie udało się otworzyć okna płatności. Spróbuj ponownie.");
+      await requestGuestLoginLink(
+        supabase.auth,
+        email,
+        window.location.origin,
+        window.location.pathname,
+      );
+      setGuestEmailSent(true);
+      toast.success(`Wysłaliśmy link logowania na ${email}. Po jego kliknięciu wrócisz do zakupu.`);
     } catch (e: any) {
-      toast.error(e?.message ?? "Nie udało się rozpocząć zakupu");
+      toast.error(e?.message ?? "Nie udało się wysłać linku logowania. Spróbuj ponownie.");
+    } finally {
+      setGuestAuthLoading(false);
     }
   };
 
@@ -650,14 +618,17 @@ function ProductPage() {
                         type="email"
                         placeholder="np. jan@gmail.com"
                         value={guestEmail}
-                        onChange={(e) => setGuestEmail(e.target.value)}
+                        onChange={(e) => {
+                          setGuestEmail(e.target.value);
+                          setGuestEmailSent(false);
+                        }}
                         maxLength={255}
                         autoComplete="email"
                         className="h-11"
                       />
                       <p className="text-xs text-muted-foreground">
-                        Plik pobierzesz na vlnd.pl. Po zakupie zalogujesz się tym adresem e-mail i
-                        pobierzesz go ze swojego konta.
+                        Konto na ten adres utworzymy automatycznie. Wyślemy link do logowania,
+                        a plik pobierzesz na vlnd.pl po zakupie.
                       </p>
                     </div>
                   )}
@@ -674,14 +645,34 @@ function ProductPage() {
                   <Button
                     onClick={buy}
                     size="lg"
-                    disabled={!acceptTerms || !acceptWithdrawal || (!user && (!guestEmail || !guestAge))}
+                    disabled={
+                      guestAuthLoading ||
+                      !acceptTerms ||
+                      !acceptWithdrawal ||
+                      (!user && (!guestEmail || !guestAge || guestEmailSent))
+                    }
                     className="w-full bg-gradient-primary text-primary-foreground shadow-glow h-12 disabled:opacity-50"
                   >
-                    <ShoppingCart className="h-4 w-4 mr-2" />
-                    {Number(p.price) === 0
-                      ? "Odbierz bezpłatnie"
-                      : `Kupuję i płacę · ${formatPrice(buyerPriceOf(p.price, payMethod), p.currency)}`}
+                    {guestAuthLoading ? (
+                      <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                    ) : (
+                      <ShoppingCart className="h-4 w-4 mr-2" />
+                    )}
+                    {!user && guestEmailSent
+                      ? "Link wysłany — sprawdź e-mail"
+                      : Number(p.price) === 0
+                        ? "Odbierz bezpłatnie"
+                        : `Kupuję i płacę · ${formatPrice(buyerPriceOf(p.price, payMethod), p.currency)}`}
                   </Button>
+                  {!user && guestEmailSent && (
+                    <div role="status" className="flex gap-2.5 rounded-xl border border-accent/20 bg-accent/5 p-3 text-sm">
+                      <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-accent" />
+                      <p className="text-muted-foreground">
+                        Kliknij link w wiadomości, a wrócisz tutaj zalogowany(a) i dokończysz zakup.
+                        Jeśli to nowy adres, konto utworzy się automatycznie — bez rejestracji i hasła.
+                      </p>
+                    </div>
+                  )}
                   {!user && (
                     <p className="text-center text-xs text-muted-foreground">
                       <Link
