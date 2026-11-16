@@ -1127,6 +1127,7 @@ export type Database = {
       }
     }
     Functions: {
+      find_user_id_by_email: { Args: { _email: string }; Returns: string }
       follow_counts: {
         Args: { _user_id: string }
         Returns: {

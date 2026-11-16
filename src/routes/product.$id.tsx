@@ -55,7 +55,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { ReportDialog } from "@/components/report-dialog";
 import { VerifiedBadge } from "@/components/verified-badge";
 import { getSecureStreamUrl } from "@/lib/secure-stream.functions";
-import { purchaseProduct } from "@/lib/purchase.functions";
+import { purchaseProduct, purchaseAsGuest } from "@/lib/purchase.functions";
 import { requestGuestLoginLink } from "@/lib/guest-checkout";
 import { Input } from "@/components/ui/input";
 import { getProductDetails } from "@/lib/product.functions";
@@ -64,6 +64,7 @@ import { generateLicenseText, LICENSE_TYPE_LABELS } from "@/lib/license";
 import { LikeButton } from "@/components/like-button";
 import { ProductReviews, RatingSummary } from "@/components/reviews";
 import { CheckoutDialog } from "@/components/checkout-dialog";
+import { Dialog as GuestDoneDialog, DialogContent as GuestDoneContent, DialogHeader as GuestDoneHeader, DialogTitle as GuestDoneTitle, DialogDescription as GuestDoneDesc } from "@/components/ui/dialog";
 import { getStripeEnvironment } from "@/lib/stripe";
 import { buyerPriceOf, formatPrice, PAYMENT_FEES, PAYMENT_METHODS, type PaymentMethod } from "@/lib/pricing";
 import { EscrowActions } from "@/components/escrow-actions";
@@ -150,6 +151,8 @@ function ProductPage() {
   const navigate = useNavigate();
   const fetchProduct = useServerFn(getProductDetails);
   const purchaseFn = useServerFn(purchaseProduct);
+  const guestPurchaseFn = useServerFn(purchaseAsGuest);
+  const [guestDoneEmail, setGuestDoneEmail] = useState<string | null>(null);
   const [guestEmail, setGuestEmail] = useState("");
   const [guestAge, setGuestAge] = useState(false);
   const [guestAuthLoading, setGuestAuthLoading] = useState(false);
@@ -234,6 +237,15 @@ function ProductPage() {
   const [acceptWithdrawal, setAcceptWithdrawal] = useState(false);
   const [payMethod, setPayMethod] = useState<PaymentMethod>("blik");
 
+  const sendGuestAccessLink = async (email: string) => {
+    try {
+      await requestGuestLoginLink(supabase.auth, email, window.location.origin, window.location.pathname);
+      setGuestEmailSent(true);
+    } catch (e: any) {
+      toast.error(e?.message ?? "Nie udało się wysłać linku. Spróbuj ponownie.");
+    }
+  };
+
   // Handle Stripe return_url: ?checkout=success
   useEffect(() => {
     if (typeof window === "undefined") return;
@@ -242,7 +254,13 @@ function ProductPage() {
       toast.info("Sprawdzamy potwierdzenie płatności. Dostęp pojawi się po jej zaksięgowaniu.");
       const guestSession = params.get("guest") === "1" ? params.get("session_id") : null;
       params.delete("guest");
-      if (guestSession) toast.info("Zaloguj się adresem e-mail podanym przy zakupie, aby pobrać plik.", { duration: 12000 });
+      if (guestSession) {
+        const email = sessionStorage.getItem("vlnd_guest_email");
+        if (email) {
+          setGuestDoneEmail(email);
+          void sendGuestAccessLink(email);
+        }
+      }
       params.delete("checkout");
       params.delete("session_id");
       const clean = window.location.pathname + (params.toString() ? `?${params.toString()}` : "");
@@ -315,22 +333,42 @@ function ProductPage() {
   const isPublished = p.status === "published";
 
   const buyAsGuest = async () => {
-    const email = guestEmail.trim();
+    const email = guestEmail.trim().toLowerCase();
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return toast.error("Podaj poprawny adres e-mail.");
     if (!guestAge) return toast.error("Potwierdź oświadczenie o wieku.");
-
     setGuestAuthLoading(true);
     try {
-      await requestGuestLoginLink(
-        supabase.auth,
-        email,
-        window.location.origin,
-        window.location.pathname,
-      );
-      setGuestEmailSent(true);
-      toast.success(`Wysłaliśmy link logowania na ${email}. Po jego kliknięciu wrócisz do zakupu.`);
+      const res = await guestPurchaseFn({
+        data: {
+          productId: p.id,
+          email,
+          ageConsentAccepted: true,
+          referralUserId: getReferralCookie(p.id),
+          withdrawalWaiverAccepted: true,
+          paymentMethod: payMethod,
+          returnUrl: window.location.origin + window.location.pathname,
+          environment: (() => {
+            try {
+              return getStripeEnvironment();
+            } catch {
+              return "sandbox" as const;
+            }
+          })(),
+        },
+      });
+      if ("error" in res && res.error) return toast.error(res.error);
+      sessionStorage.setItem("vlnd_guest_email", email);
+      if ("clientSecret" in res && res.clientSecret) {
+        setCheckoutSecret(res.clientSecret);
+        setCheckoutOpen(true);
+      } else {
+        // Free product or already owned — access is ready on the account.
+        clearReferralCookie(p.id);
+        setGuestDoneEmail(email);
+        void sendGuestAccessLink(email);
+      }
     } catch (e: any) {
-      toast.error(e?.message ?? "Nie udało się wysłać linku logowania. Spróbuj ponownie.");
+      toast.error(e?.message ?? "Nie udało się rozpocząć zakupu. Spróbuj ponownie.");
     } finally {
       setGuestAuthLoading(false);
     }
@@ -627,8 +665,8 @@ function ProductPage() {
                         className="h-11"
                       />
                       <p className="text-xs text-muted-foreground">
-                        Konto na ten adres utworzymy automatycznie. Wyślemy link do logowania,
-                        a plik pobierzesz na vlnd.pl po zakupie.
+                        Bez rejestracji — od razu przejdziesz do płatności. Zakup przypiszemy do
+                        tego adresu, a plik pobierzesz na vlnd.pl.
                       </p>
                     </div>
                   )}
@@ -649,7 +687,7 @@ function ProductPage() {
                       guestAuthLoading ||
                       !acceptTerms ||
                       !acceptWithdrawal ||
-                      (!user && (!guestEmail || !guestAge || guestEmailSent))
+                      (!user && (!guestEmail || !guestAge))
                     }
                     className="w-full bg-gradient-primary text-primary-foreground shadow-glow h-12 disabled:opacity-50"
                   >
@@ -658,21 +696,11 @@ function ProductPage() {
                     ) : (
                       <ShoppingCart className="h-4 w-4 mr-2" />
                     )}
-                    {!user && guestEmailSent
-                      ? "Link wysłany — sprawdź e-mail"
-                      : Number(p.price) === 0
+                    {Number(p.price) === 0
                         ? "Odbierz bezpłatnie"
                         : `Kupuję i płacę · ${formatPrice(buyerPriceOf(p.price, payMethod), p.currency)}`}
                   </Button>
-                  {!user && guestEmailSent && (
-                    <div role="status" className="flex gap-2.5 rounded-xl border border-accent/20 bg-accent/5 p-3 text-sm">
-                      <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-accent" />
-                      <p className="text-muted-foreground">
-                        Kliknij link w wiadomości, a wrócisz tutaj zalogowany(a) i dokończysz zakup.
-                        Jeśli to nowy adres, konto utworzy się automatycznie — bez rejestracji i hasła.
-                      </p>
-                    </div>
-                  )}
+
                   {!user && (
                     <p className="text-center text-xs text-muted-foreground">
                       <Link
@@ -776,6 +804,20 @@ function ProductPage() {
           />
         </main>
         <SiteFooter />
+        <GuestDoneDialog open={!!guestDoneEmail && !user} onOpenChange={(o) => !o && setGuestDoneEmail(null)}>
+          <GuestDoneContent>
+            <GuestDoneHeader>
+              <GuestDoneTitle>Gotowe — produkt jest Twój 🎉</GuestDoneTitle>
+              <GuestDoneDesc>
+                Zakup przypisaliśmy do <strong>{guestDoneEmail}</strong>. Wysłaliśmy tam link — kliknij go,
+                ustaw hasło i nazwę użytkownika, a potem pobierz plik z tej strony.
+              </GuestDoneDesc>
+            </GuestDoneHeader>
+            <Button variant="outline" onClick={() => guestDoneEmail && sendGuestAccessLink(guestDoneEmail).then(() => toast.success("Wysłano ponownie."))}>
+              Wyślij link ponownie
+            </Button>
+          </GuestDoneContent>
+        </GuestDoneDialog>
         <CheckoutDialog
           clientSecret={checkoutSecret}
           open={checkoutOpen}

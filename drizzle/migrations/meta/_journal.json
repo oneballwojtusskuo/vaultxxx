@@ -120,6 +120,13 @@
       "when": 1794838468056,
       "tag": "0016_remove_auto_scan_publish_block",
       "breakpoints": true
+    },
+    {
+      "idx": 17,
+      "version": "7",
+      "when": 1794865728489,
+      "tag": "0017_guest_checkout_user_lookup",
+      "breakpoints": true
     }
   ]
 }

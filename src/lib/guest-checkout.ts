@@ -3,7 +3,7 @@ type GuestOtpAuth = {
     email: string;
     options: {
       emailRedirectTo: string;
-      shouldCreateUser: true;
+      shouldCreateUser: boolean;
       data: { age_consent_accepted: true; passwordless_checkout: "true" };
     };
   }) => Promise<{ error: { message: string } | null }>;

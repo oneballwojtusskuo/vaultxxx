@@ -339,3 +339,37 @@ export const purchaseProduct = createServerFn({ method: "POST" })
   .inputValidator((input) => InputSchema.parse(input))
   .handler(async ({ data, context }) => runPurchase(context.userId, data));
 
+
+const GuestInputSchema = InputSchema.extend({
+  email: z.string().trim().toLowerCase().email().max(255),
+  ageConsentAccepted: z.literal(true),
+});
+
+/**
+ * Guest checkout: no registration and no email confirmation before paying.
+ * The purchase is attached to the account for this email (created silently if new).
+ * No session is returned — the buyer signs in via the emailed link to download.
+ */
+export const purchaseAsGuest = createServerFn({ method: "POST" })
+  .inputValidator((input) => GuestInputSchema.parse(input))
+  .handler(async ({ data }) => {
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { email, ageConsentAccepted: _a, ...purchase } = data;
+    const { data: existingId } = await (supabaseAdmin as any).rpc("find_user_id_by_email", {
+      _email: email,
+    });
+    let userId = existingId as string | null;
+    if (!userId) {
+      const { data: created, error } = await supabaseAdmin.auth.admin.createUser({
+        email,
+        email_confirm: false,
+        user_metadata: { age_consent_accepted: true, passwordless_checkout: "true" },
+      });
+      if (error || !created.user) {
+        const { data: again } = await (supabaseAdmin as any).rpc("find_user_id_by_email", { _email: email });
+        if (!again) throw new Response("Nie udało się przygotować zakupu.", { status: 500 });
+        userId = again as string;
+      } else userId = created.user.id;
+    }
+    return runPurchase(userId!, purchase, { guest: "1", guest_email: email });
+  });
