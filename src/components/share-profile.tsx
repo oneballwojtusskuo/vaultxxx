@@ -1,6 +1,7 @@
+import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
-import { Share2, Copy, ExternalLink } from "lucide-react";
+import { Copy, ExternalLink, Check } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/lib/supabase-browser";
@@ -13,26 +14,42 @@ async function copy(url: string) {
     await navigator.clipboard.writeText(url);
     toast.success("Skopiowano link do profilu — wklej go w bio na Instagramie");
   } catch {
-    toast.error("Nie udało się skopiować. Link: " + url);
+    try {
+      const ta = document.createElement("textarea");
+      ta.value = url;
+      ta.style.position = "fixed";
+      ta.style.opacity = "0";
+      document.body.appendChild(ta);
+      ta.select();
+      document.execCommand("copy");
+      document.body.removeChild(ta);
+      toast.success("Skopiowano link do profilu — wklej go w bio na Instagramie");
+    } catch {
+      toast.error("Nie udało się skopiować. Link: " + url);
+    }
   }
 }
 
-export function ShareProfileButton({ username, name }: { username: string; name: string }) {
+export function CopyProfileLinkButton({
+  username,
+  variant = "outline",
+}: {
+  username: string;
+  variant?: "outline" | "default";
+}) {
   const url = profileUrl(username);
-  const share = async () => {
-    if (typeof navigator !== "undefined" && navigator.share) {
-      try {
-        await navigator.share({ title: `${name} na vlnd`, text: `Zobacz materiały ${name} na vlnd`, url });
-        return;
-      } catch (e: any) {
-        if (e?.name === "AbortError") return;
-      }
-    }
-    copy(url);
+  const [done, setDone] = useState(false);
+
+  const onCopy = async () => {
+    await copy(url);
+    setDone(true);
+    window.setTimeout(() => setDone(false), 2000);
   };
+
   return (
-    <Button variant="outline" onClick={share}>
-      <Share2 className="h-4 w-4 mr-2" /> Udostępnij
+    <Button variant={variant} onClick={onCopy}>
+      {done ? <Check className="h-4 w-4 mr-2" /> : <Copy className="h-4 w-4 mr-2" />}
+      {done ? "Skopiowano" : "Kopiuj link"}
     </Button>
   );
 }
@@ -56,10 +73,7 @@ export function MyProfileLinkCard({ userId }: { userId: string }) {
         <p className="mt-2 font-mono text-sm truncate">{url.replace("https://", "")}</p>
       </div>
       <div className="flex gap-2 flex-wrap">
-        <Button onClick={() => copy(url)} className="bg-gradient-primary text-primary-foreground">
-          <Copy className="h-4 w-4 mr-2" /> Kopiuj link
-        </Button>
-        <ShareProfileButton username={username} name={username} />
+        <CopyProfileLinkButton username={username} variant="default" />
         <Link to="/u/$username" params={{ username }}>
           <Button variant="ghost"><ExternalLink className="h-4 w-4 mr-2" /> Podgląd</Button>
         </Link>
