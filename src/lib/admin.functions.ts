@@ -175,12 +175,6 @@ export const getAdminProductFileUrl = createServerFn({ method: "POST" })
       .eq("id", data.productId)
       .maybeSingle();
     if (error) throw error;
-    if ((product as any)?.malware_scan_status === "infected") {
-      throw new Response(
-        "Plik zablokowany przez skan bezpieczeństwa — pobieranie jest niedozwolone.",
-        { status: 423 },
-      );
-    }
 
     const paths: string[] = Array.from(
       new Set(

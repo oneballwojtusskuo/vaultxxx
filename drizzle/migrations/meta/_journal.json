@@ -113,6 +113,13 @@
       "when": 1794694559987,
       "tag": "0015_fix_recursive_admin_check",
       "breakpoints": true
+    },
+    {
+      "idx": 16,
+      "version": "7",
+      "when": 1794838468056,
+      "tag": "0016_remove_auto_scan_publish_block",
+      "breakpoints": true
     }
   ]
 }

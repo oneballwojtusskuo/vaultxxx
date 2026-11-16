@@ -232,23 +232,6 @@ function AdminPage() {
                               >
                                 {p.status}
                               </Badge>
-                              <Badge
-                                variant={
-                                  p.malware_scan_status === "infected"
-                                    ? "destructive"
-                                    : p.malware_scan_status === "clean"
-                                      ? "default"
-                                      : "secondary"
-                                }
-                              >
-                                {p.malware_scan_status === "infected"
-                                  ? "Skan: zagrożenie"
-                                  : p.malware_scan_status === "clean"
-                                    ? "Skan: czysty"
-                                    : p.malware_scan_status === "suspicious"
-                                      ? "Skan: podejrzany"
-                                      : "Skan: oczekuje"}
-                              </Badge>
                             </div>
                           </div>
                           {p.description && (
@@ -274,7 +257,7 @@ function AdminPage() {
                                 <FileText className="h-3 w-3" /> Próbka
                               </a>
                             )}
-                            {p.has_file && p.malware_scan_status !== "infected" && (
+                            {p.has_file && (
                               <button
                                 onClick={() => signFile(p.id)}
                                 className="inline-flex items-center gap-1 px-2 py-1 rounded border border-border hover:border-primary/50"
@@ -283,20 +266,6 @@ function AdminPage() {
                               </button>
                             )}
                           </div>
-                          {p.malware_scan_status === "infected" && (
-                            <p className="text-xs mt-3 rounded-md border border-destructive/40 bg-destructive/10 text-destructive p-2">
-                              <span className="font-semibold">
-                                Plik zablokowany przez skan bezpieczeństwa — pobieranie wyłączone.
-                              </span>{" "}
-                              {p.malware_scan_notes}
-                            </p>
-                          )}
-                          {p.malware_scan_status === "suspicious" && p.malware_scan_notes && (
-                            <p className="text-xs mt-3 rounded-md border border-border bg-muted/40 p-2">
-                              <span className="font-semibold">Ostrzeżenia skanu:</span>{" "}
-                              {p.malware_scan_notes}
-                            </p>
-                          )}
                           {p.review_notes && (
                             <p className="text-xs mt-2 text-muted-foreground">
                               <span className="font-semibold">Notatka:</span> {p.review_notes}
