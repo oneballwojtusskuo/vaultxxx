@@ -82,7 +82,9 @@ function Dashboard() {
   });
 
   const purchases = txData?.purchases;
-  const sales = txData?.sales?.filter((t: any) => t.source !== "exchange");
+  const sales = txData?.sales?.filter(
+    (t: any) => t.source !== "exchange" && t.status !== "pending" && t.status !== "failed",
+  );
   const affiliateEarnings = txData?.affiliate;
   const affiliateTotal =
     affiliateEarnings?.reduce(
