@@ -11,6 +11,7 @@ import { MessageSquare, Users } from "lucide-react";
 import { useAuth } from "@/hooks/use-auth";
 import { RatingSummary, SellerReviews } from "@/components/reviews";
 import { Badge } from "@/components/ui/badge";
+import { ShareProfileButton } from "@/components/share-profile";
 
 export const Route = createFileRoute("/u/$username")({
   staticData: { sitemap: false },
@@ -149,6 +150,7 @@ function Profile() {
             </div>
             <div className="flex gap-2 flex-wrap">
               <FollowButton targetUserId={profile.id!} />
+              {profile.username && <ShareProfileButton username={profile.username} name={name} />}
               {user && user.id !== profile.id! && (
                 <Button
                   variant="outline"

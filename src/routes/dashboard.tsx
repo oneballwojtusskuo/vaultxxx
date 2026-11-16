@@ -28,6 +28,7 @@ import {
   Award,
 } from "lucide-react";
 import { toast } from "sonner";
+import { MyProfileLinkCard } from "@/components/share-profile";
 import { generateLicensePdf } from "@/lib/license-pdf";
 import { ProfileEditor } from "@/components/profile-editor";
 import { getMyDac7Status } from "@/lib/dac7.functions";
@@ -223,6 +224,7 @@ function Dashboard() {
             </Link>
           </div>
         </div>
+        <MyProfileLinkCard userId={user.id} />
 
         <div className="grid md:grid-cols-4 gap-4 mt-8">
           <Stat label="Moje produkty" value={myProducts?.length ?? 0} />
