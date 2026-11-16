@@ -32,23 +32,34 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setLoading(false);
 
       if (event === "SIGNED_IN" && typeof window !== "undefined") {
-        // Clean OAuth/confirmation tokens from URL and land on home
+        // Clean auth tokens while preserving a guest buyer's product return URL.
         if (
           window.location.hash.includes("access_token") ||
           window.location.search.includes("code=")
         ) {
           const isSignupConfirm = window.location.hash.includes("type=signup");
-          if (isSignupConfirm) {
+          const isCheckoutReturn = new URLSearchParams(window.location.search).get("buy") === "1";
+          if (isSignupConfirm && !isCheckoutReturn) {
             sessionStorage.setItem("vlnd:confirm-tab", "1");
             window.dispatchEvent(new Event("vlnd:confirm-tab"));
             toast.success(
               "Dziękujemy! Adres e-mail potwierdzony. Wróć do karty, w której zakładałeś konto — tam ustawisz nazwę użytkownika.",
               { duration: 15000 },
             );
+            window.history.replaceState({}, "", "/");
           } else {
-            toast.success("Dziękujemy! Adres e-mail potwierdzony — dokończ konfigurację konta.");
+            toast.success(
+              isCheckoutReturn
+                ? "Adres e-mail potwierdzony — możesz dokończyć zakup."
+                : "Dziękujemy! Adres e-mail potwierdzony — dokończ konfigurację konta.",
+            );
+            const cleanUrl = new URL(window.location.href);
+            cleanUrl.searchParams.delete("code");
+            cleanUrl.searchParams.delete("token_hash");
+            cleanUrl.searchParams.delete("type");
+            cleanUrl.hash = "";
+            window.history.replaceState({}, "", cleanUrl.pathname + cleanUrl.search);
           }
-          window.history.replaceState({}, "", "/");
         }
       }
     });

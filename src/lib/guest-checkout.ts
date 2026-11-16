@@ -4,7 +4,7 @@ type GuestOtpAuth = {
     options: {
       emailRedirectTo: string;
       shouldCreateUser: true;
-      data: { age_consent_accepted: true };
+      data: { age_consent_accepted: true; passwordless_checkout: "true" };
     };
   }) => Promise<{ error: { message: string } | null }>;
 };
@@ -30,9 +30,18 @@ export async function requestGuestLoginLink(
     options: {
       emailRedirectTo: returnUrl.toString(),
       shouldCreateUser: true,
-      data: { age_consent_accepted: true },
+      data: { age_consent_accepted: true, passwordless_checkout: "true" },
     },
   });
 
   if (error) throw error;
+}
+
+/** Passwordless buyers purchase first; a public creator profile is required when selling. */
+export function shouldDeferOnboardingForBuyer(
+  userMetadata: unknown,
+  pathname: string,
+): boolean {
+  if (pathname === "/sell" || !userMetadata || typeof userMetadata !== "object") return false;
+  return (userMetadata as Record<string, unknown>).passwordless_checkout === "true";
 }

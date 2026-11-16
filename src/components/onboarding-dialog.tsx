@@ -19,13 +19,17 @@ import { useServerFn } from "@tanstack/react-start";
 import { validateUploadedFile } from "@/lib/upload-validate.functions";
 import { uploadAvatarFile } from "@/lib/avatar-upload";
 import { notifyAdminSignup } from "@/lib/admin-notify.functions";
+import { shouldDeferOnboardingForBuyer } from "@/lib/guest-checkout";
+import { useRouterState } from "@tanstack/react-router";
 
 /**
- * Shown right after account creation: the user must pick a username,
- * optionally an avatar and a bio.
+ * Shown after standard registration or when a passwordless buyer starts selling.
+ * Buying itself never requires configuring a public creator profile.
  */
 export function OnboardingDialog() {
   const { user, loading } = useAuth();
+  const pathname = useRouterState({ select: (state) => state.location.pathname });
+  const deferForPasswordlessBuyer = shouldDeferOnboardingForBuyer(user?.user_metadata, pathname);
   const [open, setOpen] = useState(false);
   const [username, setUsername] = useState("");
   const [displayName, setDisplayName] = useState("");
@@ -48,7 +52,7 @@ export function OnboardingDialog() {
   }, []);
 
   useEffect(() => {
-    if (loading || !user || confirmTab) {
+    if (loading || !user || confirmTab || deferForPasswordlessBuyer) {
       setOpen(false);
       return;
     }
@@ -69,7 +73,7 @@ export function OnboardingDialog() {
     return () => {
       cancelled = true;
     };
-  }, [user, loading, confirmTab]);
+  }, [user, loading, confirmTab, deferForPasswordlessBuyer]);
 
   const uploadAvatar = async (file: File) => {
     if (!user) return;

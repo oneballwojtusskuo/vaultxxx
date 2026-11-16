@@ -56,5 +56,5 @@
 - [x] Verify the revised terms and prepare the creator message.
 
 # Automatic guest account creation
-- [ ] Replace manual-signup redirection with automatic passwordless account creation from the guest email.
-- [ ] Return the verified buyer to the same product and test the complete guest entry flow.
+- [x] Replace manual-signup redirection with automatic passwordless account creation from the guest email.
+- [x] Return the verified buyer to the same product and test the complete guest entry flow.
