@@ -35,11 +35,13 @@ function Notifications() {
   const { data: notifications, refetch } = useQuery({
     queryKey: ["notifications-all", user?.id],
     enabled: !!user,
+    refetchInterval: 15000,
     queryFn: async () => {
+      if (!user) return [];
       const { data } = await supabase
         .from("notifications")
         .select("*")
-        .eq("user_id", user!.id)
+        .eq("user_id", user.id)
         .order("created_at", { ascending: false })
         .limit(100);
       return data ?? [];

@@ -15,3 +15,4 @@
 - RLS administrator checks delegate to the caller-scoped security-definer has_role function; never read user_roles through an invoker function used by that table's policies, because it recurses.
 - Listing edits reuse the sell form with an edit identifier; owner-scoped server actions allowlist editable fields, preserve slugs, retain existing uploads, and requeue changed content for moderation.
 - Product metadata and JSON-LD share a browser-safe product-seo helper fed by public product and public_creator_profiles reads; this keeps SSR previews consistent without exposing private seller data.
+- Admin sale notifications use a separate transaction trigger on confirmed live paid purchases, with a unique recipient/transaction index; this preserves seller alerts and prevents webhook retries or escrow release from duplicating admin alerts.
