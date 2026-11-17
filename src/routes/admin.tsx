@@ -9,6 +9,8 @@ import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { ChargebackPanel } from "@/components/chargeback-panel";
+import { AdminPaymentsPanel } from "@/components/admin-payments-panel";
+import { CreditCard } from "lucide-react";
 import { useAuth } from "@/hooks/use-auth";
 import { toast } from "sonner";
 import {
@@ -141,9 +143,12 @@ function AdminPage() {
 
         {
           <Tabs defaultValue="products" className="mt-6">
-            <TabsList>
+            <TabsList className="flex-wrap h-auto">
               <TabsTrigger value="products">
                 <ShieldCheck className="h-4 w-4 mr-1.5" /> Produkty
+              </TabsTrigger>
+              <TabsTrigger value="payments">
+                <CreditCard className="h-4 w-4 mr-1.5" /> Płatności
               </TabsTrigger>
               <TabsTrigger value="reports">
                 <Flag className="h-4 w-4 mr-1.5" /> Zgłoszenia
@@ -314,6 +319,10 @@ function AdminPage() {
                   ))
                 )}
               </div>
+            </TabsContent>
+
+            <TabsContent value="payments">
+              <AdminPaymentsPanel />
             </TabsContent>
 
             <TabsContent value="reports">
