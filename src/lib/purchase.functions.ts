@@ -347,8 +347,9 @@ const GuestInputSchema = InputSchema.extend({
 
 /**
  * Guest checkout: no registration and no email confirmation before paying.
- * The purchase is attached to the account for this email (created silently if new).
- * No session is returned — the buyer signs in via the emailed link to download.
+ * New emails get a silent account plus a one-time claim token (only its hash is stored),
+ * which lets this browser set a password and username right after paying.
+ * Emails that already have an account must sign in instead.
  */
 export const purchaseAsGuest = createServerFn({ method: "POST" })
   .inputValidator((input) => GuestInputSchema.parse(input))
@@ -358,18 +359,18 @@ export const purchaseAsGuest = createServerFn({ method: "POST" })
     const { data: existingId } = await (supabaseAdmin as any).rpc("find_user_id_by_email", {
       _email: email,
     });
-    let userId = existingId as string | null;
-    if (!userId) {
-      const { data: created, error } = await supabaseAdmin.auth.admin.createUser({
-        email,
-        email_confirm: false,
-        user_metadata: { age_consent_accepted: true, passwordless_checkout: "true" },
-      });
-      if (error || !created.user) {
-        const { data: again } = await (supabaseAdmin as any).rpc("find_user_id_by_email", { _email: email });
-        if (!again) throw new Response("Nie udało się przygotować zakupu.", { status: 500 });
-        userId = again as string;
-      } else userId = created.user.id;
-    }
-    return runPurchase(userId!, purchase, { guest: "1", guest_email: email });
+    if (existingId) return { status: "needs_login" as const };
+    const bytes = new Uint8Array(32);
+    crypto.getRandomValues(bytes);
+    const claimToken = Array.from(bytes, (b) => b.toString(16).padStart(2, "0")).join("");
+    const { hashClaimToken } = await import("./guest-claim");
+    const { data: created, error } = await supabaseAdmin.auth.admin.createUser({
+      email,
+      email_confirm: false,
+      user_metadata: { age_consent_accepted: true, passwordless_checkout: "true" },
+      app_metadata: { guest_claim_hash: await hashClaimToken(claimToken) },
+    });
+    if (error || !created.user) return { status: "needs_login" as const };
+    const result = await runPurchase(created.user.id, purchase, { guest: "1", guest_email: email });
+    return { ...result, claimToken };
   });

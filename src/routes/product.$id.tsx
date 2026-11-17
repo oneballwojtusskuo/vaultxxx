@@ -57,7 +57,7 @@ import { ReportDialog } from "@/components/report-dialog";
 import { VerifiedBadge } from "@/components/verified-badge";
 import { getSecureStreamUrl } from "@/lib/secure-stream.functions";
 import { purchaseProduct, purchaseAsGuest } from "@/lib/purchase.functions";
-import { requestGuestLoginLink } from "@/lib/guest-checkout";
+import { claimGuestAccount } from "@/lib/guest-account.functions";
 import { Input } from "@/components/ui/input";
 import { getProductDetails } from "@/lib/product.functions";
 import { generateLicensePdf } from "@/lib/license-pdf";
@@ -114,7 +114,11 @@ function ProductPage() {
   const [guestEmail, setGuestEmail] = useState("");
   const [guestAge, setGuestAge] = useState(false);
   const [guestAuthLoading, setGuestAuthLoading] = useState(false);
-  const [guestEmailSent, setGuestEmailSent] = useState(false);
+  const [guestNeedsLogin, setGuestNeedsLogin] = useState(false);
+  const claimFn = useServerFn(claimGuestAccount);
+  const [claimUser, setClaimUser] = useState("");
+  const [claimPass, setClaimPass] = useState("");
+  const [claiming, setClaiming] = useState(false);
 
   const {
     data: p,
@@ -195,12 +199,26 @@ function ProductPage() {
   const [acceptWithdrawal, setAcceptWithdrawal] = useState(false);
   const [payMethod, setPayMethod] = useState<PaymentMethod>("blik");
 
-  const sendGuestAccessLink = async (email: string) => {
+  const claimAccount = async () => {
+    const email = guestDoneEmail;
+    const claimToken = sessionStorage.getItem("vlnd_guest_claim");
+    if (!email || !claimToken) return toast.error("Zaloguj się, aby pobrać plik.");
+    if (claimPass.length < 8) return toast.error("Hasło musi mieć min. 8 znaków.");
+    setClaiming(true);
     try {
-      await requestGuestLoginLink(supabase.auth, email, window.location.origin, window.location.pathname);
-      setGuestEmailSent(true);
+      const res = await claimFn({ data: { email, claimToken, username: claimUser.trim().toLowerCase(), password: claimPass } });
+      if (!res.ok) return toast.error(res.error);
+      const { error: signErr } = await supabase.auth.signInWithPassword({ email, password: claimPass });
+      if (signErr) return toast.error(signErr.message);
+      sessionStorage.removeItem("vlnd_guest_claim");
+      sessionStorage.removeItem("vlnd_guest_email");
+      setGuestDoneEmail(null);
+      toast.success("Konto gotowe — możesz pobrać plik.");
+      void refetchTx();
     } catch (e: any) {
-      toast.error(e?.message ?? "Nie udało się wysłać linku. Spróbuj ponownie.");
+      toast.error(e?.message ?? "Nie udało się zapisać. Spróbuj ponownie.");
+    } finally {
+      setClaiming(false);
     }
   };
 
@@ -214,10 +232,7 @@ function ProductPage() {
       params.delete("guest");
       if (guestSession) {
         const email = sessionStorage.getItem("vlnd_guest_email");
-        if (email) {
-          setGuestDoneEmail(email);
-          void sendGuestAccessLink(email);
-        }
+        if (email) setGuestDoneEmail(email);
       }
       params.delete("checkout");
       params.delete("session_id");
@@ -314,8 +329,13 @@ function ProductPage() {
           })(),
         },
       });
+      if ("status" in res && res.status === "needs_login") {
+        setGuestNeedsLogin(true);
+        return toast.error("Na ten adres masz już konto na vlnd. Zaloguj się, aby kupić.");
+      }
       if ("error" in res && res.error) return toast.error(res.error);
       sessionStorage.setItem("vlnd_guest_email", email);
+      if ("claimToken" in res && res.claimToken) sessionStorage.setItem("vlnd_guest_claim", res.claimToken);
       if ("clientSecret" in res && res.clientSecret) {
         setCheckoutSecret(res.clientSecret);
         setCheckoutOpen(true);
@@ -323,7 +343,6 @@ function ProductPage() {
         // Free product or already owned — access is ready on the account.
         clearReferralCookie(p.id);
         setGuestDoneEmail(email);
-        void sendGuestAccessLink(email);
       }
     } catch (e: any) {
       toast.error(e?.message ?? "Nie udało się rozpocząć zakupu. Spróbuj ponownie.");
@@ -616,16 +635,28 @@ function ProductPage() {
                         value={guestEmail}
                         onChange={(e) => {
                           setGuestEmail(e.target.value);
-                          setGuestEmailSent(false);
+                          setGuestNeedsLogin(false);
                         }}
                         maxLength={255}
                         autoComplete="email"
                         className="h-11"
                       />
                       <p className="text-xs text-muted-foreground">
-                        Bez rejestracji — od razu przejdziesz do płatności. Zakup przypiszemy do
-                        tego adresu, a plik pobierzesz na vlnd.pl.
+                        Bez rejestracji — od razu przejdziesz do płatności. Po zakupie ustawisz
+                        hasło i pobierzesz plik na vlnd.pl.
                       </p>
+                      {guestNeedsLogin && (
+                        <p className="text-sm text-destructive">
+                          Na ten adres masz już konto.{" "}
+                          <Link
+                            to="/auth"
+                            search={{ next: `/product/${productUrlKey(seo ?? p)}?buy=1` } as any}
+                            className="underline font-medium"
+                          >
+                            Zaloguj się, aby kupić
+                          </Link>
+                        </p>
+                      )}
                     </div>
                   )}
                   <PurchaseConsents
@@ -767,13 +798,17 @@ function ProductPage() {
             <GuestDoneHeader>
               <GuestDoneTitle>Gotowe — produkt jest Twój 🎉</GuestDoneTitle>
               <GuestDoneDesc>
-                Zakup przypisaliśmy do <strong>{guestDoneEmail}</strong>. Wysłaliśmy tam link — kliknij go,
-                ustaw hasło i nazwę użytkownika, a potem pobierz plik z tej strony.
+                Zakup przypisaliśmy do <strong>{guestDoneEmail}</strong>. Ustaw nazwę użytkownika i
+                hasło, żeby od razu pobrać plik.
               </GuestDoneDesc>
             </GuestDoneHeader>
-            <Button variant="outline" onClick={() => guestDoneEmail && sendGuestAccessLink(guestDoneEmail).then(() => toast.success("Wysłano ponownie."))}>
-              Wyślij link ponownie
-            </Button>
+            <div className="space-y-3">
+              <Input placeholder="Nazwa użytkownika" value={claimUser} onChange={(e) => setClaimUser(e.target.value)} maxLength={30} autoComplete="username" />
+              <Input type="password" placeholder="Hasło (min. 8 znaków)" value={claimPass} onChange={(e) => setClaimPass(e.target.value)} maxLength={72} autoComplete="new-password" />
+              <Button className="w-full" onClick={claimAccount} disabled={claiming || !claimUser || !claimPass}>
+                {claiming && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}Zapisz i pobierz plik
+              </Button>
+            </div>
           </GuestDoneContent>
         </GuestDoneDialog>
         <CheckoutDialog
