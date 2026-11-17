@@ -36,7 +36,7 @@ export const getProductDetails = createServerFn({ method: "GET" })
     let { data: product, error } = await supabaseAdmin
       .from("products")
       .select(
-        "id, seller_id, category_id, title, description, price, previous_price, lowest_price_before_reduction, price_history_started_at, reduction_reference_since, currency, preview_url, sample_url, tags, status, is_tradable, license_terms, downloads_count, affiliate_commission_pct, created_at, updated_at, custom_category",
+        "id, seller_id, category_id, title, description, price, currency, preview_url, sample_url, tags, status, is_tradable, license_terms, downloads_count, affiliate_commission_pct, created_at, updated_at, custom_category",
       )
       .eq(isProductId(data.productId) ? "id" : "slug", data.productId)
       .maybeSingle();
@@ -45,7 +45,7 @@ export const getProductDetails = createServerFn({ method: "GET" })
       const fallback = await supabaseAdmin
         .from("products")
         .select(
-          "id, seller_id, category_id, title, description, price, previous_price, lowest_price_before_reduction, price_history_started_at, reduction_reference_since, currency, preview_url, tags, status, is_tradable, downloads_count, created_at, updated_at",
+          "id, seller_id, category_id, title, description, price, currency, preview_url, tags, status, is_tradable, downloads_count, created_at, updated_at",
         )
         .eq(isProductId(data.productId) ? "id" : "slug", data.productId)
         .maybeSingle();

@@ -69,7 +69,6 @@ import { getStripeEnvironment } from "@/lib/stripe";
 import { buyerPriceOf, formatPrice, PAYMENT_FEES, PAYMENT_METHODS, type PaymentMethod } from "@/lib/pricing";
 import { EscrowActions } from "@/components/escrow-actions";
 import { BackLink } from "@/components/back-link";
-import { ProductPrice } from "@/components/product-price";
 import JSZip from "jszip";
 
 export const Route = createFileRoute("/product/$id")({
@@ -533,13 +532,16 @@ function ProductPage() {
                 <RatingSummary sellerId={p.seller_id} />
               </div>
 
-              {(myTransaction || isOwner) && (
-                <div className="mt-6"><ProductPrice product={p} size="large" /></div>
-              )}
-
               {!myTransaction && !isOwner && (
                 <>
-                  <div className="mt-6"><ProductPrice product={p} size="large" /></div>
+                  <div className="mt-6 flex items-baseline gap-3">
+                    <span className="text-5xl font-bold text-gradient">
+                      {Number(p.price) === 0 ? "Bezpłatny" : Number(p.price).toFixed(2).replace(".", ",")}
+                    </span>
+                    {Number(p.price) > 0 && (
+                      <span className="text-muted-foreground">{p.currency}</span>
+                    )}
+                  </div>
                   {Number(p.price) > 0 && (
                     <p className="mt-1 text-sm text-muted-foreground">
                       ~{formatPrice(buyerPriceOf(p.price, payMethod), p.currency)} z opłatą transakcyjną

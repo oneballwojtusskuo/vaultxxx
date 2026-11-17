@@ -60,6 +60,5 @@
 - [x] Return the verified buyer to the same product and test the complete guest entry flow.
 
 # Product price reductions
-- [ ] Record price history and protect reference prices against seller manipulation.
-- [ ] Show old and new prices on product cards and product pages with truthful lowest-price context.
-- [ ] Test reductions, repeated changes and public display.
+- [x] Undo price-reduction display and tracking at the user's request, preserving guest checkout.
+- [x] Verify original prices and unchanged guest checkout (10 rule tests; catalogue/product browser check without ordering).
