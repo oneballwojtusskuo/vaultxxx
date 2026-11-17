@@ -2,6 +2,8 @@ import { createServerFn } from "@tanstack/react-start";
 import { createClient } from "@supabase/supabase-js";
 import { z } from "zod";
 import { isProductId } from "@/lib/product-links";
+import type { ProductSeo } from "@/lib/product-seo";
+export type { ProductSeo } from "@/lib/product-seo";
 
 function publicClient() {
   const url = process.env.SUPABASE_URL!;
@@ -17,16 +19,6 @@ function publicClient() {
   });
 }
 
-export type ProductSeo = {
-  id: string;
-  slug: string;
-  title: string;
-  description: string | null;
-  price: number;
-  currency: string;
-  preview_url: string | null;
-};
-
 /** Public SEO data for a published product (anon-readable rows only). */
 export const getProductSeo = createServerFn({ method: "GET" })
   .inputValidator((input) => z.object({ id: z.string().min(1).max(120).regex(/^[a-zA-Z0-9-]+$/) }).parse(input))
@@ -34,12 +26,20 @@ export const getProductSeo = createServerFn({ method: "GET" })
     try {
       const { data: row, error } = await publicClient()
         .from("products")
-        .select("id, slug, title, description, price, currency, preview_url")
+        .select("id, slug, title, description, price, currency, preview_url, seller_id")
         .eq(isProductId(data.id) ? "id" : "slug", data.id)
         .eq("status", "published")
         .maybeSingle();
       if (error) console.error("[seo]", error.message);
-      return (row as ProductSeo) ?? null;
+      if (!row) return null;
+      const { data: seller, error: sellerError } = await publicClient()
+        .from("public_creator_profiles")
+        .select("username, display_name")
+        .eq("id", row.seller_id)
+        .maybeSingle();
+      if (sellerError) throw sellerError;
+      const { seller_id: _sellerId, ...product } = row;
+      return { ...product, seller } as ProductSeo;
     } catch (e) {
       console.error("[seo]", e);
       return null;

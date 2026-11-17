@@ -1,4 +1,5 @@
 import { getProductSeo } from "@/lib/seo.functions";
+import { buildProductSeo } from "@/lib/product-seo";
 import { createFileRoute, Link, useNavigate, redirect } from "@tanstack/react-router";
 import { productShareUrl, productUrlKey } from "@/lib/product-links";
 import { useQuery } from "@tanstack/react-query";
@@ -96,50 +97,7 @@ export const Route = createFileRoute("/product/$id")({
         ],
       };
     }
-    const clean = (p.description ?? "").replace(/\s+/g, " ").trim();
-    const price = Number(p.price) === 0 ? "Za darmo" : `${Number(p.price).toFixed(2)} ${p.currency}`;
-    const desc = (clean ? clean.slice(0, 140) + (clean.length > 140 ? "…" : "") + " " : "") + `${price} na vlnd.`;
-    const title = `${p.title.slice(0, 55)} — vlnd`;
-    const img = p.preview_url && p.preview_url.startsWith("https://") ? p.preview_url : null;
-    return {
-      meta: [
-        { title },
-        { name: "description", content: desc },
-        { property: "og:title", content: title },
-        { property: "og:description", content: desc },
-        { property: "og:type", content: "product" },
-        { property: "og:url", content: url },
-        { name: "twitter:card", content: img ? "summary_large_image" : "summary" },
-        { name: "twitter:title", content: title },
-        { name: "twitter:description", content: desc },
-        ...(img
-          ? [
-              { property: "og:image", content: img },
-              { name: "twitter:image", content: img },
-            ]
-          : []),
-      ],
-      links: [{ rel: "canonical", href: url }],
-      scripts: [
-        {
-          type: "application/ld+json",
-          children: JSON.stringify({
-            "@context": "https://schema.org",
-            "@type": "Product",
-            name: p.title,
-            description: clean || undefined,
-            image: img ?? undefined,
-            url,
-            offers: {
-              "@type": "Offer",
-              price: Number(p.price).toFixed(2),
-              priceCurrency: p.currency,
-              availability: "https://schema.org/InStock",
-            },
-          }),
-        },
-      ],
-    };
+    return buildProductSeo(p);
   },
   component: ProductPage,
 });

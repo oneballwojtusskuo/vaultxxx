@@ -62,3 +62,7 @@
 # Product price reductions
 - [x] Undo price-reduction display and tracking at the user's request, preserving guest checkout.
 - [x] Verify original prices and unchanged guest checkout (10 rule tests; catalogue/product browser check without ordering).
+
+# Product SEO audit
+- [x] Align product titles and descriptions; include public seller information in Product structured data.
+- [x] Verify public product metadata, all 14 published sitemap entries and robots rules, retaining page-specific updated_at lastmod values (9 tests and server HTML checks).
