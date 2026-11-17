@@ -105,7 +105,14 @@ function Browse() {
           return !normalized || normalized.split(/\s+/).every((token) => haystack.includes(token));
         });
       }
+      const ids = (rows ?? []).map((r: any) => r.id);
+      const summaries = ids.length ? await supabase.from("products")
+        .select("id,previous_price,lowest_price_before_reduction,price_history_started_at,reduction_reference_since")
+        .in("id", ids) : { data: [], error: null };
+      if (summaries.error) throw summaries.error;
+      const priceSummaries = new Map((summaries.data ?? []).map((r) => [r.id, r]));
       return (rows ?? []).map((r: any) => ({
+        ...priceSummaries.get(r.id),
         id: r.id,
         slug: r.slug,
         title: r.title,

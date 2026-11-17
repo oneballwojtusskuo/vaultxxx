@@ -3,8 +3,10 @@ import { Download, Repeat2, FileText } from "lucide-react";
 import { LikeButton } from "@/components/like-button";
 import { minBuyerPriceOf, formatPrice } from "@/lib/pricing";
 import { productUrlKey } from "@/lib/product-links";
+import { ProductPrice } from "@/components/product-price";
+import type { PriceReductionData } from "@/lib/price-reductions";
 
-export interface ProductCardData {
+export interface ProductCardData extends PriceReductionData {
   id: string;
   slug?: string | null;
   title: string;
@@ -51,9 +53,7 @@ export function ProductCard({ p }: { p: ProductCardData }) {
         )}
         <h3 className="mt-2 min-h-12 font-display text-base font-semibold line-clamp-2 leading-6">{p.title}</h3>
         <div className="mt-3 flex flex-wrap gap-2 items-center justify-between">
-          <span className="text-lg font-bold text-foreground">
-            {Number(p.price) === 0 ? "Bezpłatny" : formatPrice(p.price, p.currency)}
-          </span>
+          <ProductPrice product={p} />
           <span className="inline-flex items-center gap-1 text-xs text-muted-foreground">
             <Download className="h-3 w-3" /> {p.downloads_count}
           </span>

@@ -519,6 +519,41 @@ export type Database = {
           },
         ]
       }
+      product_price_history: {
+        Row: {
+          currency: string
+          ended_at: string | null
+          id: string
+          price: number
+          product_id: string
+          started_at: string
+        }
+        Insert: {
+          currency: string
+          ended_at?: string | null
+          id?: string
+          price: number
+          product_id: string
+          started_at: string
+        }
+        Update: {
+          currency?: string
+          ended_at?: string | null
+          id?: string
+          price?: number
+          product_id?: string
+          started_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "product_price_history_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       products: {
         Row: {
           affiliate_commission_pct: number
@@ -535,11 +570,15 @@ export type Database = {
           id: string
           is_tradable: boolean
           license_terms: Json
+          lowest_price_before_reduction: number | null
           malware_scan_notes: string | null
           malware_scan_status: string
           malware_scanned_at: string | null
           preview_url: string | null
+          previous_price: number | null
           price: number
+          price_history_started_at: string
+          reduction_reference_since: string | null
           review_notes: string | null
           reviewed_at: string | null
           reviewed_by: string | null
@@ -566,11 +605,15 @@ export type Database = {
           id?: string
           is_tradable?: boolean
           license_terms?: Json
+          lowest_price_before_reduction?: number | null
           malware_scan_notes?: string | null
           malware_scan_status?: string
           malware_scanned_at?: string | null
           preview_url?: string | null
+          previous_price?: number | null
           price?: number
+          price_history_started_at?: string
+          reduction_reference_since?: string | null
           review_notes?: string | null
           reviewed_at?: string | null
           reviewed_by?: string | null
@@ -597,11 +640,15 @@ export type Database = {
           id?: string
           is_tradable?: boolean
           license_terms?: Json
+          lowest_price_before_reduction?: number | null
           malware_scan_notes?: string | null
           malware_scan_status?: string
           malware_scanned_at?: string | null
           preview_url?: string | null
+          previous_price?: number | null
           price?: number
+          price_history_started_at?: string
+          reduction_reference_since?: string | null
           review_notes?: string | null
           reviewed_at?: string | null
           reviewed_by?: string | null

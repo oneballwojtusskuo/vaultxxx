@@ -76,7 +76,7 @@ function Profile() {
       const { data } = await supabase
         .from("products")
         .select(
-          "id,title,price,currency,preview_url,is_tradable,downloads_count, category:categories(name,icon)",
+          "id,title,price,previous_price,lowest_price_before_reduction,price_history_started_at,reduction_reference_since,currency,preview_url,is_tradable,downloads_count, category:categories(name,icon)",
         )
         .eq("seller_id", profile!.id!)
         .eq("status", "published")

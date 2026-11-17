@@ -37,7 +37,7 @@ function Likes() {
       const { data } = await supabase
         .from("product_likes")
         .select(
-          "created_at, product:products(id,title,price,currency,preview_url,is_tradable,downloads_count,status, category:categories(name,icon))",
+          "created_at, product:products(id,title,price,previous_price,lowest_price_before_reduction,price_history_started_at,reduction_reference_since,currency,preview_url,is_tradable,downloads_count,status, category:categories(name,icon))",
         )
         .eq("user_id", user!.id)
         .order("created_at", { ascending: false });

@@ -58,3 +58,8 @@
 # Automatic guest account creation
 - [x] Replace manual-signup redirection with automatic passwordless account creation from the guest email.
 - [x] Return the verified buyer to the same product and test the complete guest entry flow.
+
+# Product price reductions
+- [ ] Record price history and protect reference prices against seller manipulation.
+- [ ] Show old and new prices on product cards and product pages with truthful lowest-price context.
+- [ ] Test reductions, repeated changes and public display.
