@@ -6,6 +6,7 @@ import { createFileRoute } from "@tanstack/react-router";
  * expired and pays out sellers for already-released sales. Idempotent; returns counts only.
  */
 export const Route = createFileRoute("/api/public/escrow/process")({
+  staticData: { sitemap: false },
   server: {
     handlers: {
       POST: async () => {
