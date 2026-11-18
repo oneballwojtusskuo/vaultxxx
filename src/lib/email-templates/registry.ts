@@ -1,4 +1,5 @@
 import { template as adminAlert } from './admin-alert'
+import { template as purchaseDownload } from './purchase-download'
 import type { ComponentType } from 'react'
 
 export interface TemplateEntry {
@@ -20,6 +21,7 @@ export interface TemplateEntry {
  */
 export const TEMPLATES: Record<string, TemplateEntry> = {
   'admin-alert': adminAlert,
+  'purchase-download': purchaseDownload,
   // Add templates here as they are created, e.g.:
   // 'welcome': welcomeTemplate,
 }

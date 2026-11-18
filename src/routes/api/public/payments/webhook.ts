@@ -50,6 +50,31 @@ async function completeTransaction(transactionId: string) {
     }
   }
   // Seller & affiliate notifications are inserted by DB triggers on transactions.
+  await sendDownloadEmail(tx.id, tx.buyer_id, tx.product_id);
+}
+
+/** Emails the buyer a direct, login-free download link. Never blocks fulfillment. */
+async function sendDownloadEmail(transactionId: string, buyerId: string | null, productId: string | null) {
+  try {
+    const secret = process.env.DOWNLOAD_LINK_SECRET;
+    if (!secret || !buyerId) return;
+    const supabase = await getSupabase();
+    const { data: u } = await supabase.auth.admin.getUserById(buyerId);
+    const email = u?.user?.email;
+    if (!email) return;
+    const { data: p } = productId
+      ? await supabase.from("products").select("title").eq("id", productId).maybeSingle()
+      : { data: null };
+    const { createDownloadToken } = await import("@/lib/download-token");
+    const token = await createDownloadToken(secret, transactionId);
+    const { sendTemplateEmail } = await import("@/lib/email-templates/send-email");
+    await sendTemplateEmail("purchase-download", email, {
+      templateData: { productTitle: p?.title ?? undefined, downloadUrl: `https://vlnd.pl/api/public/download?t=${token}` },
+      idempotencyKey: `purchase-download-${transactionId}`,
+    });
+  } catch (e) {
+    console.error("Download email failed:", e);
+  }
 }
 
 async function failTransaction(transactionId: string) {

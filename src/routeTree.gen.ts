@@ -32,6 +32,7 @@ import { Route as PIdRouteImport } from './routes/p.$id'
 import { Route as ProductIdRouteImport } from './routes/product.$id'
 import { Route as SporyTransactionIdRouteImport } from './routes/spory.$transactionId'
 import { Route as UUsernameRouteImport } from './routes/u.$username'
+import { Route as ApiPublicDownloadIndexRouteImport } from './routes/api/public/download/index'
 import { Route as ApiPublicEscrowProcessRouteImport } from './routes/api/public/escrow/process'
 import { Route as ApiPublicPaymentsWebhookRouteImport } from './routes/api/public/payments/webhook'
 import { Route as LovableEmailTransactionalPreviewRouteImport } from './routes/lovable/email/transactional/preview'
@@ -151,6 +152,11 @@ const UUsernameRoute = UUsernameRouteImport.update({
   path: '/u/$username',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiPublicDownloadIndexRoute = ApiPublicDownloadIndexRouteImport.update({
+  id: '/api/public/download/',
+  path: '/api/public/download/',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiPublicEscrowProcessRoute = ApiPublicEscrowProcessRouteImport.update({
   id: '/api/public/escrow/process',
   path: '/api/public/escrow/process',
@@ -196,6 +202,7 @@ export interface FileRoutesByFullPath {
   '/api/public/escrow/process': typeof ApiPublicEscrowProcessRoute
   '/api/public/payments/webhook': typeof ApiPublicPaymentsWebhookRoute
   '/lovable/email/transactional/preview': typeof LovableEmailTransactionalPreviewRoute
+  '/api/public/download/': typeof ApiPublicDownloadIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -224,6 +231,7 @@ export interface FileRoutesByTo {
   '/api/public/escrow/process': typeof ApiPublicEscrowProcessRoute
   '/api/public/payments/webhook': typeof ApiPublicPaymentsWebhookRoute
   '/lovable/email/transactional/preview': typeof LovableEmailTransactionalPreviewRoute
+  '/api/public/download': typeof ApiPublicDownloadIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -253,6 +261,7 @@ export interface FileRoutesById {
   '/api/public/escrow/process': typeof ApiPublicEscrowProcessRoute
   '/api/public/payments/webhook': typeof ApiPublicPaymentsWebhookRoute
   '/lovable/email/transactional/preview': typeof LovableEmailTransactionalPreviewRoute
+  '/api/public/download/': typeof ApiPublicDownloadIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -283,6 +292,7 @@ export interface FileRouteTypes {
     | '/api/public/escrow/process'
     | '/api/public/payments/webhook'
     | '/lovable/email/transactional/preview'
+    | '/api/public/download/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -311,6 +321,7 @@ export interface FileRouteTypes {
     | '/api/public/escrow/process'
     | '/api/public/payments/webhook'
     | '/lovable/email/transactional/preview'
+    | '/api/public/download'
   id:
     | '__root__'
     | '/'
@@ -339,6 +350,7 @@ export interface FileRouteTypes {
     | '/api/public/escrow/process'
     | '/api/public/payments/webhook'
     | '/lovable/email/transactional/preview'
+    | '/api/public/download/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -368,6 +380,7 @@ export interface RootRouteChildren {
   ApiPublicEscrowProcessRoute: typeof ApiPublicEscrowProcessRoute
   ApiPublicPaymentsWebhookRoute: typeof ApiPublicPaymentsWebhookRoute
   LovableEmailTransactionalPreviewRoute: typeof LovableEmailTransactionalPreviewRoute
+  ApiPublicDownloadIndexRoute: typeof ApiPublicDownloadIndexRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -533,6 +546,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof UUsernameRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/download/': {
+      id: '/api/public/download/'
+      path: '/api/public/download'
+      fullPath: '/api/public/download/'
+      preLoaderRoute: typeof ApiPublicDownloadIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/escrow/process': {
       id: '/api/public/escrow/process'
       path: '/api/public/escrow/process'
@@ -584,6 +604,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiPublicEscrowProcessRoute: ApiPublicEscrowProcessRoute,
   ApiPublicPaymentsWebhookRoute: ApiPublicPaymentsWebhookRoute,
   LovableEmailTransactionalPreviewRoute: LovableEmailTransactionalPreviewRoute,
+  ApiPublicDownloadIndexRoute: ApiPublicDownloadIndexRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
