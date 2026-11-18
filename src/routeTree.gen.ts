@@ -32,6 +32,7 @@ import { Route as PIdRouteImport } from './routes/p.$id'
 import { Route as ProductIdRouteImport } from './routes/product.$id'
 import { Route as SporyTransactionIdRouteImport } from './routes/spory.$transactionId'
 import { Route as UUsernameRouteImport } from './routes/u.$username'
+import { Route as ApiPublicEscrowProcessRouteImport } from './routes/api/public/escrow/process'
 import { Route as ApiPublicPaymentsWebhookRouteImport } from './routes/api/public/payments/webhook'
 import { Route as LovableEmailTransactionalPreviewRouteImport } from './routes/lovable/email/transactional/preview'
 
@@ -150,6 +151,11 @@ const UUsernameRoute = UUsernameRouteImport.update({
   path: '/u/$username',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiPublicEscrowProcessRoute = ApiPublicEscrowProcessRouteImport.update({
+  id: '/api/public/escrow/process',
+  path: '/api/public/escrow/process',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiPublicPaymentsWebhookRoute =
   ApiPublicPaymentsWebhookRouteImport.update({
     id: '/api/public/payments/webhook',
@@ -187,6 +193,7 @@ export interface FileRoutesByFullPath {
   '/spory/$transactionId': typeof SporyTransactionIdRoute
   '/u/$username': typeof UUsernameRoute
   '/messages/': typeof MessagesIndexRoute
+  '/api/public/escrow/process': typeof ApiPublicEscrowProcessRoute
   '/api/public/payments/webhook': typeof ApiPublicPaymentsWebhookRoute
   '/lovable/email/transactional/preview': typeof LovableEmailTransactionalPreviewRoute
 }
@@ -214,6 +221,7 @@ export interface FileRoutesByTo {
   '/spory/$transactionId': typeof SporyTransactionIdRoute
   '/u/$username': typeof UUsernameRoute
   '/messages': typeof MessagesIndexRoute
+  '/api/public/escrow/process': typeof ApiPublicEscrowProcessRoute
   '/api/public/payments/webhook': typeof ApiPublicPaymentsWebhookRoute
   '/lovable/email/transactional/preview': typeof LovableEmailTransactionalPreviewRoute
 }
@@ -242,6 +250,7 @@ export interface FileRoutesById {
   '/spory/$transactionId': typeof SporyTransactionIdRoute
   '/u/$username': typeof UUsernameRoute
   '/messages/': typeof MessagesIndexRoute
+  '/api/public/escrow/process': typeof ApiPublicEscrowProcessRoute
   '/api/public/payments/webhook': typeof ApiPublicPaymentsWebhookRoute
   '/lovable/email/transactional/preview': typeof LovableEmailTransactionalPreviewRoute
 }
@@ -271,6 +280,7 @@ export interface FileRouteTypes {
     | '/spory/$transactionId'
     | '/u/$username'
     | '/messages/'
+    | '/api/public/escrow/process'
     | '/api/public/payments/webhook'
     | '/lovable/email/transactional/preview'
   fileRoutesByTo: FileRoutesByTo
@@ -298,6 +308,7 @@ export interface FileRouteTypes {
     | '/spory/$transactionId'
     | '/u/$username'
     | '/messages'
+    | '/api/public/escrow/process'
     | '/api/public/payments/webhook'
     | '/lovable/email/transactional/preview'
   id:
@@ -325,6 +336,7 @@ export interface FileRouteTypes {
     | '/spory/$transactionId'
     | '/u/$username'
     | '/messages/'
+    | '/api/public/escrow/process'
     | '/api/public/payments/webhook'
     | '/lovable/email/transactional/preview'
   fileRoutesById: FileRoutesById
@@ -353,6 +365,7 @@ export interface RootRouteChildren {
   SporyTransactionIdRoute: typeof SporyTransactionIdRoute
   UUsernameRoute: typeof UUsernameRoute
   MessagesIndexRoute: typeof MessagesIndexRoute
+  ApiPublicEscrowProcessRoute: typeof ApiPublicEscrowProcessRoute
   ApiPublicPaymentsWebhookRoute: typeof ApiPublicPaymentsWebhookRoute
   LovableEmailTransactionalPreviewRoute: typeof LovableEmailTransactionalPreviewRoute
 }
@@ -520,6 +533,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof UUsernameRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/escrow/process': {
+      id: '/api/public/escrow/process'
+      path: '/api/public/escrow/process'
+      fullPath: '/api/public/escrow/process'
+      preLoaderRoute: typeof ApiPublicEscrowProcessRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/payments/webhook': {
       id: '/api/public/payments/webhook'
       path: '/api/public/payments/webhook'
@@ -561,6 +581,7 @@ const rootRouteChildren: RootRouteChildren = {
   SporyTransactionIdRoute: SporyTransactionIdRoute,
   UUsernameRoute: UUsernameRoute,
   MessagesIndexRoute: MessagesIndexRoute,
+  ApiPublicEscrowProcessRoute: ApiPublicEscrowProcessRoute,
   ApiPublicPaymentsWebhookRoute: ApiPublicPaymentsWebhookRoute,
   LovableEmailTransactionalPreviewRoute: LovableEmailTransactionalPreviewRoute,
 }

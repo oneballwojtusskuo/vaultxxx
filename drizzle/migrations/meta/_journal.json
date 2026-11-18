@@ -148,6 +148,13 @@
       "when": 1794948828104,
       "tag": "0020_admin_paid_sale_notifications",
       "breakpoints": true
+    },
+    {
+      "idx": 21,
+      "version": "7",
+      "when": 1795036791354,
+      "tag": "0021_hourly_escrow_release",
+      "breakpoints": true
     }
   ]
 }

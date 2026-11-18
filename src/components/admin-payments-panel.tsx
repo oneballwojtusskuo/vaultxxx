@@ -5,7 +5,8 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { RefreshCw, ChevronDown, ChevronRight } from "lucide-react";
-import { listAdminPayments } from "@/lib/admin-payments.functions";
+import { listAdminPayments, adminReleaseEscrow } from "@/lib/admin-payments.functions";
+import { toast } from "sonner";
 
 const STATUS: Record<string, { label: string; hint: string; tone: "default" | "secondary" | "destructive" | "outline" }> = {
   pending: { label: "Nieopłacone", hint: "Kupujący otworzył płatność, ale nie zapłacił (porzucone lub w trakcie).", tone: "outline" },
@@ -41,6 +42,23 @@ export function AdminPaymentsPanel() {
     queryKey: ["admin-payments"],
     queryFn: () => fetchPayments(),
   });
+  const releaseFn = useServerFn(adminReleaseEscrow);
+  const [releasing, setReleasing] = useState<string | null>(null);
+  const releaseNow = async (id: string) => {
+    if (!confirm("Zwolnić depozyt teraz i przelać środki twórcy?")) return;
+    setReleasing(id);
+    try {
+      const r: any = await releaseFn({ data: { transactionId: id } });
+      if (r?.error) throw new Error(r.error);
+      if (r?.payout_error) toast.error(`Zwolniono, ale przelew nie wyszedł: ${r.payout_error}`);
+      else toast.success("Depozyt zwolniony, środki wysłane do twórcy.");
+      refetch();
+    } catch (e: any) {
+      toast.error(e?.message ?? "Nie udało się zwolnić depozytu");
+    } finally {
+      setReleasing(null);
+    }
+  };
   const [filter, setFilter] = useState<string>("all");
   const [q, setQ] = useState("");
   const [open, setOpen] = useState<string | null>(null);
@@ -130,6 +148,11 @@ export function AdminPaymentsPanel() {
                     <tr className="border-b bg-muted/30">
                       <td colSpan={8} className="p-4">
                         <p className="mb-3 text-muted-foreground">{st.hint}</p>
+                        {t.status === "held" && (
+                          <Button size="sm" className="mb-3" disabled={releasing === t.id} onClick={() => releaseNow(t.id)}>
+                            {releasing === t.id ? "Zwalnianie…" : "Zwolnij depozyt teraz"}
+                          </Button>
+                        )}
                         <div className="grid gap-x-8 gap-y-1 md:grid-cols-2 text-xs">
                           <Row k="Cena twórcy" v={money(t.amount, t.currency)} />
                           <Row k="Zapłacił kupujący" v={money(t.buyer_price ?? t.amount, t.currency)} />

@@ -63,3 +63,32 @@ export const listAdminPayments = createServerFn({ method: "GET" })
       payouts: (payouts ?? []).map((p) => ({ ...p, user: who(p.user_id) })),
     };
   });
+
+/** Admin-only: release one escrowed sale now and transfer the seller share via Stripe Connect. */
+export const adminReleaseEscrow = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: { transactionId: string }) => {
+    if (!/^[0-9a-f-]{36}$/i.test(input?.transactionId ?? "")) throw new Error("Invalid id");
+    return input;
+  })
+  .handler(async ({ data, context }) => {
+    const { getAdminClientForContext } = await import("@/lib/admin-auth.server");
+    const admin = await getAdminClientForContext(context);
+    const { data: tx, error } = await admin
+      .from("transactions")
+      .update({ status: "released" as any, released_at: new Date().toISOString(), payout_status: "queued" } as any)
+      .eq("id", data.transactionId)
+      .eq("status", "held" as any)
+      .select("id")
+      .maybeSingle();
+    if (error) return { error: error.message };
+    if (!tx) return { error: "Zamówienie nie jest w depozycie." };
+    const { payoutSellerForTransaction } = await import("@/lib/connect.server");
+    await payoutSellerForTransaction(admin as any, tx.id);
+    const { data: after } = await admin
+      .from("transactions")
+      .select("payout_status,payout_error,stripe_transfer_id")
+      .eq("id", tx.id)
+      .maybeSingle();
+    return { ok: true, ...(after ?? {}) };
+  });
