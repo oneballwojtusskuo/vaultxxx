@@ -836,6 +836,11 @@ function ProductPage() {
               <Button asChild size="lg" className="w-full text-base">
                 <a href={returnDl.url}>Pobierz plik teraz</a>
               </Button>
+            ) : null}
+            {returnDl?.status === "ready" ? (
+              <p className="text-xs text-muted-foreground text-center">
+                Nic się nie dzieje? W Instagramie lub Facebooku stuknij ⋯ i wybierz „Otwórz w przeglądarce”. Link masz też w e-mailu.
+              </p>
             ) : returnDl?.status !== "timeout" && returnDl?.status !== "error" ? (
               <div className="flex justify-center py-4"><Loader2 className="h-6 w-6 animate-spin text-muted-foreground" /></div>
             ) : null}

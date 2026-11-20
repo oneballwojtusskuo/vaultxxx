@@ -27,7 +27,7 @@ export const Route = createFileRoute("/api/public/download/")({
         const paths = Array.from(new Set([product.file_path, ...(((product as any).file_paths as string[] | null) ?? [])]
           .filter((p): p is string => typeof p === "string" && isSellerFile(p, product.seller_id))));
         if (!paths.length) return page("Brak pliku", `<p>Plik jest chwilowo niedostępny. Napisz na kontakt@vlnd.pl.</p>`, 404);
-        const safe = (product.title || "plik").replace(/[^\w\-. ]+/g, "_").slice(0, 80) || "plik";
+        const safe = (product.title || "plik").normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[łŁ]/g, (c) => (c === "ł" ? "l" : "L")).replace(/[^\w\-. ]+/g, "").trim().slice(0, 80) || "plik";
         const links = await Promise.all(paths.map(async (path, i) => {
           const ext = path.includes(".") ? path.substring(path.lastIndexOf(".")) : "";
           const name = i === 0 ? safe + ext : `${safe}-${i + 1}${ext}`;
@@ -42,7 +42,7 @@ export const Route = createFileRoute("/api/public/download/")({
             eventType: "download", meta: getRequestMeta(), downloadedAt: new Date().toISOString() });
         }
         if (ok.length === 1) return new Response(null, { status: 302, headers: { location: ok[0].url, "cache-control": "no-store" } });
-        return page(product.title || "Twoje pliki", `<p>Kliknij, żeby pobrać:</p>${ok.map((l) => `<a class="b" href="${esc(l.url)}">${esc(l.name)}</a>`).join("")}`);
+        return page(product.title || "Twoje pliki", `<p>Kliknij, żeby pobrać:</p>${ok.map((l) => `<a class="b" href="${esc(l.url)}">${esc(l.name)}</a>`).join("")}<p style="font-size:13px;color:#6b6475">Nic się nie dzieje? Jeśli jesteś w Instagramie lub Facebooku, stuknij ⋯ w rogu i wybierz „Otwórz w przeglądarce”. Ten sam link masz też w e-mailu.</p>`);
       },
     },
   },
