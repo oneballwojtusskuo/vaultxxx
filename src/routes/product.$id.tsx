@@ -58,6 +58,7 @@ import { VerifiedBadge } from "@/components/verified-badge";
 import { getSecureStreamUrl } from "@/lib/secure-stream.functions";
 import { purchaseProduct, purchaseAsGuest } from "@/lib/purchase.functions";
 import { claimGuestAccount } from "@/lib/guest-account.functions";
+import { getCheckoutDownload } from "@/lib/checkout-download.functions";
 import { Input } from "@/components/ui/input";
 import { getProductDetails } from "@/lib/product.functions";
 import { generateLicensePdf } from "@/lib/license-pdf";
@@ -111,6 +112,9 @@ function ProductPage() {
   const purchaseFn = useServerFn(purchaseProduct);
   const guestPurchaseFn = useServerFn(purchaseAsGuest);
   const [guestDoneEmail, setGuestDoneEmail] = useState<string | null>(null);
+  const checkoutDlFn = useServerFn(getCheckoutDownload);
+  const [returnSession, setReturnSession] = useState<string | null>(null);
+  const [returnDl, setReturnDl] = useState<{ status: string; url?: string } | null>(null);
   const [guestEmail, setGuestEmail] = useState("");
   const [guestAge, setGuestAge] = useState(false);
   const [guestAuthLoading, setGuestAuthLoading] = useState(false);
@@ -229,10 +233,12 @@ function ProductPage() {
     if (params.get("checkout") === "success") {
       toast.info("Sprawdzamy potwierdzenie płatności. Dostęp pojawi się po jej zaksięgowaniu.");
       const guestSession = params.get("guest") === "1" ? params.get("session_id") : null;
+      const sid = params.get("session_id");
+      if (sid && sid.startsWith("cs_")) setReturnSession(sid);
       params.delete("guest");
       if (guestSession) {
         const email = sessionStorage.getItem("vlnd_guest_email");
-        if (email) setGuestDoneEmail(email);
+        if (email && !sid) setGuestDoneEmail(email);
       }
       params.delete("checkout");
       params.delete("session_id");
@@ -249,6 +255,27 @@ function ProductPage() {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  // Direct download right after returning from BLIK/Stripe — no password, no stored state needed.
+  useEffect(() => {
+    if (!returnSession) return;
+    let stop = false;
+    let attempts = 0;
+    const tick = async () => {
+      attempts++;
+      try {
+        const r = await checkoutDlFn({ data: { sessionId: returnSession } });
+        if (stop) return;
+        setReturnDl(r);
+        if (r.status === "ready" || r.status === "error") return;
+      } catch {}
+      if (!stop && attempts < 60) setTimeout(tick, 2000);
+      else if (!stop) setReturnDl({ status: "timeout" });
+    };
+    void tick();
+    return () => { stop = true; };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [returnSession]);
 
   useEffect(() => {
     const h = () => void refetchTx();
@@ -793,7 +820,28 @@ function ProductPage() {
           />
         </main>
         <SiteFooter />
-        <GuestDoneDialog open={!!guestDoneEmail && !user} onOpenChange={(o) => !o && setGuestDoneEmail(null)}>
+        <GuestDoneDialog open={!!returnSession} onOpenChange={(o) => !o && setReturnSession(null)}>
+          <GuestDoneContent>
+            <GuestDoneHeader>
+              <GuestDoneTitle>{returnDl?.status === "ready" ? "Płatność przyjęta — plik jest Twój 🎉" : "Potwierdzamy płatność…"}</GuestDoneTitle>
+              <GuestDoneDesc>
+                {returnDl?.status === "ready"
+                  ? "Kliknij przycisk, żeby pobrać plik. Link do pobrania wysłaliśmy też na Twój e-mail."
+                  : returnDl?.status === "timeout" || returnDl?.status === "error"
+                    ? "Płatność jeszcze się księguje. Link do pobrania przyjdzie na Twój e-mail, gdy tylko bank ją potwierdzi."
+                    : "To zwykle trwa kilka sekund. Nie zamykaj tej strony."}
+              </GuestDoneDesc>
+            </GuestDoneHeader>
+            {returnDl?.status === "ready" && returnDl.url ? (
+              <Button asChild size="lg" className="w-full text-base">
+                <a href={returnDl.url}>Pobierz plik teraz</a>
+              </Button>
+            ) : returnDl?.status !== "timeout" && returnDl?.status !== "error" ? (
+              <div className="flex justify-center py-4"><Loader2 className="h-6 w-6 animate-spin text-muted-foreground" /></div>
+            ) : null}
+          </GuestDoneContent>
+        </GuestDoneDialog>
+        <GuestDoneDialog open={!!guestDoneEmail && !user && !returnSession} onOpenChange={(o) => !o && setGuestDoneEmail(null)}>
           <GuestDoneContent>
             <GuestDoneHeader>
               <GuestDoneTitle>Gotowe — produkt jest Twój 🎉</GuestDoneTitle>
