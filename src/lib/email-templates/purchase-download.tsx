@@ -1,6 +1,7 @@
 import React from 'react'
 import { Body, Button, Container, Head, Heading, Html, Preview, Text } from '@react-email/components'
 import type { TemplateEntry } from './registry'
+import { OPERATOR_CONTACT } from '@/lib/operator'
 
 interface Props { productTitle?: string; downloadUrl?: string }
 
@@ -15,7 +16,7 @@ const PurchaseDownload = ({ productTitle, downloadUrl = 'https://vlnd.pl/dashboa
         <Text style={text}>Płatność za <b>{productTitle || 'Twój materiał'}</b> została potwierdzona. Kliknij przycisk, żeby od razu pobrać plik — bez logowania i bez zakładania hasła.</Text>
         <Button style={button} href={downloadUrl}>Pobierz plik</Button>
         <Text style={small}>Link jest przypisany do Twojego zakupu — zachowaj tę wiadomość, możesz z niej pobrać plik ponownie. Nie przekazuj go innym osobom.</Text>
-        <Text style={small}>Pytania? Odpowiedz na kontakt@vlnd.pl</Text>
+        <Text style={small}>Pytania? Napisz na {OPERATOR_CONTACT}</Text>
       </Container>
     </Body>
   </Html>

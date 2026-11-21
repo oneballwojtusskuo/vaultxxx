@@ -1,6 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { verifyDownloadToken } from "@/lib/download-token";
 import { isSellerFile } from "@/lib/access-security";
+import { OPERATOR_CONTACT } from "@/lib/operator";
 
 const esc = (s: string) => s.replace(/[&<>"']/g, (c) => `&#${c.charCodeAt(0)};`);
 const page = (title: string, body: string, status = 200) =>
@@ -15,7 +16,7 @@ export const Route = createFileRoute("/api/public/download/")({
         const secret = process.env.DOWNLOAD_LINK_SECRET;
         const token = new URL(request.url).searchParams.get("t") ?? "";
         const txId = secret ? await verifyDownloadToken(secret, token) : null;
-        const invalid = () => page("Link jest nieprawidłowy", `<p>Ten link do pobrania jest nieprawidłowy lub zakup nie jest już aktywny. Napisz na kontakt@vlnd.pl — pomożemy.</p>`, 403);
+        const invalid = () => page("Link jest nieprawidłowy", `<p>Ten link do pobrania jest nieprawidłowy lub zakup nie jest już aktywny. Napisz na ${OPERATOR_CONTACT} — pomożemy.</p>`, 403);
         if (!txId) return invalid();
         const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
         const { data: tx } = await supabaseAdmin.from("transactions").select("id, product_id, buyer_id, status")
@@ -26,7 +27,7 @@ export const Route = createFileRoute("/api/public/download/")({
         if (!product) return invalid();
         const paths = Array.from(new Set([product.file_path, ...(((product as any).file_paths as string[] | null) ?? [])]
           .filter((p): p is string => typeof p === "string" && isSellerFile(p, product.seller_id))));
-        if (!paths.length) return page("Brak pliku", `<p>Plik jest chwilowo niedostępny. Napisz na kontakt@vlnd.pl.</p>`, 404);
+        if (!paths.length) return page("Brak pliku", `<p>Plik jest chwilowo niedostępny. Napisz na ${OPERATOR_CONTACT}.</p>`, 404);
         const safe = (product.title || "plik").normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[łŁ]/g, (c) => (c === "ł" ? "l" : "L")).replace(/[^\w\-. ]+/g, "").trim().slice(0, 80) || "plik";
         const links = await Promise.all(paths.map(async (path, i) => {
           const ext = path.includes(".") ? path.substring(path.lastIndexOf(".")) : "";
