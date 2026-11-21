@@ -129,10 +129,20 @@ export function SiteHeader() {
         </nav>
 
         <div className="flex items-center gap-1">
-          <Link to="/browse">
+          <Link
+            to="/browse"
+            hash="odkrywaj"
+            resetScroll={false}
+            hashScrollIntoView={{ block: "start", behavior: "instant" }}
+            onClick={() => {
+              document.getElementById("odkrywaj")?.scrollIntoView({ block: "start" });
+              document.getElementById("product-search")?.focus({ preventScroll: true });
+            }}
+          >
             <Button
               variant="ghost"
               size="icon"
+              aria-label="Wyszukaj"
               className="hidden sm:inline-flex text-foreground hover:text-foreground"
             >
               <Search className="h-4 w-4" />

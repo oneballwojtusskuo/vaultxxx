@@ -1,6 +1,7 @@
 - Creator/affiliate payouts go through Stripe Connect (Accounts v2 recipient) via src/lib/connect.server.ts: seller share is transferred on escrow release (not transfer_data at checkout) so escrow/disputes keep working; never store bank account numbers.
 - Product public URLs use immutable, unique database-generated title slugs; resolve to UUIDs before purchase, access and referral operations so shared links survive title edits and legacy UUID links remain compatible. Use product-links helpers for canonical sharing and sitemap paths.
 - Creator entry sections are shared frontend components on browse; link signup intent through the auth mode query and preserve next destinations without changing checkout or onboarding requirements.
+- Search entry links and submissions target the catalogue anchor with scroll reset disabled; catalogue filters preserve scroll so navigation never hides search results behind the introductory image.
 - The first-30-creator launch offer is awarded only by the database trigger on product publication, with one permanent non-recycled slot per seller; public reads expose only launch slots and existing public profile/product fields, never client writes.
 - Public creator cards and reviews read the public_creator_profiles view; never grant anonymous SELECT on profiles, because the full table contains private account fields.
 - Legal pages share launch and revision dates through a browser-safe legal-dates module so document updates never silently backdate the service or amended terms.

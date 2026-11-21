@@ -2,7 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { CreatorIntro, CreatorSteps } from "@/components/creator-intro";
 import { LaunchOffer } from "@/components/launch-offer";
 import { useQuery } from "@tanstack/react-query";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Search, SlidersHorizontal, SearchX } from "lucide-react";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
@@ -45,6 +45,10 @@ function Browse() {
   const navigate = Route.useNavigate();
   const [q, setQ] = useState(sp.q ?? "");
   const [filtersOpen, setFiltersOpen] = useState(false);
+
+  useEffect(() => {
+    setQ(sp.q ?? "");
+  }, [sp.q]);
 
   const { data: cats } = useQuery({
     queryKey: ["cats"],
@@ -144,14 +148,21 @@ function Browse() {
 
         <form
           className="mt-6 flex gap-2"
-          onSubmit={(e) => {
+          onSubmit={async (e) => {
             e.preventDefault();
-            navigate({ search: { ...sp, q: q || undefined } });
+            await navigate({
+              search: { ...sp, q: q.trim() || undefined },
+              hash: "odkrywaj",
+              resetScroll: false,
+              hashScrollIntoView: { block: "start", behavior: "instant" },
+            });
+            document.getElementById("odkrywaj")?.scrollIntoView({ block: "start" });
           }}
         >
           <div className="relative flex-1">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             <Input
+              id="product-search"
               value={q}
               onChange={(e) => setQ(e.target.value)}
               aria-label="Szukaj produktów"
@@ -184,6 +195,7 @@ function Browse() {
                 disabled={sp.freeOnly === true}
                 onChange={(e) =>
                   navigate({
+                    resetScroll: false,
                     search: {
                       ...sp,
                       minPrice: e.target.value ? Number(e.target.value) : undefined,
@@ -200,6 +212,7 @@ function Browse() {
                 disabled={sp.freeOnly === true}
                 onChange={(e) =>
                   navigate({
+                    resetScroll: false,
                     search: {
                       ...sp,
                       maxPrice: e.target.value ? Number(e.target.value) : undefined,
@@ -212,6 +225,7 @@ function Browse() {
                 value={sp.minRating?.toString() ?? ""}
                 onChange={(e) =>
                   navigate({
+                    resetScroll: false,
                     search: {
                       ...sp,
                       minRating: e.target.value ? Number(e.target.value) : undefined,
@@ -234,6 +248,7 @@ function Browse() {
                 value={sp.minDownloads ?? ""}
                 onChange={(e) =>
                   navigate({
+                    resetScroll: false,
                     search: {
                       ...sp,
                       minDownloads: e.target.value ? Number(e.target.value) : undefined,
@@ -244,7 +259,7 @@ function Browse() {
               <select
                 className="h-10 rounded-md border border-input bg-card px-3 text-sm"
                 value={sp.sort ?? "relevance"}
-                onChange={(e) => navigate({ search: { ...sp, sort: e.target.value as any } })}
+                onChange={(e) => navigate({ resetScroll: false, search: { ...sp, sort: e.target.value as any } })}
               >
                 <option value="relevance">Najtrafniejsze</option>
                 <option value="newest">Najnowsze</option>
@@ -259,6 +274,7 @@ function Browse() {
                   checked={sp.freeOnly ?? false}
                   onChange={(e) =>
                     navigate({
+                      resetScroll: false,
                       search: {
                         ...sp,
                         freeOnly: e.target.checked || undefined,
@@ -275,7 +291,7 @@ function Browse() {
                   type="checkbox"
                   checked={sp.tradableOnly ?? false}
                   onChange={(e) =>
-                    navigate({ search: { ...sp, tradableOnly: e.target.checked || undefined } })
+                    navigate({ resetScroll: false, search: { ...sp, tradableOnly: e.target.checked || undefined } })
                   }
                 />{" "}
                 Możliwość wymiany
@@ -287,6 +303,8 @@ function Browse() {
         <div className="mt-6 flex gap-2 overflow-x-auto pb-2">
           <Link
             to="/browse"
+            hash="odkrywaj"
+            resetScroll={false}
             className={`shrink-0 px-3 py-2 rounded-md text-sm border transition-colors ${!sp.category ? "bg-primary text-primary-foreground border-primary" : "border-border hover:border-primary/50"}`}
           >
             Wszystkie
@@ -295,6 +313,8 @@ function Browse() {
             <Link
               key={c.id}
               to="/browse"
+              hash="odkrywaj"
+              resetScroll={false}
               search={{ category: c.slug }}
               className={`shrink-0 px-3 py-2 rounded-md text-sm border transition-colors ${sp.category === c.slug ? "bg-primary text-primary-foreground border-primary" : "border-border hover:border-primary/50"}`}
             >
