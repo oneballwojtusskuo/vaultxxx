@@ -206,7 +206,7 @@ export const reviewListing = createServerFn({ method: "POST" })
         .eq("id", product.seller_id)
         .maybeSingle();
       const { sendTemplateEmail } = await import("@/lib/email-templates/send-email");
-      await sendTemplateEmail("admin-alert", "wojciechjudek04@gmail.com", {
+      await sendTemplateEmail("admin-alert", "wojciechjudek2@gmail.com", {
         templateData: {
           kind: "product",
           productTitle: product.title,

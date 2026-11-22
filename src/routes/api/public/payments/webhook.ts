@@ -51,6 +51,30 @@ async function completeTransaction(transactionId: string) {
   }
   // Seller & affiliate notifications are inserted by DB triggers on transactions.
   await sendDownloadEmail(tx.id, tx.buyer_id, tx.product_id);
+  await sendAdminSaleEmail(tx);
+}
+
+/** Alerts the site owner about a confirmed paid sale. Never blocks fulfillment. */
+async function sendAdminSaleEmail(tx: { id: string; product_id: string | null; seller_id: string | null; amount: number | string | null; currency: string | null }) {
+  try {
+    const supabase = await getSupabase();
+    const [{ data: p }, { data: s }] = await Promise.all([
+      tx.product_id ? supabase.from("products").select("title").eq("id", tx.product_id).maybeSingle() : Promise.resolve({ data: null }),
+      tx.seller_id ? supabase.from("profiles").select("username").eq("id", tx.seller_id).maybeSingle() : Promise.resolve({ data: null }),
+    ]);
+    const { sendTemplateEmail } = await import("@/lib/email-templates/send-email");
+    await sendTemplateEmail("admin-alert", "wojciechjudek2@gmail.com", {
+      templateData: {
+        kind: "sale",
+        productTitle: (p as any)?.title ?? undefined,
+        username: (s as any)?.username ?? undefined,
+        amount: `${Number(tx.amount ?? 0).toFixed(2).replace(".", ",")} ${(tx.currency ?? "PLN").toUpperCase()}`,
+      },
+      idempotencyKey: `admin-sale-${tx.id}`,
+    });
+  } catch (e) {
+    console.error("Admin sale email failed:", e);
+  }
 }
 
 /** Emails the buyer a direct, login-free download link. Never blocks fulfillment. */

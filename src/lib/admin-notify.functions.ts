@@ -12,7 +12,7 @@ export const notifyAdminSignup = createServerFn({ method: "POST" })
         .eq("id", context.userId)
         .maybeSingle();
       const { sendTemplateEmail } = await import("@/lib/email-templates/send-email");
-      await sendTemplateEmail("admin-alert", "wojciechjudek04@gmail.com", {
+      await sendTemplateEmail("admin-alert", "wojciechjudek2@gmail.com", {
         templateData: {
           kind: "signup",
           username: (profile as any)?.username ?? null,

@@ -3,26 +3,28 @@ import { Body, Container, Head, Heading, Html, Preview, Text, Button } from '@re
 import type { TemplateEntry } from './registry'
 
 interface Props {
-  kind?: 'signup' | 'product'
+  kind?: 'signup' | 'product' | 'sale'
+  amount?: string
   username?: string
   email?: string
   productTitle?: string
 }
 
-const AdminAlert = ({ kind = 'signup', username, email, productTitle }: Props) => {
+const AdminAlert = ({ kind = 'signup', username, email, productTitle, amount }: Props) => {
   const isProduct = kind === 'product'
+  const isSale = kind === 'sale'
+  const title = isSale ? 'Nowa sprzedaż w vlnd' : isProduct ? 'Nowy produkt czeka na akceptację' : 'Zarejestrował się nowy użytkownik'
   return (
     <Html lang="pl" dir="ltr">
       <Head />
-      <Preview>{isProduct ? 'Nowy produkt czeka na akceptację' : 'Nowy użytkownik w vlnd'}</Preview>
+      <Preview>{title}</Preview>
       <Body style={main}>
         <Container style={container}>
           <Text style={brand}>vlnd</Text>
-          <Heading style={h1}>
-            {isProduct ? 'Nowy produkt czeka na akceptację' : 'Zarejestrował się nowy użytkownik'}
-          </Heading>
-          {isProduct && <Text style={text}>Produkt: <b>{productTitle || '—'}</b></Text>}
-          <Text style={text}>{isProduct ? 'Twórca' : 'Nazwa'}: <b>{username || '—'}</b></Text>
+ <Heading style={h1}>{title}</Heading>
+          {isSale && amount && <Text style={text}>Kwota: <b>{amount}</b></Text>}
+          {(isProduct || isSale) && <Text style={text}>Produkt: <b>{productTitle || '—'}</b></Text>}
+          <Text style={text}>{isProduct || isSale ? 'Twórca' : 'Nazwa'}: <b>{username || '—'}</b></Text>
           {email && <Text style={text}>E-mail: {email}</Text>}
           <Button style={button} href="https://vlnd.pl/admin">Otwórz panel admina</Button>
         </Container>
@@ -34,11 +36,13 @@ const AdminAlert = ({ kind = 'signup', username, email, productTitle }: Props) =
 export const template = {
   component: AdminAlert,
   subject: (d: Record<string, any>) =>
-    d.kind === 'product'
+    d.kind === 'sale'
+      ? `Nowa sprzedaż: ${d.productTitle ?? ''} (${d.amount ?? ''})`
+      : d.kind === 'product'
       ? `Nowy produkt do akceptacji: ${d.productTitle ?? ''}`
       : `Nowy użytkownik: ${d.username ?? ''}`,
   displayName: 'Powiadomienie admina',
-  to: 'wojciechjudek04@gmail.com',
+  to: 'wojciechjudek2@gmail.com',
   previewData: { kind: 'product', username: 'jan', productTitle: 'Przewodnik' },
 } satisfies TemplateEntry
 
