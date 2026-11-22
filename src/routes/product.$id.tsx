@@ -16,6 +16,7 @@ import {
   Lock,
   PlayCircle,
   MessageSquare,
+  UserPlus,
 } from "lucide-react";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
@@ -123,6 +124,9 @@ function ProductPage() {
   const [claimUser, setClaimUser] = useState("");
   const [claimPass, setClaimPass] = useState("");
   const [claiming, setClaiming] = useState(false);
+  // Post-payment "create account" box: email + token come from sessionStorage, read after mount.
+  const [guestClaim, setGuestClaim] = useState<{ email: string; token: string } | null>(null);
+  const [claimBoxOpen, setClaimBoxOpen] = useState(false);
 
   const {
     data: p,
@@ -203,8 +207,8 @@ function ProductPage() {
   const [acceptWithdrawal, setAcceptWithdrawal] = useState(false);
   const [payMethod, setPayMethod] = useState<PaymentMethod>("blik");
 
-  const claimAccount = async () => {
-    const email = guestDoneEmail;
+  const claimAccount = async (emailArg?: string) => {
+    const email = (emailArg ?? guestDoneEmail ?? "").trim().toLowerCase();
     const claimToken = sessionStorage.getItem("vlnd_guest_claim");
     if (!email || !claimToken) return toast.error("Zaloguj się, aby pobrać plik.");
     if (claimPass.length < 8) return toast.error("Hasło musi mieć min. 8 znaków.");
@@ -217,6 +221,8 @@ function ProductPage() {
       sessionStorage.removeItem("vlnd_guest_claim");
       sessionStorage.removeItem("vlnd_guest_email");
       setGuestDoneEmail(null);
+      setGuestClaim(null);
+      setClaimBoxOpen(false);
       toast.success("Konto gotowe — możesz pobrać plik.");
       void refetchTx();
     } catch (e: any) {
@@ -259,6 +265,9 @@ function ProductPage() {
   // Direct download right after returning from BLIK/Stripe — no password, no stored state needed.
   useEffect(() => {
     if (!returnSession) return;
+    const email = sessionStorage.getItem("vlnd_guest_email");
+    const token = sessionStorage.getItem("vlnd_guest_claim");
+    if (email && token) setGuestClaim({ email, token });
     let stop = false;
     let attempts = 0;
     const tick = async () => {
@@ -821,14 +830,14 @@ function ProductPage() {
         </main>
         <SiteFooter />
         <GuestDoneDialog open={!!returnSession} onOpenChange={(o) => !o && setReturnSession(null)}>
-          <GuestDoneContent>
+          <GuestDoneContent className="max-h-[90vh] overflow-y-auto">
             <GuestDoneHeader>
               <GuestDoneTitle>{returnDl?.status === "ready" ? "Płatność przyjęta — plik jest Twój 🎉" : "Potwierdzamy płatność…"}</GuestDoneTitle>
               <GuestDoneDesc>
                 {returnDl?.status === "ready"
                   ? "Kliknij przycisk, żeby pobrać plik. Link do pobrania wysłaliśmy też na Twój e-mail."
                   : returnDl?.status === "timeout" || returnDl?.status === "error"
-                    ? "Płatność jeszcze się księguje. Link do pobrania przyjdzie na Twój e-mail, gdy tylko bank ją potwierdzi."
+                    ? "Płatność jeszcze się księguje. Link do pobrania przyjdzie na Twój e-mail, gdy tylko bank ją potwierdzi — sprawdź też folder SPAM lub Oferty."
                     : "To zwykle trwa kilka sekund. Nie zamykaj tej strony."}
               </GuestDoneDesc>
             </GuestDoneHeader>
@@ -838,11 +847,48 @@ function ProductPage() {
               </Button>
             ) : null}
             {returnDl?.status === "ready" ? (
+              <div className="rounded-lg border border-border/50 bg-muted/30 p-3">
+                <p className="text-xs leading-relaxed text-muted-foreground">
+                  <strong className="font-semibold text-foreground">Sprawdź e-mail.</strong> Link do
+                  pliku wysłaliśmy na{" "}
+                  <strong className="font-semibold text-foreground">
+                    {guestClaim?.email ?? "podany adres"}
+                  </strong>
+                  . Jeśli go nie widzisz, zajrzyj do folderu{" "}
+                  <strong className="font-semibold text-foreground">SPAM</strong> lub{" "}
+                  <strong className="font-semibold text-foreground">Oferty</strong>.
+                </p>
+              </div>
+            ) : null}
+            {returnDl?.status === "ready" ? (
               <p className="text-xs text-muted-foreground text-center">
                 Nic się nie dzieje? W Instagramie lub Facebooku stuknij ⋯ i wybierz „Otwórz w przeglądarce”. Link masz też w e-mailu.
               </p>
             ) : returnDl?.status !== "timeout" && returnDl?.status !== "error" ? (
               <div className="flex justify-center py-4"><Loader2 className="h-6 w-6 animate-spin text-muted-foreground" /></div>
+            ) : null}
+            {returnDl?.status === "ready" && guestClaim && !user ? (
+              claimBoxOpen ? (
+                <div className="space-y-3 rounded-lg border border-border/50 bg-muted/30 p-4">
+                  <p className="text-sm font-medium">
+                    Chcesz mieć stały dostęp do zakupionych plików w panelu vlnd?
+                  </p>
+                  <Input placeholder="Nazwa użytkownika" value={claimUser} onChange={(e) => setClaimUser(e.target.value)} maxLength={30} autoComplete="username" />
+                  <Input type="password" placeholder="Hasło (min. 8 znaków)" value={claimPass} onChange={(e) => setClaimPass(e.target.value)} maxLength={72} autoComplete="new-password" />
+                  <Button className="w-full" onClick={() => claimAccount(guestClaim.email)} disabled={claiming || !claimUser || !claimPass}>
+                    {claiming && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}Zapisz hasło i pobierz plik
+                  </Button>
+                  <p className="text-xs text-muted-foreground text-center">
+                    Masz problem z hasłem? Użyj „Nie pamiętasz hasła?” na stronie logowania — link
+                    przyjdzie na {guestClaim.email}.
+                  </p>
+                </div>
+              ) : (
+                <Button variant="outline" className="w-full" onClick={() => setClaimBoxOpen(true)}>
+                  <UserPlus className="h-4 w-4 mr-2" />
+                  Ustaw hasło do konta i miej zakupy w panelu
+                </Button>
+              )
             ) : null}
           </GuestDoneContent>
         </GuestDoneDialog>
@@ -858,9 +904,13 @@ function ProductPage() {
             <div className="space-y-3">
               <Input placeholder="Nazwa użytkownika" value={claimUser} onChange={(e) => setClaimUser(e.target.value)} maxLength={30} autoComplete="username" />
               <Input type="password" placeholder="Hasło (min. 8 znaków)" value={claimPass} onChange={(e) => setClaimPass(e.target.value)} maxLength={72} autoComplete="new-password" />
-              <Button className="w-full" onClick={claimAccount} disabled={claiming || !claimUser || !claimPass}>
+              <Button className="w-full" onClick={() => claimAccount()} disabled={claiming || !claimUser || !claimPass}>
                 {claiming && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}Zapisz i pobierz plik
               </Button>
+              <p className="text-xs leading-relaxed text-muted-foreground text-center">
+                Link z plikiem wysłaliśmy też na <strong>{guestDoneEmail}</strong> — jeśli go nie
+                widzisz, sprawdź folder <strong>SPAM</strong> lub <strong>Oferty</strong>.
+              </p>
             </div>
           </GuestDoneContent>
         </GuestDoneDialog>
