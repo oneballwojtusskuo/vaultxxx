@@ -50,7 +50,8 @@ async function completeTransaction(transactionId: string) {
     }
   }
   // Seller & affiliate notifications are inserted by DB triggers on transactions.
-  await sendDownloadEmail(tx.id, tx.buyer_id, tx.product_id);
+  const { sendPurchaseDownloadEmail } = await import("@/lib/purchase-download-email.server");
+  await sendPurchaseDownloadEmail({ transactionId: tx.id, buyerId: tx.buyer_id, productId: tx.product_id });
   await sendAdminSaleEmail(tx);
 }
 
@@ -74,30 +75,6 @@ async function sendAdminSaleEmail(tx: { id: string; product_id: string | null; s
     });
   } catch (e) {
     console.error("Admin sale email failed:", e);
-  }
-}
-
-/** Emails the buyer a direct, login-free download link. Never blocks fulfillment. */
-async function sendDownloadEmail(transactionId: string, buyerId: string | null, productId: string | null) {
-  try {
-    const secret = process.env.DOWNLOAD_LINK_SECRET;
-    if (!secret || !buyerId) return;
-    const supabase = await getSupabase();
-    const { data: u } = await supabase.auth.admin.getUserById(buyerId);
-    const email = u?.user?.email;
-    if (!email) return;
-    const { data: p } = productId
-      ? await supabase.from("products").select("title").eq("id", productId).maybeSingle()
-      : { data: null };
-    const { createDownloadToken } = await import("@/lib/download-token");
-    const token = await createDownloadToken(secret, transactionId);
-    const { sendTemplateEmail } = await import("@/lib/email-templates/send-email");
-    await sendTemplateEmail("purchase-download", email, {
-      templateData: { productTitle: p?.title ?? undefined, downloadUrl: `https://vlnd.pl/api/public/download?t=${token}` },
-      idempotencyKey: `purchase-download-${transactionId}`,
-    });
-  } catch (e) {
-    console.error("Download email failed:", e);
   }
 }
 

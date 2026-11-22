@@ -208,7 +208,14 @@ async function runPurchase(
         .from("products")
         .update({ downloads_count: (product.downloads_count ?? 0) + 1 })
         .eq("id", product.id);
-      return { transactionId: tx.id, status: "released" as const, alreadyOwned: false };
+      const { sendPurchaseDownloadEmail } = await import("./purchase-download-email.server");
+      const downloadEmailSent = await sendPurchaseDownloadEmail({
+        transactionId: tx.id,
+        buyerId: userId,
+        productId: product.id,
+        isFree: true,
+      });
+      return { transactionId: tx.id, status: "released" as const, alreadyOwned: false, downloadEmailSent };
     }
 
     // ---- Stripe Embedded Checkout ----

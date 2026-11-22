@@ -113,6 +113,7 @@ function ProductPage() {
   const purchaseFn = useServerFn(purchaseProduct);
   const guestPurchaseFn = useServerFn(purchaseAsGuest);
   const [guestDoneEmail, setGuestDoneEmail] = useState<string | null>(null);
+  const [guestDownloadEmailSent, setGuestDownloadEmailSent] = useState(false);
   const checkoutDlFn = useServerFn(getCheckoutDownload);
   const [returnSession, setReturnSession] = useState<string | null>(null);
   const [returnDl, setReturnDl] = useState<{ status: string; url?: string } | null>(null);
@@ -378,6 +379,7 @@ function ProductPage() {
       } else {
         // Free product or already owned — access is ready on the account.
         clearReferralCookie(p.id);
+        setGuestDownloadEmailSent("downloadEmailSent" in res && res.downloadEmailSent === true);
         setGuestDoneEmail(email);
       }
     } catch (e: any) {
@@ -908,8 +910,11 @@ function ProductPage() {
                 {claiming && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}Zapisz i pobierz plik
               </Button>
               <p className="text-xs leading-relaxed text-muted-foreground text-center">
-                Link z plikiem wysłaliśmy też na <strong>{guestDoneEmail}</strong> — jeśli go nie
-                widzisz, sprawdź folder <strong>SPAM</strong> lub <strong>Oferty</strong>.
+                {guestDownloadEmailSent ? (
+                  <>Link z plikiem wysłaliśmy też na <strong>{guestDoneEmail}</strong> — jeśli go nie widzisz, sprawdź folder <strong>SPAM</strong> lub <strong>Oferty</strong>.</>
+                ) : (
+                  <>E-mail nie został wysłany. Pobierz plik teraz przyciskiem powyżej i ustaw hasło, żeby zachować dostęp w panelu.</>
+                )}
               </p>
             </div>
           </GuestDoneContent>

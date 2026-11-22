@@ -3,17 +3,17 @@ import { Body, Button, Container, Head, Heading, Html, Preview, Text } from '@re
 import type { TemplateEntry } from './registry'
 import { OPERATOR_CONTACT } from '@/lib/operator'
 
-interface Props { productTitle?: string; downloadUrl?: string }
+interface Props { productTitle?: string; downloadUrl?: string; isFree?: boolean }
 
-const PurchaseDownload = ({ productTitle, downloadUrl = 'https://vlnd.pl/dashboard' }: Props) => (
+const PurchaseDownload = ({ productTitle, downloadUrl = 'https://vlnd.pl/dashboard', isFree = false }: Props) => (
   <Html lang="pl" dir="ltr">
     <Head />
     <Preview>Twój plik jest gotowy do pobrania</Preview>
     <Body style={main}>
       <Container style={container}>
         <Text style={brand}>vlnd</Text>
-        <Heading style={h1}>Dziękujemy za zakup!</Heading>
-        <Text style={text}>Płatność za <b>{productTitle || 'Twój materiał'}</b> została potwierdzona. Kliknij przycisk, żeby od razu pobrać plik — bez logowania i bez zakładania hasła.</Text>
+        <Heading style={h1}>{isFree ? 'Twój plik jest gotowy!' : 'Dziękujemy za zakup!'}</Heading>
+        <Text style={text}>{isFree ? <>Materiał <b>{productTitle || 'Twój plik'}</b> jest gotowy. Kliknij przycisk, żeby od razu pobrać plik — bez logowania i bez zakładania hasła.</> : <>Płatność za <b>{productTitle || 'Twój materiał'}</b> została potwierdzona. Kliknij przycisk, żeby od razu pobrać plik — bez logowania i bez zakładania hasła.</>}</Text>
         <Button style={button} href={downloadUrl}>Pobierz plik</Button>
         <Text style={small}>Link jest przypisany do Twojego zakupu — zachowaj tę wiadomość, możesz z niej pobrać plik ponownie. Nie przekazuj go innym osobom.</Text>
         <Text style={small}>Pytania? Napisz na {OPERATOR_CONTACT}</Text>
