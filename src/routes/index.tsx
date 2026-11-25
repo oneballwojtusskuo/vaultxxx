@@ -7,9 +7,7 @@ export const Route = createFileRoute("/")({
     { property: "og:title", content: "vlnd — produkty cyfrowe od twórców" },
     { property: "og:description", content: "Odkrywaj produkty cyfrowe od niezależnych twórców na vlnd." },
     { property: "og:type", content: "website" },
-    { name: "twitter:card", content: "summary_large_image" },
-    { property: "og:image", content: "https://vlnd.pl/og-vlnd.jpg" },
-    { name: "twitter:image", content: "https://vlnd.pl/og-vlnd.jpg" },
+    { name: "twitter:card", content: "summary" },
   ] }),
   staticData: { sitemap: true },
   beforeLoad: () => {

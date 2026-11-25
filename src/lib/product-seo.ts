@@ -47,13 +47,9 @@ export function buildProductSeo(product: ProductSeo) {
       { property: "og:description", content: excerpt },
       { property: "og:type", content: "product" },
       { property: "og:url", content: url },
-      { name: "twitter:card", content: image ? "summary_large_image" : "summary" },
+      { name: "twitter:card", content: "summary" },
       { name: "twitter:title", content: product.title },
       { name: "twitter:description", content: excerpt },
-      ...(image ? [
-        { property: "og:image", content: image },
-        { name: "twitter:image", content: image },
-      ] : []),
     ],
     links: [{ rel: "canonical", href: url }],
     scripts: [{

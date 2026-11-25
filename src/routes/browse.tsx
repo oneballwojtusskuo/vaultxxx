@@ -33,9 +33,7 @@ export const Route = createFileRoute("/browse")({
     { property: "og:title", content: "vlnd — produkty cyfrowe prosto od twórców" },
     { property: "og:description", content: "Kupuj materiały cyfrowe lub zacznij sprzedawać własne e-booki, plannery i szablony." },
     { property: "og:type", content: "website" },
-    { name: "twitter:card", content: "summary_large_image" },
-    { property: "og:image", content: "https://vlnd.pl/og-vlnd.jpg" },
-    { name: "twitter:image", content: "https://vlnd.pl/og-vlnd.jpg" },
+    { name: "twitter:card", content: "summary" },
   ] }),
   component: Browse,
 });

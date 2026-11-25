@@ -94,7 +94,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
           "Premium marketplace cyfrowy. Grafiki, e-booki, muzyka, kod, kursy, modele 3D — kup, sprzedaj lub wymień z innymi twórcami.",
       },
       { property: "og:type", content: "website" },
-      { name: "twitter:card", content: "summary_large_image" },
+      { name: "twitter:card", content: "summary" },
       { name: "twitter:title", content: "vlnd — kupuj, sprzedawaj i wymieniaj materiały cyfrowe" },
       {
         name: "twitter:description",

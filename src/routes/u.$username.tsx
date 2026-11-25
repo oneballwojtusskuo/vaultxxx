@@ -21,9 +21,7 @@ export const Route = createFileRoute("/u/$username")({
     { property: "og:title", content: "Profil twórcy — vlnd" },
     { property: "og:description", content: "Poznaj twórcę i jego materiały cyfrowe na vlnd." },
     { property: "og:type", content: "website" },
-    { name: "twitter:card", content: "summary_large_image" },
-    { property: "og:image", content: "https://vlnd.pl/og-vlnd.jpg" },
-    { name: "twitter:image", content: "https://vlnd.pl/og-vlnd.jpg" },
+    { name: "twitter:card", content: "summary" },
   ] }),
 
   component: Profile,

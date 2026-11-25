@@ -21,9 +21,11 @@ describe("product SEO", () => {
   it("keeps short descriptions intact and normalizes whitespace", () => {
     expect(buildProductSeo({ ...product, description: "  Pierwsza\n linia. " }).meta[1].content).toBe("Pierwsza linia.");
   });
-  it("uses the product cover for both sharing image tags", () => {
-    const images = buildProductSeo(product).meta.filter(m => ("property" in m && m.property === "og:image") || ("name" in m && m.name === "twitter:image"));
-    expect(images.map(m => m.content)).toEqual([product.preview_url, product.preview_url]);
+  it("never advertises a preview image for shared links", () => {
+    const meta = buildProductSeo(product).meta;
+    expect(meta.some(m => "property" in m && m.property === "og:image")).toBe(false);
+    expect(meta.some(m => "name" in m && m.name === "twitter:image")).toBe(false);
+    expect(meta.find(m => "name" in m && m.name === "twitter:card")?.content).toBe("summary");
   });
   it("exposes the actual PLN price, stock and public seller in the offer", () => {
     const data = JSON.parse(buildProductSeo(product).scripts[0].children);
